@@ -18,6 +18,8 @@
 #include <freetype/freetype.h> 
 #include <freetype/ftglyph.h>
 
+#include <sysutil/save.h> //ooh here comes the fun part :D
+
 #include "asimov_ttf_bin.h"
 
 #include "spu_soundlib.h"
@@ -47,9 +49,12 @@
 #include "bg01_png_bin.h"
 #include "flag0_png_bin.h"
 #include "flag1_png_bin.h"
-#include "grid_png_bin.h"
+#include "grid0_png_bin.h"
+
+#include "icon0_png_bin.h"
 
 //IMPORT MUSIC
+#include "title_mp3_bin.h"
 #include "bgm1_mp3_bin.h"
 #include "bgm2_mp3_bin.h"
 #include "bgm3_mp3_bin.h"
@@ -57,38 +62,65 @@
 
 #include "spu_soundmodule.bin.h"
 
+typedef struct
+{
+    int width;
+    int height;
+    int mines;
+    int music;
+} LevelData;
+
+LevelData levels[] =
+{
+    {6, 6, 3, 1},
+    {8, 8, 6, 1},
+    {10, 10, 10, 2},
+    {9, 12, 12, 2},
+    {18, 9, 20, 3},
+    {15, 15, 30, 3},
+    {18, 12, 33, 4},
+    {16, 16, 42, 4}
+};
+
+#define LEVEL_COUNT (sizeof(levels)/sizeof(levels[0]))
+
+int current_level = 0;
+
 int ttf_inited = 0;
 
 FT_Library freetype;
 FT_Face face;
 
-const unsigned char *bgm[11];
-int bgm_size[11];
-int current_bgm = 0;
-int desired_bgm = 0;
+const unsigned char *bgm[12];
+int bgm_size[12];
+int current_bgm = 1;
+int desired_bgm = 1;
 
 void init_bgm()
 {
-	bgm[0] = bgm1_mp3_bin;
-	bgm_size[0] = bgm1_mp3_bin_size;
+	bgm[0] = title_mp3_bin;
+	bgm_size[0] = title_mp3_bin_size;
 	
-	bgm[1] = bgm2_mp3_bin;
-	bgm_size[1] = bgm2_mp3_bin_size;
+	bgm[1] = bgm1_mp3_bin;
+	bgm_size[1] = bgm1_mp3_bin_size;
 	
-	bgm[2] = bgm3_mp3_bin;
-	bgm_size[2] = bgm3_mp3_bin_size;
+	bgm[2] = bgm2_mp3_bin;
+	bgm_size[2] = bgm2_mp3_bin_size;
 	
-	bgm[3] = bgm4_mp3_bin;
-	bgm_size[3] = bgm4_mp3_bin_size;
+	bgm[3] = bgm3_mp3_bin;
+	bgm_size[3] = bgm3_mp3_bin_size;
+	
+	bgm[4] = bgm4_mp3_bin;
+	bgm_size[4] = bgm4_mp3_bin_size;
 }
 
-#define NUM_TILES 24
+#define NUM_TILES 25
 
 pngData tile_png[NUM_TILES];
 u32 tile_offset[NUM_TILES];
 
-#define MAX_W 48
-#define MAX_H 36
+#define MAX_W 72
+#define MAX_H 48
 
 typedef struct
 {
@@ -99,17 +131,20 @@ typedef struct
 } Cell;
 
 Cell board[MAX_W][MAX_H];
+float RENDER_SIZE;
 
-int GRID_W = 9;
-int GRID_H = 9;
-int MINES  = 10;
-int RENDER_SIZE = 32;
+int GRID_W = 16;
+int GRID_H = 16;
+int MINES  = 40;
+int RENDERING_PIXELS = 16;
+float RENDERING_SIZE = 2.0f;
 int FIRST_CLICK = 1;
 
 int cursorX;
 int cursorY;
 int gamewin = 0;
 int gamelose = 0;
+int in_game = 0;
 
 int screen_w = 848 / 2;
 int screen_h = 512 / 2;
@@ -123,6 +158,102 @@ int valid_total = 0;
 static int fps = 0;
 static int frames = 0;
 static u64 last_time = 0;
+
+#define SAVE_DIR "MINESWEEPER"
+
+typedef struct
+{
+	int save_level;
+} SaveData;
+
+SaveData gSave;
+sysSaveBufferSettings buffer;
+
+void savestate_init()
+{
+	memset(&buffer, 0, sizeof(buffer));
+
+	buffer.maxDirectories = 1;
+	buffer.maxFiles = 1;
+	buffer.bufferSize = 1024 * 1024;
+	buffer.buffer = malloc(buffer.bufferSize);
+	printf("buffer = %p\n", buffer.buffer);
+}
+
+void status_cb(
+    sysSaveCallbackResult *result,
+    sysSaveStatusIn *in,
+    sysSaveStatusOut *out)
+{
+    static sysSaveSystemFileParam param;
+
+    memset(&param, 0, sizeof(param));
+
+    strcpy(param.title, "Minesweeper Plus (v00.01)");
+    strcpy(param.subtitle, "Possibly Save Data LOL");
+    strcpy(param.detail, "NAGARETEKU TOKI NO NAKA DE DEMO\nKEDARUSA GA HORA GURU GURU MOWAATE");
+
+    if(out)
+	{
+		out->setParam = &param;
+	}
+
+    result->result = SYS_SAVE_CALLBACK_RESULT_CONTINUE;
+}
+
+void save_file_cb(
+    sysSaveCallbackResult *result,
+    sysSaveFileIn *in,
+    sysSaveFileOut *out)
+{
+	// static int phase = 0;
+
+    // if(phase == 0)
+    // {
+		static char filename[] = "SAVE.DAT";
+		
+		out->fileOperation = SYS_SAVE_FILE_OPERATION_WRITE;
+		out->fileType = SYS_SAVE_FILETYPE_STANDARD_FILE;
+		
+		out->filename = filename;
+		out->buffer = &gSave;
+		out->bufferSize = sizeof(gSave);
+		out->size = sizeof(gSave);
+		
+		// result->result = SYS_SAVE_CALLBACK_RESULT_CONTINUE;
+	// }
+	// else
+	// {
+		// out->fileOperation = SYS_SAVE_FILE_OPERATION_WRITE;
+		// out->fileType = SYS_SAVE_FILETYPE_CONTENT_ICON0;
+
+		// out->filename = NULL; // system content file
+
+		// out->buffer = (void*)icon0_png_bin;
+		// out->bufferSize = icon0_png_bin_size;
+		// out->size = icon0_png_bin_size;
+
+		result->result = SYS_SAVE_CALLBACK_RESULT_DONE;
+	// }
+}
+
+void load_file_cb(
+    sysSaveCallbackResult *result,
+    sysSaveFileIn *in,
+    sysSaveFileOut *out)
+{
+    out->fileOperation = SYS_SAVE_FILE_OPERATION_READ;
+    out->fileType = SYS_SAVE_FILETYPE_STANDARD_FILE;
+
+    static char filename[] = "SAVE.DAT";
+
+    out->filename = filename;
+    out->buffer = &gSave;
+    out->bufferSize = sizeof(gSave);
+    out->size = sizeof(gSave);
+
+    result->result = SYS_SAVE_CALLBACK_RESULT_DONE;
+}
 
 void UpdateFPS()
 {
@@ -149,12 +280,12 @@ void Initialize()
 	SND_Init(spu);
 }
 
-void DrawSprites2D(float x, float y, float layer, float dx, float dy)
+void DrawSprites2D(float x, float y, float layer, float dx, float dy, u32 color)
 {
     tiny3d_SetPolygon(TINY3D_QUADS);
 
     tiny3d_VertexPos(x     , y     , layer);
-    tiny3d_VertexColor(0xffffffff);
+    tiny3d_VertexColor(color);
     tiny3d_VertexTexture(0.0f, 0.0f);
 
     tiny3d_VertexPos(x + dx, y     , layer);
@@ -185,6 +316,7 @@ void GenerateBoard()
         }
     }
 	
+	RENDER_SIZE = RENDERING_SIZE * RENDERING_PIXELS;
 	offset_x = screen_w - (RENDER_SIZE * GRID_W / 2);
 	offset_y = screen_h - (RENDER_SIZE * GRID_H / 2);
 	valid_total = (GRID_W * GRID_H) - MINES;
@@ -265,9 +397,16 @@ void WinCheck()
 void Reveal(int x,int y)
 {
     if(x < 0 || y < 0 || x >= GRID_W || y >= GRID_H) return;
-    if(board[x][y].revealed || board[x][y].flagged || board[x][y].mine) return;
+    if(board[x][y].revealed || board[x][y].flagged) return;
 
     board[x][y].revealed = 1;
+	
+    if(board[x][y].mine)
+	{
+		gamelose = 1;
+		StopAudio();
+		return;
+	}
 
     if(board[x][y].neighbors != 0) return;
 	
@@ -280,6 +419,85 @@ void Reveal(int x,int y)
             Reveal(x+ox,y+oy);
         }
     }
+}
+
+void Chord(int x, int y)
+{
+    if(x < 0 || y < 0 || x >= GRID_W || y >= GRID_H) return;
+    if(!board[x][y].revealed) return;
+	if(board[x][y].neighbors == 0) return;
+
+    int required = board[x][y].neighbors;
+    int flags = 0;
+
+    int nx, ny;
+
+    for(nx = x - 1; nx <= x + 1; nx++)
+    {
+        for(ny = y - 1; ny <= y + 1; ny++)
+        {
+            if(nx >= 0 && ny >= 0 &&
+               nx < GRID_W && ny < GRID_H)
+            {
+                if(board[nx][ny].flagged) flags++;
+            }
+        }
+    }
+
+    if(flags == required)
+    {
+        for(nx = x - 1; nx <= x + 1; nx++)
+        {
+            for(ny = y - 1; ny <= y + 1; ny++)
+            {
+                if(nx >= 0 && ny >= 0 &&
+                   nx < GRID_W && ny < GRID_H)
+                {
+                    if(!board[nx][ny].flagged)
+                    {
+                        if(board[nx][ny].mine)
+                        {
+                            gamelose = 1;
+                            StopAudio();
+                            return;
+                        }
+
+                        Reveal(nx, ny);
+                    }
+                }
+            }
+        }
+    }
+}
+
+void PlayBGM(int id)
+{
+    StopAudio();
+
+    FILE *fp = (FILE *)mem_open((char *)bgm[id], bgm_size[id]);
+    PlayAudiofd(fp, 0, AUDIO_INFINITE_TIME);
+
+    current_bgm = id;
+}
+
+void LoadLevel(int level)
+{
+    GRID_W = levels[level].width;
+    GRID_H = levels[level].height;
+    MINES  = levels[level].mines;
+
+    cursorX = 0;
+    cursorY = 0;
+
+    FIRST_CLICK = 1;
+    gamewin = 0;
+    gamelose = 0;
+
+    GenerateBoard();
+    CalculateNumbers();
+
+    desired_bgm = levels[level].music;
+    PlayBGM(desired_bgm);
 }
 
 int TTFLoadFont(char * path, void * from_memory, int size_from_memory)
@@ -332,16 +550,6 @@ void TTF_to_Bitmap(u8 chr, u8 * bitmap, short *w, short *h, short *y_correction)
     *h = slot->bitmap.rows;
 }
 
-void PlayBGM(int id)
-{
-    StopAudio();
-
-    FILE *fp = (FILE *)mem_open((char *)bgm[id], bgm_size[id]);
-    PlayAudiofd(fp, 0, AUDIO_INFINITE_TIME);
-
-    current_bgm = id;
-}
-
 void Load_PNG()
 {
 	pngLoadFromBuffer(n1_png_bin, n1_png_bin_size, &tile_png[0]);
@@ -367,7 +575,7 @@ void Load_PNG()
 	pngLoadFromBuffer(bg01_png_bin, bg01_png_bin_size, &tile_png[20]);
 	pngLoadFromBuffer(flag0_png_bin, flag0_png_bin_size, &tile_png[21]);
 	pngLoadFromBuffer(flag1_png_bin, flag1_png_bin_size, &tile_png[22]);
-	pngLoadFromBuffer(grid_png_bin, grid_png_bin_size, &tile_png[23]);
+	pngLoadFromBuffer(grid0_png_bin, grid0_png_bin_size, &tile_png[23]);
 }
 
 void DrawRect(float x, float y, float w, float h, u32 color)
@@ -390,33 +598,45 @@ void SetTexture(int tile_id)
 		tile_png[tile_id].pitch, TINY3D_TEX_FORMAT_A8R8G8B8, TEXTURE_NEAREST);
 }
 
-void drawScene()
+void zoomCheck(int zoom)
+{
+	if(zoom==1)
+	{
+		RENDERING_SIZE+=0.05f;
+		if(RENDERING_SIZE>3.0f) RENDERING_SIZE=3.0f;
+	}
+	else
+	{
+		RENDERING_SIZE-=0.05f;
+		if(RENDERING_SIZE<=0.25f) RENDERING_SIZE=0.25f;
+	}
+	
+	RENDER_SIZE = RENDERING_SIZE * RENDERING_PIXELS;
+	offset_x = screen_w - (RENDER_SIZE * GRID_W / 2);
+	offset_y = screen_h - (RENDER_SIZE * GRID_H / 2);
+}
+
+void draw_game()
 {
 	float x, y;
 	int x1, y1;
 	int x0, y0;
-	
-	int temp = RENDER_SIZE/2;
-	int temp2 = 99;
-	int temp3 = 10;
+	u32 color = 0xffffffff;
 	
     static int count_frames = 0;
     static int anim = 0;
-    tiny3d_Project2D();
-
-    SetFontSize(28, 32);
-    
-    x= 0.0; y = 0.0;
+	
+	x= 0.0; y = 0.0;
 	count_frames++;
 	
 	anim = (count_frames / 30) % 2;
 	
-	for(x0 = -temp - temp2; x0 < (screen_w * 2) + temp2; x0 += temp)
+	for(x0 = offset_x - 256.0f; x0 < (screen_w * 2) + 256.0f; x0 += RENDER_SIZE)
 	{
-		for(y0 = -temp - temp2; y0 < (screen_h * 2) + temp2; y0 += temp)
+		for(y0 = offset_y - 128.0f; y0 < (screen_h * 2) + 128.0f; y0 += RENDER_SIZE)
 		{
 			SetTexture(17+anim);
-			DrawSprites2D(x0, y0, (float) 0, RENDER_SIZE/2, RENDER_SIZE/2);
+			DrawSprites2D(x0, y0, (float) 0, RENDER_SIZE, RENDER_SIZE, 0xffffff88);
 		}
 	}
 	
@@ -429,7 +649,7 @@ void drawScene()
 			if(board[x1][y1].revealed)
 			{
 				SetTexture(19+anim);
-				DrawSprites2D(offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE), (float) 0, RENDER_SIZE, RENDER_SIZE);
+				DrawSprites2D(offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE), (float) 0, RENDER_SIZE, RENDER_SIZE, color);
 				
 				switch(board[x1][y1].neighbors)
 				{
@@ -451,40 +671,71 @@ void drawScene()
 				if(board[x1][y1].neighbors > 0 || board[x1][y1].mine)
 				{
 					SetTexture(tile);
-					DrawSprites2D(offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE), (float) 0, RENDER_SIZE, RENDER_SIZE);
+					DrawSprites2D(offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE), (float) 0, RENDER_SIZE, RENDER_SIZE, color);
 				}
 			}
 			else
 			{
 				SetTexture(17+anim);
-				DrawSprites2D(offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE), (float) 0, RENDER_SIZE, RENDER_SIZE);
+				DrawSprites2D(offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE), (float) 0, RENDER_SIZE, RENDER_SIZE, color);
 				
 				if(board[x1][y1].flagged)
 				{
 					SetTexture(21+anim);
-					DrawSprites2D(offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE), (float) 0, RENDER_SIZE, RENDER_SIZE);
+					DrawSprites2D(offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE), (float) 0, RENDER_SIZE, RENDER_SIZE, color);
 				}
 			}
 			
 			if (x1 == cursorX && y1 == cursorY)
 			{
 				SetTexture(23);
-				DrawSprites2D(offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE), (float) 0, RENDER_SIZE, RENDER_SIZE);
+				DrawSprites2D(offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE), (float) 0, RENDER_SIZE, RENDER_SIZE, color);
 			}
 		}
+	}
+}
+
+void drawScene()
+{
+    tiny3d_Project2D();
+
+    SetFontSize(28, 32);
+	
+	if(in_game)
+	{
+		draw_game();
 	}
 	
     SetFontColor(0xffffffff, 0x00000000);
     SetCurrentFont(0);
 	
-	int info_x = -temp - temp3 - 3;
-	int info_y = -temp - temp3 + 3;
+	if(!in_game)
+	{
+		DrawFormatString(-12,0, "Minesweeper Plus: PS3 Edition - Rewritten");
+		DrawFormatString(-12,32, "Version 00.00");
+		DrawFormatString(-12,64, "-- [MADE BY ACIDNT3.1] --");
+		//rawFormatString(-12,128, "Press Start to Play!");
+		DrawFormatString(-12,128,"START - NEW GAME");
+		DrawFormatString(-12,160,"SELECT - CONTINUE");
+	}
+	else
+	{
+		DrawFormatString(-12,0, "TILES: %d/%d", revealed_total, valid_total);
+		DrawFormatString(-12,32, "FPS: %d", fps);
+	}
 	
-    DrawFormatString(info_x,info_y, "Minesweeper Plus: PS3 Edition");
-    DrawFormatString(info_x,info_y+32, "[MADE BY ACIDNT3.1]");
-    DrawFormatString(info_x,info_y+64, "FRAME: %d", count_frames);
-    DrawFormatString(info_x,info_y+96, "FPS: %d", fps);
-    DrawFormatString(info_x,info_y+128, "TILES: %d/%d", revealed_total, valid_total);
+	if(gamelose)
+	{
+		DrawFormatString(-12,128,"GAME OVER");
+		DrawFormatString(-12,160,"PRESS START");
+	}
+	
+	if(gamewin)
+	{
+		DrawFormatString(-12,128,"LEVEL CLEAR!");
+		DrawFormatString(-12,160,"START = Next Level");
+		DrawFormatString(-12,192,"SELECT = Save Progress");
+	}
 }
 
 void LoadTexture()
@@ -526,16 +777,14 @@ int main(int argc, const char* argv[])
 	tiny3d_Init(1024*1024);
 	
 	sysModuleLoad(SYSMODULE_PNGDEC);
+	savestate_init();
 	
 	Initialize();
 	init_bgm();
 	
 	ioPadInit(7);
     LoadTexture();
-	PlayBGM(desired_bgm);
-	
-	GenerateBoard();
-	CalculateNumbers();
+	PlayBGM(0);
 	
     while(1)
     {
@@ -558,12 +807,86 @@ int main(int argc, const char* argv[])
 			if(padinfo.status[i]){
 				ioPadGetData(i, &paddata);
 				
-				if (!gamewin && !gamelose)
+				if(!in_game)
+				{
+					if(paddata.BTN_START && !oldpad.BTN_START)
+					{
+						current_level = 0;
+						StopAudio();
+						LoadLevel(current_level);
+						in_game = 1;
+					}
+					if(paddata.BTN_SELECT && !oldpad.BTN_SELECT)
+					{
+						s32 ret;
+						
+						ret = sysSaveAutoLoad2(SYS_SAVE_CURRENT_VERSION,SAVE_DIR,
+							SYS_SAVE_ERROR_DIALOG_SHOW,&buffer,status_cb,
+							load_file_cb,0,NULL);
+						
+						printf("LOAD RET = %08x\n", ret);
+						printf("LEVEL = %d\n", gSave.save_level);
+						
+						if(ret == SYS_SAVE_RETURN_DONE)
+						{
+							current_level = gSave.save_level;
+							StopAudio();
+							LoadLevel(current_level);
+							in_game = 1;
+						}
+					}
+				}
+				
+				if(gamewin)
+				{
+					if(paddata.BTN_SELECT && !oldpad.BTN_SELECT)
+					{
+						s32 ret;
+						gSave.save_level = current_level + 1;
+						
+						ret = sysSaveAutoSave2(SYS_SAVE_CURRENT_VERSION,SAVE_DIR,
+							SYS_SAVE_ERROR_DIALOG_SHOW,&buffer,status_cb,save_file_cb,
+							0,NULL);
+						
+						printf("SAVE RET = %08x\n", ret);
+					}
+
+					if(paddata.BTN_START && !oldpad.BTN_START)
+					{
+						current_level++;
+
+						if(current_level >= LEVEL_COUNT)
+						{
+							current_level = 0;
+							in_game = 0;
+							PlayBGM(0);
+						}
+						else
+						{
+							LoadLevel(current_level);
+						}
+					}
+				}
+				
+				if(gamelose)
+				{
+					if(paddata.BTN_START && !oldpad.BTN_START)
+					{
+						in_game = 0;
+
+						gamewin = 0;
+						gamelose = 0;
+
+						PlayBGM(0);
+					}
+				}
+				
+				if (!gamewin && !gamelose && in_game)
 				{
 					// remove afterwards
 					if(paddata.BTN_TRIANGLE && !oldpad.BTN_TRIANGLE){
 						desired_bgm++;
-						if (desired_bgm>3) desired_bgm = 0;
+						if (desired_bgm>4) desired_bgm = 1;
 						
 						PlayBGM(desired_bgm);
 					}
@@ -581,12 +904,20 @@ int main(int argc, const char* argv[])
 							while(board[cursorX][cursorY].mine);
 						}
 						FIRST_CLICK = 0;
-						Reveal(cursorX, cursorY);
+						if (board[cursorX][cursorY].revealed)
+						{
+							Chord(cursorX, cursorY);
+						}
+						else
+						{
+							Reveal(cursorX, cursorY);
+						}
 						WinCheck();
 					}
 					if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE)
 					{
-						board[cursorX][cursorY].flagged = !board[cursorX][cursorY].flagged;
+						if(!board[cursorX][cursorY].revealed)
+							board[cursorX][cursorY].flagged = !board[cursorX][cursorY].flagged;
 					}
 					
 					// movement
@@ -606,6 +937,10 @@ int main(int argc, const char* argv[])
 						cursorY++;
 						if (cursorY>GRID_H-1) cursorY = GRID_H-1;
 					}
+					
+					// zoom check
+					if(paddata.BTN_R1 && !oldpad.BTN_R1) zoomCheck(1);
+					if(paddata.BTN_L1 && !oldpad.BTN_L1) zoomCheck(0);
 				}
 				oldpad = paddata;
 			}
