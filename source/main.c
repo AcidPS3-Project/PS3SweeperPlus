@@ -31,6 +31,7 @@
 #include "captain_sheet_png_bin.h"
 #include "tiles_sheet_png_bin.h"
 #include "ui_sheet_png_bin.h"
+#include "boss_sheet_png_bin.h"
 
 //IMPORT MUSIC
 #include "title_mp3_bin.h"
@@ -73,8 +74,13 @@ int ttf_inited = 0;
 FT_Library freetype;
 FT_Face face;
 
+
+
+
+
+
 char global_name[] = "PS3Sweeper+";
-char global_version[] = "v0.07";
+char global_version[] = "v0.08";
 
 const char *splashes_random[] =
 {
@@ -131,6 +137,11 @@ const char *splashes_random[] =
 
 int splash_count;
 const char *splash;
+
+
+
+
+
 
 const unsigned char *bgm[12];
 int bgm_size[12];
@@ -190,6 +201,36 @@ int gamewin = 0;
 int gamelose = 0;
 int in_game = 0;
 
+int boss9_started = 0;
+int boss9_timer = 0;
+typedef struct
+{
+    bool active;
+
+    int x, y;
+
+    int dx, dy;
+
+    int toMove, wait;
+    int beforeToMove;
+
+    bool isMoving;
+
+    int angle;
+    int flip;
+
+    int tempGrid[3];
+    bool tempReveal[3];
+    //bool tempFlagged[3];
+
+} Boss9;
+Boss9 boss9;
+//boss9.x = 0;
+//boss9.y = 0;
+
+
+
+
 //u64 now;
 //u64 timer_start = 0;
 float timer_seconds = 0;
@@ -208,6 +249,15 @@ int valid_total = 0;
 static int fps = 0;
 static int frames = 0;
 static u64 last_time = 0;
+
+
+
+
+
+
+
+
+
 
 #define SAVE_DIR "MINESWEEPER"
 
@@ -305,6 +355,13 @@ void UpdateFPS()
     }
 }
 
+
+
+
+
+
+
+
 void Initialize()
 {
 	u32 spu;
@@ -316,14 +373,24 @@ void Initialize()
 	SND_Init(spu);
 }
 
-pngData spritesheet[3];
-u32 sprite_off[3];
+
+
+
+
+
+
+
+
+
+pngData spritesheet[4];
+u32 sprite_off[4];
 
 void Load_PNG()
 {
 	pngLoadFromBuffer(captain_sheet_png_bin, captain_sheet_png_bin_size, &spritesheet[0]);
 	pngLoadFromBuffer(tiles_sheet_png_bin, tiles_sheet_png_bin_size, &spritesheet[1]);
 	pngLoadFromBuffer(ui_sheet_png_bin, ui_sheet_png_bin_size, &spritesheet[2]);
+	pngLoadFromBuffer(boss_sheet_png_bin, boss_sheet_png_bin_size, &spritesheet[3]);
 }
 
 void GenerateBoard()
@@ -579,6 +646,9 @@ void LoadLevel(int level)
     GRID_W = levels[level].width;
     GRID_H = levels[level].height;
     MINES  = levels[level].mines;
+	
+	if(current_level==8) MINES-=8;
+	
     mines_count = MINES;
 
     cursorX = 0;
@@ -591,6 +661,9 @@ void LoadLevel(int level)
 	
 	timer_running = 0;
 	timer_seconds = 0;
+	
+	boss9.x = GRID_W/2;
+	boss9.y = GRID_H/2;
 
     GenerateBoard();
     CalculateNumbers();
@@ -628,6 +701,270 @@ int getCaptainState(int anim_z)
 	}
 	return the_state;
 }
+
+
+
+
+
+int RandRange(int min, int max)
+{
+	int rndom;
+	rndom = rand() % (max-min+1) + min;
+	return rndom;
+}
+
+int max(int min, int max)
+{
+	int biggest;
+	biggest = (min > max) ? min : max;
+	
+	return biggest;
+}
+
+
+
+
+
+
+
+
+
+void Boss9PlaceTiles()
+{
+	int x, y;
+	
+	for(x = boss9.x - 1; x <= boss9.x + 1; x++)
+    {
+        for(y = boss9.y - 1; y <= boss9.y + 1; y++)
+        {
+			board[x][y].mine = 1;
+			board[x][y].revealed = false;
+        }
+    }
+}
+
+void Boss9Stop()
+{
+    boss9.beforeToMove = 0;
+    boss9.toMove = 0;
+    boss9.isMoving = false;
+
+    //if(cirno9)
+    //    boss9_timer = RandRange(15,50);
+    //else
+    boss9_timer = RandRange(20,60);
+
+    //PlaySFX(SFX_9STOP);
+}
+
+void Boss9SaveStrip()
+{
+    int sx, sy, i;
+
+    if(boss9.dx == 1)
+    {
+        sx = boss9.x + 2;
+
+        for(i=0;i<3;i++)
+        {
+            sy = boss9.y - 1 + i;
+
+            boss9.tempGrid[i] = board[sx][sy].mine;
+            boss9.tempReveal[i] = board[sx][sy].revealed;
+			board[sx][sy].flagged = false;
+			//boss9.tempFlagged[i] = board[sx][sy].flagged;
+        }
+    }
+	else if(boss9.dx == -1)
+    {
+        sx = boss9.x - 2;
+
+        for(i=0;i<3;i++)
+        {
+            sy = boss9.y - 1 + i;
+
+            boss9.tempGrid[i] = board[sx][sy].mine;
+            boss9.tempReveal[i] = board[sx][sy].revealed;
+			board[sx][sy].flagged = false;
+			//boss9.tempFlagged[i] = board[sx][sy].flagged;
+        }
+    }
+	else if(boss9.dy == 1)
+    {
+        sy = boss9.y + 2;
+
+        for(i=0;i<3;i++)
+        {
+            sx = boss9.x - 1 + i;
+
+            boss9.tempGrid[i] = board[sx][sy].mine;
+            boss9.tempReveal[i] = board[sx][sy].revealed;
+			board[sx][sy].flagged = false;
+			//boss9.tempFlagged[i] = board[sx][sy].flagged;
+        }
+    }
+	else if(boss9.dy == -1)
+    {
+        sy = boss9.y - 2;
+
+        for(i=0;i<3;i++)
+        {
+            sx = boss9.x - 1 + i;
+
+            boss9.tempGrid[i] = board[sx][sy].mine;
+            boss9.tempReveal[i] = board[sx][sy].revealed;
+			board[sx][sy].flagged = false;
+			//boss9.tempFlagged[i] = board[sx][sy].flagged;
+        }
+    }
+}
+
+void Boss9RestoreStrip()
+{
+    int sx, sy, i;
+
+	if (boss9.dx == 1)
+	{
+		sx = boss9.x - 2;
+
+		for (i = 0; i < 3; i++)
+		{
+			sy = boss9.y - 1 + i;
+
+			board[sx][sy].mine = boss9.tempGrid[i];
+			board[sx][sy].revealed = boss9.tempReveal[i];
+			//board[sx][sy].flagged = boss9.tempFlagged[i];
+		}
+	}
+	else if (boss9.dx == -1)
+	{
+		sx = boss9.x + 2;
+
+		for (i = 0; i < 3; i++)
+		{
+			sy = boss9.y - 1 + i;
+
+			board[sx][sy].mine = boss9.tempGrid[i];
+			board[sx][sy].revealed = boss9.tempReveal[i];
+			//board[sx][sy].flagged = boss9.tempFlagged[i];
+		}
+	}
+	else if (boss9.dy == 1)
+	{
+		sy = boss9.y - 2;
+
+		for (i = 0; i < 3; i++)
+		{
+			sx = boss9.x - 1 + i;
+
+			board[sx][sy].mine = boss9.tempGrid[i];
+			board[sx][sy].revealed = boss9.tempReveal[i];
+			//board[sx][sy].flagged = boss9.tempFlagged[i];
+		}
+	}
+	else if (boss9.dy == -1)
+	{
+		sy = boss9.y + 2;
+
+		for (i = 0; i < 3; i++)
+		{
+			sx = boss9.x - 1 + i;
+
+			board[sx][sy].mine = boss9.tempGrid[i];
+			board[sx][sy].revealed = boss9.tempReveal[i];
+			//board[sx][sy].flagged = boss9.tempFlagged[i];
+		}
+	}
+}
+
+bool Boss9CanMove(int nx, int ny)
+{
+	int x, y;
+    if(nx < 1 || nx >= GRID_W - 1)
+        return false;
+
+    if(ny < 1 || ny >= GRID_H - 1)
+        return false;
+
+    for(y=-1;y<=1;y++)
+    {
+        for(x=-1;x<=1;x++)
+        {
+            if(x==0 && y==0)
+                continue;
+
+            //if(circle_grid[nx+x][ny+y])
+            //    return false;
+        }
+    }
+
+    return true;
+}
+
+void Boss9PickDirection()
+{
+    boss9.toMove = rand() % max(GRID_W, GRID_H) + 1;
+    boss9.beforeToMove = boss9.toMove;
+
+    switch(rand() % 4)
+    {
+        case 0: boss9.dx = 1;  boss9.dy = 0; break;
+        case 1: boss9.dx = -1; boss9.dy = 0; break;
+        case 2: boss9.dx = 0;  boss9.dy = 1; break;
+        case 3: boss9.dx = 0;  boss9.dy = -1; break;
+    }
+
+    boss9.isMoving = true;
+}
+
+void UpdateBoss9()
+{
+    if(!boss9.active)
+        return;
+
+    if(!boss9.isMoving)
+        Boss9PickDirection();
+    else
+        boss9.toMove--;
+
+    if(boss9.toMove <= 0)
+    {
+        Boss9Stop();
+        return;
+    }
+
+    int nx = boss9.x + boss9.dx;
+    int ny = boss9.y + boss9.dy;
+
+    if(!Boss9CanMove(nx, ny))
+    {
+        Boss9Stop();
+        return;
+    }
+
+    Boss9SaveStrip();
+
+    boss9.x = nx;
+    boss9.y = ny;
+
+    Boss9PlaceTiles();
+
+    Boss9RestoreStrip();
+	CalculateNumbers();
+
+    //PlaySFX(SFX_9MOVE);
+
+    boss9.flip = -boss9.flip;
+    boss9.angle = -boss9.angle;
+}
+
+
+
+
+
+
+
+
 
 int TTFLoadFont(char * path, void * from_memory, int size_from_memory)
 {
@@ -678,6 +1015,12 @@ void TTF_to_Bitmap(u8 chr, u8 * bitmap, short *w, short *h, short *y_correction)
     *w = ((slot->advance.x + 31) >> 6) + ((slot->bitmap_left < 0) ? -slot->bitmap_left : 0);
     *h = slot->bitmap.rows;
 }
+
+
+
+
+
+
 
 void DrawSprite2D(int id, float x, float y, int wid2, int hei2, int wid1, int hei1, int wid0, int hei0, float layer, u32 color)
 {
@@ -738,6 +1081,15 @@ void SetTexture(int id)
 		spritesheet[id].pitch, TINY3D_TEX_FORMAT_A8R8G8B8, TEXTURE_NEAREST);
 }
 
+
+
+
+
+
+
+
+
+
 void zoomCheck(int zoom)
 {
 	if(zoom==1)
@@ -756,12 +1108,19 @@ void zoomCheck(int zoom)
 	offset_y = screen_h - (RENDER_SIZE * GRID_H / 2) + ui_offset_y;
 }
 
+
+
+
+
+
+
+
 void draw_game()
 {
 	SetTexture(1);
 	float x, y;
-	int x1, y1;
-	int x0, y0;
+	int x1, y1 = 0;
+	int x0, y0 = 0;
 	u32 color = 0xffffffff;
 	
     static int count_frames = 0;
@@ -835,7 +1194,22 @@ void draw_game()
 			}
 		}
 	}
+	
+	if(current_level==8)
+	{
+		SetTexture(3);
+		DrawSprite2D(0, offset_x+(boss9.x*RENDER_SIZE)-RENDER_SIZE, offset_y+(boss9.y*RENDER_SIZE)-RENDER_SIZE,
+			RENDER_SIZE*3, RENDER_SIZE*3, 384, 384, 1536, 1536, -1, color);
+		DrawSprite2D(1, offset_x+(boss9.x*RENDER_SIZE)-RENDER_SIZE, offset_y+(boss9.y*RENDER_SIZE)-RENDER_SIZE,
+			RENDER_SIZE*3, RENDER_SIZE*3, 384, 384, 1536, 1536, -1, color);
+	}
 }
+
+
+
+
+
+
 
 void drawScene()
 {
@@ -907,6 +1281,12 @@ void drawScene()
 	}
 }
 
+
+
+
+
+
+
 void LoadTexture()
 {
 	int g;
@@ -923,7 +1303,7 @@ void LoadTexture()
     texture_pointer = (u32 *) AddFontFromTTF((u8 *) texture_pointer, 32, 255, 64, 64, TTF_to_Bitmap);
     TTFUnloadFont();
 	
-    for(g = 0; g < 3; g++) {
+    for(g = 0; g < 4; g++) {
 		memcpy(texture_pointer, spritesheet[g].bmp_out, spritesheet[g].pitch * spritesheet[g].height);
 		sprite_off[g] = tiny3d_TextureOffset(texture_pointer);
 		
@@ -934,10 +1314,23 @@ void LoadTexture()
     }
 }
 
+
+
+
+
+
+
+
 void DemoCompleteCallback(msgButton button, void *usrData)
 {
     sysProcessExit(0);
 }
+
+
+
+
+
+
 
 int main(int argc, const char* argv[])
 {
@@ -995,6 +1388,7 @@ int main(int argc, const char* argv[])
 					}
 					if(paddata.BTN_SELECT && !oldpad.BTN_SELECT)
 					{
+						drawScene();
 						DrawFormatString(400,256,"LOADING...");
 						tiny3d_Flip();
 						
@@ -1037,7 +1431,10 @@ int main(int argc, const char* argv[])
 				{
 					if(paddata.BTN_SELECT && !oldpad.BTN_SELECT)
 					{
+						drawScene();
 						DrawFormatString(400,256,"SAVING...");
+						tiny3d_Flip();
+						
 						s32 ret;
 						gSave.save_level = current_level + 1;
 						gSave.save_current_minecoins = current_minecoins;
@@ -1098,6 +1495,12 @@ int main(int argc, const char* argv[])
 						
 						FIRST_CLICK = 0;
 						
+						if(current_level==8 && !boss9_started)
+						{
+							boss9_started = 1;
+							boss9.active = true;
+						}
+						
 						if (board[cursorX][cursorY].revealed)
 						{
 							Chord(cursorX, cursorY);
@@ -1107,7 +1510,7 @@ int main(int argc, const char* argv[])
 							Reveal(cursorX, cursorY);
 						}
 						
-						WinCheck();
+						if(!boss9_started) WinCheck();
 					}
 					if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE)
 					{
@@ -1141,6 +1544,17 @@ int main(int argc, const char* argv[])
 					if(paddata.BTN_L1 && !oldpad.BTN_L1) zoomCheck(0);
 				}
 				oldpad = paddata;
+			}
+		}
+		
+		if(boss9_started)
+		{
+			boss9_timer--;
+
+			if(boss9_timer <= 0)
+			{
+				boss9_timer = 6;
+				UpdateBoss9();
 			}
 		}
 		
