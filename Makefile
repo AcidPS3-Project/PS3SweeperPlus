@@ -16,6 +16,7 @@ CONTENTID	:=	HP0031-$(APPID)_00-0000000000000000
 
 SFOXML		:=	param/sfo.xml
 ICON0       :=  param/ICON0.PNG
+PIC1		:=  param/PIC1.PNG
 
 include $(PSL1GHT)/ppu_rules
 
