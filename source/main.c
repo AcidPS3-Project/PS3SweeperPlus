@@ -23,8 +23,8 @@
 
 #include "asimov_ttf_bin.h"
 
-#include "spu_soundlib.h"
-#include "audioplayer.h"
+#include "soundlib/spu_soundlib.h"
+#include "soundlib/audioplayer.h"
 #include "spu_soundmodule.bin.h"
 
 // IMPORT IMAGES
@@ -72,7 +72,8 @@ LevelData levels[] =
     {15, 15, 30, 3, 2},
     {18, 12, 33, 4, 3},
     {16, 16, 42, 4, 3},
-    {13, 13, 29, 9, 0}
+    {13, 13, 29, 9, 0},
+    {21, 21, 60, 9, 0}
 };
 
 #define LEVEL_COUNT (sizeof(levels)/sizeof(levels[0]))
@@ -96,7 +97,7 @@ FT_Face face;
 
 
 char global_name[] = "PS3Sweeper+";
-char global_version[] = "v0.1";
+char global_version[] = "v0.1.1";
 
 const char *splashes_random[] =
 {
@@ -124,21 +125,19 @@ const char *splashes_random[] =
 	"Also play Minesweeper Times, oh wait. its canceled :(",
 	"Also play LandMinesweeper",
 	"Also play MS+ Hard Mode",
-	"E",
 	"The MORSHU is Real!",
 	"Also play Minesweeper Plus Roblox",
 	"Why it was rewritten?",
 	"C is better, than GMS1.4",
-	"Couldn't find PSL1GHT, but found PSDK3v2!",
-	"When tutorial how to make games with PSDK3v2?",
+	"PSDK3v2 is good, but the latest PSL1GHT update is better",
+	"When tutorial how to make games with PSL1GHT? Oh wait...",
 	"Yay, minecoins! I'm rich!!",
 	"Better, than MS+ PS3 Edition",
-	"BOO",
 	"ChadGPT, please help me fix the saving system!",
 	"AI-Assisted code, because I suck at C.",
 	"Optimizing is at it's peakest.",
 	"Baldi for PS3 re-write coming?",
-	"AcidPS3 Store coming as an app?",
+	"AcidPS3 Store coming as an app? Oh wait, it is here.",
 	"CELL Programming",
 	"The Yellow light of Death Egg",
 	"Reality Synthesizer can fail?",
@@ -151,7 +150,11 @@ const char *splashes_random[] =
 	"F U C K",
 	"up up down down left right left right circle cross start.\noh wait, it doesnt work",
 	"why the fuck i stayed all night for this shit",
-	"Hold START + L3 + R3 for a surprise."
+	"Hold START + L3 + R3 for a surprise.",
+	"OK I'm not gonna use the SDL here...",
+	"Eleven and twelve coming soon, trust",
+	"TOUHOU KOUMAKYOU IS NOW ON PS3!!!",
+	""
 };
 
 int splash_count;
@@ -1699,7 +1702,7 @@ int main(int argc, const char* argv[])
     LoadTexture();
 	
 	msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
-		"Welcome to PS3Sweeper+ v0.1!\n\nThis game is still under huge development, so please join my discord server to not miss out new updates!\nLINK: https://discord.gg/7XuQDYjyzt"
+		"Welcome to PS3Sweeper+!\n\nThis game is still under VERY HUGE development, so please join my discord server to not miss out new updates!\nLINK: https://discord.gg/7XuQDYjyzt"
 		, StartMusicCallback, NULL, NULL);
 	
     while(1)

@@ -10,13 +10,12 @@ endif
 #---------------------------------------------------------------------------------
 #  TITLE, APPID, CONTENTID, ICON0 SFOXML before ppu_rules.
 #---------------------------------------------------------------------------------
-TITLE		:=	PS3Sweeper+
+TITLE		:=	PS3Sweeper+ (DEV-BUILD)
 APPID		:=	MINESWEEP
 CONTENTID	:=	HP0031-$(APPID)_00-0000000000000000
 
-SFOXML		:=	param/sfo.xml
 ICON0       :=  param/ICON0.PNG
-PIC1		:=  param/PIC1.PNG
+#PIC1		:=  param/PIC1.PNG
 
 include $(PSL1GHT)/ppu_rules
 
@@ -40,7 +39,7 @@ INCLUDES	:=	include
 #---------------------------------------------------------------------------------
 # any extra libraries we wish to link with the project
 #---------------------------------------------------------------------------------
-LIBS		:=	-lfont -lfreetype -ltiny3d -lsimdmath -lgcm_sys -lio -lsysutil -lrt -llv2 -lsysmodule \
+LIBS		:=	-lfont3d -lfreetype -ltiny3d -lsimdmath -lgcm_sys -lio -lsysutil -lrt -llv2 -lsysmodule \
 			-laudioplayer -lmpg123 -logg -lspu_sound -laudio -lm -lz -lpngdec
 
 
