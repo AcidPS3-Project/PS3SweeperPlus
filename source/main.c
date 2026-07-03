@@ -397,13 +397,13 @@ void status_cb(
     sysSaveStatusOut *out)
 {
     static sysSaveSystemFileParam param;
-
+	splash = splashes_random[rand() % splash_count];
+	
     memset(&param, 0, sizeof(param));
 
 	snprintf(param.title, sizeof(param.title), "%s", global_name);
     snprintf(param.subtitle, sizeof(param.subtitle), "Game Save Data (%s)", global_version);
-    snprintf(param.detail, sizeof(param.detail),
-		"Current Level: %d\nCurrent Episode: 1", current_level);
+    snprintf(param.detail, sizeof(param.detail), "%s", splash);
 
     if(out)
 	{
@@ -1699,7 +1699,7 @@ int main(int argc, const char* argv[])
     LoadTexture();
 	
 	msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
-		"Welcome to PS3Sweeper+ v0.09!\n\nThis game is still under huge development, so please join my discord server to not miss out new updates!\nLINK: https://discord.gg/7XuQDYjyzt"
+		"Welcome to PS3Sweeper+ v0.1!\n\nThis game is still under huge development, so please join my discord server to not miss out new updates!\nLINK: https://discord.gg/7XuQDYjyzt"
 		, StartMusicCallback, NULL, NULL);
 	
     while(1)
