@@ -73,7 +73,7 @@ LevelData levels[] =
     {18, 12, 33, 4, 3},
     {16, 16, 42, 4, 3},
     {13, 13, 29, 9, 0},
-    {21, 21, 60, 9, 0}
+    {21, 21, 60, 9, 3}
 };
 
 #define LEVEL_COUNT (sizeof(levels)/sizeof(levels[0]))
@@ -86,6 +86,7 @@ int the_bg = 0;
 int ttf_inited = 0;
 int game_loaded = 0;
 int free_play = 0;
+int draw_grid_outlines = 0;
 
 FT_Library freetype;
 FT_Face face;
@@ -223,17 +224,11 @@ void init_bgm()
 
 int LoadSFX(SoundEffect *sfx, const void *data, int size)
 {
-	//int alloc_size = (estimated_size + 31) & ~31;
-    sfx->pcm_size = size * 20; // Temporary buffer size
-
-    //sfx->pcm = malloc(sfx->pcm_size);
+    sfx->pcm_size = size * 20;
 	sfx->pcm = memalign(32, sfx->pcm_size);
-	//sfx->pcm_size = alloc_size;
 
-    if(!sfx->pcm)
-        return 0;
-
-    if( DecodeAudio((void *)data,size,sfx->pcm,&sfx->pcm_size,&sfx->freq,&sfx->stereo) != 0)
+    if(!sfx->pcm) return 0;
+    if(DecodeAudio((void *)data,size,sfx->pcm,&sfx->pcm_size,&sfx->freq,&sfx->stereo) != 0)
     {
         free(sfx->pcm);
         sfx->pcm = NULL;
@@ -297,6 +292,17 @@ int in_game = 0;
 
 int boss9_started = 0;
 int boss9_timer = 0;
+
+typedef struct
+{
+    bool active;
+    float x, y;
+    float hsp, vsp;
+    int time;
+	float speed, timer, pulse;
+} Boss10;
+Boss10 boss10;
+
 typedef struct
 {
     bool active;
@@ -577,16 +583,8 @@ void PlaySFX(SoundEffect *sfx)
 
     if (voice < 1) return;
 	
-    SND_SetVoice(
-        voice,
-        sfx->stereo ? VOICE_STEREO_16BIT : VOICE_MONO_16BIT,
-        sfx->freq,
-        0,
-        sfx->pcm,
-        sfx->pcm_size,
-        255,
-        255,
-        NULL);
+    SND_SetVoice(voice, sfx->stereo ? VOICE_STEREO_16BIT : VOICE_MONO_16BIT,
+        sfx->freq, 0, sfx->pcm, sfx->pcm_size, 255, 255, NULL);
 }
 
 
@@ -636,9 +634,7 @@ void CalculateNumbers()
     {
         for(y=0;y<GRID_H;y++)
         {
-            if(board[x][y].mine)
-                continue;
-			
+            if(board[x][y].mine) continue;
 			int ox, oy;
             int count = 0;
 
@@ -651,13 +647,9 @@ void CalculateNumbers()
                     nx = x + ox;
                     ny = y + oy;
 
-                    if(nx < 0 || ny < 0 ||
-                       nx >= GRID_W ||
-                       ny >= GRID_H)
-                        continue;
+                    if(nx < 0 || ny < 0 || nx >= GRID_W || ny >= GRID_H) continue;
 
-                    if(board[nx][ny].mine)
-                        count++;
+                    if(board[nx][ny].mine) count++;
                 }
             }
             board[x][y].neighbors = count;
@@ -864,6 +856,18 @@ void LoadLevel(int level)
 	
 	boss9.x = GRID_W/2;
 	boss9.y = GRID_H/2;
+	
+	boss10.x = screen_w-32.0f;
+	boss10.y = screen_h + ui_offset_y-32.0f;
+	
+	boss10.hsp = 0.0f;
+	boss10.vsp = 0.0f;
+	
+	boss10.time = 10;
+	boss10.pulse = 0.0f;
+	
+	boss10.speed = 0.018f;
+	boss10.timer = 0.0f;
 
     GenerateBoard();
     CalculateNumbers();
@@ -894,6 +898,14 @@ void LoadFPLevel()
 	
 	boss9.x = GRID_W/2;
 	boss9.y = GRID_H/2;
+	
+	boss10.x = screen_w-32;
+	boss10.y = screen_h + ui_offset_y-32;
+	
+	boss10.time = 10;
+	boss10.pulse = 0.0f;
+	
+	boss10.speed = 0.018f;
 
     GenerateBoard();
     CalculateNumbers();
@@ -1192,6 +1204,59 @@ void UpdateBoss9()
 
 
 
+void boss10_update(void)
+{
+    float TMP_SIZ = 3.0f * RENDERING_PIXELS;
+    float boss_half = (TMP_SIZ * 3.0f * 1.1f) * 0.5f; // max pulsing size
+
+    float left   = boss_half;
+    float right  = (screen_w*2) - boss_half;
+    float top    = boss_half;
+    float bottom = (screen_h*2) - boss_half;
+
+    boss10.x += boss10.hsp;
+    boss10.y += boss10.vsp;
+
+    if (boss10.x < left)
+    {
+        boss10.x = left;
+        boss10.hsp = -boss10.hsp;
+    }
+    else if (boss10.x > right)
+    {
+        boss10.x = right;
+        boss10.hsp = -boss10.hsp;
+    }
+
+    if (boss10.y < top)
+    {
+        boss10.y = top;
+        boss10.vsp = -boss10.vsp;
+    }
+    else if (boss10.y > bottom)
+    {
+        boss10.y = bottom;
+        boss10.vsp = -boss10.vsp;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 int TTFLoadFont(char * path, void * from_memory, int size_from_memory)
 {
     if(!ttf_inited) FT_Init_FreeType(&freetype);
@@ -1405,7 +1470,7 @@ void zoomCheck(int zoom)
 void draw_game()
 {
 	SetTexture(1);
-	float x, y;
+	//float x, y;
 	int x1, y1 = 0;
 	int x0, y0 = 0;
 	u32 color = 0xffffffff;
@@ -1413,16 +1478,16 @@ void draw_game()
     static int count_frames = 0;
     static int anim = 0;
 	
-	x= 0.0; y = 0.0;
+	//x= 0.0; y = 0.0;
 	count_frames++;
 	
 	anim = (count_frames / 30) % 2;
 	
-	for(x0 = -99; x0 < (screen_w * 2) + 99; x0 += 32)
+	for(x0 = -99; x0 < (screen_w * 2) + 99; x0 += 64)
 	{
-		for(y0 = -99; y0 < (screen_h * 2) + 99; y0 += 32)
+		for(y0 = -99; y0 < (screen_h * 2) + 99; y0 += 64)
 		{
-			DrawSprite2D((the_bg * 20) + anim, x0, y0, 32, 32, 16, 16, 320, 320, 5, 0xffffff88);
+			DrawSprite2D((the_bg * 20) + anim, x0, y0, 64, 64, 16, 16, 320, 320, 5, 0xffffff88);
 		}
 	}
 	
@@ -1479,12 +1544,7 @@ void draw_game()
 				}
 			}
 			
-			if(x1 == cursorX && y1 == cursorY)
-			{
-				DrawSprite2D(240, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE),
-					RENDER_SIZE, RENDER_SIZE, 16, 16, 320, 320, 2, color);
-			}
-			else
+			if(draw_grid_outlines)
 			{
 				DrawSprite2D(241 + the_bg, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE),
 					RENDER_SIZE, RENDER_SIZE, 16, 16, 320, 320, 2, 0xffffff88);
@@ -1502,6 +1562,53 @@ void draw_game()
 		DrawSprite2D(1, offset_x+(boss9.x*RENDER_SIZE)-RENDER_SIZE, offset_y+(boss9.y*RENDER_SIZE)-RENDER_SIZE,
 			RENDER_SIZE*3, RENDER_SIZE*3, 384, 384, 1536, 1536, -1, color);
 	}
+	
+	if(current_level==9)
+	{
+		int jl = 0;
+		int num = 0;
+		float scale = 0.0f;
+		float TMP_SIZ = 3.0f * RENDERING_PIXELS;
+		
+		boss10.pulse += 0.4f / (float)boss10.time;
+		if (boss10.pulse > 6.283185f) boss10.pulse -= 6.283185f; // keep it sane
+		
+		if(global_route==1) SetTexture(4);
+		else SetTexture(3);
+		
+		switch(boss10.time)
+		{
+			case 10: num = 222; break;
+			case 9: num = 221; break;
+			case 8: num = 220; break;
+			case 7: num = 203; break;
+			case 6: num = 202; break;
+			case 5: num = 201; break;
+			case 4: num = 200; break;
+			case 3: num = 183; break;
+			case 2: num = 182; break;
+			case 1: num = 181; break;
+			case 0: num = 180; break;
+		}
+		
+		for(jl = 0; jl < 5; jl++)
+		{
+			scale = 1.0f + sinf(boss10.pulse + ((float)jl-0.67f)) * 0.1f;
+			float TMP_SIZE = TMP_SIZ * 3.0f * scale;
+			
+			float draw_x = (boss10.x - TMP_SIZ) - (TMP_SIZE / 2.0f) + (TMP_SIZ*1.5f);
+			float draw_y = (boss10.y - TMP_SIZ) - (TMP_SIZE / 2.0f) + (TMP_SIZ*1.5f);
+			
+			DrawSprite2DR(4, draw_x, draw_y, TMP_SIZE, TMP_SIZE, 384, 384, 1536, 1536, 36*jl, -1, color);
+		}
+		DrawSprite2D(5, boss10.x - TMP_SIZ, boss10.y - TMP_SIZ, TMP_SIZ*3, TMP_SIZ*3, 384, 384, 1536, 1536, -2, color);
+		
+		SetTexture(1);
+		DrawSprite2D(num, boss10.x, boss10.y, TMP_SIZ, TMP_SIZ, 16, 16, 320, 320, -3, color);
+	}
+	
+	DrawSprite2D(240, offset_x+(cursorX*RENDER_SIZE), offset_y+(cursorY*RENDER_SIZE),
+		RENDER_SIZE, RENDER_SIZE, 16, 16, 320, 320, -4, color);
 }
 
 
@@ -1540,7 +1647,7 @@ void drawScene()
 		{
 			//DrawFormatString(-20,256,"%d x %d",Video_Resolution.width,Video_Resolution.height);
 			DrawFormatString(-20,0, "%s (%s)", global_name, global_version);
-			DrawFormatString(-20,32, "Minesweeper Plus First Anniversary!");
+			//DrawFormatString(-20,32, "Minesweeper Plus First Anniversary!");
 			DrawFormatString(-20,484, "%s", splash);
 			DrawFormatString(-20,128,"START - New Game");
 			DrawFormatString(-20,160,"SELECT - Continue");
@@ -1554,7 +1661,7 @@ void drawScene()
 			DrawFormatString(-20,96,"Height: %d", fp_height);
 			DrawFormatString(-20,128,"Mines count: %d", fp_mines);
 			DrawFormatString(-20,160,"Music Type: %d", fp_music);
-			DrawFormatString(-20,192,"Background Type: %d", fp_back);
+			DrawFormatString(-20,192,"Background Type: %d", (fp_back+1));
 			DrawFormatString(-20,256,"START - Start the game");
 			DrawFormatString(-20,288,"CIRCLE - Go Back");
 			
@@ -1739,7 +1846,7 @@ int main(int argc, const char* argv[])
 							if(paddata.BTN_L3)
 							{
 								if(paddata.BTN_R3) global_route = 1;
-								current_level=8;
+								current_level=9;
 							}
 							
 							LoadLevel(current_level);
@@ -1762,24 +1869,16 @@ int main(int argc, const char* argv[])
 							
 							if(ret == SYS_SAVE_RETURN_DONE)
 							{
-								if(gSave.save_level == 0 && gSave.save_current_minecoins == 0 && gSave.save_global_minecoins == 0)
-								{
-									msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
-										"Load Success.", EmptyDialogCallback, NULL, NULL);
-									
-									current_level = gSave.save_level;
-									current_minecoins = gSave.save_current_minecoins;
-									global_minecoins = gSave.save_global_minecoins;
-									free_play = 0;
-									StopAudio();
-									LoadLevel(current_level);
-									in_game = 1;
-								}
-							}
-							else
-							{
-								msgDialogOpen2(MSG_DIALOG_ERROR | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
-									"Load Failed! Data either non-existent or corrupted.", EmptyDialogCallback, NULL, NULL);
+								msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
+									"Load Success.", EmptyDialogCallback, NULL, NULL);
+								
+								current_level = gSave.save_level;
+								current_minecoins = gSave.save_current_minecoins;
+								global_minecoins = gSave.save_global_minecoins;
+								free_play = 0;
+								StopAudio();
+								LoadLevel(current_level);
+								in_game = 1;
 							}
 						}
 						if(paddata.BTN_TRIANGLE && !oldpad.BTN_TRIANGLE)
@@ -1823,7 +1922,7 @@ int main(int argc, const char* argv[])
 								case 1: fp_height--; if(fp_height<3) fp_height=3; break;
 								case 2: fp_mines--; if(fp_mines<1) fp_mines=1; break;
 								case 3: fp_music--; if(fp_music<1) fp_music=1; break;
-								case 4: fp_back--; if(fp_back<1) fp_back=1; break;
+								case 4: fp_back--; if(fp_back<0) fp_back=0; break;
 							}
 							
 							if(fp_mines>(fp_width*fp_height)-1) fp_mines=(fp_width*fp_height)-1;
@@ -1835,7 +1934,7 @@ int main(int argc, const char* argv[])
 								case 1: fp_height++; if(fp_height>36) fp_height=36; break;
 								case 2: fp_mines++; break;
 								case 3: fp_music++; if(fp_music>4) fp_music=4; break;
-								case 4: fp_back++; if(fp_back>4) fp_back=4; break;
+								case 4: fp_back++; if(fp_back>3) fp_back=3; break;
 							}
 							
 							if(fp_mines>(fp_width*fp_height)-1) fp_mines=(fp_width*fp_height)-1;
@@ -2030,6 +2129,15 @@ int main(int argc, const char* argv[])
 		if(timer_running)
 		{
 			timer_seconds += 0.018f;
+			boss10.timer += boss10.speed;
+			
+			if(boss10.timer > 1.0f)
+			{
+				boss10.timer = 0.0f;
+				boss10.time--;
+				
+				if(boss10.time<=0) game_lost();
+			}
 			
 			if(timer_seconds > 999) timer_seconds = 999;
 		}
