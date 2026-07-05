@@ -37,21 +37,33 @@
 
 //IMPORT MUSIC
 #include "title_mp3_bin.h"
+
 #include "bgm1_mp3_bin.h"
 #include "bgm2_mp3_bin.h"
 #include "bgm3_mp3_bin.h"
 #include "bgm4_mp3_bin.h"
+
 #include "win1_mp3_bin.h"
 #include "win2_mp3_bin.h"
 #include "win3_mp3_bin.h"
 #include "win4_mp3_bin.h"
-#include "bgm9_mp3_bin.h"
+
+#include "ocean_mp3_bin.h"
+
+#include "boss9_intro_mp3_bin.h"
+#include "boss9_mp3_bin.h"
+#include "boss10_intro_mp3_bin.h"
+#include "boss10_mp3_bin.h"
 
 //IMPORT SFX
 #include "flag_ogg_bin.h"
 #include "unflag_mp3_bin.h"
 #include "nine_move_ogg_bin.h"
 #include "nine_stop_ogg_bin.h"
+#include "ten_bump_ogg_bin.h"
+#include "ten_reset_ogg_bin.h"
+
+bool playing_bgm = false;
 
 typedef struct
 {
@@ -72,8 +84,8 @@ LevelData levels[] =
     {15, 15, 30, 3, 2},
     {18, 12, 33, 4, 3},
     {16, 16, 42, 4, 3},
-    {13, 13, 29, 9, 0},
-    {21, 21, 60, 9, 3}
+    {13, 13, 29, 6, 0},
+    {21, 21, 60, 8, 0}
 };
 
 #define LEVEL_COUNT (sizeof(levels)/sizeof(levels[0]))
@@ -88,6 +100,9 @@ int game_loaded = 0;
 int free_play = 0;
 int draw_grid_outlines = 0;
 
+// why the fuck this variable exists
+int hesgonnatakeyoubacktothepasttoplaytheshittiestgamesthatsuckasshedratherhaveabuffalohaveadiarheadumpinhisearhedrathereatarottenassholeofaroadkillskunkanddownitwithbeerhestheangriestgameryouveeverheardhestheangrynintendonerdhestheangryatariseganerdhestheangryvideogamenerd = 0;
+
 FT_Library freetype;
 FT_Face face;
 
@@ -98,7 +113,7 @@ FT_Face face;
 
 
 char global_name[] = "PS3Sweeper+";
-char global_version[] = "v0.1.1";
+char global_version[] = "v0.2 Alpha-0";
 
 const char *splashes_random[] =
 {
@@ -117,7 +132,7 @@ const char *splashes_random[] =
 	"Join AcidPS3 Server",
 	"514 is scrapped.",
 	"Clavicord is real?",
-	"Play original first!",
+	"Play the original first!",
 	"Also play yawn's minesweeper",
 	"Also play Minesweeper Plus Plus",
 	"Also play Minesweeper Minus",
@@ -155,7 +170,8 @@ const char *splashes_random[] =
 	"OK I'm not gonna use the SDL here...",
 	"Eleven and twelve coming soon, trust",
 	"TOUHOU KOUMAKYOU IS NOW ON PS3!!!",
-	""
+	"Nagareteku toki no naka de demo kedarusa ga hora guru guru mowaate watashi kara hanareru kokoro mo mienai waa soo shiranai do you even read this shit?",
+	"WHERE IS THE FUCKING TITLE BACKGROUND????"
 };
 
 int splash_count;
@@ -166,8 +182,12 @@ const char *splash;
 
 
 
-const unsigned char *bgm[12];
-int bgm_size[12];
+#define BGM_LIST 55
+
+const unsigned char *bgm[BGM_LIST];
+int bgm_size[BGM_LIST];
+int bgm_start[BGM_LIST];
+int bgm_end[BGM_LIST];
 
 int current_bgm = 1;
 int desired_bgm = 1;
@@ -188,38 +208,62 @@ SoundEffect sfx_flag;
 SoundEffect sfx_unflag;
 SoundEffect sfx_9move;
 SoundEffect sfx_9stop;
+SoundEffect sfx_10bump;
+SoundEffect sfx_10reset;
+
+int sex = 2147483647;
 
 void init_bgm()
 {
 	bgm[0] = title_mp3_bin;
 	bgm_size[0] = title_mp3_bin_size;
+	bgm_start[0] = 0;
+	bgm_end[0] = sex;
 	
 	bgm[1] = bgm1_mp3_bin;
 	bgm_size[1] = bgm1_mp3_bin_size;
+	bgm_start[1] = 499;
+	bgm_end[1] = 45281;
 	
 	bgm[2] = bgm2_mp3_bin;
 	bgm_size[2] = bgm2_mp3_bin_size;
+	bgm_start[2] = 7801;
+	bgm_end[2] = 54617;
 	
 	bgm[3] = bgm3_mp3_bin;
 	bgm_size[3] = bgm3_mp3_bin_size;
+	bgm_start[3] = 0;
+	bgm_end[3] = sex;
 	
 	bgm[4] = bgm4_mp3_bin;
 	bgm_size[4] = bgm4_mp3_bin_size;
+	bgm_start[4] = 1782;
+	bgm_end[4] = 137481;
 	
-	bgm[5] = win1_mp3_bin;
-	bgm_size[5] = win1_mp3_bin_size;
+	bgm[5] = ocean_mp3_bin;
+	bgm_size[5] = ocean_mp3_bin_size;
+	bgm_start[5] = 0;
+	bgm_end[5] = sex;
 	
-	bgm[6] = win2_mp3_bin;
-	bgm_size[6] = win2_mp3_bin_size;
+	bgm[6] = boss9_intro_mp3_bin;
+	bgm_size[6] = boss9_intro_mp3_bin_size;
+	bgm_start[6] = 29632;
+	bgm_end[6] = 33763;
 	
-	bgm[7] = win3_mp3_bin;
-	bgm_size[7] = win3_mp3_bin_size;
+	bgm[7] = boss9_mp3_bin;
+	bgm_size[7] = boss9_mp3_bin_size;
+	bgm_start[7] = 10995;
+	bgm_end[7] = 100527;
 	
-	bgm[8] = win4_mp3_bin;
-	bgm_size[8] = win4_mp3_bin_size;
+	bgm[8] = boss10_intro_mp3_bin;
+	bgm_size[8] = boss10_intro_mp3_bin_size;
+	bgm_start[8] = 23725;
+	bgm_end[8] = 26893;
 	
-	bgm[9] = bgm9_mp3_bin;
-	bgm_size[9] = bgm9_mp3_bin_size;
+	bgm[9] = boss10_mp3_bin;
+	bgm_size[9] = boss10_mp3_bin_size;
+	bgm_start[9] = 0;
+	bgm_end[9] = sex;
 }
 
 int LoadSFX(SoundEffect *sfx, const void *data, int size)
@@ -244,6 +288,8 @@ void init_sfx()
 	LoadSFX(&sfx_unflag, unflag_mp3_bin, unflag_mp3_bin_size);
 	LoadSFX(&sfx_9move, nine_move_ogg_bin, nine_move_ogg_bin_size);
 	LoadSFX(&sfx_9stop, nine_stop_ogg_bin, nine_stop_ogg_bin_size);
+	LoadSFX(&sfx_10bump, ten_bump_ogg_bin, ten_bump_ogg_bin_size);
+	LoadSFX(&sfx_10reset, ten_reset_ogg_bin, ten_reset_ogg_bin_size);
 }
 
 
@@ -290,7 +336,6 @@ int gamewin = 0;
 int gamelose = 0;
 int in_game = 0;
 
-int boss9_started = 0;
 int boss9_timer = 0;
 
 typedef struct
@@ -298,7 +343,8 @@ typedef struct
     bool active;
     float x, y;
     float hsp, vsp;
-    int time;
+	float tspeed;
+    int time, started;
 	float speed, timer, pulse;
 } Boss10;
 Boss10 boss10;
@@ -306,33 +352,26 @@ Boss10 boss10;
 typedef struct
 {
     bool active;
-
     int x, y;
-
     int dx, dy;
-
     int toMove, wait;
     int beforeToMove;
-
     bool isMoving;
-
     int angle, flip;
 	float speed, rotation;
-
     int tempGrid[3];
     bool tempReveal[3];
     bool tempFlagged[3];
-
+	int started;
 } Boss9;
 Boss9 boss9;
-//boss9.x = 0;
-//boss9.y = 0;
 
 
 
 
-//u64 now;
-//u64 timer_start = 0;
+
+
+
 float timer_seconds = 0;
 int timer_running = 0;
 
@@ -380,7 +419,6 @@ enum
 };
 
 static int saveMode;
-
 volatile int save_running = 0;
 sys_ppu_thread_t save_thread;
 
@@ -392,7 +430,6 @@ sys_ppu_thread_t save_thread;
 void savestate_init()
 {
 	memset(&buffer, 0, sizeof(buffer));
-
 	buffer.maxDirectories = 1;
 	buffer.maxFiles = 1;
 	buffer.bufferSize = 1024 * 1024;
@@ -400,32 +437,21 @@ void savestate_init()
 	printf("buffer = %p\n", buffer.buffer);
 }
 
-void status_cb(
-    sysSaveCallbackResult *result,
-    sysSaveStatusIn *in,
-    sysSaveStatusOut *out)
+void status_cb(sysSaveCallbackResult *result, sysSaveStatusIn *in, sysSaveStatusOut *out)
 {
     static sysSaveSystemFileParam param;
 	splash = splashes_random[rand() % splash_count];
-	
     memset(&param, 0, sizeof(param));
 
 	snprintf(param.title, sizeof(param.title), "%s", global_name);
     snprintf(param.subtitle, sizeof(param.subtitle), "Game Save Data (%s)", global_version);
     snprintf(param.detail, sizeof(param.detail), "%s", splash);
-
-    if(out)
-	{
-		out->setParam = &param;
-	}
+    if(out) out->setParam = &param;
 
     result->result = SYS_SAVE_CALLBACK_RESULT_CONTINUE;
 }
 
-void save_file_cb(
-    sysSaveCallbackResult *result,
-    sysSaveFileIn *in,
-    sysSaveFileOut *out)
+void save_file_cb(sysSaveCallbackResult *result, sysSaveFileIn *in, sysSaveFileOut *out)
 {
 	switch(saveMode)
     {
@@ -433,7 +459,6 @@ void save_file_cb(
 		{
             out->fileOperation = SYS_SAVE_FILE_OPERATION_WRITE;
             out->fileType      = SYS_SAVE_FILETYPE_CONTENT_ICON0;
-
             out->buffer     = (void *)icon0_png_bin;
             out->bufferSize = icon0_png_bin_size;
             out->size       = icon0_png_bin_size;
@@ -450,7 +475,6 @@ void save_file_cb(
             out->fileOperation = SYS_SAVE_FILE_OPERATION_WRITE;
             out->fileType      = SYS_SAVE_FILETYPE_STANDARD_FILE;
             out->filename      = filename;
-
             out->buffer     = &gSave;
             out->bufferSize = sizeof(gSave);
             out->size       = sizeof(gSave);
@@ -463,17 +487,13 @@ void save_file_cb(
     }
 }
 
-void load_file_cb(
-    sysSaveCallbackResult *result,
-    sysSaveFileIn *in,
-    sysSaveFileOut *out)
+void load_file_cb(sysSaveCallbackResult *result, sysSaveFileIn *in, sysSaveFileOut *out)
 {
 	static char filename[] = "SAVE.DAT";
 	
 	out->fileOperation = SYS_SAVE_FILE_OPERATION_READ;
 	out->fileType      = SYS_SAVE_FILETYPE_STANDARD_FILE;
 	out->filename      = filename;
-
 	out->buffer     = &gSave;
 	out->bufferSize = sizeof(gSave);
 	out->size       = sizeof(gSave);
@@ -491,8 +511,6 @@ void load_file_cb(
 void UpdateFPS()
 {
     u64 now = sysGetSystemTime();
-    //now = sysGetSystemTime();
-
     frames++;
 
     if(now - last_time >= 1000000ULL)
@@ -530,6 +548,41 @@ void Initialize()
 
 
 
+
+u32 color_from_value(int value)
+{
+    if (value < 0)  value = 0;
+    if (value > 10) value = 10;
+    int r, g, b;
+
+    if (value >= 5)
+    {
+        float t = (float)(value - 5) / 5.0f;
+        r = (int)(255.0f - (127.0f * t));
+        g = 255;
+        b = (int)(64.0f * t);
+    }
+    else
+    {
+        float t = (float)value / 5.0f;
+        r = 255;
+        g = (int)(255.0f * t);
+        b = 0;
+    }
+
+    return (r << 24) | (g << 16) | (b << 8) | 0xff;
+}
+
+
+
+
+
+
+
+
+
+
+
 pngData spritesheet[TOTAL_SHEETS];
 u32 sprite_off[TOTAL_SHEETS];
 
@@ -549,13 +602,19 @@ void Load_PNG()
 
 void game_lost()
 {
-	if(boss9_started)
+	if(boss9.started)
 	{
-		boss9_started = 0;
+		boss9.started = 0;
 		boss9.active = false;
+	}
+	if(boss10.started)
+	{
+		boss10.started = 0;
+		boss10.active = false;
 	}
 	gamelose = 1;
 	timer_running = 0;
+	playing_bgm = false;
 	StopAudio();
 }
 
@@ -569,18 +628,23 @@ void game_lost()
 
 void PlayBGM(int id, int inf)
 {
-    StopAudio();
-
+    //StopAudio();
     FILE *fp = (FILE *)mem_open((char *)bgm[id], bgm_size[id]);
     if(inf) PlayAudiofd(fp, 0, AUDIO_INFINITE_TIME); else PlayAudiofd(fp, 0, AUDIO_ONE_TIME);
 
     current_bgm = id;
 }
 
+void UpdateBGM(void)
+{
+	s32 temp_t = GetTimeAudio();
+	int tempzz = 50;
+	if(temp_t >= bgm_end[current_bgm]-tempzz) SetTimeAudio(bgm_start[current_bgm]-tempzz);
+}
+
 void PlaySFX(SoundEffect *sfx)
 {
 	int voice = SND_GetFirstUnusedVoice();
-
     if (voice < 1) return;
 	
     SND_SetVoice(voice, sfx->stereo ? VOICE_STEREO_16BIT : VOICE_MONO_16BIT,
@@ -697,8 +761,8 @@ int calculate_score()
 			//if(tile_array[i][j].doublemine)score++;
 		}
 	}
-	//if (Main.nine): score += 999
-	//if (Main.ten): score += 1000
+	if(current_level==8) score += 999;
+	if(current_level==9) score += 1000;
 	//if (Main.eleven): score += 1111
 	//if (Main.nine_count > 0): score += 9
 	//if (Main.ten_count > 0): score += 10
@@ -729,19 +793,28 @@ void WinCheck()
 		}
 	}
 	
+	if(current_level==8) revealed_total+=9;
+	//printf("%d/%d\n", revealed_total, valid_total);
+	
 	if(revealed_total >= valid_total)
 	{
 		gamewin = 1;
 		mines_count = 0;
 		timer_running = 0;
+		playing_bgm = false;
 		StopAudio();
 		
 		if(current_level==8)
 		{
-			boss9_started = 0;
+			boss9.started = 0;
 			boss9.active = false;
 		}
-		else PlayBGM(4+desired_bgm, 0);
+		if(current_level==9)
+		{
+			boss10.started = 0;
+			boss10.active = false;
+		}
+		//else PlayBGM(4+desired_bgm, 0);
 		
 		int fx, fy;
 		
@@ -756,6 +829,10 @@ void WinCheck()
 		level_minecoins = calculate_score();
 		current_minecoins += level_minecoins;
 		global_minecoins += current_minecoins;
+	}
+	else
+	{
+		if(current_level==8) game_lost();
 	}
 }
 
@@ -860,12 +937,10 @@ void LoadLevel(int level)
 	boss10.x = screen_w-32.0f;
 	boss10.y = screen_h + ui_offset_y-32.0f;
 	
-	boss10.hsp = 0.0f;
-	boss10.vsp = 0.0f;
-	
+	boss10.x = screen_w-32;
+	boss10.y = screen_h + ui_offset_y-32;
 	boss10.time = 10;
 	boss10.pulse = 0.0f;
-	
 	boss10.speed = 0.018f;
 	boss10.timer = 0.0f;
 
@@ -874,6 +949,7 @@ void LoadLevel(int level)
 
     desired_bgm = levels[level].music;
 	the_bg = levels[level].back;
+	playing_bgm = true;
     PlayBGM(desired_bgm, 1);
 }
 
@@ -901,10 +977,8 @@ void LoadFPLevel()
 	
 	boss10.x = screen_w-32;
 	boss10.y = screen_h + ui_offset_y-32;
-	
 	boss10.time = 10;
 	boss10.pulse = 0.0f;
-	
 	boss10.speed = 0.018f;
 
     GenerateBoard();
@@ -912,6 +986,7 @@ void LoadFPLevel()
 
     desired_bgm = fp_music;
 	the_bg = fp_back;
+	playing_bgm = true;
     PlayBGM(desired_bgm, 1);
 }
 
@@ -1012,7 +1087,6 @@ void Boss9SaveStrip()
 
             boss9.tempGrid[i] = board[sx][sy].mine;
             boss9.tempReveal[i] = board[sx][sy].revealed;
-			//board[sx][sy].flagged = false;
 			boss9.tempFlagged[i] = board[sx][sy].flagged;
         }
     }
@@ -1026,7 +1100,6 @@ void Boss9SaveStrip()
 
             boss9.tempGrid[i] = board[sx][sy].mine;
             boss9.tempReveal[i] = board[sx][sy].revealed;
-			//board[sx][sy].flagged = false;
 			boss9.tempFlagged[i] = board[sx][sy].flagged;
         }
     }
@@ -1040,7 +1113,6 @@ void Boss9SaveStrip()
 
             boss9.tempGrid[i] = board[sx][sy].mine;
             boss9.tempReveal[i] = board[sx][sy].revealed;
-			//board[sx][sy].flagged = false;
 			boss9.tempFlagged[i] = board[sx][sy].flagged;
         }
     }
@@ -1054,7 +1126,6 @@ void Boss9SaveStrip()
 
             boss9.tempGrid[i] = board[sx][sy].mine;
             boss9.tempReveal[i] = board[sx][sy].revealed;
-			//board[sx][sy].flagged = false;
 			boss9.tempFlagged[i] = board[sx][sy].flagged;
         }
     }
@@ -1207,12 +1278,13 @@ void UpdateBoss9()
 void boss10_update(void)
 {
     float TMP_SIZ = 3.0f * RENDERING_PIXELS;
-    float boss_half = (TMP_SIZ * 3.0f * 1.1f) * 0.5f; // max pulsing size
+    float boss_half = (TMP_SIZ * 3.0f * 1.1f) * 0.5f;
+	float boundary = 384.0f / 4;
 
-    float left   = boss_half;
-    float right  = (screen_w*2) - boss_half;
-    float top    = boss_half;
-    float bottom = (screen_h*2) - boss_half;
+    float left   = boss_half - boundary;
+    float right  = (screen_w*2) - boss_half + boundary;
+    float top    = boss_half - boundary;
+    float bottom = (screen_h*2) - boss_half + boundary;
 
     boss10.x += boss10.hsp;
     boss10.y += boss10.vsp;
@@ -1221,22 +1293,25 @@ void boss10_update(void)
     {
         boss10.x = left;
         boss10.hsp = -boss10.hsp;
+		PlaySFX(&sfx_10bump);
     }
     else if (boss10.x > right)
     {
         boss10.x = right;
         boss10.hsp = -boss10.hsp;
+		PlaySFX(&sfx_10bump);
     }
-
     if (boss10.y < top)
     {
         boss10.y = top;
         boss10.vsp = -boss10.vsp;
+		PlaySFX(&sfx_10bump);
     }
     else if (boss10.y > bottom)
     {
         boss10.y = bottom;
         boss10.vsp = -boss10.vsp;
+		PlaySFX(&sfx_10bump);
     }
 }
 
@@ -1273,8 +1348,8 @@ int TTFLoadFont(char * path, void * from_memory, int size_from_memory)
 
 void TTFUnloadFont()
 {
-   FT_Done_FreeType(freetype);
-   ttf_inited = 0;
+	FT_Done_FreeType(freetype);
+	ttf_inited = 0;
 }
 
 void TTF_to_Bitmap(u8 chr, u8 * bitmap, short *w, short *h, short *y_correction)
@@ -1286,20 +1361,17 @@ void TTF_to_Bitmap(u8 chr, u8 * bitmap, short *w, short *h, short *y_correction)
     int n, m, ww;
 
     *y_correction = (*h) - 1 - slot->bitmap_top;
-    
     ww = 0;
 
-    for(n = 0; n < slot->bitmap.rows; n++) {
-        for (m = 0; m < slot->bitmap.width; m++) {
-
+    for(n = 0; n < slot->bitmap.rows; n++)
+	{
+        for (m = 0; m < slot->bitmap.width; m++)
+		{
             if(m >= (*w) || n >= (*h)) continue;
-            
             bitmap[m] = (u8) slot->bitmap.buffer[ww + m];
         }
-    
-    bitmap += *w;
-
-    ww += slot->bitmap.width;
+		bitmap += *w;
+		ww += slot->bitmap.width;
     }
 
     *w = ((slot->advance.x + 31) >> 6) + ((slot->bitmap_left < 0) ? -slot->bitmap_left : 0);
@@ -1332,13 +1404,10 @@ void DrawSprite2D(int id, float x, float y, int wid2, int hei2, int wid1, int he
     tiny3d_VertexPos(x, y, layer);
     tiny3d_VertexColor(color);
     tiny3d_VertexTexture(u0, v0);
-
     tiny3d_VertexPos(x+wid2, y, layer);
     tiny3d_VertexTexture(u1, v0);
-
     tiny3d_VertexPos(x+wid2, y+hei2, layer);
     tiny3d_VertexTexture(u1, v1);
-
     tiny3d_VertexPos(x, y+hei2, layer);
     tiny3d_VertexTexture(u0, v1);
 
@@ -1357,13 +1426,10 @@ void DrawSpriteUI(float x, float y, int wid1, int hei1, int wid2, int hei2, int 
     tiny3d_VertexPos(x, y, layer);
     tiny3d_VertexColor(color);
     tiny3d_VertexTexture(u0, v0);
-
     tiny3d_VertexPos(x+wid3, y, layer);
     tiny3d_VertexTexture(u1, v0);
-
     tiny3d_VertexPos(x+wid3, y+hei3, layer);
     tiny3d_VertexTexture(u1, v1);
-
     tiny3d_VertexPos(x, y+hei3, layer);
     tiny3d_VertexTexture(u0, v1);
 
@@ -1381,29 +1447,21 @@ void DrawSprite2DR(int id, float x, float y, int wid2, int hei2, int wid1, int h
     float u1 = (float)((col + 1) * wid1) / wid0;
     float v1 = (float)((row + 1) * hei1) / hei0;
 
-    // Center of sprite
     float cx = x + wid2 * 0.5f;
     float cy = y + hei2 * 0.5f;
-
-    // Half-size
     float hw = wid2 * 0.5f;
     float hh = hei2 * 0.5f;
 
-    // Rotation
     float rad = angle * (M_PI / 180.0f);
     float c = cosf(rad);
     float s = sinf(rad);
 
-    // Rotated corners
     float x0 = (-hw * c) - (-hh * s);
     float y0 = (-hw * s) + (-hh * c);
-
     float x1 = ( hw * c) - (-hh * s);
     float y1 = ( hw * s) + (-hh * c);
-
     float x2 = ( hw * c) - ( hh * s);
     float y2 = ( hw * s) + ( hh * c);
-
     float x3 = (-hw * c) - ( hh * s);
     float y3 = (-hw * s) + ( hh * c);
 
@@ -1412,13 +1470,10 @@ void DrawSprite2DR(int id, float x, float y, int wid2, int hei2, int wid1, int h
     tiny3d_VertexPos(cx + x0, cy + y0, layer);
     tiny3d_VertexColor(color);
     tiny3d_VertexTexture(u0, v0);
-
     tiny3d_VertexPos(cx + x1, cy + y1, layer);
     tiny3d_VertexTexture(u1, v0);
-
     tiny3d_VertexPos(cx + x2, cy + y2, layer);
     tiny3d_VertexTexture(u1, v1);
-
     tiny3d_VertexPos(cx + x3, cy + y3, layer);
     tiny3d_VertexTexture(u0, v1);
 
@@ -1470,7 +1525,6 @@ void zoomCheck(int zoom)
 void draw_game()
 {
 	SetTexture(1);
-	//float x, y;
 	int x1, y1 = 0;
 	int x0, y0 = 0;
 	u32 color = 0xffffffff;
@@ -1478,9 +1532,7 @@ void draw_game()
     static int count_frames = 0;
     static int anim = 0;
 	
-	//x= 0.0; y = 0.0;
 	count_frames++;
-	
 	anim = (count_frames / 30) % 2;
 	
 	for(x0 = -99; x0 < (screen_w * 2) + 99; x0 += 64)
@@ -1552,6 +1604,9 @@ void draw_game()
 		}
 	}
 	
+	DrawSprite2D(240, offset_x+(cursorX*RENDER_SIZE), offset_y+(cursorY*RENDER_SIZE),
+		RENDER_SIZE, RENDER_SIZE, 16, 16, 320, 320, -4, color);
+	
 	if(current_level==8)
 	{
 		if(global_route==1) SetTexture(4);
@@ -1590,7 +1645,6 @@ void draw_game()
 			case 1: num = 181; break;
 			case 0: num = 180; break;
 		}
-		
 		for(jl = 0; jl < 5; jl++)
 		{
 			scale = 1.0f + sinf(boss10.pulse + ((float)jl-0.67f)) * 0.1f;
@@ -1599,16 +1653,13 @@ void draw_game()
 			float draw_x = (boss10.x - TMP_SIZ) - (TMP_SIZE / 2.0f) + (TMP_SIZ*1.5f);
 			float draw_y = (boss10.y - TMP_SIZ) - (TMP_SIZE / 2.0f) + (TMP_SIZ*1.5f);
 			
-			DrawSprite2DR(4, draw_x, draw_y, TMP_SIZE, TMP_SIZE, 384, 384, 1536, 1536, 36*jl, -1, color);
+			DrawSprite2DR(4, draw_x, draw_y, TMP_SIZE, TMP_SIZE, 384, 384, 1536, 1536, 36*jl, -1, color_from_value(boss10.time));
 		}
-		DrawSprite2D(5, boss10.x - TMP_SIZ, boss10.y - TMP_SIZ, TMP_SIZ*3, TMP_SIZ*3, 384, 384, 1536, 1536, -2, color);
+		DrawSprite2D(5, boss10.x - TMP_SIZ, boss10.y - TMP_SIZ, TMP_SIZ*3, TMP_SIZ*3, 384, 384, 1536, 1536, -2, color_from_value(boss10.time));
 		
 		SetTexture(1);
 		DrawSprite2D(num, boss10.x, boss10.y, TMP_SIZ, TMP_SIZ, 16, 16, 320, 320, -3, color);
 	}
-	
-	DrawSprite2D(240, offset_x+(cursorX*RENDER_SIZE), offset_y+(cursorY*RENDER_SIZE),
-		RENDER_SIZE, RENDER_SIZE, 16, 16, 320, 320, -4, color);
 }
 
 
@@ -1628,10 +1679,7 @@ void drawScene()
     static int anim1 = 0;
 	SetFontSize(28, 32);
 	
-	if(in_game)
-	{
-		draw_game();
-	}
+	if(in_game) draw_game();
 	
     SetFontColor(0xffffffff, 0x00000000);
     SetCurrentFont(0);
@@ -1735,10 +1783,10 @@ void LoadTexture()
     texture_pointer = (u32 *) AddFontFromTTF((u8 *) texture_pointer, 32, 255, 64, 64, TTF_to_Bitmap);
     TTFUnloadFont();
 	
-    for(g = 0; g < TOTAL_SHEETS; g++) {
+    for(g = 0; g < TOTAL_SHEETS; g++)
+	{
 		memcpy(texture_pointer, spritesheet[g].bmp_out, spritesheet[g].pitch * spritesheet[g].height);
 		sprite_off[g] = tiny3d_TextureOffset(texture_pointer);
-		
 		free(spritesheet[g].bmp_out);
 		spritesheet[g].bmp_out = NULL;
 		
@@ -1762,6 +1810,7 @@ void EmptyDialogCallback(msgButton button, void *usrData)
 void StartMusicCallback(msgButton button, void *usrData)
 {
 	game_loaded = 1;
+	playing_bgm = true;
     PlayBGM(0, 1);
 }
 
@@ -1792,13 +1841,13 @@ int main(int argc, const char* argv[])
 	Initialize();
 	splash_count = sizeof(splashes_random) / sizeof(splashes_random[0]);
 	
-	for (dick = 0; dick < rand() % 100; dick++)
-	{
-		splash = splashes_random[rand() % splash_count];
-	}
+	for (dick = 0; dick < rand() % 100; dick++) splash = splashes_random[rand() % splash_count];
 	
 	boss9.speed = 2.0f;
 	boss9.angle = 1;
+	
+	boss9.started = 0;
+	boss10.started = 0;
 	
 	if(global_route==1) boss9.speed = 6.0f;
 	
@@ -1809,25 +1858,21 @@ int main(int argc, const char* argv[])
     LoadTexture();
 	
 	msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
-		"Welcome to PS3Sweeper+!\n\nThis game is still under VERY HUGE development, so please join my discord server to not miss out new updates!\nLINK: https://discord.gg/7XuQDYjyzt"
-		, StartMusicCallback, NULL, NULL);
+		"Welcome to PS3Sweeper+!\n\nThis game is still under VERY HUGE development, so please join my discord server to not miss out new updates!\nLINK: https://discord.gg/7XuQDYjyzt",
+		StartMusicCallback, NULL, NULL);
 	
     while(1)
     {
 		sysUtilCheckCallback();
-		
 		UpdateFPS();
 		
         tiny3d_Clear(0xff000000, TINY3D_CLEAR_ALL);
-		
 		tiny3d_AlphaTest(1, 0x10, TINY3D_ALPHA_FUNC_GEQUAL);
-
 		tiny3d_BlendFunc(1, TINY3D_BLEND_FUNC_SRC_RGB_SRC_ALPHA | TINY3D_BLEND_FUNC_SRC_ALPHA_SRC_ALPHA,
             TINY3D_BLEND_FUNC_DST_RGB_ONE_MINUS_SRC_ALPHA | TINY3D_BLEND_FUNC_DST_ALPHA_ZERO,
             TINY3D_BLEND_RGB_FUNC_ADD | TINY3D_BLEND_ALPHA_FUNC_ADD);
 		
 		ioPadGetInfo(&padinfo);
-
 		for(i = 0; i < MAX_PADS; i++){
 
 			if(padinfo.status[i]){
@@ -1844,6 +1889,12 @@ int main(int argc, const char* argv[])
 							StopAudio();
 							
 							if(paddata.BTN_L3)
+							{
+								if(paddata.BTN_R3) global_route = 1;
+								current_level=8;
+							}
+							
+							if(paddata.BTN_L2)
 							{
 								if(paddata.BTN_R3) global_route = 1;
 								current_level=9;
@@ -1955,7 +2006,7 @@ int main(int argc, const char* argv[])
 						splash = splashes_random[rand() % splash_count];
 						free_play = 0;
 						
-						PlayBGM(0, 1);
+						PlayBGM(0, 0);
 					}
 				}
 				else if(gamewin)
@@ -2014,7 +2065,7 @@ int main(int argc, const char* argv[])
 							splash = splashes_random[rand() % splash_count];
 							free_play = 0;
 							
-							PlayBGM(0, 1);
+							PlayBGM(0, 0);
 						}
 					}
 				}
@@ -2024,11 +2075,7 @@ int main(int argc, const char* argv[])
 					// basic
 					if(paddata.BTN_CROSS && !oldpad.BTN_CROSS)
 					{
-						if(FIRST_CLICK)
-						{
-							//timer_start = sysGetSystemTime();
-							timer_running = 1;
-						}
+						if(FIRST_CLICK) timer_running = 1;
 						
 						if(board[cursorX][cursorY].mine && FIRST_CLICK)
 						{
@@ -2042,29 +2089,32 @@ int main(int argc, const char* argv[])
 						
 						FIRST_CLICK = 0;
 						
-						if(current_level==8 && !boss9_started)
+						if(current_level==8 && !boss9.started)
 						{
-							boss9_started = 1;
+							boss9.started = 1;
 							boss9.active = true;
+							
+							StopAudio();
+							PlayBGM(7, 1);
 						}
-						
-						if(boss9_started && cursorX == boss9.x && cursorY == boss9.y)
+						if(current_level==9 && !boss10.started)
 						{
-							WinCheck();
+							boss10.started = 1;
+							boss10.active = true;
+							
+							StopAudio();
+							PlayBGM(9, 1);
+						}
+						if (board[cursorX][cursorY].revealed)
+						{
+							Chord(cursorX, cursorY);
 						}
 						else
 						{
-							if (board[cursorX][cursorY].revealed)
-							{
-								Chord(cursorX, cursorY);
-							}
-							else
-							{
-								Reveal(cursorX, cursorY);
-							}
+							Reveal(cursorX, cursorY);
 						}
 						
-						if(!boss9_started) WinCheck();
+						if(!boss9.started) WinCheck();
 					}
 					if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE)
 					{
@@ -2080,6 +2130,30 @@ int main(int argc, const char* argv[])
 							{
 								PlaySFX(&sfx_unflag);
 								mines_count++;
+							}
+						}
+					}
+					if(paddata.BTN_SQUARE && !oldpad.BTN_SQUARE)
+					{
+						if(current_level==8)
+						{
+							if(boss9.started) WinCheck();
+						}
+						else if(current_level==9)
+						{
+							if(boss10.started)
+							{
+								boss10.time=10;
+								boss10.tspeed+=0.031f;
+								float min_speed = boss10.tspeed;
+								
+								boss10.hsp = min_speed + (((float)rand() / (float)RAND_MAX) * boss10.tspeed);
+								boss10.vsp = min_speed + (((float)rand() / (float)RAND_MAX) * boss10.tspeed);
+								
+								PlaySFX(&sfx_10reset);
+								
+								if (rand() % 2) boss10.hsp = -boss10.hsp;
+								if (rand() % 2) boss10.vsp = -boss10.vsp;
 							}
 						}
 					}
@@ -2110,7 +2184,7 @@ int main(int argc, const char* argv[])
 			}
 		}
 		
-		if(boss9_started)
+		if(boss9.started)
 		{
 			boss9_timer--;
 
@@ -2129,20 +2203,24 @@ int main(int argc, const char* argv[])
 		if(timer_running)
 		{
 			timer_seconds += 0.018f;
+			if(timer_seconds > 999) timer_seconds = 999;
+		}
+		
+		if(boss10.started)
+		{
 			boss10.timer += boss10.speed;
-			
 			if(boss10.timer > 1.0f)
 			{
 				boss10.timer = 0.0f;
 				boss10.time--;
-				
 				if(boss10.time<=0) game_lost();
 			}
 			
-			if(timer_seconds > 999) timer_seconds = 999;
+			boss10_update();
 		}
 		
 		if(game_loaded) drawScene();
+		if(playing_bgm) UpdateBGM();
 		
 		tiny3d_Flip();
 		usleep(3666);
