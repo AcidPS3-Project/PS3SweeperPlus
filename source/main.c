@@ -33,6 +33,7 @@
 #include "ui_sheet_png_bin.h"
 #include "boss_sheet_png_bin.h"
 #include "boss1_sheet_png_bin.h"
+#include "cursed_sheet_png_bin.h"
 #include "icon0_png_bin.h"
 
 //IMPORT MUSIC
@@ -63,7 +64,12 @@
 #include "ten_bump_ogg_bin.h"
 #include "ten_reset_ogg_bin.h"
 
+// the fuck is that
+#include "episode2_shapes.h"
+
 bool playing_bgm = false;
+
+int EPISODE = 1;
 
 typedef struct
 {
@@ -72,20 +78,21 @@ typedef struct
     int mines;
     int music;
     int back;
+    int id;
 } LevelData;
 
 LevelData levels[] =
 {
-    {6, 6, 3, 1, 0},
-    {8, 8, 6, 1, 0},
-    {10, 10, 10, 2, 1},
-    {9, 12, 12, 2, 1},
-    {18, 9, 20, 3, 2},
-    {15, 15, 30, 3, 2},
-    {18, 12, 33, 4, 3},
-    {16, 16, 42, 4, 3},
-    {13, 13, 29, 6, 0},
-    {21, 21, 60, 8, 0}
+    {6, 6, 3, 1, 0, 0},
+    {8, 8, 6, 1, 0, 0},
+    {10, 10, 10, 2, 1, 0},
+    {9, 12, 12, 2, 1, 0},
+    {18, 9, 20, 3, 2, 0},
+    {15, 15, 30, 3, 2, 0},
+    {18, 12, 33, 4, 3, 0},
+    {16, 16, 42, 4, 3, 0},
+    {13, 13, 29, 6, 4, 0},
+    {21, 21, 60, 8, 9, 91}
 };
 
 #define LEVEL_COUNT (sizeof(levels)/sizeof(levels[0]))
@@ -110,10 +117,8 @@ FT_Face face;
 
 
 
-
-
 char global_name[] = "PS3Sweeper+";
-char global_version[] = "v0.2 Alpha-0";
+char global_version[] = "v0.2 Alpha-1";
 
 const char *splashes_random[] =
 {
@@ -302,7 +307,7 @@ void init_sfx()
 #define MAX_W 72
 #define MAX_H 48
 
-#define TOTAL_SHEETS 5
+#define TOTAL_SHEETS 6
 
 typedef struct
 {
@@ -310,6 +315,7 @@ typedef struct
 	u8 revealed;
 	u8 flagged;
 	u8 neighbors;
+	u8 active;
 } Cell;
 
 Cell board[MAX_W][MAX_H];
@@ -318,6 +324,7 @@ float RENDER_SIZE;
 int GRID_W = 16;
 int GRID_H = 16;
 int MINES  = 40;
+int GRID_ID= 00;
 int mines_count = 0;
 int RENDERING_PIXELS = 16;
 float RENDERING_SIZE = 2.0f;
@@ -327,7 +334,7 @@ int fp_width = 9;
 int fp_height = 9;
 int fp_mines = 10;
 int fp_music = 1;
-int fp_back = 1;
+int fp_back = 0;
 int fp_menu = 0;
 
 int cursorX;
@@ -336,18 +343,8 @@ int gamewin = 0;
 int gamelose = 0;
 int in_game = 0;
 
-int boss9_timer = 0;
-
-typedef struct
-{
-    bool active;
-    float x, y;
-    float hsp, vsp;
-	float tspeed;
-    int time, started;
-	float speed, timer, pulse;
-} Boss10;
-Boss10 boss10;
+#define MAX_BOSS9   4
+#define MAX_BOSS10  4
 
 typedef struct
 {
@@ -362,11 +359,27 @@ typedef struct
     int tempGrid[3];
     bool tempReveal[3];
     bool tempFlagged[3];
-	int started;
+	int timer;
 } Boss9;
-Boss9 boss9;
 
+typedef struct
+{
+    bool active;
+    float x, y;
+    float hsp, vsp;
+	float tspeed;
+    int time;
+	float speed, timer, pulse;
+} Boss10;
 
+Boss9 boss9_list[MAX_BOSS9];
+Boss10 boss10_list[MAX_BOSS10];
+
+int boss9_started = 0;
+int boss10_started = 0;
+
+int boss9_count = 1;
+int boss10_count = 1;
 
 
 
@@ -548,6 +561,177 @@ void Initialize()
 
 
 
+void SetupBoss9Positions(int count)
+{
+    int pad = 4;
+    int cx = GRID_W / 2;
+    int cy = GRID_H / 2;
+
+    if (count > MAX_BOSS9) count = MAX_BOSS9;
+    boss9_count = count;
+
+    // clear old state first if you want
+    memset(boss9_list, 0, sizeof(boss9_list));
+
+    switch (count)
+    {
+        case 1:
+            boss9_list[0].x = cx;
+            boss9_list[0].y = cy;
+            break;
+
+        case 2:
+            boss9_list[0].x = pad;
+            boss9_list[0].y = pad;
+
+            boss9_list[1].x = GRID_W - 1 - pad;
+            boss9_list[1].y = GRID_H - 1 - pad;
+            break;
+
+        case 3:
+            boss9_list[0].x = pad;
+            boss9_list[0].y = pad;
+
+            boss9_list[1].x = GRID_W - 1 - pad;
+            boss9_list[1].y = pad;
+
+            boss9_list[2].x = cx;
+            boss9_list[2].y = GRID_H - 1 - pad;
+            break;
+
+        default: // 4+
+            boss9_list[0].x = pad;
+            boss9_list[0].y = pad;
+
+            boss9_list[1].x = GRID_W - 1 - pad;
+            boss9_list[1].y = pad;
+
+            boss9_list[2].x = pad;
+            boss9_list[2].y = GRID_H - 1 - pad;
+
+            boss9_list[3].x = GRID_W - 1 - pad;
+            boss9_list[3].y = GRID_H - 1 - pad;
+            break;
+    }
+
+    // mark active + reset state
+    for (int i = 0; i < count; i++)
+    {
+        boss9_list[i].active = false;
+        boss9_list[i].dx = 0;
+        boss9_list[i].dy = 0;
+        boss9_list[i].wait = 0;
+        boss9_list[i].toMove = 0;
+        boss9_list[i].isMoving = false;
+		
+		boss9_list[i].speed = 2.0f;
+		boss9_list[i].angle = 1;
+		
+		if(global_route==1) boss9_list[i].speed = 6.0f;
+    }
+}
+
+void SetupBoss10Positions(int count)
+{
+	float center_x = screen_w-32.0f;
+	float center_y = screen_h + ui_offset_y-32.0f;
+	
+    float margin_x = center_x * 0.30f;
+    float margin_y = center_y * 0.30f;
+
+    float left   = margin_x;
+    float right  = (center_x * 2.0f) - margin_x;
+    float top    = margin_y;
+    float bottom = (center_y * 2.0f) - margin_y;
+	float dist = 0;
+
+    float cx = center_x;
+    float cy = center_y;
+
+    if (count > MAX_BOSS10) count = MAX_BOSS10;
+    boss10_count = count;
+
+    memset(boss10_list, 0, sizeof(boss10_list));
+
+    switch (count)
+    {
+        case 1:
+            boss10_list[0].x = cx;
+            boss10_list[0].y = cy;
+            break;
+			
+		case 2:
+			dist = screen_w * 0.55f;
+
+			boss10_list[0].x = cx - dist;
+			boss10_list[0].y = cy;
+
+			boss10_list[1].x = cx + dist;
+			boss10_list[1].y = cy;
+			break;
+
+        case 3:
+            boss10_list[0].x = left;
+            boss10_list[0].y = top;
+
+            boss10_list[1].x = right;
+            boss10_list[1].y = top;
+
+            boss10_list[2].x = cx;
+            boss10_list[2].y = bottom;
+            break;
+
+        default: // 4+
+            boss10_list[0].x = left;
+            boss10_list[0].y = top;
+
+            boss10_list[1].x = right;
+            boss10_list[1].y = top;
+
+            boss10_list[2].x = left;
+            boss10_list[2].y = bottom;
+
+            boss10_list[3].x = right;
+            boss10_list[3].y = bottom;
+            break;
+    }
+
+    for (int i = 0; i < count; i++)
+    {
+        boss10_list[i].active = false;
+        boss10_list[i].pulse = 0.0f;
+        boss10_list[i].time = 10;
+
+        // give each one different movement so they don't mirror perfectly
+        // switch (i)
+        // {
+            // case 0: boss10_list[i].hsp =  2.0f; boss10_list[i].vsp =  1.5f; break;
+            // case 1: boss10_list[i].hsp = -2.0f; boss10_list[i].vsp = -1.5f; break;
+            // case 2: boss10_list[i].hsp =  1.6f; boss10_list[i].vsp = -2.0f; break;
+            // case 3: boss10_list[i].hsp = -1.6f; boss10_list[i].vsp =  2.0f; break;
+        // }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 u32 color_from_value(int value)
 {
@@ -560,7 +744,7 @@ u32 color_from_value(int value)
         float t = (float)(value - 5) / 5.0f;
         r = (int)(255.0f - (127.0f * t));
         g = 255;
-        b = (int)(64.0f * t);
+        b = (int)(128.0f * t);
     }
     else
     {
@@ -593,6 +777,7 @@ void Load_PNG()
 	pngLoadFromBuffer(ui_sheet_png_bin, ui_sheet_png_bin_size, &spritesheet[2]);
 	pngLoadFromBuffer(boss_sheet_png_bin, boss_sheet_png_bin_size, &spritesheet[3]);
 	pngLoadFromBuffer(boss1_sheet_png_bin, boss1_sheet_png_bin_size, &spritesheet[4]);
+	pngLoadFromBuffer(cursed_sheet_png_bin, cursed_sheet_png_bin_size, &spritesheet[5]);
 }
 
 
@@ -600,18 +785,25 @@ void Load_PNG()
 
 
 
+void DeactivateBosses()
+{
+	if(boss9_started)
+	{
+		boss9_started = 0;
+		int i;
+		for (i = 0; i < boss9_count; i++) boss9_list[i].active = false;
+	}
+	if(boss10_started)
+	{
+		boss10_started = 0;
+		int i;
+		for (i = 0; i < boss10_count; i++) boss10_list[i].active = false;
+	}
+}
+
 void game_lost()
 {
-	if(boss9.started)
-	{
-		boss9.started = 0;
-		boss9.active = false;
-	}
-	if(boss10.started)
-	{
-		boss10.started = 0;
-		boss10.active = false;
-	}
+	DeactivateBosses();
 	gamelose = 1;
 	timer_running = 0;
 	playing_bgm = false;
@@ -661,20 +853,67 @@ void PlaySFX(SoundEffect *sfx)
 
 
 
+
+
+
+
+
+
+
+int FindEpisode2ShapeIndex(int the_id)
+{
+    int i;
+    for (i = 0; i < sizeof(episode2_shapes) / sizeof(episode2_shapes[0]); i++)
+    {
+        if (episode2_shapes[i].the_id == the_id) return i;
+    }
+    return -1;
+}
+
 void GenerateBoard()
 {
+	int xx, yy;
+	int active_count = 0;
     memset(board, 0, sizeof(board));
+	
+	valid_total = (GRID_W * GRID_H) - MINES;
+	
+	for (xx = 0; xx < GRID_W; xx++)
+    {
+        for (yy = 0; yy < GRID_H; yy++)
+        {
+            board[xx][yy].active = 1;
+        }
+    }
+	
+	if(EPISODE==2)
+	{
+		int grd_id = FindEpisode2ShapeIndex(GRID_ID);
+		for (xx = 0; xx < GRID_W; xx++)
+		{
+			for (yy = 0; yy < GRID_H; yy++)
+			{
+				// im gonna set the id 91 for examples
+				if(EPISODE==2) board[xx][yy].active = (episode2_shapes[grd_id].shape[yy][xx] == '0');
+					else board[xx][yy].active = 1;
+				
+				if (board[xx][yy].active) active_count++;
+			}
+		}
+		if (MINES >= active_count) MINES = active_count - 1;
+		valid_total = active_count - MINES;
+	}
+	
     int placed = 0;
     while(placed < MINES)
     {
         int x = rand() % GRID_W;
         int y = rand() % GRID_H;
+		if (!board[x][y].active) continue;
+		if (board[x][y].mine) continue;
 
-        if(!board[x][y].mine)
-        {
-            board[x][y].mine = 1;
-            placed++;
-        }
+		board[x][y].mine = 1;
+		placed++;
     }
 	
 	RENDER_SIZE = RENDERING_SIZE * RENDERING_PIXELS;
@@ -683,12 +922,10 @@ void GenerateBoard()
 	float sy = 460.0f / GRID_H;
 
 	RENDER_SIZE = (sx < sy) ? sx : sy;
-	
 	if(RENDER_SIZE > 32.0f) RENDER_SIZE = 2.0f * RENDERING_PIXELS;
 	
 	offset_x = screen_w - (RENDER_SIZE * GRID_W / 2);
 	offset_y = screen_h - (RENDER_SIZE * GRID_H / 2) + ui_offset_y;
-	valid_total = (GRID_W * GRID_H) - MINES;
 }
 
 void CalculateNumbers()
@@ -712,7 +949,8 @@ void CalculateNumbers()
                     ny = y + oy;
 
                     if(nx < 0 || ny < 0 || nx >= GRID_W || ny >= GRID_H) continue;
-
+					
+					if (!board[nx][ny].active) continue;
                     if(board[nx][ny].mine) count++;
                 }
             }
@@ -753,7 +991,7 @@ int calculate_score()
 	{
 		for(j = 0; j < GRID_H; j++)
 		{
-			if(!board[i][j].mine && board[i][j].neighbors < 9) //&& tile_array[i][j].mine_value > 0)
+			if(!board[i][j].mine && board[i][j].neighbors < 9)
 			{
 				score += pow(2, board[i][j].neighbors - 1);
 			}
@@ -768,6 +1006,7 @@ int calculate_score()
 	//if (Main.ten_count > 0): score += 10
 	//if (Main.eleven_count > 0): score += 11
 	score += MINES;
+	score *= 1.5;
 	//if (Main.db["master"]): score \*= 1.5
 	//score \*= double_multiplier
 	//score \*= anti_multiplier
@@ -777,24 +1016,22 @@ int calculate_score()
 void WinCheck()
 {
 	revealed_total = 0;
+	valid_total = 0;
 	int wx, wy;
 
 	for (wx = 0; wx < GRID_W; wx++)
 	{
 		for (wy = 0; wy < GRID_H; wy++)
 		{
-			if (board[wx][wy].revealed) revealed_total++;
-			/*
-			if (!board[wx][wy].mine)
+			if(board[wx][wy].active && !board[wx][wy].mine)
 			{
 				valid_total++;
-				if (board[wx][wy].revealed) revealed_total++;
-			}*/
+				if(board[wx][wy].revealed) revealed_total++;
+			}
 		}
 	}
 	
 	if(current_level==8) revealed_total+=9;
-	//printf("%d/%d\n", revealed_total, valid_total);
 	
 	if(revealed_total >= valid_total)
 	{
@@ -804,16 +1041,7 @@ void WinCheck()
 		playing_bgm = false;
 		StopAudio();
 		
-		if(current_level==8)
-		{
-			boss9.started = 0;
-			boss9.active = false;
-		}
-		if(current_level==9)
-		{
-			boss10.started = 0;
-			boss10.active = false;
-		}
+		DeactivateBosses();
 		//else PlayBGM(4+desired_bgm, 0);
 		
 		int fx, fy;
@@ -839,6 +1067,7 @@ void WinCheck()
 void Reveal(int x,int y)
 {
     if(x < 0 || y < 0 || x >= GRID_W || y >= GRID_H) return;
+	if (!board[x][y].active) return;
     if(board[x][y].revealed || board[x][y].flagged) return;
 
     board[x][y].revealed = 1;
@@ -877,8 +1106,7 @@ void Chord(int x, int y)
     {
         for(ny = y - 1; ny <= y + 1; ny++)
         {
-            if(nx >= 0 && ny >= 0 &&
-               nx < GRID_W && ny < GRID_H)
+            if(nx >= 0 && ny >= 0 && nx < GRID_W && ny < GRID_H)
             {
                 if(board[nx][ny].flagged) flags++;
             }
@@ -891,9 +1119,9 @@ void Chord(int x, int y)
         {
             for(ny = y - 1; ny <= y + 1; ny++)
             {
-                if(nx >= 0 && ny >= 0 &&
-                   nx < GRID_W && ny < GRID_H)
+                if(nx >= 0 && ny >= 0 && nx < GRID_W && ny < GRID_H)
                 {
+					if (!board[nx][ny].active) continue;
                     if(!board[nx][ny].flagged)
                     {
                         if(board[nx][ny].mine)
@@ -910,14 +1138,8 @@ void Chord(int x, int y)
     }
 }
 
-void LoadLevel(int level)
+void ResetGrid()
 {
-    GRID_W = levels[level].width;
-    GRID_H = levels[level].height;
-    MINES  = levels[level].mines;
-	
-	if(current_level==8) MINES-=8;
-	
     mines_count = MINES;
 
     cursorX = GRID_W/2;
@@ -931,26 +1153,48 @@ void LoadLevel(int level)
 	timer_running = 0;
 	timer_seconds = 0;
 	
-	boss9.x = GRID_W/2;
-	boss9.y = GRID_H/2;
-	
-	boss10.x = screen_w-32.0f;
-	boss10.y = screen_h + ui_offset_y-32.0f;
-	
-	boss10.x = screen_w-32;
-	boss10.y = screen_h + ui_offset_y-32;
-	boss10.time = 10;
-	boss10.pulse = 0.0f;
-	boss10.speed = 0.018f;
-	boss10.timer = 0.0f;
+	//int i,j;
 
+	// for (i = 0; i < boss9_count; i++)
+	// {
+		// boss9_list[i].x = GRID_W/2;
+		// boss9_list[i].y = GRID_H/2;
+	// }
+	if(current_level==8) SetupBoss9Positions(1);
+	if(current_level==9) SetupBoss10Positions(2);
+	
+	int j;
+	for (j = 0; j < boss10_count; j++)
+	{
+		//boss10_list[j].x = screen_w-32.0f;
+		//boss10_list[j].y = screen_h + ui_offset_y-32.0f;
+		boss10_list[j].time = 10;
+		boss10_list[j].pulse = 0.0f;
+		boss10_list[j].speed = 0.018f;
+		boss10_list[j].timer = 0.0f;
+		boss10_list[j].tspeed = 0.0f;
+	}
+	
     GenerateBoard();
     CalculateNumbers();
-
-    desired_bgm = levels[level].music;
-	the_bg = levels[level].back;
+	
+	
 	playing_bgm = true;
     PlayBGM(desired_bgm, 1);
+}
+
+void LoadLevel(int level)
+{
+    GRID_W = levels[level].width;
+    GRID_H = levels[level].height;
+    MINES  = levels[level].mines;
+	GRID_ID= levels[level].id;
+    desired_bgm = levels[level].music;
+	the_bg = levels[level].back;
+	
+	if(current_level==8) MINES-=8;
+	
+	ResetGrid();
 }
 
 void LoadFPLevel()
@@ -958,61 +1202,45 @@ void LoadFPLevel()
     GRID_W = fp_width;
     GRID_H = fp_height;
     MINES  = fp_mines;
-	
-    mines_count = MINES;
-
-    cursorX = GRID_W/2;
-    cursorY = GRID_H/2;
-
-    FIRST_CLICK = 1;
-    gamewin = 0;
-    gamelose = 0;
-	level_minecoins = 0;
-	
-	timer_running = 0;
-	timer_seconds = 0;
-	
-	boss9.x = GRID_W/2;
-	boss9.y = GRID_H/2;
-	
-	boss10.x = screen_w-32;
-	boss10.y = screen_h + ui_offset_y-32;
-	boss10.time = 10;
-	boss10.pulse = 0.0f;
-	boss10.speed = 0.018f;
-
-    GenerateBoard();
-    CalculateNumbers();
-
     desired_bgm = fp_music;
 	the_bg = fp_back;
-	playing_bgm = true;
-    PlayBGM(desired_bgm, 1);
+	
+	ResetGrid();
 }
 
-int getCaptainState(int anim_z)
+int getCaptainState(int anim_z, int anim1_z)
 {
 	int the_state = 0;
 	switch(the_bg)
 	{
-		case 0:
+		case 0: case 5:
 		{
 			if(gamewin) the_state = 0+anim_z; else if(gamelose) the_state = 74; else the_state = 24;
 			break;
 		}
-		case 1:
+		case 1: case 6:
 		{
 			if(gamewin) the_state = 4+anim_z; else if(gamelose) the_state = 78; else the_state = 28;
 			break;
 		}
-		case 2:
+		case 2: case 7:
 		{
 			if(gamewin) the_state = 8+anim_z; else if(gamelose) the_state = 82+anim_z; else the_state = 32+anim_z;
 			break;
 		}
-		case 3:
+		case 3: case 8:
 		{
 			if(gamewin) the_state = 16+anim_z; else if(gamelose) the_state = 90; else the_state = 40;
+			break;
+		}
+		case 4:
+		{
+			if(gamewin) the_state = 96+anim_z; else if(gamelose) the_state = 218; else the_state = 120+anim1_z;
+			break;
+		}
+		case 9:
+		{
+			if(gamewin) the_state = 102+anim_z; else if(gamelose) the_state = 176; else the_state = 126;
 			break;
 		}
 	}
@@ -1046,13 +1274,13 @@ int max(int min, int max)
 
 
 
-void Boss9PlaceTiles()
+void Boss9PlaceTiles(int i)
 {
 	int x, y;
 	
-	for(x = boss9.x - 1; x <= boss9.x + 1; x++)
+	for(x = boss9_list[i].x - 1; x <= boss9_list[i].x + 1; x++)
     {
-        for(y = boss9.y - 1; y <= boss9.y + 1; y++)
+        for(y = boss9_list[i].y - 1; y <= boss9_list[i].y + 1; y++)
         {
 			board[x][y].mine = 1;
 			board[x][y].revealed = false;
@@ -1060,131 +1288,131 @@ void Boss9PlaceTiles()
     }
 }
 
-void Boss9Stop()
+void Boss9Stop(int i)
 {
-    boss9.beforeToMove = 0;
-    boss9.toMove = 0;
-    boss9.isMoving = false;
-    boss9.angle = -boss9.angle;
+    boss9_list[i].beforeToMove = 0;
+    boss9_list[i].toMove = 0;
+    boss9_list[i].isMoving = false;
+    boss9_list[i].angle = -boss9_list[i].angle;
 
-    if(global_route==1) boss9_timer = RandRange(15,50);
-    else boss9_timer = RandRange(20,60);
+    if(global_route==1) boss9_list[i].timer = RandRange(15,50);
+    else boss9_list[i].timer = RandRange(20,60);
 
     PlaySFX(&sfx_9stop);
 }
 
-void Boss9SaveStrip()
+void Boss9SaveStrip(int i)
 {
-    int sx, sy, i;
+    int sx, sy, i2;
 
-    if(boss9.dx == 1)
+    if(boss9_list[i].dx == 1)
     {
-        sx = boss9.x + 2;
+        sx = boss9_list[i].x + 2;
 
-        for(i=0;i<3;i++)
+        for(i2=0;i2<3;i2++)
         {
-            sy = boss9.y - 1 + i;
+            sy = boss9_list[i].y - 1 + i2;
 
-            boss9.tempGrid[i] = board[sx][sy].mine;
-            boss9.tempReveal[i] = board[sx][sy].revealed;
-			boss9.tempFlagged[i] = board[sx][sy].flagged;
+            boss9_list[i].tempGrid[i2] = board[sx][sy].mine;
+            boss9_list[i].tempReveal[i2] = board[sx][sy].revealed;
+			boss9_list[i].tempFlagged[i2] = board[sx][sy].flagged;
         }
     }
-	else if(boss9.dx == -1)
+	else if(boss9_list[i].dx == -1)
     {
-        sx = boss9.x - 2;
+        sx = boss9_list[i].x - 2;
 
-        for(i=0;i<3;i++)
+        for(i2=0;i2<3;i2++)
         {
-            sy = boss9.y - 1 + i;
+            sy = boss9_list[i].y - 1 + i2;
 
-            boss9.tempGrid[i] = board[sx][sy].mine;
-            boss9.tempReveal[i] = board[sx][sy].revealed;
-			boss9.tempFlagged[i] = board[sx][sy].flagged;
+            boss9_list[i].tempGrid[i2] = board[sx][sy].mine;
+            boss9_list[i].tempReveal[i2] = board[sx][sy].revealed;
+			boss9_list[i].tempFlagged[i2] = board[sx][sy].flagged;
         }
     }
-	else if(boss9.dy == 1)
+	else if(boss9_list[i].dy == 1)
     {
-        sy = boss9.y + 2;
+        sy = boss9_list[i].y + 2;
 
-        for(i=0;i<3;i++)
+        for(i2=0;i2<3;i2++)
         {
-            sx = boss9.x - 1 + i;
+            sx = boss9_list[i].x - 1 + i2;
 
-            boss9.tempGrid[i] = board[sx][sy].mine;
-            boss9.tempReveal[i] = board[sx][sy].revealed;
-			boss9.tempFlagged[i] = board[sx][sy].flagged;
+            boss9_list[i].tempGrid[i2] = board[sx][sy].mine;
+            boss9_list[i].tempReveal[i2] = board[sx][sy].revealed;
+			boss9_list[i].tempFlagged[i2] = board[sx][sy].flagged;
         }
     }
-	else if(boss9.dy == -1)
+	else if(boss9_list[i].dy == -1)
     {
-        sy = boss9.y - 2;
+        sy = boss9_list[i].y - 2;
 
-        for(i=0;i<3;i++)
+        for(i2=0;i2<3;i2++)
         {
-            sx = boss9.x - 1 + i;
+            sx = boss9_list[i].x - 1 + i2;
 
-            boss9.tempGrid[i] = board[sx][sy].mine;
-            boss9.tempReveal[i] = board[sx][sy].revealed;
-			boss9.tempFlagged[i] = board[sx][sy].flagged;
+            boss9_list[i].tempGrid[i2] = board[sx][sy].mine;
+            boss9_list[i].tempReveal[i2] = board[sx][sy].revealed;
+			boss9_list[i].tempFlagged[i2] = board[sx][sy].flagged;
         }
     }
 }
 
-void Boss9RestoreStrip()
+void Boss9RestoreStrip(int i)
 {
-    int sx, sy, i;
+    int sx, sy, i2;
 
-	if (boss9.dx == 1)
+	if (boss9_list[i].dx == 1)
 	{
-		sx = boss9.x - 2;
+		sx = boss9_list[i].x - 2;
 
-		for (i = 0; i < 3; i++)
+		for (i2 = 0; i2 < 3; i2++)
 		{
-			sy = boss9.y - 1 + i;
+			sy = boss9_list[i].y - 1 + i2;
 
-			board[sx][sy].mine = boss9.tempGrid[i];
-			board[sx][sy].revealed = boss9.tempReveal[i];
-			board[sx][sy].flagged = boss9.tempFlagged[i];
+			board[sx][sy].mine = boss9_list[i].tempGrid[i2];
+			board[sx][sy].revealed = boss9_list[i].tempReveal[i2];
+			board[sx][sy].flagged = boss9_list[i].tempFlagged[i2];
 		}
 	}
-	else if (boss9.dx == -1)
+	else if (boss9_list[i].dx == -1)
 	{
-		sx = boss9.x + 2;
+		sx = boss9_list[i].x + 2;
 
-		for (i = 0; i < 3; i++)
+		for (i2 = 0; i2 < 3; i2++)
 		{
-			sy = boss9.y - 1 + i;
+			sy = boss9_list[i].y - 1 + i2;
 
-			board[sx][sy].mine = boss9.tempGrid[i];
-			board[sx][sy].revealed = boss9.tempReveal[i];
-			board[sx][sy].flagged = boss9.tempFlagged[i];
+			board[sx][sy].mine = boss9_list[i].tempGrid[i2];
+			board[sx][sy].revealed = boss9_list[i].tempReveal[i2];
+			board[sx][sy].flagged = boss9_list[i].tempFlagged[i2];
 		}
 	}
-	else if (boss9.dy == 1)
+	else if (boss9_list[i].dy == 1)
 	{
-		sy = boss9.y - 2;
+		sy = boss9_list[i].y - 2;
 
-		for (i = 0; i < 3; i++)
+		for (i2 = 0; i2 < 3; i2++)
 		{
-			sx = boss9.x - 1 + i;
+			sx = boss9_list[i].x - 1 + i2;
 
-			board[sx][sy].mine = boss9.tempGrid[i];
-			board[sx][sy].revealed = boss9.tempReveal[i];
-			board[sx][sy].flagged = boss9.tempFlagged[i];
+			board[sx][sy].mine = boss9_list[i].tempGrid[i2];
+			board[sx][sy].revealed = boss9_list[i].tempReveal[i2];
+			board[sx][sy].flagged = boss9_list[i].tempFlagged[i2];
 		}
 	}
-	else if (boss9.dy == -1)
+	else if (boss9_list[i].dy == -1)
 	{
-		sy = boss9.y + 2;
+		sy = boss9_list[i].y + 2;
 
-		for (i = 0; i < 3; i++)
+		for (i2 = 0; i2 < 3; i2++)
 		{
-			sx = boss9.x - 1 + i;
+			sx = boss9_list[i].x - 1 + i2;
 
-			board[sx][sy].mine = boss9.tempGrid[i];
-			board[sx][sy].revealed = boss9.tempReveal[i];
-			board[sx][sy].flagged = boss9.tempFlagged[i];
+			board[sx][sy].mine = boss9_list[i].tempGrid[i2];
+			board[sx][sy].revealed = boss9_list[i].tempReveal[i2];
+			board[sx][sy].flagged = boss9_list[i].tempFlagged[i2];
 		}
 	}
 }
@@ -1192,76 +1420,69 @@ void Boss9RestoreStrip()
 bool Boss9CanMove(int nx, int ny)
 {
 	int x, y;
-    if(nx < 1 || nx >= GRID_W - 1)
-        return false;
-
-    if(ny < 1 || ny >= GRID_H - 1)
-        return false;
+    if(nx < 1 || nx >= GRID_W - 1) return false;
+    if(ny < 1 || ny >= GRID_H - 1) return false;
 
     for(y=-1;y<=1;y++)
     {
         for(x=-1;x<=1;x++)
         {
-            if(x==0 && y==0)
-                continue;
-
-            //if(circle_grid[nx+x][ny+y])
-            //    return false;
+            if(x==0 && y==0) continue;
+            if(!board[nx+x][ny+y].active) return false;
         }
     }
 
     return true;
 }
 
-void Boss9PickDirection()
+void Boss9PickDirection(int i)
 {
-    boss9.toMove = rand() % max(GRID_W, GRID_H) + 1;
-    boss9.beforeToMove = boss9.toMove;
+    boss9_list[i].toMove = rand() % max(GRID_W, GRID_H) + 1;
+    boss9_list[i].beforeToMove = boss9_list[i].toMove;
 
     switch(rand() % 4)
     {
-        case 0: boss9.dx = 1;  boss9.dy = 0; break;
-        case 1: boss9.dx = -1; boss9.dy = 0; break;
-        case 2: boss9.dx = 0;  boss9.dy = 1; break;
-        case 3: boss9.dx = 0;  boss9.dy = -1; break;
+        case 0: boss9_list[i].dx = 1;  boss9_list[i].dy = 0; break;
+        case 1: boss9_list[i].dx = -1; boss9_list[i].dy = 0; break;
+        case 2: boss9_list[i].dx = 0;  boss9_list[i].dy = 1; break;
+        case 3: boss9_list[i].dx = 0;  boss9_list[i].dy = -1; break;
     }
 
-    boss9.isMoving = true;
+    boss9_list[i].isMoving = true;
 }
 
-void UpdateBoss9()
+void UpdateBoss9(int i)
 {
-    if(!boss9.active)
-        return;
+    if(!boss9_list[i].active) return;
 
-    if(!boss9.isMoving)
-        Boss9PickDirection();
+    if(!boss9_list[i].isMoving)
+        Boss9PickDirection(i);
     else
-        boss9.toMove--;
+        boss9_list[i].toMove--;
 
-    if(boss9.toMove <= 0)
+    if(boss9_list[i].toMove <= 0)
     {
-        Boss9Stop();
+        Boss9Stop(i);
         return;
     }
 
-    int nx = boss9.x + boss9.dx;
-    int ny = boss9.y + boss9.dy;
+    int nx = boss9_list[i].x + boss9_list[i].dx;
+    int ny = boss9_list[i].y + boss9_list[i].dy;
 
     if(!Boss9CanMove(nx, ny))
     {
-        Boss9Stop();
+        Boss9Stop(i);
         return;
     }
 
-    Boss9SaveStrip();
+    Boss9SaveStrip(i);
 
-    boss9.x = nx;
-    boss9.y = ny;
+    boss9_list[i].x = nx;
+    boss9_list[i].y = ny;
 
-    Boss9PlaceTiles();
+    Boss9PlaceTiles(i);
 
-    Boss9RestoreStrip();
+    Boss9RestoreStrip(i);
 	CalculateNumbers();
 
     PlaySFX(&sfx_9move);
@@ -1275,42 +1496,42 @@ void UpdateBoss9()
 
 
 
-void boss10_update(void)
+void boss10_update(int i)
 {
     float TMP_SIZ = 3.0f * RENDERING_PIXELS;
     float boss_half = (TMP_SIZ * 3.0f * 1.1f) * 0.5f;
 	float boundary = 384.0f / 4;
 
     float left   = boss_half - boundary;
-    float right  = (screen_w*2) - boss_half + boundary;
+    float right  = (screen_w*2) - boss_half - boundary;
     float top    = boss_half - boundary;
-    float bottom = (screen_h*2) - boss_half + boundary;
+    float bottom = (screen_h*2) - boss_half - boundary;
 
-    boss10.x += boss10.hsp;
-    boss10.y += boss10.vsp;
+    boss10_list[i].x += boss10_list[i].hsp;
+    boss10_list[i].y += boss10_list[i].vsp;
 
-    if (boss10.x < left)
+    if (boss10_list[i].x < left)
     {
-        boss10.x = left;
-        boss10.hsp = -boss10.hsp;
+        boss10_list[i].x = left;
+        boss10_list[i].hsp = -boss10_list[i].hsp;
 		PlaySFX(&sfx_10bump);
     }
-    else if (boss10.x > right)
+    else if (boss10_list[i].x > right)
     {
-        boss10.x = right;
-        boss10.hsp = -boss10.hsp;
+        boss10_list[i].x = right;
+        boss10_list[i].hsp = -boss10_list[i].hsp;
 		PlaySFX(&sfx_10bump);
     }
-    if (boss10.y < top)
+    if (boss10_list[i].y < top)
     {
-        boss10.y = top;
-        boss10.vsp = -boss10.vsp;
+        boss10_list[i].y = top;
+        boss10_list[i].vsp = -boss10_list[i].vsp;
 		PlaySFX(&sfx_10bump);
     }
-    else if (boss10.y > bottom)
+    else if (boss10_list[i].y > bottom)
     {
-        boss10.y = bottom;
-        boss10.vsp = -boss10.vsp;
+        boss10_list[i].y = bottom;
+        boss10_list[i].vsp = -boss10_list[i].vsp;
 		PlaySFX(&sfx_10bump);
     }
 }
@@ -1496,6 +1717,22 @@ void SetTexture(int id)
 
 
 
+void MoveCursor(int dx, int dy)
+{
+    int nx = cursorX;
+    int ny = cursorY;
+
+    do
+    {
+        nx += dx; ny += dy;
+
+        if (nx < 0 || ny < 0 || nx >= GRID_W || ny >= GRID_H) return;
+    }
+    while (!board[nx][ny].active);
+
+    cursorX = nx;
+    cursorY = ny;
+}
 
 void zoomCheck(int zoom)
 {
@@ -1527,6 +1764,17 @@ void draw_game()
 	SetTexture(1);
 	int x1, y1 = 0;
 	int x0, y0 = 0;
+	
+	int tile_bg = the_bg * 20;
+	int grid_bg = the_bg;
+	int bg_offs = the_bg % 5;
+	
+	if(the_bg>=5)
+	{
+		tile_bg = 4+(bg_offs * 20);
+		grid_bg = bg_offs+20;
+	}
+	
 	u32 color = 0xffffffff;
 	
     static int count_frames = 0;
@@ -1539,7 +1787,7 @@ void draw_game()
 	{
 		for(y0 = -99; y0 < (screen_h * 2) + 99; y0 += 64)
 		{
-			DrawSprite2D((the_bg * 20) + anim, x0, y0, 64, 64, 16, 16, 320, 320, 5, 0xffffff88);
+			DrawSprite2D(tile_bg + anim, x0, y0, 64, 64, 16, 16, 320, 320, 5, 0xffffff88);
 		}
 	}
 	
@@ -1547,11 +1795,13 @@ void draw_game()
 	{
 		for(y1=0;y1<GRID_H;y1++)
 		{
+			if (!board[x1][y1].active) continue;
+			
 			int tile = 0;
 			
 			if(board[x1][y1].revealed)
 			{
-				DrawSprite2D((the_bg * 20) + anim + 2, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE),
+				DrawSprite2D(tile_bg + anim + 2, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE),
 					RENDER_SIZE, RENDER_SIZE, 16, 16, 320, 320, 4, color);
 				
 				switch(board[x1][y1].neighbors)
@@ -1576,7 +1826,7 @@ void draw_game()
 			}
 			else
 			{
-				DrawSprite2D((the_bg * 20) + anim, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE),
+				DrawSprite2D(tile_bg + anim, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE),
 					RENDER_SIZE, RENDER_SIZE, 16, 16, 320, 320, 4, color);
 				
 				if(board[x1][y1].mine && gamelose == 1)
@@ -1598,7 +1848,7 @@ void draw_game()
 			
 			if(draw_grid_outlines)
 			{
-				DrawSprite2D(241 + the_bg, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE),
+				DrawSprite2D(241 + grid_bg, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE),
 					RENDER_SIZE, RENDER_SIZE, 16, 16, 320, 320, 2, 0xffffff88);
 			}
 		}
@@ -1606,60 +1856,6 @@ void draw_game()
 	
 	DrawSprite2D(240, offset_x+(cursorX*RENDER_SIZE), offset_y+(cursorY*RENDER_SIZE),
 		RENDER_SIZE, RENDER_SIZE, 16, 16, 320, 320, -4, color);
-	
-	if(current_level==8)
-	{
-		if(global_route==1) SetTexture(4);
-		else SetTexture(3);
-		
-		DrawSprite2DR(0, offset_x+(boss9.x*RENDER_SIZE)-RENDER_SIZE, offset_y+(boss9.y*RENDER_SIZE)-RENDER_SIZE,
-			RENDER_SIZE*3, RENDER_SIZE*3, 384, 384, 1536, 1536, boss9.rotation, -1, color);
-		DrawSprite2D(1, offset_x+(boss9.x*RENDER_SIZE)-RENDER_SIZE, offset_y+(boss9.y*RENDER_SIZE)-RENDER_SIZE,
-			RENDER_SIZE*3, RENDER_SIZE*3, 384, 384, 1536, 1536, -1, color);
-	}
-	
-	if(current_level==9)
-	{
-		int jl = 0;
-		int num = 0;
-		float scale = 0.0f;
-		float TMP_SIZ = 3.0f * RENDERING_PIXELS;
-		
-		boss10.pulse += 0.4f / (float)boss10.time;
-		if (boss10.pulse > 6.283185f) boss10.pulse -= 6.283185f; // keep it sane
-		
-		if(global_route==1) SetTexture(4);
-		else SetTexture(3);
-		
-		switch(boss10.time)
-		{
-			case 10: num = 222; break;
-			case 9: num = 221; break;
-			case 8: num = 220; break;
-			case 7: num = 203; break;
-			case 6: num = 202; break;
-			case 5: num = 201; break;
-			case 4: num = 200; break;
-			case 3: num = 183; break;
-			case 2: num = 182; break;
-			case 1: num = 181; break;
-			case 0: num = 180; break;
-		}
-		for(jl = 0; jl < 5; jl++)
-		{
-			scale = 1.0f + sinf(boss10.pulse + ((float)jl-0.67f)) * 0.1f;
-			float TMP_SIZE = TMP_SIZ * 3.0f * scale;
-			
-			float draw_x = (boss10.x - TMP_SIZ) - (TMP_SIZE / 2.0f) + (TMP_SIZ*1.5f);
-			float draw_y = (boss10.y - TMP_SIZ) - (TMP_SIZE / 2.0f) + (TMP_SIZ*1.5f);
-			
-			DrawSprite2DR(4, draw_x, draw_y, TMP_SIZE, TMP_SIZE, 384, 384, 1536, 1536, 36*jl, -1, color_from_value(boss10.time));
-		}
-		DrawSprite2D(5, boss10.x - TMP_SIZ, boss10.y - TMP_SIZ, TMP_SIZ*3, TMP_SIZ*3, 384, 384, 1536, 1536, -2, color_from_value(boss10.time));
-		
-		SetTexture(1);
-		DrawSprite2D(num, boss10.x, boss10.y, TMP_SIZ, TMP_SIZ, 16, 16, 320, 320, -3, color);
-	}
 }
 
 
@@ -1677,6 +1873,7 @@ void drawScene()
     static int count_frames = 0;
     static int anim = 0;
     static int anim1 = 0;
+    static int anim2 = 0;
 	SetFontSize(28, 32);
 	
 	if(in_game) draw_game();
@@ -1688,6 +1885,7 @@ void drawScene()
 	
 	anim = (count_frames / 30) % 2;
 	anim1 = (count_frames / 15) % 2;
+	anim2 = (count_frames / 15) % 3;
 	
 	if(!in_game)
 	{
@@ -1713,7 +1911,7 @@ void drawScene()
 			DrawFormatString(-20,256,"START - Start the game");
 			DrawFormatString(-20,288,"CIRCLE - Go Back");
 			
-			DrawFormatString(410,64+(fp_menu*32),"<");
+			DrawFormatString(222,64+(fp_menu*32),"<");
 		}
 	}
 	else
@@ -1730,12 +1928,73 @@ void drawScene()
 		SetTexture(0);
 		SetFontSize(28, 32);
 		
-		int capt_state = getCaptainState(anim1);
+		int capt_state = getCaptainState(anim1, anim2);
 		
 		DrawSprite2D(capt_state, 375, -14, 94, 94, 40, 40, 960, 560, 0, color);
 		//DrawFormatString(-20,32, "TOTAL MINECOINS: %d", global_minecoins);
 		//DrawFormatString(-20,64, "MINECOINS: %d", current_minecoins);
 		DrawFormatString(-20,88, "FPS: %d", fps);
+		
+		if(global_route==1) SetTexture(4); else SetTexture(3);
+		
+		if(current_level==8)
+		{
+			int i;
+
+			for (i = 0; i < boss9_count; i++)
+			{
+				DrawSprite2DR(0, offset_x+(boss9_list[i].x*RENDER_SIZE)-RENDER_SIZE, offset_y+(boss9_list[i].y*RENDER_SIZE)-RENDER_SIZE,
+					RENDER_SIZE*3, RENDER_SIZE*3, 384, 384, 1536, 1536, boss9_list[i].rotation, -1, color);
+				DrawSprite2D(1, offset_x+(boss9_list[i].x*RENDER_SIZE)-RENDER_SIZE, offset_y+(boss9_list[i].y*RENDER_SIZE)-RENDER_SIZE,
+					RENDER_SIZE*3, RENDER_SIZE*3, 384, 384, 1536, 1536, -1, color);
+			}
+		}
+	
+		if(current_level==9)
+		{
+			int jl = 0;
+			int num = 0;
+			float scale = 0.0f;
+			float TMP_SIZ = 3.0f * RENDERING_PIXELS;
+			int i;
+
+			for (i = 0; i < boss10_count; i++)
+			{
+				boss10_list[i].pulse += 0.4f / (float)boss10_list[i].time;
+				if (boss10_list[i].pulse > 6.283185f) boss10_list[i].pulse -= 6.283185f; // keep it sane mkay?
+				
+				if(boss10_count==2 && i==1) SetTexture(5);
+				
+				switch(boss10_list[i].time)
+				{
+					case 10: num = 222; break;
+					case 9: num = 221; break;
+					case 8: num = 220; break;
+					case 7: num = 203; break;
+					case 6: num = 202; break;
+					case 5: num = 201; break;
+					case 4: num = 200; break;
+					case 3: num = 183; break;
+					case 2: num = 182; break;
+					case 1: num = 181; break;
+					case 0: num = 180; break;
+				}
+				for(jl = 0; jl < 5; jl++)
+				{
+					scale = 1.0f + sinf(boss10_list[i].pulse + ((float)jl-0.67f)) * 0.1f;
+					float TMP_SIZE = TMP_SIZ * 3.0f * scale;
+					
+					float draw_x = (boss10_list[i].x - TMP_SIZ) - (TMP_SIZE / 2.0f) + (TMP_SIZ*1.5f);
+					float draw_y = (boss10_list[i].y - TMP_SIZ) - (TMP_SIZE / 2.0f) + (TMP_SIZ*1.5f);
+					
+					DrawSprite2DR(4, draw_x, draw_y, TMP_SIZE, TMP_SIZE, 384, 384, 1536, 1536, 36*jl, -1, color_from_value(boss10_list[i].time));
+				}
+				DrawSprite2D(5, boss10_list[i].x - TMP_SIZ, boss10_list[i].y - TMP_SIZ, TMP_SIZ*3, TMP_SIZ*3, 384, 384, 1536, 1536, -2, color_from_value(boss10_list[i].time));
+				
+				SetTexture(1);
+				DrawSprite2D(num, boss10_list[i].x, boss10_list[i].y, TMP_SIZ, TMP_SIZ, 16, 16, 320, 320, -3, color);
+			}
+		}
 	}
 	SetFontSize(28, 32);
 	
@@ -1814,6 +2073,21 @@ void StartMusicCallback(msgButton button, void *usrData)
     PlayBGM(0, 1);
 }
 
+void GoBackToTitle()
+{
+	in_game = 0;
+
+	gamewin = 0;
+	gamelose = 0;
+	current_minecoins = 0;
+	EPISODE = 1;
+
+	splash = splashes_random[rand() % splash_count];
+	free_play = 0;
+
+	PlayBGM(0, 0);
+}
+
 
 
 
@@ -1829,7 +2103,7 @@ void StartMusicCallback(msgButton button, void *usrData)
 int main(int argc, const char* argv[])
 {
 	padInfo padinfo;
-	int i, dick;
+	int dick, ip;
 	static padData oldpad;
 	padData paddata;
 	
@@ -1843,13 +2117,8 @@ int main(int argc, const char* argv[])
 	
 	for (dick = 0; dick < rand() % 100; dick++) splash = splashes_random[rand() % splash_count];
 	
-	boss9.speed = 2.0f;
-	boss9.angle = 1;
-	
-	boss9.started = 0;
-	boss10.started = 0;
-	
-	if(global_route==1) boss9.speed = 6.0f;
+	boss9_started = 0;
+	boss10_started = 0;	
 	
 	init_bgm();
 	init_sfx();
@@ -1873,10 +2142,10 @@ int main(int argc, const char* argv[])
             TINY3D_BLEND_RGB_FUNC_ADD | TINY3D_BLEND_ALPHA_FUNC_ADD);
 		
 		ioPadGetInfo(&padinfo);
-		for(i = 0; i < MAX_PADS; i++){
+		for(ip = 0; ip < MAX_PADS; ip++){
 
-			if(padinfo.status[i]){
-				ioPadGetData(i, &paddata);
+			if(padinfo.status[ip]){
+				ioPadGetData(ip, &paddata);
 				
 				if(!in_game)
 				{
@@ -1896,6 +2165,7 @@ int main(int argc, const char* argv[])
 							
 							if(paddata.BTN_L2)
 							{
+								EPISODE = 2;
 								if(paddata.BTN_R3) global_route = 1;
 								current_level=9;
 							}
@@ -1938,10 +2208,7 @@ int main(int argc, const char* argv[])
 								"CREDITS\n\nOriginal Minesweeper Plus game made by Jorel Simpson\nXMB Background made by Zeltizy",
 								EmptyDialogCallback, NULL, NULL);
 						}
-						if(paddata.BTN_SQUARE && !oldpad.BTN_SQUARE)
-						{
-							free_play = 1;
-						}
+						if(paddata.BTN_SQUARE && !oldpad.BTN_SQUARE) free_play = 1;
 					}
 					else
 					{
@@ -1985,7 +2252,7 @@ int main(int argc, const char* argv[])
 								case 1: fp_height++; if(fp_height>36) fp_height=36; break;
 								case 2: fp_mines++; break;
 								case 3: fp_music++; if(fp_music>4) fp_music=4; break;
-								case 4: fp_back++; if(fp_back>3) fp_back=3; break;
+								case 4: fp_back++; if(fp_back>8) fp_back=8; break;
 							}
 							
 							if(fp_mines>(fp_width*fp_height)-1) fp_mines=(fp_width*fp_height)-1;
@@ -1993,22 +2260,7 @@ int main(int argc, const char* argv[])
 					}
 				}
 				
-				if(gamelose)
-				{
-					if(paddata.BTN_START && !oldpad.BTN_START)
-					{
-						in_game = 0;
-
-						gamewin = 0;
-						gamelose = 0;
-						current_minecoins = 0;
-						
-						splash = splashes_random[rand() % splash_count];
-						free_play = 0;
-						
-						PlayBGM(0, 0);
-					}
-				}
+				if(gamelose && paddata.BTN_START && !oldpad.BTN_START) GoBackToTitle();
 				else if(gamewin)
 				{
 					if(paddata.BTN_SELECT && !oldpad.BTN_SELECT)
@@ -2049,24 +2301,9 @@ int main(int argc, const char* argv[])
 									"The DEMO is completed. Returning to XMB..",
 									DemoCompleteCallback, NULL, NULL);
 							}
-							else
-							{
-								LoadLevel(current_level);
-							}
+							else LoadLevel(current_level);
 						}
-						else
-						{
-							in_game = 0;
-
-							gamewin = 0;
-							gamelose = 0;
-							current_minecoins = 0;
-							
-							splash = splashes_random[rand() % splash_count];
-							free_play = 0;
-							
-							PlayBGM(0, 0);
-						}
+						else GoBackToTitle();
 					}
 				}
 				
@@ -2089,32 +2326,36 @@ int main(int argc, const char* argv[])
 						
 						FIRST_CLICK = 0;
 						
-						if(current_level==8 && !boss9.started)
+						if(current_level==8 && !boss9_started)
 						{
-							boss9.started = 1;
-							boss9.active = true;
+							boss9_started = 1;
+							
+							int i;
+							for (i = 0; i < boss9_count; i++)
+							{
+								boss9_list[i].active = true;
+							}
 							
 							StopAudio();
 							PlayBGM(7, 1);
 						}
-						if(current_level==9 && !boss10.started)
+						if(current_level==9 && !boss10_started)
 						{
-							boss10.started = 1;
-							boss10.active = true;
+							boss10_started = 1;
+							
+							int i;
+							for (i = 0; i < boss10_count; i++)
+							{
+								boss10_list[i].active = true;
+							}
 							
 							StopAudio();
 							PlayBGM(9, 1);
 						}
-						if (board[cursorX][cursorY].revealed)
-						{
-							Chord(cursorX, cursorY);
-						}
-						else
-						{
-							Reveal(cursorX, cursorY);
-						}
+						if (board[cursorX][cursorY].revealed) Chord(cursorX, cursorY);
+							else Reveal(cursorX, cursorY);
 						
-						if(!boss9.started) WinCheck();
+						if(!boss9_started) WinCheck();
 					}
 					if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE)
 					{
@@ -2135,46 +2376,33 @@ int main(int argc, const char* argv[])
 					}
 					if(paddata.BTN_SQUARE && !oldpad.BTN_SQUARE)
 					{
-						if(current_level==8)
+						if(current_level==8 && boss9_started) WinCheck();
+						else if(current_level==9 && boss10_started)
 						{
-							if(boss9.started) WinCheck();
-						}
-						else if(current_level==9)
-						{
-							if(boss10.started)
+							int i;
+
+							for (i = 0; i < boss10_count; i++)
 							{
-								boss10.time=10;
-								boss10.tspeed+=0.031f;
-								float min_speed = boss10.tspeed;
+								boss10_list[i].time=10;
+								boss10_list[i].tspeed+=0.031f;
+								float min_speed = boss10_list[i].tspeed;
 								
-								boss10.hsp = min_speed + (((float)rand() / (float)RAND_MAX) * boss10.tspeed);
-								boss10.vsp = min_speed + (((float)rand() / (float)RAND_MAX) * boss10.tspeed);
+								boss10_list[i].hsp = min_speed + (((float)rand() / (float)RAND_MAX) * boss10_list[i].tspeed);
+								boss10_list[i].vsp = min_speed + (((float)rand() / (float)RAND_MAX) * boss10_list[i].tspeed);
 								
 								PlaySFX(&sfx_10reset);
 								
-								if (rand() % 2) boss10.hsp = -boss10.hsp;
-								if (rand() % 2) boss10.vsp = -boss10.vsp;
+								if (rand() % 2) boss10_list[i].hsp = -boss10_list[i].hsp;
+								if (rand() % 2) boss10_list[i].vsp = -boss10_list[i].vsp;
 							}
 						}
 					}
 					
 					// movement
-					if(paddata.BTN_LEFT && !oldpad.BTN_LEFT){
-						cursorX--;
-						if (cursorX<0) cursorX = 0;
-					}
-					if(paddata.BTN_RIGHT && !oldpad.BTN_RIGHT){
-						cursorX++;
-						if (cursorX>GRID_W-1) cursorX = GRID_W-1;
-					}
-					if(paddata.BTN_UP && !oldpad.BTN_UP){
-						cursorY--;
-						if (cursorY<0) cursorY = 0;
-					}
-					if(paddata.BTN_DOWN && !oldpad.BTN_DOWN){
-						cursorY++;
-						if (cursorY>GRID_H-1) cursorY = GRID_H-1;
-					}
+					if(paddata.BTN_LEFT && !oldpad.BTN_LEFT) MoveCursor(-1, 0);
+					if(paddata.BTN_RIGHT && !oldpad.BTN_RIGHT) MoveCursor(1, 0);
+					if(paddata.BTN_UP && !oldpad.BTN_UP) MoveCursor(0, -1);
+					if(paddata.BTN_DOWN && !oldpad.BTN_DOWN) MoveCursor(0, 1);
 					
 					// zoom check
 					if(paddata.BTN_R1 && !oldpad.BTN_R1) zoomCheck(1);
@@ -2184,20 +2412,28 @@ int main(int argc, const char* argv[])
 			}
 		}
 		
-		if(boss9.started)
+		if(boss9_started)
 		{
-			boss9_timer--;
-
-			if(boss9_timer <= 0)
+			int i;
+			for (i = 0; i < boss9_count; i++)
 			{
-				boss9_timer = 6;
-				UpdateBoss9();
+				boss9_list[i].timer--;
+
+				if(boss9_list[i].timer <= 0)
+				{
+					boss9_list[i].timer = 6;
+					UpdateBoss9(i);
+				}
 			}
 		}
 		
 		if(current_level==8)
 		{
-			boss9.rotation += ((float)boss9.angle * boss9.speed);
+			int i;
+			for (i = 0; i < boss9_count; i++)
+			{
+				boss9_list[i].rotation += ((float)boss9_list[i].angle * boss9_list[i].speed);
+			}
 		}
 		
 		if(timer_running)
@@ -2206,17 +2442,22 @@ int main(int argc, const char* argv[])
 			if(timer_seconds > 999) timer_seconds = 999;
 		}
 		
-		if(boss10.started)
+		if(boss10_started)
 		{
-			boss10.timer += boss10.speed;
-			if(boss10.timer > 1.0f)
+			int i;
+
+			for (i = 0; i < boss10_count; i++)
 			{
-				boss10.timer = 0.0f;
-				boss10.time--;
-				if(boss10.time<=0) game_lost();
+				boss10_list[i].timer += boss10_list[i].speed;
+				if(boss10_list[i].timer > 1.0f)
+				{
+					boss10_list[i].timer = 0.0f;
+					boss10_list[i].time--;
+					if(boss10_list[i].time<=0) game_lost();
+				}
+				
+				boss10_update(i);
 			}
-			
-			boss10_update();
 		}
 		
 		if(game_loaded) drawScene();
