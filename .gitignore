@@ -3,3 +3,4 @@ build
 *.self
 *.elf
 *.pkg
+*.sh

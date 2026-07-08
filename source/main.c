@@ -16,6 +16,7 @@
 
 #include <tiny3d.h>
 #include <libfont.h>
+#include <np/trophy.h>
 
 #include <ft2build.h>
 #include <freetype/freetype.h> 
@@ -43,18 +44,28 @@
 #include "bgm2_mp3_bin.h"
 #include "bgm3_mp3_bin.h"
 #include "bgm4_mp3_bin.h"
+#include "bgm5_mp3_bin.h"
+#include "bgm6_mp3_bin.h"
+#include "bgm7_mp3_bin.h"
+#include "bgm8_mp3_bin.h"
 
 #include "win1_mp3_bin.h"
 #include "win2_mp3_bin.h"
 #include "win3_mp3_bin.h"
 #include "win4_mp3_bin.h"
+#include "win5_ogg_bin.h"
+#include "win6_ogg_bin.h"
+#include "win7_ogg_bin.h"
+#include "win8_ogg_bin.h"
 
 #include "ocean_mp3_bin.h"
 
 #include "boss9_intro_mp3_bin.h"
 #include "boss9_mp3_bin.h"
+#include "boss9_win_ogg_bin.h"
 #include "boss10_intro_mp3_bin.h"
 #include "boss10_mp3_bin.h"
+#include "boss10_win_ogg_bin.h"
 
 //IMPORT SFX
 #include "flag_ogg_bin.h"
@@ -63,6 +74,8 @@
 #include "nine_stop_ogg_bin.h"
 #include "ten_bump_ogg_bin.h"
 #include "ten_reset_ogg_bin.h"
+#include "game_mine_ogg_bin.h"
+#include "game_explosion_ogg_bin.h"
 
 // the fuck is that
 #include "episode2_shapes.h"
@@ -91,8 +104,8 @@ LevelData levels[] =
     {15, 15, 30, 3, 2, 0},
     {18, 12, 33, 4, 3, 0},
     {16, 16, 42, 4, 3, 0},
-    {13, 13, 29, 6, 4, 0},
-    {21, 21, 60, 8, 9, 91}
+    {13, 13, 29, 10, 4, 0},
+    {21, 21, 60, 12, 9, 91}
 };
 
 #define LEVEL_COUNT (sizeof(levels)/sizeof(levels[0]))
@@ -118,7 +131,7 @@ FT_Face face;
 
 
 char global_name[] = "PS3Sweeper+";
-char global_version[] = "v0.2 Alpha-1";
+char global_version[] = "v0.2 Alpha-2";
 
 const char *splashes_random[] =
 {
@@ -176,7 +189,8 @@ const char *splashes_random[] =
 	"Eleven and twelve coming soon, trust",
 	"TOUHOU KOUMAKYOU IS NOW ON PS3!!!",
 	"Nagareteku toki no naka de demo kedarusa ga hora guru guru mowaate watashi kara hanareru kokoro mo mienai waa soo shiranai do you even read this shit?",
-	"WHERE IS THE FUCKING TITLE BACKGROUND????"
+	"WHERE IS THE FUCKING TITLE BACKGROUND????",
+	"I wanna try making MS+ for PS1 sometime soon."
 };
 
 int splash_count;
@@ -187,7 +201,7 @@ const char *splash;
 
 
 
-#define BGM_LIST 55
+#define BGM_LIST 200
 
 const unsigned char *bgm[BGM_LIST];
 int bgm_size[BGM_LIST];
@@ -215,6 +229,8 @@ SoundEffect sfx_9move;
 SoundEffect sfx_9stop;
 SoundEffect sfx_10bump;
 SoundEffect sfx_10reset;
+SoundEffect sfx_mine;
+SoundEffect sfx_explosion;
 
 int sex = 2147483647;
 
@@ -245,30 +261,100 @@ void init_bgm()
 	bgm_start[4] = 1782;
 	bgm_end[4] = 137481;
 	
-	bgm[5] = ocean_mp3_bin;
-	bgm_size[5] = ocean_mp3_bin_size;
+	bgm[5] = bgm5_mp3_bin;
+	bgm_size[5] = bgm5_mp3_bin_size;
 	bgm_start[5] = 0;
 	bgm_end[5] = sex;
 	
-	bgm[6] = boss9_intro_mp3_bin;
-	bgm_size[6] = boss9_intro_mp3_bin_size;
-	bgm_start[6] = 29632;
-	bgm_end[6] = 33763;
+	bgm[6] = bgm6_mp3_bin;
+	bgm_size[6] = bgm6_mp3_bin_size;
+	bgm_start[6] = 0;
+	bgm_end[6] = sex;
 	
-	bgm[7] = boss9_mp3_bin;
-	bgm_size[7] = boss9_mp3_bin_size;
-	bgm_start[7] = 10995;
-	bgm_end[7] = 100527;
+	bgm[7] = bgm7_mp3_bin;
+	bgm_size[7] = bgm7_mp3_bin_size;
+	bgm_start[7] = 0;
+	bgm_end[7] = sex;
 	
-	bgm[8] = boss10_intro_mp3_bin;
-	bgm_size[8] = boss10_intro_mp3_bin_size;
-	bgm_start[8] = 23725;
-	bgm_end[8] = 26893;
+	bgm[8] = bgm8_mp3_bin;
+	bgm_size[8] = bgm8_mp3_bin_size;
+	bgm_start[8] = 0;
+	bgm_end[8] = sex;
 	
-	bgm[9] = boss10_mp3_bin;
-	bgm_size[9] = boss10_mp3_bin_size;
+	bgm[9] = ocean_mp3_bin;
+	bgm_size[9] = ocean_mp3_bin_size;
 	bgm_start[9] = 0;
 	bgm_end[9] = sex;
+	
+	bgm[10] = boss9_intro_mp3_bin;
+	bgm_size[10] = boss9_intro_mp3_bin_size;
+	bgm_start[10] = 29632;
+	bgm_end[10] = 33763;
+	
+	bgm[11] = boss9_mp3_bin;
+	bgm_size[11] = boss9_mp3_bin_size;
+	bgm_start[11] = 10995;
+	bgm_end[11] = 100527;
+	
+	bgm[12] = boss10_intro_mp3_bin;
+	bgm_size[12] = boss10_intro_mp3_bin_size;
+	bgm_start[12] = 23725;
+	bgm_end[12] = 26893;
+	
+	bgm[13] = boss10_mp3_bin;
+	bgm_size[13] = boss10_mp3_bin_size;
+	bgm_start[13] = 0;
+	bgm_end[13] = sex;
+	
+	bgm[101] = win1_mp3_bin;
+	bgm_size[101] = win1_mp3_bin_size;
+	bgm_start[101] = 0;
+	bgm_end[101] = sex;
+	
+	bgm[102] = win2_mp3_bin;
+	bgm_size[102] = win2_mp3_bin_size;
+	bgm_start[102] = 0;
+	bgm_end[102] = sex;
+	
+	bgm[103] = win3_mp3_bin;
+	bgm_size[103] = win3_mp3_bin_size;
+	bgm_start[103] = 0;
+	bgm_end[103] = sex;
+	
+	bgm[104] = win4_mp3_bin;
+	bgm_size[104] = win4_mp3_bin_size;
+	bgm_start[104] = 0;
+	bgm_end[104] = sex;
+	
+	bgm[105] = win5_ogg_bin;
+	bgm_size[105] = win5_ogg_bin_size;
+	bgm_start[105] = 0;
+	bgm_end[105] = sex;
+	
+	bgm[106] = win6_ogg_bin;
+	bgm_size[106] = win6_ogg_bin_size;
+	bgm_start[106] = 0;
+	bgm_end[106] = sex;
+	
+	bgm[107] = win7_ogg_bin;
+	bgm_size[107] = win7_ogg_bin_size;
+	bgm_start[107] = 0;
+	bgm_end[107] = sex;
+	
+	bgm[108] = win8_ogg_bin;
+	bgm_size[108] = win8_ogg_bin_size;
+	bgm_start[108] = 0;
+	bgm_end[108] = sex;
+	
+	bgm[109] = boss9_win_ogg_bin;
+	bgm_size[109] = boss9_win_ogg_bin_size;
+	bgm_start[109] = 0;
+	bgm_end[109] = sex;
+	
+	bgm[110] = boss10_win_ogg_bin;
+	bgm_size[110] = boss10_win_ogg_bin_size;
+	bgm_start[110] = 0;
+	bgm_end[110] = sex;
 }
 
 int LoadSFX(SoundEffect *sfx, const void *data, int size)
@@ -295,6 +381,8 @@ void init_sfx()
 	LoadSFX(&sfx_9stop, nine_stop_ogg_bin, nine_stop_ogg_bin_size);
 	LoadSFX(&sfx_10bump, ten_bump_ogg_bin, ten_bump_ogg_bin_size);
 	LoadSFX(&sfx_10reset, ten_reset_ogg_bin, ten_reset_ogg_bin_size);
+	LoadSFX(&sfx_mine, game_mine_ogg_bin, game_mine_ogg_bin_size);
+	LoadSFX(&sfx_explosion, game_explosion_ogg_bin, game_explosion_ogg_bin_size);
 }
 
 
@@ -305,7 +393,7 @@ void init_sfx()
 
 
 #define MAX_W 72
-#define MAX_H 48
+#define MAX_H 52
 
 #define TOTAL_SHEETS 6
 
@@ -316,7 +404,7 @@ typedef struct
 	u8 flagged;
 	u8 neighbors;
 	u8 active;
-} Cell;
+} Cell; //heh, funny
 
 Cell board[MAX_W][MAX_H];
 float RENDER_SIZE;
@@ -324,7 +412,7 @@ float RENDER_SIZE;
 int GRID_W = 16;
 int GRID_H = 16;
 int MINES  = 40;
-int GRID_ID= 00;
+int GRID_ID = 00;
 int mines_count = 0;
 int RENDERING_PIXELS = 16;
 float RENDERING_SIZE = 2.0f;
@@ -744,7 +832,7 @@ u32 color_from_value(int value)
         float t = (float)(value - 5) / 5.0f;
         r = (int)(255.0f - (127.0f * t));
         g = 255;
-        b = (int)(128.0f * t);
+        b = (int)(64.0f * t);
     }
     else
     {
@@ -785,30 +873,7 @@ void Load_PNG()
 
 
 
-void DeactivateBosses()
-{
-	if(boss9_started)
-	{
-		boss9_started = 0;
-		int i;
-		for (i = 0; i < boss9_count; i++) boss9_list[i].active = false;
-	}
-	if(boss10_started)
-	{
-		boss10_started = 0;
-		int i;
-		for (i = 0; i < boss10_count; i++) boss10_list[i].active = false;
-	}
-}
 
-void game_lost()
-{
-	DeactivateBosses();
-	gamelose = 1;
-	timer_running = 0;
-	playing_bgm = false;
-	StopAudio();
-}
 
 
 
@@ -843,6 +908,45 @@ void PlaySFX(SoundEffect *sfx)
         sfx->freq, 0, sfx->pcm, sfx->pcm_size, 255, 255, NULL);
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+void DeactivateBosses()
+{
+	if(boss9_started)
+	{
+		boss9_started = 0;
+		int i;
+		for (i = 0; i < boss9_count; i++) boss9_list[i].active = false;
+		if(gamewin) PlayBGM(109,0);
+	}
+	if(boss10_started)
+	{
+		boss10_started = 0;
+		int i;
+		for (i = 0; i < boss10_count; i++) boss10_list[i].active = false;
+		if(gamewin) PlayBGM(110,0);
+	}
+}
+
+int explode_time = 0;
+int disable_control = 0;
+
+void game_lost()
+{
+	explode_time = 60;
+	disable_control = 1;
+	PlaySFX(&sfx_mine);
+}
 
 
 
@@ -1001,12 +1105,12 @@ int calculate_score()
 	}
 	if(current_level==8) score += 999;
 	if(current_level==9) score += 1000;
-	//if (Main.eleven): score += 1111
-	//if (Main.nine_count > 0): score += 9
-	//if (Main.ten_count > 0): score += 10
-	//if (Main.eleven_count > 0): score += 11
+	//if(current_level==9) score += 1111;
+	if (boss9_count > 0) score += 9;
+	if (boss10_count > 0) score += 10;
+	//if (boss11_count > 0) score += 11;
 	score += MINES;
-	score *= 1.5;
+	score *= 1.5; // cuz we are practically in master lol
 	//if (Main.db["master"]): score \*= 1.5
 	//score \*= double_multiplier
 	//score \*= anti_multiplier
@@ -1042,7 +1146,7 @@ void WinCheck()
 		StopAudio();
 		
 		DeactivateBosses();
-		//else PlayBGM(4+desired_bgm, 0);
+		if(current_level<8) PlayBGM(100+desired_bgm, 0);
 		
 		int fx, fy;
 		
@@ -1058,10 +1162,7 @@ void WinCheck()
 		current_minecoins += level_minecoins;
 		global_minecoins += current_minecoins;
 	}
-	else
-	{
-		if(current_level==8) game_lost();
-	}
+	else if(current_level==8) game_lost();
 }
 
 void Reveal(int x,int y)
@@ -1153,21 +1254,12 @@ void ResetGrid()
 	timer_running = 0;
 	timer_seconds = 0;
 	
-	//int i,j;
-
-	// for (i = 0; i < boss9_count; i++)
-	// {
-		// boss9_list[i].x = GRID_W/2;
-		// boss9_list[i].y = GRID_H/2;
-	// }
 	if(current_level==8) SetupBoss9Positions(1);
 	if(current_level==9) SetupBoss10Positions(2);
 	
 	int j;
 	for (j = 0; j < boss10_count; j++)
 	{
-		//boss10_list[j].x = screen_w-32.0f;
-		//boss10_list[j].y = screen_h + ui_offset_y-32.0f;
 		boss10_list[j].time = 10;
 		boss10_list[j].pulse = 0.0f;
 		boss10_list[j].speed = 0.018f;
@@ -1192,6 +1284,7 @@ void LoadLevel(int level)
     desired_bgm = levels[level].music;
 	the_bg = levels[level].back;
 	
+	if(level==9) EPISODE = 2;
 	if(current_level==8) MINES-=8;
 	
 	ResetGrid();
@@ -1211,29 +1304,29 @@ void LoadFPLevel()
 int getCaptainState(int anim_z, int anim1_z)
 {
 	int the_state = 0;
-	switch(the_bg)
+	switch(current_level)
 	{
-		case 0: case 5:
+		case 0: case 1:
 		{
 			if(gamewin) the_state = 0+anim_z; else if(gamelose) the_state = 74; else the_state = 24;
 			break;
 		}
-		case 1: case 6:
+		case 2: case 3:
 		{
 			if(gamewin) the_state = 4+anim_z; else if(gamelose) the_state = 78; else the_state = 28;
 			break;
 		}
-		case 2: case 7:
+		case 4: case 5:
 		{
 			if(gamewin) the_state = 8+anim_z; else if(gamelose) the_state = 82+anim_z; else the_state = 32+anim_z;
 			break;
 		}
-		case 3: case 8:
+		case 6: case 7:
 		{
 			if(gamewin) the_state = 16+anim_z; else if(gamelose) the_state = 90; else the_state = 40;
 			break;
 		}
-		case 4:
+		case 8:
 		{
 			if(gamewin) the_state = 96+anim_z; else if(gamelose) the_state = 218; else the_state = 120+anim1_z;
 			break;
@@ -1503,9 +1596,9 @@ void boss10_update(int i)
 	float boundary = 384.0f / 4;
 
     float left   = boss_half - boundary;
-    float right  = (screen_w*2) - boss_half - boundary;
+    float right  = (screen_w*2) - boss_half + boundary - TMP_SIZ;
     float top    = boss_half - boundary;
-    float bottom = (screen_h*2) - boss_half - boundary;
+    float bottom = (screen_h*2) - boss_half + boundary - TMP_SIZ;
 
     boss10_list[i].x += boss10_list[i].hsp;
     boss10_list[i].y += boss10_list[i].vsp;
@@ -1911,7 +2004,7 @@ void drawScene()
 			DrawFormatString(-20,256,"START - Start the game");
 			DrawFormatString(-20,288,"CIRCLE - Go Back");
 			
-			DrawFormatString(222,64+(fp_menu*32),"<");
+			DrawFormatString(256,64+(fp_menu*32),"<");
 		}
 	}
 	else
@@ -2081,6 +2174,7 @@ void GoBackToTitle()
 	gamelose = 0;
 	current_minecoins = 0;
 	EPISODE = 1;
+	disable_control = 0;
 
 	splash = splashes_random[rand() % splash_count];
 	free_play = 0;
@@ -2251,8 +2345,8 @@ int main(int argc, const char* argv[])
 								case 0: fp_width++; if(fp_width>48) fp_width=48; break;
 								case 1: fp_height++; if(fp_height>36) fp_height=36; break;
 								case 2: fp_mines++; break;
-								case 3: fp_music++; if(fp_music>4) fp_music=4; break;
-								case 4: fp_back++; if(fp_back>8) fp_back=8; break;
+								case 3: fp_music++; if(fp_music>8) fp_music=8; break;
+								case 4: fp_back++; if(fp_back>10) fp_back=10; break;
 							}
 							
 							if(fp_mines>(fp_width*fp_height)-1) fp_mines=(fp_width*fp_height)-1;
@@ -2307,7 +2401,7 @@ int main(int argc, const char* argv[])
 					}
 				}
 				
-				if (!gamewin && !gamelose && in_game)
+				if (!disable_control && in_game)
 				{					
 					// basic
 					if(paddata.BTN_CROSS && !oldpad.BTN_CROSS)
@@ -2337,7 +2431,7 @@ int main(int argc, const char* argv[])
 							}
 							
 							StopAudio();
-							PlayBGM(7, 1);
+							PlayBGM(11, 1);
 						}
 						if(current_level==9 && !boss10_started)
 						{
@@ -2350,7 +2444,7 @@ int main(int argc, const char* argv[])
 							}
 							
 							StopAudio();
-							PlayBGM(9, 1);
+							PlayBGM(13, 1);
 						}
 						if (board[cursorX][cursorY].revealed) Chord(cursorX, cursorY);
 							else Reveal(cursorX, cursorY);
@@ -2412,7 +2506,7 @@ int main(int argc, const char* argv[])
 			}
 		}
 		
-		if(boss9_started)
+		if(boss9_started && !disable_control)
 		{
 			int i;
 			for (i = 0; i < boss9_count; i++)
@@ -2442,7 +2536,7 @@ int main(int argc, const char* argv[])
 			if(timer_seconds > 999) timer_seconds = 999;
 		}
 		
-		if(boss10_started)
+		if(boss10_started && !disable_control)
 		{
 			int i;
 
@@ -2457,6 +2551,20 @@ int main(int argc, const char* argv[])
 				}
 				
 				boss10_update(i);
+			}
+		}
+		
+		if(disable_control && !gamelose)
+		{
+			if(explode_time>0) explode_time--;
+			else
+			{
+				DeactivateBosses();
+				gamelose = 1;
+				timer_running = 0;
+				playing_bgm = false;
+				StopAudio();
+				PlaySFX(&sfx_explosion);
 			}
 		}
 		
