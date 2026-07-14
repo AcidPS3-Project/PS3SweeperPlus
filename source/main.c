@@ -34,7 +34,9 @@
 #include "ui_sheet_png_bin.h"
 #include "boss_sheet_png_bin.h"
 #include "boss1_sheet_png_bin.h"
+#include "dualboss_sheet_png_bin.h"
 #include "cursed_sheet_png_bin.h"
+#include "background_sheet_png_bin.h"
 #include "icon0_png_bin.h"
 
 //IMPORT MUSIC
@@ -131,7 +133,7 @@ FT_Face face;
 
 
 char global_name[] = "PS3Sweeper+";
-char global_version[] = "v0.2 Alpha-2";
+char global_version[] = "v0.2 Alpha-4";
 
 const char *splashes_random[] =
 {
@@ -148,7 +150,7 @@ const char *splashes_random[] =
 	"Why so serious?",
 	"Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven\nSix Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven\nSix Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven",
 	"Join AcidPS3 Server",
-	"514 is scrapped.",
+	"514 is not here.",
 	"Clavicord is real?",
 	"Play the original first!",
 	"Also play yawn's minesweeper",
@@ -182,15 +184,16 @@ const char *splashes_random[] =
 	"Watch no one play this",
 	"The definition of Insanity.",
 	"F U C K",
-	"up up down down left right left right circle cross start.\noh wait, it doesnt work",
+	"up up down down left right left right circle cross start.\n    oh wait, it doesnt work",
 	"why the fuck i stayed all night for this shit",
 	"Hold START + L3 + R3 for a surprise.",
 	"OK I'm not gonna use the SDL here...",
 	"Eleven and twelve coming soon, trust",
 	"TOUHOU KOUMAKYOU IS NOW ON PS3!!!",
 	"Nagareteku toki no naka de demo kedarusa ga hora guru guru mowaate watashi kara hanareru kokoro mo mienai waa soo shiranai do you even read this shit?",
-	"WHERE IS THE FUCKING TITLE BACKGROUND????",
-	"I wanna try making MS+ for PS1 sometime soon."
+	"Oh now there is the title background :D",
+	"I wanna try making MS+ for PS1 sometime soon.",
+	"BEEP BEEP BEEP"
 };
 
 int splash_count;
@@ -393,9 +396,17 @@ void init_sfx()
 
 
 #define MAX_W 72
-#define MAX_H 52
+#define MAX_H 48
 
-#define TOTAL_SHEETS 6
+#define TOTAL_SHEETS 8
+
+typedef struct
+{
+    short x;
+    short y;
+} RevealNode;
+
+static RevealNode reveal_stack[MAX_W * MAX_H];
 
 typedef struct
 {
@@ -466,9 +477,9 @@ Boss10 boss10_list[MAX_BOSS10];
 int boss9_started = 0;
 int boss10_started = 0;
 
-int boss9_count = 1;
-int boss10_count = 1;
-
+int boss9_count = 2;
+int boss10_count = 4;
+int i_10 = 0;
 
 
 
@@ -546,7 +557,7 @@ void status_cb(sysSaveCallbackResult *result, sysSaveStatusIn *in, sysSaveStatus
 
 	snprintf(param.title, sizeof(param.title), "%s", global_name);
     snprintf(param.subtitle, sizeof(param.subtitle), "Game Save Data (%s)", global_version);
-    snprintf(param.detail, sizeof(param.detail), "%s", splash);
+    snprintf(param.detail, sizeof(param.detail), "%s\nTotal Minecoins: %d", splash, global_minecoins);
     if(out) out->setParam = &param;
 
     result->result = SYS_SAVE_CALLBACK_RESULT_CONTINUE;
@@ -622,6 +633,14 @@ void UpdateFPS()
     }
 }
 
+void DemoCompleteCallback(msgButton button, void *usrData)
+{
+    sysProcessExit(0);
+}
+void EmptyDialogCallback(msgButton button, void *usrData)
+{
+    // ehhehe fuck this shit
+}
 
 
 
@@ -645,20 +664,27 @@ void Initialize()
 
 
 
+void HolyShit()
+{
+	lv2syscall3(392, 0x1004, 0xA, 0x1B6);
+}
+
+
+
+
 
 
 
 
 void SetupBoss9Positions(int count)
 {
-    int pad = 4;
+    int pad = 1;
     int cx = GRID_W / 2;
     int cy = GRID_H / 2;
 
     if (count > MAX_BOSS9) count = MAX_BOSS9;
     boss9_count = count;
 
-    // clear old state first if you want
     memset(boss9_list, 0, sizeof(boss9_list));
 
     switch (count)
@@ -737,7 +763,7 @@ void SetupBoss10Positions(int count)
     float cy = center_y;
 
     if (count > MAX_BOSS10) count = MAX_BOSS10;
-    boss10_count = count;
+	boss10_count = count;
 
     memset(boss10_list, 0, sizeof(boss10_list));
 
@@ -865,7 +891,9 @@ void Load_PNG()
 	pngLoadFromBuffer(ui_sheet_png_bin, ui_sheet_png_bin_size, &spritesheet[2]);
 	pngLoadFromBuffer(boss_sheet_png_bin, boss_sheet_png_bin_size, &spritesheet[3]);
 	pngLoadFromBuffer(boss1_sheet_png_bin, boss1_sheet_png_bin_size, &spritesheet[4]);
-	pngLoadFromBuffer(cursed_sheet_png_bin, cursed_sheet_png_bin_size, &spritesheet[5]);
+	pngLoadFromBuffer(dualboss_sheet_png_bin, dualboss_sheet_png_bin_size, &spritesheet[5]);
+	pngLoadFromBuffer(cursed_sheet_png_bin, cursed_sheet_png_bin_size, &spritesheet[6]);
+	pngLoadFromBuffer(background_sheet_png_bin, background_sheet_png_bin_size, &spritesheet[7]);
 }
 
 
@@ -1165,7 +1193,57 @@ void WinCheck()
 	else if(current_level==8) game_lost();
 }
 
-void Reveal(int x,int y)
+void RevealIterative(int x, int y)
+{
+    int top = 0;
+
+    reveal_stack[top].x = x;
+    reveal_stack[top].y = y;
+    top++;
+
+    while(top > 0)
+    {
+        top--;
+
+        x = reveal_stack[top].x;
+        y = reveal_stack[top].y;
+
+        if(x < 0 || y < 0 || x >= GRID_W || y >= GRID_H) continue;
+
+        if(!board[x][y].active) continue;
+
+        if(board[x][y].revealed || board[x][y].flagged) continue;
+
+        board[x][y].revealed = 1;
+
+        if(board[x][y].mine)
+        {
+            game_lost();
+            return;
+        }
+
+        if(board[x][y].neighbors != 0) continue;
+
+        int ox, oy;
+
+        for(ox = -1; ox <= 1; ox++)
+        {
+            for(oy = -1; oy <= 1; oy++)
+            {
+                if(ox == 0 && oy == 0) continue;
+
+                if(top < MAX_GRID_W * MAX_GRID_H)
+                {
+                    reveal_stack[top].x = x + ox;
+                    reveal_stack[top].y = y + oy;
+                    top++;
+                }
+            }
+        }
+    }
+}
+
+void RevealRecursive(int x,int y)
 {
     if(x < 0 || y < 0 || x >= GRID_W || y >= GRID_H) return;
 	if (!board[x][y].active) return;
@@ -1187,9 +1265,14 @@ void Reveal(int x,int y)
         for(oy=-1;oy<=1;oy++)
         {
             if(ox==0 && oy==0) continue;
-            Reveal(x+ox,y+oy);
+            RevealRecursive(x+ox,y+oy);
         }
     }
+}
+
+void Reveal(int x,int y)
+{
+	if(reveal_mode) RevealRecursive(x, y); else RevealIterative(x, y);
 }
 
 void Chord(int x, int y)
@@ -1254,8 +1337,24 @@ void ResetGrid()
 	timer_running = 0;
 	timer_seconds = 0;
 	
-	if(current_level==8) SetupBoss9Positions(1);
-	if(current_level==9) SetupBoss10Positions(2);
+	if(current_level==8)
+	{
+		SetupBoss9Positions(boss9_count);
+		msgDialogOpen(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
+			"There is a boss battle in this game. The battle works the same as normal Minesweeper, but with some key distinctions:\n"
+			"you won't know the number of mines hidden on the grid, you have limited time to complete the level, and you won't be able to use the sonar or pause the game.\n"
+			"Clicking on a mine will make the time run out faster. To win, you must click SQUARE ONLY AFTER revealing all the tiles that don't contain mines.\n"
+			"If the timer hits 0, or you click on the boss before revealing the entire grid, it's game over.", EmptyDialogCallback, NULL, NULL);
+	}
+	else if(current_level==9)
+	{
+		SetupBoss10Positions(boss10_count);
+		msgDialogOpen(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
+			"There is another boss battle in this game. As soon as the game starts, this boss will start counting down from 10.\n"
+			"If it counts all the way down to 0, it's game over. Click SQUARE to reset the countdown back to 10, but be careful.\n"
+			"The boss will move faster and faster every time you click. Clicking on a mine will cause the boss to count down more quickly.\n"
+			"To win, reveal the entire grid before the boss is able to finish its countdown.", EmptyDialogCallback, NULL, NULL);
+	}
 	
 	int j;
 	for (j = 0; j < boss10_count; j++)
@@ -1269,7 +1368,6 @@ void ResetGrid()
 	
     GenerateBoard();
     CalculateNumbers();
-	
 	
 	playing_bgm = true;
     PlayBGM(desired_bgm, 1);
@@ -1548,15 +1646,13 @@ void UpdateBoss9(int i)
 {
     if(!boss9_list[i].active) return;
 
-    if(!boss9_list[i].isMoving)
-        Boss9PickDirection(i);
-    else
-        boss9_list[i].toMove--;
+    if(!boss9_list[i].isMoving) Boss9PickDirection(i);
+		else boss9_list[i].toMove--;
 
     if(boss9_list[i].toMove <= 0)
     {
         Boss9Stop(i);
-        return;
+		return;
     }
 
     int nx = boss9_list[i].x + boss9_list[i].dx;
@@ -1651,11 +1747,8 @@ int TTFLoadFont(char * path, void * from_memory, int size_from_memory)
     if(!ttf_inited) FT_Init_FreeType(&freetype);
     ttf_inited = 1;
 
-    if(path) {
-        if(FT_New_Face(freetype, path, 0, &face)) return -1;
-    } else {
-        if(FT_New_Memory_Face(freetype, from_memory, size_from_memory, 0, &face)) return -1;
-        }
+    if(path) {if(FT_New_Face(freetype, path, 0, &face)) return -1;}
+		else {if(FT_New_Memory_Face(freetype, from_memory, size_from_memory, 0, &face)) return -1;}
 
     return 0;
 }
@@ -1701,7 +1794,30 @@ void TTF_to_Bitmap(u8 chr, u8 * bitmap, short *w, short *h, short *y_correction)
 
 
 
+void DrawFormatStringOutlined(float x, float y, u32 textColor, u32 outlineColor, int Thickness, const char *fmt, ...)
+{
+    char buffer[1024];
 
+    va_list args;
+    va_start(args, fmt);
+    vsnprintf(buffer, sizeof(buffer), fmt, args);
+    va_end(args);
+
+    SetFontColor(outlineColor, 0x00000000);
+	int ox, oy;
+
+    for (ox = -Thickness; ox <= Thickness; ox++)
+    {
+        for (oy = -Thickness; oy <= Thickness; oy++)
+        {
+            if (ox == 0 && oy == 0) continue;
+            DrawFormatString(x + ox, y + oy, buffer);
+        }
+    }
+
+    SetFontColor(textColor, 0x00000000);
+    DrawFormatString(x, y, buffer);
+}
 
 void DrawSprite2D(int id, float x, float y, int wid2, int hei2, int wid1, int hei1, int wid0, int hei0, float layer, u32 color)
 {
@@ -1967,7 +2083,11 @@ void drawScene()
     static int anim = 0;
     static int anim1 = 0;
     static int anim2 = 0;
+    static int anim3 = 0;
 	SetFontSize(28, 32);
+	SetTexture(7);
+	
+	int ui_x = 4;
 	
 	if(in_game) draw_game();
 	
@@ -1979,36 +2099,40 @@ void drawScene()
 	anim = (count_frames / 30) % 2;
 	anim1 = (count_frames / 15) % 2;
 	anim2 = (count_frames / 15) % 3;
+	anim3 = (count_frames / 15) % 4;
 	
 	if(!in_game)
 	{
+		DrawSprite2D(anim3, -40, -22, 916, 582, 1152, 960, 4608, 3840, 0, color);
 		if(!free_play)
 		{
-			//DrawFormatString(-20,256,"%d x %d",Video_Resolution.width,Video_Resolution.height);
-			DrawFormatString(-20,0, "%s (%s)", global_name, global_version);
-			//DrawFormatString(-20,32, "Minesweeper Plus First Anniversary!");
-			DrawFormatString(-20,484, "%s", splash);
-			DrawFormatString(-20,128,"START - New Game");
-			DrawFormatString(-20,160,"SELECT - Continue");
-			DrawFormatString(-20,192,"SQUARE - Freeplay");
-			DrawFormatString(-20,224,"TRIANGLE - Credits");
+			//DrawFormatStringOutlined(ui_x,256, 0xffffffff, 0x000000ff, 2, "%d x %d", Video_Resolution.width,Video_Resolution.height);
+			DrawFormatStringOutlined(ui_x,4, 0xffffffff, 0x000000ff, 2, "%s (%s)", global_name, global_version);
+			DrawFormatStringOutlined(ui_x,484, 0xffffffff, 0x000000ff, 2, "%s", splash);
+			DrawFormatStringOutlined(ui_x,128, 0xffffffff, 0x000000ff, 2, "START - New Game");
+			DrawFormatStringOutlined(ui_x,160, 0xffffffff, 0x000000ff, 2, "SELECT - Continue");
+			DrawFormatStringOutlined(ui_x,192, 0xffffffff, 0x000000ff, 2, "SQUARE - Freeplay");
+			DrawFormatStringOutlined(ui_x,224, 0xffffffff, 0x000000ff, 2, "TRIANGLE - Credits");
 		}
 		else
 		{
-			DrawFormatString(-20,0, "Freeplay Menu");
-			DrawFormatString(-20,64,"Width: %d", fp_width);
-			DrawFormatString(-20,96,"Height: %d", fp_height);
-			DrawFormatString(-20,128,"Mines count: %d", fp_mines);
-			DrawFormatString(-20,160,"Music Type: %d", fp_music);
-			DrawFormatString(-20,192,"Background Type: %d", (fp_back+1));
-			DrawFormatString(-20,256,"START - Start the game");
-			DrawFormatString(-20,288,"CIRCLE - Go Back");
+			DrawFormatStringOutlined(ui_x,4, 0xffffffff, 0x000000ff, 2, "Freeplay Menu");
+			DrawFormatStringOutlined(ui_x,64, 0xffffffff, 0x000000ff, 2, "Width: %d", fp_width);
+			DrawFormatStringOutlined(ui_x,96, 0xffffffff, 0x000000ff, 2, "Height: %d", fp_height);
+			DrawFormatStringOutlined(ui_x,128, 0xffffffff, 0x000000ff, 2, "Mines count: %d", fp_mines);
+			DrawFormatStringOutlined(ui_x,160, 0xffffffff, 0x000000ff, 2, "Music Type: %d", fp_music);
+			DrawFormatStringOutlined(ui_x,192, 0xffffffff, 0x000000ff, 2, "Background Type: %d", (fp_back+1));
+			DrawFormatStringOutlined(ui_x,256, 0xffffffff, 0x000000ff, 2, "START - Start the game");
+			DrawFormatStringOutlined(ui_x,288, 0xffffffff, 0x000000ff, 2, "CIRCLE - Go Back");
 			
-			DrawFormatString(256,64+(fp_menu*32),"<");
+			DrawFormatStringOutlined(ui_x+256,64+(fp_menu*32), 0xffffffff, 0x000000ff, 2, "<");
 		}
 	}
 	else
 	{
+		int the_timer = (int)timer_seconds;
+		if(the_timer>998) the_timer=999;
+		
 		SetTexture(2);
 		SetFontSize(84, 96);
 		DrawSpriteUI(-34, -22, 0, 0, 384, 192, 1024, 1024, 302, 112, 1, color);
@@ -2016,17 +2140,17 @@ void drawScene()
 		DrawSpriteUI(268, -22, 384, 0, 768, 192, 1024, 1024, 308, 112, 1, color);
 		DrawSpriteUI(-20, -10, 0+(anim*264), 192, 264+(anim*264), 456, 1024, 1024, 94, 94, 1, color);
 		DrawSpriteUI(586, -10, 0+(anim*264), 456, 264+(anim*264), 720, 1024, 1024, 94, 94, 1, color);
-		DrawFormatString(94,-26, "%03d", mines_count);
-		DrawFormatString(714,-26, "%03d", (int)timer_seconds);
+		DrawFormatStringOutlined(94,-26, 0xff0000ff, 0xffffffff, 3, "%03d", mines_count);
+		DrawFormatStringOutlined(714,-26, 0xff0000ff, 0xffffffff, 3, "%03d", the_timer);
 		SetTexture(0);
 		SetFontSize(28, 32);
 		
 		int capt_state = getCaptainState(anim1, anim2);
 		
 		DrawSprite2D(capt_state, 375, -14, 94, 94, 40, 40, 960, 560, 0, color);
-		//DrawFormatString(-20,32, "TOTAL MINECOINS: %d", global_minecoins);
-		//DrawFormatString(-20,64, "MINECOINS: %d", current_minecoins);
-		DrawFormatString(-20,88, "FPS: %d", fps);
+		//DrawFormatStringOutlined(-20,32, 0xffffffff, 0x000000ff, 2, "TOTAL MINECOINS: %d", global_minecoins);
+		//DrawFormatStringOutlined(-20,64, 0xffffffff, 0x000000ff, 2, "MINECOINS: %d", current_minecoins);
+		DrawFormatStringOutlined(-20,88, 0xffffffff, 0x000000ff, 2, "FPS: %d", fps);
 		
 		if(global_route==1) SetTexture(4); else SetTexture(3);
 		
@@ -2036,6 +2160,8 @@ void drawScene()
 
 			for (i = 0; i < boss9_count; i++)
 			{
+				if(boss9_count>0 && i>0) SetTexture(5);
+				
 				DrawSprite2DR(0, offset_x+(boss9_list[i].x*RENDER_SIZE)-RENDER_SIZE, offset_y+(boss9_list[i].y*RENDER_SIZE)-RENDER_SIZE,
 					RENDER_SIZE*3, RENDER_SIZE*3, 384, 384, 1536, 1536, boss9_list[i].rotation, -1, color);
 				DrawSprite2D(1, offset_x+(boss9_list[i].x*RENDER_SIZE)-RENDER_SIZE, offset_y+(boss9_list[i].y*RENDER_SIZE)-RENDER_SIZE,
@@ -2056,7 +2182,7 @@ void drawScene()
 				boss10_list[i].pulse += 0.4f / (float)boss10_list[i].time;
 				if (boss10_list[i].pulse > 6.283185f) boss10_list[i].pulse -= 6.283185f; // keep it sane mkay?
 				
-				if(boss10_count==2 && i==1) SetTexture(5);
+				if(boss10_count>0 && i>0) SetTexture(5);
 				
 				switch(boss10_list[i].time)
 				{
@@ -2093,22 +2219,22 @@ void drawScene()
 	
 	if(gamelose)
 	{
-		DrawFormatString(-20,160,"GAME OVER");
-		DrawFormatString(-20,192,"PRESS START");
+		DrawFormatStringOutlined(-20,160, 0xffffffff, 0x000000ff, 2, "GAME OVER");
+		DrawFormatStringOutlined(-20,192, 0xffffffff, 0x000000ff, 2, "PRESS START");
 	}
 	else if(gamewin)
 	{
-		DrawFormatString(-20,160,"LEVEL CLEAR!");
-		DrawFormatString(-20,320,"+ %d Minecoins!", level_minecoins);
+		DrawFormatStringOutlined(-20,160, 0xffffffff, 0x000000ff, 2, "LEVEL CLEAR!");
+		DrawFormatStringOutlined(-20,320, 0xffffffff, 0x000000ff, 2, "+ %d Minecoins!", level_minecoins);
 		if(!free_play)
 		{
-			DrawFormatString(-20,192,"START - Next Level");
-			DrawFormatString(-20,224,"SELECT - Save Progress");
+			DrawFormatStringOutlined(-20,192, 0xffffffff, 0x000000ff, 2, "START - Next Level");
+			DrawFormatStringOutlined(-20,224, 0xffffffff, 0x000000ff, 2, "SELECT - Save Progress");
 		}
 		else
 		{
-			DrawFormatString(-20,192,"START - Continue");
-			DrawFormatString(-20,224,"SELECT - Reset");
+			DrawFormatStringOutlined(-20,192, 0xffffffff, 0x000000ff, 2, "START - Continue");
+			DrawFormatStringOutlined(-20,224, 0xffffffff, 0x000000ff, 2, "SELECT - Reset");
 		}
 	}
 }
@@ -2151,19 +2277,12 @@ void LoadTexture()
 
 
 
-void DemoCompleteCallback(msgButton button, void *usrData)
-{
-    sysProcessExit(0);
-}
-void EmptyDialogCallback(msgButton button, void *usrData)
-{
-    // ehhehe fuck this shit
-}
+int start_music = 0;
+
 void StartMusicCallback(msgButton button, void *usrData)
 {
 	game_loaded = 1;
-	playing_bgm = true;
-    PlayBGM(0, 1);
+	start_music = 1;
 }
 
 void GoBackToTitle()
@@ -2178,6 +2297,7 @@ void GoBackToTitle()
 
 	splash = splashes_random[rand() % splash_count];
 	free_play = 0;
+	i_10 = 0;
 
 	PlayBGM(0, 0);
 }
@@ -2202,7 +2322,7 @@ int main(int argc, const char* argv[])
 	padData paddata;
 	
 	srand(time(NULL));
-	tiny3d_Init(1024*1024);
+	tiny3d_Init(8*1024*1024);
 	
 	sysModuleLoad(SYSMODULE_PNGDEC);
 	savestate_init();
@@ -2212,7 +2332,7 @@ int main(int argc, const char* argv[])
 	for (dick = 0; dick < rand() % 100; dick++) splash = splashes_random[rand() % splash_count];
 	
 	boss9_started = 0;
-	boss10_started = 0;	
+	boss10_started = 0;
 	
 	init_bgm();
 	init_sfx();
@@ -2228,6 +2348,13 @@ int main(int argc, const char* argv[])
     {
 		sysUtilCheckCallback();
 		UpdateFPS();
+		
+		if(start_music)
+		{
+			start_music = 0;
+			playing_bgm = true;
+			PlayBGM(0, 1);
+		}
 		
         tiny3d_Clear(0xff000000, TINY3D_CLEAR_ALL);
 		tiny3d_AlphaTest(1, 0x10, TINY3D_ALPHA_FUNC_GEQUAL);
@@ -2303,11 +2430,13 @@ int main(int argc, const char* argv[])
 								EmptyDialogCallback, NULL, NULL);
 						}
 						if(paddata.BTN_SQUARE && !oldpad.BTN_SQUARE) free_play = 1;
+						if(paddata.BTN_R2 && !oldpad.BTN_R2) HolyShit();
 					}
 					else
 					{
 						if(paddata.BTN_START && !oldpad.BTN_START)
 						{
+							current_level = 0;
 							LoadFPLevel();
 							in_game = 1;
 						}
@@ -2473,22 +2602,20 @@ int main(int argc, const char* argv[])
 						if(current_level==8 && boss9_started) WinCheck();
 						else if(current_level==9 && boss10_started)
 						{
-							int i;
-
-							for (i = 0; i < boss10_count; i++)
-							{
-								boss10_list[i].time=10;
-								boss10_list[i].tspeed+=0.031f;
-								float min_speed = boss10_list[i].tspeed;
-								
-								boss10_list[i].hsp = min_speed + (((float)rand() / (float)RAND_MAX) * boss10_list[i].tspeed);
-								boss10_list[i].vsp = min_speed + (((float)rand() / (float)RAND_MAX) * boss10_list[i].tspeed);
-								
-								PlaySFX(&sfx_10reset);
-								
-								if (rand() % 2) boss10_list[i].hsp = -boss10_list[i].hsp;
-								if (rand() % 2) boss10_list[i].vsp = -boss10_list[i].vsp;
-							}
+							boss10_list[i_10].time=10;
+							boss10_list[i_10].tspeed+=0.031f;
+							float min_speed = boss10_list[i_10].tspeed;
+							
+							boss10_list[i_10].hsp = min_speed + (((float)rand() / (float)RAND_MAX) * boss10_list[i_10].tspeed);
+							boss10_list[i_10].vsp = min_speed + (((float)rand() / (float)RAND_MAX) * boss10_list[i_10].tspeed);
+							
+							PlaySFX(&sfx_10reset);
+							
+							if (rand() % 2) boss10_list[i_10].hsp = -boss10_list[i_10].hsp;
+							if (rand() % 2) boss10_list[i_10].vsp = -boss10_list[i_10].vsp;
+							
+							i_10++;
+							if(i_10>boss10_count) i_10=0;
 						}
 					}
 					
