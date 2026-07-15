@@ -37,6 +37,7 @@
 #include "dualboss_sheet_png_bin.h"
 #include "cursed_sheet_png_bin.h"
 #include "background_sheet_png_bin.h"
+
 #include "icon0_png_bin.h"
 
 //IMPORT MUSIC
@@ -122,9 +123,6 @@ int game_loaded = 0;
 int free_play = 0;
 int draw_grid_outlines = 0;
 
-// why the fuck this variable exists
-int hesgonnatakeyoubacktothepasttoplaytheshittiestgamesthatsuckasshedratherhaveabuffalohaveadiarheadumpinhisearhedrathereatarottenassholeofaroadkillskunkanddownitwithbeerhestheangriestgameryouveeverheardhestheangrynintendonerdhestheangryatariseganerdhestheangryvideogamenerd = 0;
-
 FT_Library freetype;
 FT_Face face;
 
@@ -133,7 +131,7 @@ FT_Face face;
 
 
 char global_name[] = "PS3Sweeper+";
-char global_version[] = "v0.2 Alpha-4";
+char global_version[] = "v0.2";
 
 const char *splashes_random[] =
 {
@@ -149,51 +147,54 @@ const char *splashes_random[] =
 	"The Bad Apple!!",
 	"Why so serious?",
 	"Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven\nSix Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven\nSix Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven",
-	"Join AcidPS3 Server",
-	"514 is not here.",
-	"Clavicord is real?",
-	"Play the original first!",
+	"Join AcidPS3 Server! https://discord.gg/7XuQDYjyzt",
+	"Play the original game first!",
 	"Also play yawn's minesweeper",
 	"Also play Minesweeper Plus Plus",
 	"Also play Minesweeper Minus",
-	"Also play Second Destination (if it comes out)",
-	"Also play MS+ ACE",
-	"Also play Minesweeper Times, oh wait. its canceled :(",
-	"Also play LandMinesweeper",
-	"Also play MS+ Hard Mode",
-	"The MORSHU is Real!",
+	"Also play Minesweeper Plus: Second Destination (if it comes out)",
+	"Also play Minesweeper Plus: Alien Captain Edition",
+	"Also play Minesweeper Times- oh wait. its canceled :(",
+	"Also play LandMinesweeper Plus",
+	"Also play Minesweeper Plus: Hard Mode",
+	"Also play Minesweeper Chronicles (if it gets hopefully finished)",
 	"Also play Minesweeper Plus Roblox",
+	"Also play PolySweep (if it comes out)",
+	"Also play Minesweeper Plus: Deluxe (if it comes out)",
+	"Also play Minesweeper Plus: Community Edition",
+	"The MORSHU.",
 	"Why it was rewritten?",
 	"C is better, than GMS1.4",
 	"PSDK3v2 is good, but the latest PSL1GHT update is better",
 	"When tutorial how to make games with PSL1GHT? Oh wait...",
 	"Yay, minecoins! I'm rich!!",
-	"Better, than MS+ PS3 Edition",
-	"ChadGPT, please help me fix the saving system!",
+	"Better, than Minesweeper Plus: PS3 Edition",
 	"AI-Assisted code, because I suck at C.",
 	"Optimizing is at it's peakest.",
 	"Baldi for PS3 re-write coming?",
 	"AcidPS3 Store coming as an app? Oh wait, it is here.",
 	"CELL Programming",
-	"The Yellow light of Death Egg",
+	"Yellow light of Death",
 	"Reality Synthesizer can fail?",
 	//"NEC-Tokens included!",
 	"I really suck at PS3 games coding.",
-	"Languages not coming since technical issues, sorry.",
-	"Not compatible with RPCS3 and aPS3e!",
+	"Languages not coming since technical encoding issues, sorry.",
+	"Definitely does NOT work with aPS3e!",
+	"May work with RPCS3, but freezes happen. Be careful!",
 	"Watch no one play this",
 	"The definition of Insanity.",
 	"F U C K",
 	"up up down down left right left right circle cross start.\n    oh wait, it doesnt work",
 	"why the fuck i stayed all night for this shit",
 	"Hold START + L3 + R3 for a surprise.",
-	"OK I'm not gonna use the SDL here...",
+	"OK I'm not gonna use the SDL for graphics here...",
 	"Eleven and twelve coming soon, trust",
 	"TOUHOU KOUMAKYOU IS NOW ON PS3!!!",
 	"Nagareteku toki no naka de demo kedarusa ga hora guru guru mowaate watashi kara hanareru kokoro mo mienai waa soo shiranai do you even read this shit?",
 	"Oh now there is the title background :D",
 	"I wanna try making MS+ for PS1 sometime soon.",
-	"BEEP BEEP BEEP"
+	"What R2 do? BEEP BEEP BEEP",
+	"48x36 boards DO NOT GIVE YOU FRAMEDROPS YIPPEEEEE!!!!!!!"
 };
 
 int splash_count;
@@ -271,8 +272,8 @@ void init_bgm()
 	
 	bgm[6] = bgm6_mp3_bin;
 	bgm_size[6] = bgm6_mp3_bin_size;
-	bgm_start[6] = 0;
-	bgm_end[6] = sex;
+	bgm_start[6] = 13439;
+	bgm_end[6] = 69080;
 	
 	bgm[7] = bgm7_mp3_bin;
 	bgm_size[7] = bgm7_mp3_bin_size;
@@ -281,8 +282,8 @@ void init_bgm()
 	
 	bgm[8] = bgm8_mp3_bin;
 	bgm_size[8] = bgm8_mp3_bin_size;
-	bgm_start[8] = 0;
-	bgm_end[8] = sex;
+	bgm_start[8] = 6548;
+	bgm_end[8] = 104708-10;
 	
 	bgm[9] = ocean_mp3_bin;
 	bgm_size[9] = ocean_mp3_bin_size;
@@ -477,8 +478,8 @@ Boss10 boss10_list[MAX_BOSS10];
 int boss9_started = 0;
 int boss10_started = 0;
 
-int boss9_count = 2;
-int boss10_count = 4;
+int boss9_count = 1;
+int boss10_count = 1;
 int i_10 = 0;
 
 
@@ -668,6 +669,7 @@ void HolyShit()
 {
 	lv2syscall3(392, 0x1004, 0xA, 0x1B6);
 }
+
 
 
 
@@ -1138,7 +1140,7 @@ int calculate_score()
 	if (boss10_count > 0) score += 10;
 	//if (boss11_count > 0) score += 11;
 	score += MINES;
-	score *= 1.5; // cuz we are practically in master lol
+	score *= 1.5; // cuz we are practically ALWAYS in master LMAO
 	//if (Main.db["master"]): score \*= 1.5
 	//score \*= double_multiplier
 	//score \*= anti_multiplier
@@ -1170,6 +1172,7 @@ void WinCheck()
 		gamewin = 1;
 		mines_count = 0;
 		timer_running = 0;
+		disable_control = 1;
 		playing_bgm = false;
 		StopAudio();
 		
@@ -1192,6 +1195,8 @@ void WinCheck()
 	}
 	else if(current_level==8) game_lost();
 }
+
+int reveal_mode = 0;
 
 void RevealIterative(int x, int y)
 {
@@ -1232,7 +1237,7 @@ void RevealIterative(int x, int y)
             {
                 if(ox == 0 && oy == 0) continue;
 
-                if(top < MAX_GRID_W * MAX_GRID_H)
+                if(top < MAX_W * MAX_H)
                 {
                     reveal_stack[top].x = x + ox;
                     reveal_stack[top].y = y + oy;
@@ -1794,27 +1799,20 @@ void TTF_to_Bitmap(u8 chr, u8 * bitmap, short *w, short *h, short *y_correction)
 
 
 
-void DrawFormatStringOutlined(float x, float y, u32 textColor, u32 outlineColor, int Thickness, const char *fmt, ...)
+void DrawFString(float x, float y, u32 textColor, int BW, const char *fmt, ...)
 {
     char buffer[1024];
-
+	u32 shadowColor = 0x000000ff;
+	
+	if(BW) shadowColor = 0xffffffff;
+	
     va_list args;
     va_start(args, fmt);
     vsnprintf(buffer, sizeof(buffer), fmt, args);
     va_end(args);
 
-    SetFontColor(outlineColor, 0x00000000);
-	int ox, oy;
-
-    for (ox = -Thickness; ox <= Thickness; ox++)
-    {
-        for (oy = -Thickness; oy <= Thickness; oy++)
-        {
-            if (ox == 0 && oy == 0) continue;
-            DrawFormatString(x + ox, y + oy, buffer);
-        }
-    }
-
+    SetFontColor(shadowColor, 0x00000000);
+	DrawFormatString(x + 2, y + 2, buffer);
     SetFontColor(textColor, 0x00000000);
     DrawFormatString(x, y, buffer);
 }
@@ -2103,29 +2101,29 @@ void drawScene()
 	
 	if(!in_game)
 	{
-		DrawSprite2D(anim3, -40, -22, 916, 582, 1152, 960, 4608, 3840, 0, color);
+		DrawSprite2D(anim3, -40, -22, 916, 582, 1152, 960, 2304, 1920, 0, color);
 		if(!free_play)
 		{
-			//DrawFormatStringOutlined(ui_x,256, 0xffffffff, 0x000000ff, 2, "%d x %d", Video_Resolution.width,Video_Resolution.height);
-			DrawFormatStringOutlined(ui_x,4, 0xffffffff, 0x000000ff, 2, "%s (%s)", global_name, global_version);
-			DrawFormatStringOutlined(ui_x,484, 0xffffffff, 0x000000ff, 2, "%s", splash);
-			DrawFormatStringOutlined(ui_x,128, 0xffffffff, 0x000000ff, 2, "START - New Game");
-			DrawFormatStringOutlined(ui_x,160, 0xffffffff, 0x000000ff, 2, "SELECT - Continue");
-			DrawFormatStringOutlined(ui_x,192, 0xffffffff, 0x000000ff, 2, "SQUARE - Freeplay");
-			DrawFormatStringOutlined(ui_x,224, 0xffffffff, 0x000000ff, 2, "TRIANGLE - Credits");
+			//DrawFString(ui_x,256, 0xffffffff, 0, "%d x %d", Video_Resolution.width,Video_Resolution.height);
+			DrawFString(ui_x,4, 0xffffffff, 0, "%s (%s)", global_name, global_version);
+			DrawFString(ui_x,484, 0xffffffff, 0, "%s", splash);
+			DrawFString(ui_x,128, 0xffffffff, 0, "START - New Game");
+			DrawFString(ui_x,160, 0xffffffff, 0, "SELECT - Continue");
+			DrawFString(ui_x,192, 0xffffffff, 0, "SQUARE - Freeplay");
+			DrawFString(ui_x,224, 0xffffffff, 0, "TRIANGLE - Credits");
 		}
 		else
 		{
-			DrawFormatStringOutlined(ui_x,4, 0xffffffff, 0x000000ff, 2, "Freeplay Menu");
-			DrawFormatStringOutlined(ui_x,64, 0xffffffff, 0x000000ff, 2, "Width: %d", fp_width);
-			DrawFormatStringOutlined(ui_x,96, 0xffffffff, 0x000000ff, 2, "Height: %d", fp_height);
-			DrawFormatStringOutlined(ui_x,128, 0xffffffff, 0x000000ff, 2, "Mines count: %d", fp_mines);
-			DrawFormatStringOutlined(ui_x,160, 0xffffffff, 0x000000ff, 2, "Music Type: %d", fp_music);
-			DrawFormatStringOutlined(ui_x,192, 0xffffffff, 0x000000ff, 2, "Background Type: %d", (fp_back+1));
-			DrawFormatStringOutlined(ui_x,256, 0xffffffff, 0x000000ff, 2, "START - Start the game");
-			DrawFormatStringOutlined(ui_x,288, 0xffffffff, 0x000000ff, 2, "CIRCLE - Go Back");
+			DrawFString(ui_x,4, 0xffffffff, 0, "Freeplay Menu");
+			DrawFString(ui_x,64, 0xffffffff, 0, "Width: %d", fp_width);
+			DrawFString(ui_x,96, 0xffffffff, 0, "Height: %d", fp_height);
+			DrawFString(ui_x,128, 0xffffffff, 0, "Mines count: %d", fp_mines);
+			DrawFString(ui_x,160, 0xffffffff, 0, "Music Type: %d", fp_music);
+			DrawFString(ui_x,192, 0xffffffff, 0, "Background Type: %d", (fp_back+1));
+			DrawFString(ui_x,256, 0xffffffff, 0, "START - Start the game");
+			DrawFString(ui_x,288, 0xffffffff, 0, "CIRCLE - Go Back");
 			
-			DrawFormatStringOutlined(ui_x+256,64+(fp_menu*32), 0xffffffff, 0x000000ff, 2, "<");
+			DrawFString(ui_x+256,64+(fp_menu*32), 0xffffffff, 0, "<");
 		}
 	}
 	else
@@ -2140,17 +2138,17 @@ void drawScene()
 		DrawSpriteUI(268, -22, 384, 0, 768, 192, 1024, 1024, 308, 112, 1, color);
 		DrawSpriteUI(-20, -10, 0+(anim*264), 192, 264+(anim*264), 456, 1024, 1024, 94, 94, 1, color);
 		DrawSpriteUI(586, -10, 0+(anim*264), 456, 264+(anim*264), 720, 1024, 1024, 94, 94, 1, color);
-		DrawFormatStringOutlined(94,-26, 0xff0000ff, 0xffffffff, 3, "%03d", mines_count);
-		DrawFormatStringOutlined(714,-26, 0xff0000ff, 0xffffffff, 3, "%03d", the_timer);
+		DrawFString(94, -26, 0xff0000ff, 1, "%03d", mines_count);
+		DrawFString(714,-26, 0xff0000ff, 1, "%03d", the_timer);
 		SetTexture(0);
 		SetFontSize(28, 32);
 		
 		int capt_state = getCaptainState(anim1, anim2);
 		
 		DrawSprite2D(capt_state, 375, -14, 94, 94, 40, 40, 960, 560, 0, color);
-		//DrawFormatStringOutlined(-20,32, 0xffffffff, 0x000000ff, 2, "TOTAL MINECOINS: %d", global_minecoins);
-		//DrawFormatStringOutlined(-20,64, 0xffffffff, 0x000000ff, 2, "MINECOINS: %d", current_minecoins);
-		DrawFormatStringOutlined(-20,88, 0xffffffff, 0x000000ff, 2, "FPS: %d", fps);
+		//DrawFString(-20,32, 0xffffffff, 0, "TOTAL MINECOINS: %d", global_minecoins);
+		//DrawFString(-20,64, 0xffffffff, 0, "MINECOINS: %d", current_minecoins);
+		DrawFString(-20,88, 0xffffffff, 0, "FPS: %d", fps);
 		
 		if(global_route==1) SetTexture(4); else SetTexture(3);
 		
@@ -2219,22 +2217,22 @@ void drawScene()
 	
 	if(gamelose)
 	{
-		DrawFormatStringOutlined(-20,160, 0xffffffff, 0x000000ff, 2, "GAME OVER");
-		DrawFormatStringOutlined(-20,192, 0xffffffff, 0x000000ff, 2, "PRESS START");
+		DrawFString(-20,160, 0xffffffff, 0, "GAME OVER");
+		DrawFString(-20,192, 0xffffffff, 0, "PRESS START");
 	}
 	else if(gamewin)
 	{
-		DrawFormatStringOutlined(-20,160, 0xffffffff, 0x000000ff, 2, "LEVEL CLEAR!");
-		DrawFormatStringOutlined(-20,320, 0xffffffff, 0x000000ff, 2, "+ %d Minecoins!", level_minecoins);
+		DrawFString(-20,160, 0xffffffff, 0, "LEVEL CLEAR!");
+		DrawFString(-20,320, 0xffffffff, 0, "+ %d Minecoins!", level_minecoins);
 		if(!free_play)
 		{
-			DrawFormatStringOutlined(-20,192, 0xffffffff, 0x000000ff, 2, "START - Next Level");
-			DrawFormatStringOutlined(-20,224, 0xffffffff, 0x000000ff, 2, "SELECT - Save Progress");
+			DrawFString(-20,192, 0xffffffff, 0, "START - Next Level");
+			DrawFString(-20,224, 0xffffffff, 0, "SELECT - Save Progress");
 		}
 		else
 		{
-			DrawFormatStringOutlined(-20,192, 0xffffffff, 0x000000ff, 2, "START - Continue");
-			DrawFormatStringOutlined(-20,224, 0xffffffff, 0x000000ff, 2, "SELECT - Reset");
+			DrawFString(-20,192, 0xffffffff, 0, "START - Continue");
+			DrawFString(-20,224, 0xffffffff, 0, "SELECT - Reset");
 		}
 	}
 }
@@ -2322,7 +2320,8 @@ int main(int argc, const char* argv[])
 	padData paddata;
 	
 	srand(time(NULL));
-	tiny3d_Init(8*1024*1024);
+	tiny3d_Init(1024*1024);
+	//tiny3d_Init(2*1024*1024);
 	
 	sysModuleLoad(SYSMODULE_PNGDEC);
 	savestate_init();
@@ -2363,11 +2362,11 @@ int main(int argc, const char* argv[])
             TINY3D_BLEND_RGB_FUNC_ADD | TINY3D_BLEND_ALPHA_FUNC_ADD);
 		
 		ioPadGetInfo(&padinfo);
-		for(ip = 0; ip < MAX_PADS; ip++){
-
-			if(padinfo.status[ip]){
+		for(ip = 0; ip < MAX_PADS; ip++)
+		{
+			if(padinfo.status[ip])
+			{
 				ioPadGetData(ip, &paddata);
-				
 				if(!in_game)
 				{
 					if(!free_play)
@@ -2399,7 +2398,7 @@ int main(int argc, const char* argv[])
 							s32 ret;
 							
 							drawScene();
-							DrawFormatString(-20,256,"Loading...");
+							DrawFString(4,256,0xffffffff,0,"Loading...");
 							tiny3d_Flip();
 							
 							ret = sysSaveAutoLoad2(SYS_SAVE_CURRENT_VERSION,SAVE_DIR,
@@ -2491,7 +2490,7 @@ int main(int argc, const char* argv[])
 						if(!free_play)
 						{
 							drawScene();
-							DrawFormatString(-20,386,"Saving...");
+							DrawFString(4,386,0xffffffff,0,"Saving...");
 							tiny3d_Flip();
 							
 							s32 ret;

@@ -10,15 +10,14 @@ endif
 #---------------------------------------------------------------------------------
 #  TITLE, APPID, CONTENTID, ICON0 SFOXML before ppu_rules.
 #---------------------------------------------------------------------------------
-TITLE		:=	PS3Sweeper+ (FINAL-ALPHA)
+TITLE		:=	PS3Sweeper+
 APPID		:=	MINESWEEP
 CONTENTID	:=	HP0031-$(APPID)_00-0000000000000000
 
 ICON0       :=  param/ICON0.PNG
-#SFOXML		:=  param/sfo.xml
-#PIC1		:=  param/PIC1.PNG
+PIC1		:=  param/PIC1.PNG
 
-include $(PSL1GHT)/ppu_rules
+include $(PSL1GHT)/ppu_rules_pic
 
 # aditional scetool flags (--self-ctrl-flags, --self-cap-flags...)
 SCETOOL_FLAGS	+=	
