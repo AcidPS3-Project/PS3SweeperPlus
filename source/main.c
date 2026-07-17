@@ -1,4 +1,7 @@
-//#include <ppu-lv2.h>
+char global_name[] = "PS3Sweeper+";
+char global_version[] = "v0.3";
+char global_build[] = "16";
+
 #include <math.h>
 #include <time.h>
 #include <stdio.h>
@@ -69,6 +72,10 @@
 #include "boss10_intro_mp3_bin.h"
 #include "boss10_mp3_bin.h"
 #include "boss10_win_ogg_bin.h"
+#include "boss11_intro_mp3_bin.h"
+#include "boss11_mp3_bin.h"
+#include "boss11_2_mp3_bin.h"
+#include "boss11_win_ogg_bin.h"
 
 //IMPORT SFX
 #include "flag_ogg_bin.h"
@@ -84,6 +91,10 @@
 #include "episode2_shapes.h"
 
 bool playing_bgm = false;
+bool custom_music = false;
+
+bool has_custom_main = false;
+bool has_custom_win  = false;
 
 int EPISODE = 1;
 
@@ -102,13 +113,14 @@ LevelData levels[] =
     {6, 6, 3, 1, 0, 0},
     {8, 8, 6, 1, 0, 0},
     {10, 10, 10, 2, 1, 0},
-    {9, 12, 12, 2, 1, 0},
-    {18, 9, 20, 3, 2, 0},
+    {8, 12, 12, 2, 1, 0},
+    {18, 8, 20, 3, 2, 0},
     {15, 15, 30, 3, 2, 0},
     {18, 12, 33, 4, 3, 0},
     {16, 16, 42, 4, 3, 0},
     {13, 13, 29, 10, 4, 0},
-    {21, 21, 60, 12, 9, 91}
+    {21, 21, 60, 12, 9, 91},
+    {21, 21, 55, 15, 14, 0}
 };
 
 #define LEVEL_COUNT (sizeof(levels)/sizeof(levels[0]))
@@ -130,8 +142,7 @@ FT_Face face;
 
 
 
-char global_name[] = "PS3Sweeper+";
-char global_version[] = "v0.2";
+
 
 const char *splashes_random[] =
 {
@@ -194,7 +205,8 @@ const char *splashes_random[] =
 	"Oh now there is the title background :D",
 	"I wanna try making MS+ for PS1 sometime soon.",
 	"What R2 do? BEEP BEEP BEEP",
-	"48x36 boards DO NOT GIVE YOU FRAMEDROPS YIPPEEEEE!!!!!!!"
+	"48x36 boards DO NOT GIVE YOU FRAMEDROPS YIPPEEEEE!!!!!!!",
+	"11 is coming..."
 };
 
 int splash_count;
@@ -310,6 +322,21 @@ void init_bgm()
 	bgm_start[13] = 0;
 	bgm_end[13] = sex;
 	
+	bgm[15] = boss11_intro_mp3_bin;
+	bgm_size[15] = boss11_intro_mp3_bin_size;
+	bgm_start[15] = 42881;
+	bgm_end[15] = 70250-10;
+	
+	bgm[16] = boss11_mp3_bin;
+	bgm_size[16] = boss11_mp3_bin_size;
+	bgm_start[16] = 3438;
+	bgm_end[16] = 127540-10;
+	
+	bgm[99] = (unsigned char *)"";
+	bgm_size[99] = 0;
+	bgm_start[99] = 0;
+	bgm_end[99] = sex;
+	
 	bgm[101] = win1_mp3_bin;
 	bgm_size[101] = win1_mp3_bin_size;
 	bgm_start[101] = 0;
@@ -359,6 +386,11 @@ void init_bgm()
 	bgm_size[110] = boss10_win_ogg_bin_size;
 	bgm_start[110] = 0;
 	bgm_end[110] = sex;
+	
+	bgm[199] = (unsigned char *)"";
+	bgm_size[199] = 0;
+	bgm_start[199] = 0;
+	bgm_end[199] = sex;
 }
 
 int LoadSFX(SoundEffect *sfx, const void *data, int size)
@@ -403,11 +435,11 @@ void init_sfx()
 
 typedef struct
 {
-    short x;
-    short y;
+    int x;
+    int y;
 } RevealNode;
 
-static RevealNode reveal_stack[MAX_W * MAX_H];
+RevealNode reveal_queue[MAX_W * MAX_H];
 
 typedef struct
 {
@@ -416,6 +448,7 @@ typedef struct
 	u8 flagged;
 	u8 neighbors;
 	u8 active;
+	u8 processed;
 } Cell; //heh, funny
 
 Cell board[MAX_W][MAX_H];
@@ -445,6 +478,7 @@ int in_game = 0;
 
 #define MAX_BOSS9   4
 #define MAX_BOSS10  4
+#define MAX_BOSS11  4
 
 typedef struct
 {
@@ -472,14 +506,23 @@ typedef struct
 	float speed, timer, pulse;
 } Boss10;
 
+typedef struct
+{
+    bool active;
+    float x, y;
+} Boss11;
+
 Boss9 boss9_list[MAX_BOSS9];
 Boss10 boss10_list[MAX_BOSS10];
+Boss11 boss11_list[MAX_BOSS11];
 
 int boss9_started = 0;
 int boss10_started = 0;
+int boss11_started = 0;
 
 int boss9_count = 1;
 int boss10_count = 1;
+int boss11_count = 1;
 int i_10 = 0;
 
 
@@ -557,7 +600,7 @@ void status_cb(sysSaveCallbackResult *result, sysSaveStatusIn *in, sysSaveStatus
     memset(&param, 0, sizeof(param));
 
 	snprintf(param.title, sizeof(param.title), "%s", global_name);
-    snprintf(param.subtitle, sizeof(param.subtitle), "Game Save Data (%s)", global_version);
+    snprintf(param.subtitle, sizeof(param.subtitle), "Game Save Data (%s Build %s)", global_version, global_build);
     snprintf(param.detail, sizeof(param.detail), "%s\nTotal Minecoins: %d", splash, global_minecoins);
     if(out) out->setParam = &param;
 
@@ -829,7 +872,64 @@ void SetupBoss10Positions(int count)
     }
 }
 
+void SetupBoss11Positions(int count)
+{
+    int pad = 1;
+    int cx = GRID_W / 2;
+    int cy = GRID_H / 2;
 
+    if (count > MAX_BOSS11) count = MAX_BOSS11;
+    boss11_count = count;
+
+    memset(boss11_list, 0, sizeof(boss11_list));
+
+    switch (count)
+    {
+        case 1:
+            boss11_list[0].x = cx;
+            boss11_list[0].y = cy;
+            break;
+
+        case 2:
+            boss11_list[0].x = pad;
+            boss11_list[0].y = pad;
+
+            boss11_list[1].x = GRID_W - pad;
+            boss11_list[1].y = GRID_H - pad;
+            break;
+
+        case 3:
+            boss11_list[0].x = pad;
+            boss11_list[0].y = pad;
+
+            boss11_list[1].x = GRID_W - pad;
+            boss11_list[1].y = pad;
+
+            boss11_list[2].x = cx;
+            boss11_list[2].y = GRID_H - pad;
+            break;
+
+        default: // 4+
+            boss11_list[0].x = pad;
+            boss11_list[0].y = pad;
+
+            boss11_list[1].x = GRID_W - pad;
+            boss11_list[1].y = pad;
+
+            boss11_list[2].x = pad;
+            boss11_list[2].y = GRID_H - pad;
+
+            boss11_list[3].x = GRID_W - pad;
+            boss11_list[3].y = GRID_H - pad;
+            break;
+    }
+
+    // mark active + reset state
+    for (int i = 0; i < count; i++)
+    {
+        boss11_list[i].active = false;
+    }
+}
 
 
 
@@ -915,10 +1015,10 @@ void Load_PNG()
 
 void PlayBGM(int id, int inf)
 {
-    //StopAudio();
-    FILE *fp = (FILE *)mem_open((char *)bgm[id], bgm_size[id]);
-    if(inf) PlayAudiofd(fp, 0, AUDIO_INFINITE_TIME); else PlayAudiofd(fp, 0, AUDIO_ONE_TIME);
-
+	FILE *fp;
+	if(id==99 || id==199) fp = fopen((char *)bgm[id], "rb");
+    else fp = (FILE *)mem_open((char *)bgm[id], bgm_size[id]);
+    PlayAudiofd(fp, 0, inf ? AUDIO_INFINITE_TIME : AUDIO_ONE_TIME);
     current_bgm = id;
 }
 
@@ -1135,10 +1235,10 @@ int calculate_score()
 	}
 	if(current_level==8) score += 999;
 	if(current_level==9) score += 1000;
-	//if(current_level==9) score += 1111;
+	if(current_level==10) score += 1111;
 	if (boss9_count > 0) score += 9;
 	if (boss10_count > 0) score += 10;
-	//if (boss11_count > 0) score += 11;
+	if (boss11_count > 0) score += 11;
 	score += MINES;
 	score *= 1.5; // cuz we are practically ALWAYS in master LMAO
 	//if (Main.db["master"]): score \*= 1.5
@@ -1169,6 +1269,7 @@ void WinCheck()
 	
 	if(revealed_total >= valid_total)
 	{
+		printf("game won!\n");
 		gamewin = 1;
 		mines_count = 0;
 		timer_running = 0;
@@ -1198,24 +1299,26 @@ void WinCheck()
 
 int reveal_mode = 0;
 
-void RevealIterative(int x, int y)
+void RevealIterative(int startx, int starty)
 {
-    int top = 0;
+    int head = 0;
+    int tail = 0;
 
-    reveal_stack[top].x = x;
-    reveal_stack[top].y = y;
-    top++;
+    if(startx < 0 || starty < 0 || startx >= GRID_W || starty >= GRID_H) return;
+    if(!board[startx][starty].active) return;
+    board[startx][starty].processed = 1;
 
-    while(top > 0)
+    reveal_queue[tail].x = startx;
+    reveal_queue[tail].y = starty;
+    tail++;
+
+    while(head < tail)
     {
-        top--;
+        int x = reveal_queue[head].x;
+        int y = reveal_queue[head].y;
+        head++;
 
-        x = reveal_stack[top].x;
-        y = reveal_stack[top].y;
-
-        if(x < 0 || y < 0 || x >= GRID_W || y >= GRID_H) continue;
-
-        if(!board[x][y].active) continue;
+        board[x][y].processed = 0;
 
         if(board[x][y].revealed || board[x][y].flagged) continue;
 
@@ -1228,8 +1331,8 @@ void RevealIterative(int x, int y)
         }
 
         if(board[x][y].neighbors != 0) continue;
-
-        int ox, oy;
+		
+		int ox, oy;
 
         for(ox = -1; ox <= 1; ox++)
         {
@@ -1237,12 +1340,20 @@ void RevealIterative(int x, int y)
             {
                 if(ox == 0 && oy == 0) continue;
 
-                if(top < MAX_W * MAX_H)
-                {
-                    reveal_stack[top].x = x + ox;
-                    reveal_stack[top].y = y + oy;
-                    top++;
-                }
+                int nx = x + ox;
+                int ny = y + oy;
+
+                if(nx < 0 || ny < 0 || nx >= GRID_W || ny >= GRID_H) continue;
+                if(!board[nx][ny].active) continue;
+                if(board[nx][ny].revealed) continue;
+                if(board[nx][ny].flagged) continue;
+                if(board[nx][ny].processed) continue;
+
+                board[nx][ny].processed = 1;
+
+                reveal_queue[tail].x = nx;
+                reveal_queue[tail].y = ny;
+                tail++;
             }
         }
     }
@@ -1345,8 +1456,7 @@ void ResetGrid()
 	if(current_level==8)
 	{
 		SetupBoss9Positions(boss9_count);
-		msgDialogOpen(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
-			"There is a boss battle in this game. The battle works the same as normal Minesweeper, but with some key distinctions:\n"
+		msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON, "There is a boss battle in this game. The battle works the same as normal Minesweeper, but with some key distinctions:\n"
 			"you won't know the number of mines hidden on the grid, you have limited time to complete the level, and you won't be able to use the sonar or pause the game.\n"
 			"Clicking on a mine will make the time run out faster. To win, you must click SQUARE ONLY AFTER revealing all the tiles that don't contain mines.\n"
 			"If the timer hits 0, or you click on the boss before revealing the entire grid, it's game over.", EmptyDialogCallback, NULL, NULL);
@@ -1354,7 +1464,16 @@ void ResetGrid()
 	else if(current_level==9)
 	{
 		SetupBoss10Positions(boss10_count);
-		msgDialogOpen(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
+		msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
+			"There is another boss battle in this game. As soon as the game starts, this boss will start counting down from 10.\n"
+			"If it counts all the way down to 0, it's game over. Click SQUARE to reset the countdown back to 10, but be careful.\n"
+			"The boss will move faster and faster every time you click. Clicking on a mine will cause the boss to count down more quickly.\n"
+			"To win, reveal the entire grid before the boss is able to finish its countdown.", EmptyDialogCallback, NULL, NULL);
+	}
+	else if(current_level==10)
+	{
+		SetupBoss11Positions(boss11_count);
+		msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
 			"There is another boss battle in this game. As soon as the game starts, this boss will start counting down from 10.\n"
 			"If it counts all the way down to 0, it's game over. Click SQUARE to reset the countdown back to 10, but be careful.\n"
 			"The boss will move faster and faster every time you click. Clicking on a mine will cause the boss to count down more quickly.\n"
@@ -1437,6 +1556,11 @@ int getCaptainState(int anim_z, int anim1_z)
 		case 9:
 		{
 			if(gamewin) the_state = 102+anim_z; else if(gamelose) the_state = 176; else the_state = 126;
+			break;
+		}
+		case 10:
+		{
+			if(gamewin) the_state = 106+anim_z; else if(gamelose) the_state = 180; else the_state = 130;
 			break;
 		}
 	}
@@ -1971,16 +2095,11 @@ void draw_game()
 	SetTexture(1);
 	int x1, y1 = 0;
 	int x0, y0 = 0;
+	int zp = the_bg/5;
+	int mp = the_bg%5;
 	
-	int tile_bg = the_bg * 20;
-	int grid_bg = the_bg;
-	int bg_offs = the_bg % 5;
-	
-	if(the_bg>=5)
-	{
-		tile_bg = 4+(bg_offs * 20);
-		grid_bg = bg_offs+20;
-	}
+	int tile_bg = (4*zp)+(mp * 20);
+	int grid_bg = (20*zp)+mp;
 	
 	u32 color = 0xffffffff;
 	
@@ -2105,9 +2224,9 @@ void drawScene()
 		if(!free_play)
 		{
 			//DrawFString(ui_x,256, 0xffffffff, 0, "%d x %d", Video_Resolution.width,Video_Resolution.height);
-			DrawFString(ui_x,4, 0xffffffff, 0, "%s (%s)", global_name, global_version);
+			DrawFString(ui_x,4, 0xffffffff, 0, "%s (%s Build %s)", global_name, global_version, global_build);
 			DrawFString(ui_x,484, 0xffffffff, 0, "%s", splash);
-			DrawFString(ui_x,128, 0xffffffff, 0, "START - New Game");
+			DrawFString(ui_x,128, 0xffffffff, 0, "START - New Game (TEMP: %d)", current_level);
 			DrawFString(ui_x,160, 0xffffffff, 0, "SELECT - Continue");
 			DrawFString(ui_x,192, 0xffffffff, 0, "SQUARE - Freeplay");
 			DrawFString(ui_x,224, 0xffffffff, 0, "TRIANGLE - Credits");
@@ -2118,10 +2237,19 @@ void drawScene()
 			DrawFString(ui_x,64, 0xffffffff, 0, "Width: %d", fp_width);
 			DrawFString(ui_x,96, 0xffffffff, 0, "Height: %d", fp_height);
 			DrawFString(ui_x,128, 0xffffffff, 0, "Mines count: %d", fp_mines);
-			DrawFString(ui_x,160, 0xffffffff, 0, "Music Type: %d", fp_music);
+			
+			if(fp_music==99) DrawFString(ui_x,160, 0xffffffff, 0, "Music Type: C");
+			else DrawFString(ui_x,160, 0xffffffff, 0, "Music Type: %d", fp_music);
+			
+			if(fp_menu==3)
+			{
+				if(fp_music==99) DrawFString(ui_x+320,160, 0xffffffff, 0, "SQUARE - Use Custom Music: YES");
+				else DrawFString(ui_x+320,160, 0xffffffff, 0, "SQUARE - Use Custom Music: NO");
+			}
 			DrawFString(ui_x,192, 0xffffffff, 0, "Background Type: %d", (fp_back+1));
 			DrawFString(ui_x,256, 0xffffffff, 0, "START - Start the game");
 			DrawFString(ui_x,288, 0xffffffff, 0, "CIRCLE - Go Back");
+			DrawFString(ui_x,320, 0xffffffff, 0, "SELECT - The Big One with 111 Mines");
 			
 			DrawFString(ui_x+256,64+(fp_menu*32), 0xffffffff, 0, "<");
 		}
@@ -2212,6 +2340,18 @@ void drawScene()
 				DrawSprite2D(num, boss10_list[i].x, boss10_list[i].y, TMP_SIZ, TMP_SIZ, 16, 16, 320, 320, -3, color);
 			}
 		}
+		
+		if(current_level==10)
+		{
+			int i;
+
+			for (i = 0; i < boss11_count; i++)
+			{
+				if(boss11_count>0 && i>0) SetTexture(5);
+				DrawSprite2D(0, offset_x+(boss11_list[i].x*RENDER_SIZE)-RENDER_SIZE, offset_y+(boss11_list[i].y*RENDER_SIZE)-RENDER_SIZE,
+					RENDER_SIZE*3, RENDER_SIZE*3, 384, 384, 1536, 1536, -1, color);
+			}
+		}
 	}
 	SetFontSize(28, 32);
 	
@@ -2224,6 +2364,7 @@ void drawScene()
 	{
 		DrawFString(-20,160, 0xffffffff, 0, "LEVEL CLEAR!");
 		DrawFString(-20,320, 0xffffffff, 0, "+ %d Minecoins!", level_minecoins);
+		DrawFString(-20,356, 0xffffffff, 0, "%d seconds", timer_seconds);
 		if(!free_play)
 		{
 			DrawFString(-20,192, 0xffffffff, 0, "START - Next Level");
@@ -2308,9 +2449,28 @@ void GoBackToTitle()
 
 
 
+char custom_main_path[256];
+char custom_win_path[256];
 
+bool FindMusic(const char *base, char *out_path)
+{
+    sprintf(out_path, "%s.mp3", base);
+    FILE *fp = fopen(out_path, "rb");
 
+    if(!fp)
+    {
+        sprintf(out_path, "%s.ogg", base);
+        fp = fopen(out_path, "rb");
+    }
 
+    if(fp)
+    {
+        fclose(fp);
+        return true;
+    }
+
+    return false;
+}
 
 int main(int argc, const char* argv[])
 {
@@ -2373,23 +2533,11 @@ int main(int argc, const char* argv[])
 					{
 						if(paddata.BTN_START && !oldpad.BTN_START)
 						{
-							current_level = 0;
+							if(paddata.BTN_R3) global_route = 1;
+							if(current_level==9) EPISODE=2;
+							if(!paddata.BTN_L3) current_level = 0;
 							current_minecoins = 0;
 							StopAudio();
-							
-							if(paddata.BTN_L3)
-							{
-								if(paddata.BTN_R3) global_route = 1;
-								current_level=8;
-							}
-							
-							if(paddata.BTN_L2)
-							{
-								EPISODE = 2;
-								if(paddata.BTN_R3) global_route = 1;
-								current_level=9;
-							}
-							
 							LoadLevel(current_level);
 							in_game = 1;
 						}
@@ -2422,14 +2570,27 @@ int main(int argc, const char* argv[])
 								in_game = 1;
 							}
 						}
+						
 						if(paddata.BTN_TRIANGLE && !oldpad.BTN_TRIANGLE)
 						{
 							msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
 								"CREDITS\n\nOriginal Minesweeper Plus game made by Jorel Simpson\nXMB Background made by Zeltizy",
 								EmptyDialogCallback, NULL, NULL);
 						}
+						
 						if(paddata.BTN_SQUARE && !oldpad.BTN_SQUARE) free_play = 1;
 						if(paddata.BTN_R2 && !oldpad.BTN_R2) HolyShit();
+						
+						if(paddata.BTN_LEFT && !oldpad.BTN_LEFT)
+						{
+							current_level--;
+							if (current_level<0) current_level = 0;
+						}
+						if(paddata.BTN_RIGHT && !oldpad.BTN_RIGHT)
+						{
+							current_level++;
+							if (current_level>10) current_level = 10;
+						}
 					}
 					else
 					{
@@ -2446,16 +2607,19 @@ int main(int argc, const char* argv[])
 							free_play = 0;
 						}
 						
-						if(paddata.BTN_UP && !oldpad.BTN_UP){
+						if(paddata.BTN_UP && !oldpad.BTN_UP)
+						{
 							fp_menu--;
 							if (fp_menu<0) fp_menu = 0;
 						}
-						if(paddata.BTN_DOWN && !oldpad.BTN_DOWN){
+						if(paddata.BTN_DOWN && !oldpad.BTN_DOWN)
+						{
 							fp_menu++;
 							if (fp_menu>4) fp_menu = 4;
 						}
 						
-						if(paddata.BTN_LEFT && !oldpad.BTN_LEFT){
+						if(paddata.BTN_LEFT && !oldpad.BTN_LEFT)
+						{
 							switch(fp_menu)
 							{
 								case 0: fp_width--; if(fp_width<3) fp_width=3; break;
@@ -2467,17 +2631,63 @@ int main(int argc, const char* argv[])
 							
 							if(fp_mines>(fp_width*fp_height)-1) fp_mines=(fp_width*fp_height)-1;
 						}
-						if(paddata.BTN_RIGHT && !oldpad.BTN_RIGHT){
+						if(paddata.BTN_RIGHT && !oldpad.BTN_RIGHT)
+						{
 							switch(fp_menu)
 							{
 								case 0: fp_width++; if(fp_width>48) fp_width=48; break;
 								case 1: fp_height++; if(fp_height>36) fp_height=36; break;
 								case 2: fp_mines++; break;
 								case 3: fp_music++; if(fp_music>8) fp_music=8; break;
-								case 4: fp_back++; if(fp_back>10) fp_back=10; break;
+								case 4: fp_back++; if(fp_back>14) fp_back=14; break;
 							}
 							
 							if(fp_mines>(fp_width*fp_height)-1) fp_mines=(fp_width*fp_height)-1;
+						}
+						
+						if(paddata.BTN_SELECT && !oldpad.BTN_SELECT)
+						{
+							fp_width = 72;
+							fp_height = 48;
+							fp_mines = 111;
+							current_level = 0;
+							LoadFPLevel();
+							in_game = 1;
+						}
+						
+						if(fp_menu==3 && paddata.BTN_SQUARE && !oldpad.BTN_SQUARE)
+						{
+							if(!custom_music)
+							{
+								has_custom_main = FindMusic("/dev_usb000/SWEEPING/bgm", custom_main_path);
+								has_custom_win  = FindMusic("/dev_usb000/SWEEPING/win", custom_win_path);
+
+								if(!has_custom_main)
+								{
+									msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
+										"Error!\nFile not found in:\n/dev_usb000/SWEEPING/bgm.mp3 (or bgm.ogg)!",
+										EmptyDialogCallback, NULL, NULL);
+									continue;
+								}
+								
+								bgm[99] = (unsigned char *)custom_main_path;
+								fp_music = 99;
+
+								if(!has_custom_win)
+								{
+									msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
+										"Warning!\nFile not found in:\n/dev_usb000/SWEEPING/win.mp3 (or win.ogg)!\nIt is not necessary, but winning music won't play.",
+										EmptyDialogCallback, NULL, NULL);
+									continue;
+								}
+								bgm[199] = (unsigned char *)custom_win_path;
+								custom_music = true;
+							}
+							else
+							{
+								fp_music = 1;
+								custom_music = false;
+							}
 						}
 					}
 				}
@@ -2656,11 +2866,7 @@ int main(int argc, const char* argv[])
 			}
 		}
 		
-		if(timer_running)
-		{
-			timer_seconds += 0.018f;
-			if(timer_seconds > 999) timer_seconds = 999;
-		}
+		if(timer_running) timer_seconds += 0.018f;
 		
 		if(boss10_started && !disable_control)
 		{
@@ -2680,7 +2886,7 @@ int main(int argc, const char* argv[])
 			}
 		}
 		
-		if(disable_control && !gamelose)
+		if(disable_control && !gamelose && !gamewin)
 		{
 			if(explode_time>0) explode_time--;
 			else
