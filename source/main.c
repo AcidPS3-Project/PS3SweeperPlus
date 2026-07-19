@@ -1,6 +1,6 @@
 char global_name[] = "PS3Sweeper+";
 char global_version[] = "v0.3";
-char global_build[] = "16";
+char global_build[] = "27";
 
 #include <math.h>
 #include <time.h>
@@ -19,7 +19,6 @@ char global_build[] = "16";
 
 #include <tiny3d.h>
 #include <libfont.h>
-#include <np/trophy.h>
 
 #include <ft2build.h>
 #include <freetype/freetype.h> 
@@ -77,6 +76,8 @@ char global_build[] = "16";
 #include "boss11_2_mp3_bin.h"
 #include "boss11_win_ogg_bin.h"
 
+#include "bad_apple_mp3_bin.h"
+
 //IMPORT SFX
 #include "flag_ogg_bin.h"
 #include "unflag_mp3_bin.h"
@@ -89,6 +90,19 @@ char global_build[] = "16";
 
 // the fuck is that
 #include "episode2_shapes.h"
+
+
+
+
+
+#include "badapple.h"
+int bad_apple = 0;
+int temp_fp_music = 0;
+float ba_current_frame = 0;
+
+
+
+
 
 bool playing_bgm = false;
 bool custom_music = false;
@@ -336,6 +350,11 @@ void init_bgm()
 	bgm_size[99] = 0;
 	bgm_start[99] = 0;
 	bgm_end[99] = sex;
+	
+	bgm[100] = bad_apple_mp3_bin;
+	bgm_size[100] = bad_apple_mp3_bin_size;
+	bgm_start[100] = 0;
+	bgm_end[100] = sex;
 	
 	bgm[101] = win1_mp3_bin;
 	bgm_size[101] = win1_mp3_bin_size;
@@ -2250,6 +2269,7 @@ void drawScene()
 			DrawFString(ui_x,256, 0xffffffff, 0, "START - Start the game");
 			DrawFString(ui_x,288, 0xffffffff, 0, "CIRCLE - Go Back");
 			DrawFString(ui_x,320, 0xffffffff, 0, "SELECT - The Big One with 111 Mines");
+			DrawFString(ui_x,356, 0xffffffff, 0, "TRIANGLE - Bad Apple!!");
 			
 			DrawFString(ui_x+256,64+(fp_menu*32), 0xffffffff, 0, "<");
 		}
@@ -2416,6 +2436,33 @@ void LoadTexture()
 
 
 
+void badAppleUpdate()
+{
+	Video_ReadFrame((int)ba_current_frame);
+
+	for(int y = 0; y < video_header.height; y++)
+	{
+		for(int x = 0; x < video_header.width; x++)
+		{
+			board[x][y].mine = frame_buffer[y * video_header.width + x];
+			board[x][y].revealed = !frame_buffer[y * video_header.width + x];
+		}
+	}
+	
+	CalculateNumbers();
+	ba_current_frame+=0.5f;
+}
+
+
+
+
+
+
+
+
+
+
+
 int start_music = 0;
 
 void StartMusicCallback(msgButton button, void *usrData)
@@ -2436,6 +2483,12 @@ void GoBackToTitle()
 
 	splash = splashes_random[rand() % splash_count];
 	free_play = 0;
+	
+	ba_current_frame = 0;
+	bad_apple = 0;
+	
+	if(temp_fp_music==100) fp_music = temp_fp_music;
+	
 	i_10 = 0;
 
 	PlayBGM(0, 0);
@@ -2482,6 +2535,8 @@ int main(int argc, const char* argv[])
 	srand(time(NULL));
 	tiny3d_Init(1024*1024);
 	//tiny3d_Init(2*1024*1024);
+	
+	//sysTrophyInit();
 	
 	sysModuleLoad(SYSMODULE_PNGDEC);
 	savestate_init();
@@ -2654,6 +2709,24 @@ int main(int argc, const char* argv[])
 							LoadFPLevel();
 							in_game = 1;
 						}
+						if(paddata.BTN_TRIANGLE && !oldpad.BTN_TRIANGLE)
+						{
+							if(Video_Open("/dev_hdd0/game/MINESWEEP/USRDIR/dlc00.dat"))
+							{
+								fp_width = 48;
+								fp_height = 36;
+								fp_mines = 1;
+								temp_fp_music = fp_music;
+								fp_music = 100;
+								current_level = 0;
+								LoadFPLevel();
+								in_game = 1;
+								bad_apple = 1;
+								printf("Loaded Bad Apple!\n");
+							}
+							else msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
+								"Special-0 DLC is not installed. Please, install it.", EmptyDialogCallback, NULL, NULL);
+						}
 						
 						if(fp_menu==3 && paddata.BTN_SQUARE && !oldpad.BTN_SQUARE)
 						{
@@ -2739,7 +2812,7 @@ int main(int argc, const char* argv[])
 					}
 				}
 				
-				if (!disable_control && in_game)
+				if (!disable_control && in_game && !bad_apple)
 				{					
 					// basic
 					if(paddata.BTN_CROSS && !oldpad.BTN_CROSS)
@@ -2902,6 +2975,7 @@ int main(int argc, const char* argv[])
 		
 		if(game_loaded) drawScene();
 		if(playing_bgm) UpdateBGM();
+		if(bad_apple) badAppleUpdate();
 		
 		tiny3d_Flip();
 		usleep(3666);
