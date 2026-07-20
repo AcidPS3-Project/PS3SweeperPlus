@@ -10,7 +10,7 @@ endif
 #---------------------------------------------------------------------------------
 #  TITLE, APPID, CONTENTID, ICON0 SFOXML before ppu_rules.
 #---------------------------------------------------------------------------------
-TITLE		:=	PS3Sweeper+
+TITLE		:=	PS3Sweeper+ DEV Build
 APPID		:=	MINESWEEP
 CONTENTID	:=	HP0031-$(APPID)_00-0000000000000000
 

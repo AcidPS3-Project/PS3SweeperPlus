@@ -1,6 +1,6 @@
 char global_name[] = "PS3Sweeper+";
 char global_version[] = "v0.3";
-char global_build[] = "27";
+char global_build[] = "31";
 
 #include <math.h>
 #include <time.h>
@@ -76,8 +76,6 @@ char global_build[] = "27";
 #include "boss11_2_mp3_bin.h"
 #include "boss11_win_ogg_bin.h"
 
-#include "bad_apple_mp3_bin.h"
-
 //IMPORT SFX
 #include "flag_ogg_bin.h"
 #include "unflag_mp3_bin.h"
@@ -98,7 +96,6 @@ char global_build[] = "27";
 #include "badapple.h"
 int bad_apple = 0;
 int temp_fp_music = 0;
-float ba_current_frame = 0;
 
 
 
@@ -220,7 +217,8 @@ const char *splashes_random[] =
 	"I wanna try making MS+ for PS1 sometime soon.",
 	"What R2 do? BEEP BEEP BEEP",
 	"48x36 boards DO NOT GIVE YOU FRAMEDROPS YIPPEEEEE!!!!!!!",
-	"11 is coming..."
+	"11 is coming...",
+	"The Big LAG is no longer lagging?"
 };
 
 int splash_count;
@@ -346,13 +344,13 @@ void init_bgm()
 	bgm_start[16] = 3438;
 	bgm_end[16] = 127540-10;
 	
-	bgm[99] = (unsigned char *)"";
+	bgm[99] = (unsigned char *)""; // custom music
 	bgm_size[99] = 0;
 	bgm_start[99] = 0;
 	bgm_end[99] = sex;
 	
-	bgm[100] = bad_apple_mp3_bin;
-	bgm_size[100] = bad_apple_mp3_bin_size;
+	bgm[100] = (unsigned char *)""; // bad apple!!
+	bgm_size[100] = 0;
 	bgm_start[100] = 0;
 	bgm_end[100] = sex;
 	
@@ -451,6 +449,8 @@ void init_sfx()
 #define MAX_H 48
 
 #define TOTAL_SHEETS 8
+pngData spritesheet[TOTAL_SHEETS];
+u32 sprite_off[TOTAL_SHEETS];
 
 typedef struct
 {
@@ -596,6 +596,12 @@ enum
 static int saveMode;
 volatile int save_running = 0;
 sys_ppu_thread_t save_thread;
+
+int explode_time = 0;
+int disable_control = 0;
+int reveal_mode = 0;
+int start_music = 0;
+int game_init = 0;
 
 
 
@@ -1002,8 +1008,6 @@ u32 color_from_value(int value)
 
 
 
-pngData spritesheet[TOTAL_SHEETS];
-u32 sprite_off[TOTAL_SHEETS];
 
 void Load_PNG()
 {
@@ -1035,7 +1039,7 @@ void Load_PNG()
 void PlayBGM(int id, int inf)
 {
 	FILE *fp;
-	if(id==99 || id==199) fp = fopen((char *)bgm[id], "rb");
+	if(id==99 || id==199 || id==100) fp = fopen((char *)bgm[id], "rb");
     else fp = (FILE *)mem_open((char *)bgm[id], bgm_size[id]);
     PlayAudiofd(fp, 0, inf ? AUDIO_INFINITE_TIME : AUDIO_ONE_TIME);
     current_bgm = id;
@@ -1087,8 +1091,6 @@ void DeactivateBosses()
 	}
 }
 
-int explode_time = 0;
-int disable_control = 0;
 
 void game_lost()
 {
@@ -1316,7 +1318,6 @@ void WinCheck()
 	else if(current_level==8) game_lost();
 }
 
-int reveal_mode = 0;
 
 void RevealIterative(int startx, int starty)
 {
@@ -1493,10 +1494,7 @@ void ResetGrid()
 	{
 		SetupBoss11Positions(boss11_count);
 		msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
-			"There is another boss battle in this game. As soon as the game starts, this boss will start counting down from 10.\n"
-			"If it counts all the way down to 0, it's game over. Click SQUARE to reset the countdown back to 10, but be careful.\n"
-			"The boss will move faster and faster every time you click. Clicking on a mine will cause the boss to count down more quickly.\n"
-			"To win, reveal the entire grid before the boss is able to finish its countdown.", EmptyDialogCallback, NULL, NULL);
+			"ELEVEN TEMP DESCRIPTION", EmptyDialogCallback, NULL, NULL);
 	}
 	
 	int j;
@@ -1512,8 +1510,9 @@ void ResetGrid()
     GenerateBoard();
     CalculateNumbers();
 	
-	playing_bgm = true;
-    PlayBGM(desired_bgm, 1);
+	if(desired_bgm!=100) playing_bgm = true;
+	else playing_bgm = false;
+	PlayBGM(desired_bgm, 1);
 }
 
 void LoadLevel(int level)
@@ -2230,171 +2229,179 @@ void drawScene()
     SetFontColor(0xffffffff, 0x00000000);
     SetCurrentFont(0);
 	
-	count_frames++;
-	
-	anim = (count_frames / 30) % 2;
-	anim1 = (count_frames / 15) % 2;
-	anim2 = (count_frames / 15) % 3;
-	anim3 = (count_frames / 15) % 4;
-	
-	if(!in_game)
+	if(game_loaded)
 	{
-		DrawSprite2D(anim3, -40, -22, 916, 582, 1152, 960, 2304, 1920, 0, color);
-		if(!free_play)
+		count_frames++;
+		
+		anim = (count_frames / 30) % 2;
+		anim1 = (count_frames / 15) % 2;
+		anim2 = (count_frames / 15) % 3;
+		anim3 = (count_frames / 15) % 4;
+		
+		if(!in_game)
 		{
-			//DrawFString(ui_x,256, 0xffffffff, 0, "%d x %d", Video_Resolution.width,Video_Resolution.height);
-			DrawFString(ui_x,4, 0xffffffff, 0, "%s (%s Build %s)", global_name, global_version, global_build);
-			DrawFString(ui_x,484, 0xffffffff, 0, "%s", splash);
-			DrawFString(ui_x,128, 0xffffffff, 0, "START - New Game (TEMP: %d)", current_level);
-			DrawFString(ui_x,160, 0xffffffff, 0, "SELECT - Continue");
-			DrawFString(ui_x,192, 0xffffffff, 0, "SQUARE - Freeplay");
-			DrawFString(ui_x,224, 0xffffffff, 0, "TRIANGLE - Credits");
+			DrawSprite2D(anim3, -40, -22, 916, 582, 1152, 960, 2304, 1920, 0, color);
+			if(!free_play)
+			{
+				//DrawFString(ui_x,256, 0xffffffff, 0, "%d x %d", Video_Resolution.width,Video_Resolution.height);
+				DrawFString(ui_x,4, 0xffffffff, 0, "%s (%s Build %s)", global_name, global_version, global_build);
+				DrawFString(ui_x,484, 0xffffffff, 0, "%s", splash);
+				DrawFString(ui_x,128, 0xffffffff, 0, "START - New Game (TEMP: %d)", current_level);
+				DrawFString(ui_x,160, 0xffffffff, 0, "SELECT - Continue");
+				DrawFString(ui_x,192, 0xffffffff, 0, "SQUARE - Freeplay");
+				DrawFString(ui_x,224, 0xffffffff, 0, "TRIANGLE - Credits");
+			}
+			else
+			{
+				DrawFString(ui_x,4, 0xffffffff, 0, "Freeplay Menu");
+				DrawFString(ui_x,64, 0xffffffff, 0, "Width: %d", fp_width);
+				DrawFString(ui_x,96, 0xffffffff, 0, "Height: %d", fp_height);
+				DrawFString(ui_x,128, 0xffffffff, 0, "Mines count: %d", fp_mines);
+				
+				if(fp_music==99) DrawFString(ui_x,160, 0xffffffff, 0, "Music Type: C");
+				else DrawFString(ui_x,160, 0xffffffff, 0, "Music Type: %d", fp_music);
+				
+				if(fp_menu==3)
+				{
+					if(fp_music==99) DrawFString(ui_x+320,160, 0xffffffff, 0, "SQUARE - Use Custom Music: YES");
+					else DrawFString(ui_x+320,160, 0xffffffff, 0, "SQUARE - Use Custom Music: NO");
+				}
+				DrawFString(ui_x,192, 0xffffffff, 0, "Background Type: %d", (fp_back+1));
+				DrawFString(ui_x,256, 0xffffffff, 0, "START - Start the game");
+				DrawFString(ui_x,288, 0xffffffff, 0, "CIRCLE - Go Back");
+				DrawFString(ui_x,320, 0xffffffff, 0, "SELECT - The Big One with 111 Mines");
+				DrawFString(ui_x,356, 0xffffffff, 0, "TRIANGLE - Bad Apple!!");
+				
+				DrawFString(ui_x+256,64+(fp_menu*32), 0xffffffff, 0, "<");
+			}
 		}
 		else
 		{
-			DrawFString(ui_x,4, 0xffffffff, 0, "Freeplay Menu");
-			DrawFString(ui_x,64, 0xffffffff, 0, "Width: %d", fp_width);
-			DrawFString(ui_x,96, 0xffffffff, 0, "Height: %d", fp_height);
-			DrawFString(ui_x,128, 0xffffffff, 0, "Mines count: %d", fp_mines);
+			int the_timer = (int)timer_seconds;
+			if(the_timer>998) the_timer=999;
 			
-			if(fp_music==99) DrawFString(ui_x,160, 0xffffffff, 0, "Music Type: C");
-			else DrawFString(ui_x,160, 0xffffffff, 0, "Music Type: %d", fp_music);
+			SetTexture(2);
+			SetFontSize(84, 96);
+			DrawSpriteUI(-34, -22, 0, 0, 384, 192, 1024, 1024, 302, 112, 1, color);
+			DrawSpriteUI(576, -22, 0, 0, 384, 192, 1024, 1024, 302, 112, 1, color);
+			DrawSpriteUI(268, -22, 384, 0, 768, 192, 1024, 1024, 308, 112, 1, color);
+			DrawSpriteUI(-20, -10, 0+(anim*264), 192, 264+(anim*264), 456, 1024, 1024, 94, 94, 1, color);
+			DrawSpriteUI(586, -10, 0+(anim*264), 456, 264+(anim*264), 720, 1024, 1024, 94, 94, 1, color);
+			DrawFString(94, -26, 0xff0000ff, 1, "%03d", mines_count);
+			DrawFString(714,-26, 0xff0000ff, 1, "%03d", the_timer);
+			SetTexture(0);
+			SetFontSize(28, 32);
 			
-			if(fp_menu==3)
+			int capt_state = getCaptainState(anim1, anim2);
+			
+			DrawSprite2D(capt_state, 375, -14, 94, 94, 40, 40, 960, 560, 0, color);
+			//DrawFString(-20,32, 0xffffffff, 0, "TOTAL MINECOINS: %d", global_minecoins);
+			//DrawFString(-20,64, 0xffffffff, 0, "MINECOINS: %d", current_minecoins);
+			DrawFString(-20,88, 0xffffffff, 0, "FPS: %d", fps);
+			
+			if(global_route==1) SetTexture(4); else SetTexture(3);
+			
+			if(current_level==8)
 			{
-				if(fp_music==99) DrawFString(ui_x+320,160, 0xffffffff, 0, "SQUARE - Use Custom Music: YES");
-				else DrawFString(ui_x+320,160, 0xffffffff, 0, "SQUARE - Use Custom Music: NO");
+				int i;
+
+				for (i = 0; i < boss9_count; i++)
+				{
+					if(boss9_count>0 && i>0) SetTexture(5);
+					
+					DrawSprite2DR(0, offset_x+(boss9_list[i].x*RENDER_SIZE)-RENDER_SIZE, offset_y+(boss9_list[i].y*RENDER_SIZE)-RENDER_SIZE,
+						RENDER_SIZE*3, RENDER_SIZE*3, 384, 384, 1536, 1536, boss9_list[i].rotation, -1, color);
+					DrawSprite2D(1, offset_x+(boss9_list[i].x*RENDER_SIZE)-RENDER_SIZE, offset_y+(boss9_list[i].y*RENDER_SIZE)-RENDER_SIZE,
+						RENDER_SIZE*3, RENDER_SIZE*3, 384, 384, 1536, 1536, -1, color);
+				}
 			}
-			DrawFString(ui_x,192, 0xffffffff, 0, "Background Type: %d", (fp_back+1));
-			DrawFString(ui_x,256, 0xffffffff, 0, "START - Start the game");
-			DrawFString(ui_x,288, 0xffffffff, 0, "CIRCLE - Go Back");
-			DrawFString(ui_x,320, 0xffffffff, 0, "SELECT - The Big One with 111 Mines");
-			DrawFString(ui_x,356, 0xffffffff, 0, "TRIANGLE - Bad Apple!!");
+		
+			if(current_level==9)
+			{
+				int jl = 0;
+				int num = 0;
+				float scale = 0.0f;
+				float TMP_SIZ = 3.0f * RENDERING_PIXELS;
+				int i;
+
+				for (i = 0; i < boss10_count; i++)
+				{
+					boss10_list[i].pulse += 0.4f / (float)boss10_list[i].time;
+					if (boss10_list[i].pulse > 6.283185f) boss10_list[i].pulse -= 6.283185f; // keep it sane mkay?
+					
+					if(boss10_count>0 && i>0) SetTexture(5);
+					
+					switch(boss10_list[i].time)
+					{
+						case 10: num = 222; break;
+						case 9: num = 221; break;
+						case 8: num = 220; break;
+						case 7: num = 203; break;
+						case 6: num = 202; break;
+						case 5: num = 201; break;
+						case 4: num = 200; break;
+						case 3: num = 183; break;
+						case 2: num = 182; break;
+						case 1: num = 181; break;
+						case 0: num = 180; break;
+					}
+					for(jl = 0; jl < 5; jl++)
+					{
+						scale = 1.0f + sinf(boss10_list[i].pulse + ((float)jl-0.67f)) * 0.1f;
+						float TMP_SIZE = TMP_SIZ * 3.0f * scale;
+						
+						float draw_x = (boss10_list[i].x - TMP_SIZ) - (TMP_SIZE / 2.0f) + (TMP_SIZ*1.5f);
+						float draw_y = (boss10_list[i].y - TMP_SIZ) - (TMP_SIZE / 2.0f) + (TMP_SIZ*1.5f);
+						
+						DrawSprite2DR(4, draw_x, draw_y, TMP_SIZE, TMP_SIZE, 384, 384, 1536, 1536, 36*jl, -1, color_from_value(boss10_list[i].time));
+					}
+					DrawSprite2D(5, boss10_list[i].x - TMP_SIZ, boss10_list[i].y - TMP_SIZ, TMP_SIZ*3, TMP_SIZ*3, 384, 384, 1536, 1536, -2, color_from_value(boss10_list[i].time));
+					
+					SetTexture(1);
+					DrawSprite2D(num, boss10_list[i].x, boss10_list[i].y, TMP_SIZ, TMP_SIZ, 16, 16, 320, 320, -3, color);
+				}
+			}
 			
-			DrawFString(ui_x+256,64+(fp_menu*32), 0xffffffff, 0, "<");
+			if(current_level==10)
+			{
+				int i;
+
+				for (i = 0; i < boss11_count; i++)
+				{
+					if(boss11_count>0 && i>0) SetTexture(5);
+					DrawSprite2D(0, offset_x+(boss11_list[i].x*RENDER_SIZE)-RENDER_SIZE, offset_y+(boss11_list[i].y*RENDER_SIZE)-RENDER_SIZE,
+						RENDER_SIZE*3, RENDER_SIZE*3, 384, 384, 1536, 1536, -1, color);
+				}
+			}
+		}
+		SetFontSize(28, 32);
+		
+		if(gamelose)
+		{
+			DrawFString(-20,160, 0xffffffff, 0, "GAME OVER");
+			DrawFString(-20,192, 0xffffffff, 0, "PRESS START");
+		}
+		else if(gamewin)
+		{
+			DrawFString(-20,160, 0xffffffff, 0, "LEVEL CLEAR!");
+			DrawFString(-20,320, 0xffffffff, 0, "+ %d Minecoins!", level_minecoins);
+			DrawFString(-20,356, 0xffffffff, 0, "%d seconds", timer_seconds);
+			if(!free_play)
+			{
+				DrawFString(-20,192, 0xffffffff, 0, "START - Next Level");
+				DrawFString(-20,224, 0xffffffff, 0, "SELECT - Save Progress");
+			}
+			else
+			{
+				DrawFString(-20,192, 0xffffffff, 0, "START - Continue");
+				DrawFString(-20,224, 0xffffffff, 0, "SELECT - Reset");
+			}
 		}
 	}
 	else
 	{
-		int the_timer = (int)timer_seconds;
-		if(the_timer>998) the_timer=999;
-		
-		SetTexture(2);
-		SetFontSize(84, 96);
-		DrawSpriteUI(-34, -22, 0, 0, 384, 192, 1024, 1024, 302, 112, 1, color);
-		DrawSpriteUI(576, -22, 0, 0, 384, 192, 1024, 1024, 302, 112, 1, color);
-		DrawSpriteUI(268, -22, 384, 0, 768, 192, 1024, 1024, 308, 112, 1, color);
-		DrawSpriteUI(-20, -10, 0+(anim*264), 192, 264+(anim*264), 456, 1024, 1024, 94, 94, 1, color);
-		DrawSpriteUI(586, -10, 0+(anim*264), 456, 264+(anim*264), 720, 1024, 1024, 94, 94, 1, color);
-		DrawFString(94, -26, 0xff0000ff, 1, "%03d", mines_count);
-		DrawFString(714,-26, 0xff0000ff, 1, "%03d", the_timer);
-		SetTexture(0);
-		SetFontSize(28, 32);
-		
-		int capt_state = getCaptainState(anim1, anim2);
-		
-		DrawSprite2D(capt_state, 375, -14, 94, 94, 40, 40, 960, 560, 0, color);
-		//DrawFString(-20,32, 0xffffffff, 0, "TOTAL MINECOINS: %d", global_minecoins);
-		//DrawFString(-20,64, 0xffffffff, 0, "MINECOINS: %d", current_minecoins);
-		DrawFString(-20,88, 0xffffffff, 0, "FPS: %d", fps);
-		
-		if(global_route==1) SetTexture(4); else SetTexture(3);
-		
-		if(current_level==8)
-		{
-			int i;
-
-			for (i = 0; i < boss9_count; i++)
-			{
-				if(boss9_count>0 && i>0) SetTexture(5);
-				
-				DrawSprite2DR(0, offset_x+(boss9_list[i].x*RENDER_SIZE)-RENDER_SIZE, offset_y+(boss9_list[i].y*RENDER_SIZE)-RENDER_SIZE,
-					RENDER_SIZE*3, RENDER_SIZE*3, 384, 384, 1536, 1536, boss9_list[i].rotation, -1, color);
-				DrawSprite2D(1, offset_x+(boss9_list[i].x*RENDER_SIZE)-RENDER_SIZE, offset_y+(boss9_list[i].y*RENDER_SIZE)-RENDER_SIZE,
-					RENDER_SIZE*3, RENDER_SIZE*3, 384, 384, 1536, 1536, -1, color);
-			}
-		}
-	
-		if(current_level==9)
-		{
-			int jl = 0;
-			int num = 0;
-			float scale = 0.0f;
-			float TMP_SIZ = 3.0f * RENDERING_PIXELS;
-			int i;
-
-			for (i = 0; i < boss10_count; i++)
-			{
-				boss10_list[i].pulse += 0.4f / (float)boss10_list[i].time;
-				if (boss10_list[i].pulse > 6.283185f) boss10_list[i].pulse -= 6.283185f; // keep it sane mkay?
-				
-				if(boss10_count>0 && i>0) SetTexture(5);
-				
-				switch(boss10_list[i].time)
-				{
-					case 10: num = 222; break;
-					case 9: num = 221; break;
-					case 8: num = 220; break;
-					case 7: num = 203; break;
-					case 6: num = 202; break;
-					case 5: num = 201; break;
-					case 4: num = 200; break;
-					case 3: num = 183; break;
-					case 2: num = 182; break;
-					case 1: num = 181; break;
-					case 0: num = 180; break;
-				}
-				for(jl = 0; jl < 5; jl++)
-				{
-					scale = 1.0f + sinf(boss10_list[i].pulse + ((float)jl-0.67f)) * 0.1f;
-					float TMP_SIZE = TMP_SIZ * 3.0f * scale;
-					
-					float draw_x = (boss10_list[i].x - TMP_SIZ) - (TMP_SIZE / 2.0f) + (TMP_SIZ*1.5f);
-					float draw_y = (boss10_list[i].y - TMP_SIZ) - (TMP_SIZE / 2.0f) + (TMP_SIZ*1.5f);
-					
-					DrawSprite2DR(4, draw_x, draw_y, TMP_SIZE, TMP_SIZE, 384, 384, 1536, 1536, 36*jl, -1, color_from_value(boss10_list[i].time));
-				}
-				DrawSprite2D(5, boss10_list[i].x - TMP_SIZ, boss10_list[i].y - TMP_SIZ, TMP_SIZ*3, TMP_SIZ*3, 384, 384, 1536, 1536, -2, color_from_value(boss10_list[i].time));
-				
-				SetTexture(1);
-				DrawSprite2D(num, boss10_list[i].x, boss10_list[i].y, TMP_SIZ, TMP_SIZ, 16, 16, 320, 320, -3, color);
-			}
-		}
-		
-		if(current_level==10)
-		{
-			int i;
-
-			for (i = 0; i < boss11_count; i++)
-			{
-				if(boss11_count>0 && i>0) SetTexture(5);
-				DrawSprite2D(0, offset_x+(boss11_list[i].x*RENDER_SIZE)-RENDER_SIZE, offset_y+(boss11_list[i].y*RENDER_SIZE)-RENDER_SIZE,
-					RENDER_SIZE*3, RENDER_SIZE*3, 384, 384, 1536, 1536, -1, color);
-			}
-		}
-	}
-	SetFontSize(28, 32);
-	
-	if(gamelose)
-	{
-		DrawFString(-20,160, 0xffffffff, 0, "GAME OVER");
-		DrawFString(-20,192, 0xffffffff, 0, "PRESS START");
-	}
-	else if(gamewin)
-	{
-		DrawFString(-20,160, 0xffffffff, 0, "LEVEL CLEAR!");
-		DrawFString(-20,320, 0xffffffff, 0, "+ %d Minecoins!", level_minecoins);
-		DrawFString(-20,356, 0xffffffff, 0, "%d seconds", timer_seconds);
-		if(!free_play)
-		{
-			DrawFString(-20,192, 0xffffffff, 0, "START - Next Level");
-			DrawFString(-20,224, 0xffffffff, 0, "SELECT - Save Progress");
-		}
-		else
-		{
-			DrawFString(-20,192, 0xffffffff, 0, "START - Continue");
-			DrawFString(-20,224, 0xffffffff, 0, "SELECT - Reset");
-		}
+		DrawFString(4,4,0xff0000ff,1,"Made by AcidNT3.1 Productions");
+		DrawFString(4,36,0xff0000ff,1,"Loading...");
 	}
 }
 
@@ -2436,41 +2443,6 @@ void LoadTexture()
 
 
 
-void badAppleUpdate()
-{
-	Video_ReadFrame((int)ba_current_frame);
-
-	for(int y = 0; y < video_header.height; y++)
-	{
-		for(int x = 0; x < video_header.width; x++)
-		{
-			board[x][y].mine = frame_buffer[y * video_header.width + x];
-			board[x][y].revealed = !frame_buffer[y * video_header.width + x];
-		}
-	}
-	
-	CalculateNumbers();
-	ba_current_frame+=0.5f;
-}
-
-
-
-
-
-
-
-
-
-
-
-int start_music = 0;
-
-void StartMusicCallback(msgButton button, void *usrData)
-{
-	game_loaded = 1;
-	start_music = 1;
-}
-
 void GoBackToTitle()
 {
 	in_game = 0;
@@ -2484,7 +2456,6 @@ void GoBackToTitle()
 	splash = splashes_random[rand() % splash_count];
 	free_play = 0;
 	
-	ba_current_frame = 0;
 	bad_apple = 0;
 	
 	if(temp_fp_music==100) fp_music = temp_fp_music;
@@ -2502,8 +2473,81 @@ void GoBackToTitle()
 
 
 
+void badAppleUpdate()
+{
+	int x, y;
+	static float videoFrame = 0.0f;
+	static int lastFrame = -1;
+
+	videoFrame += 0.5f;
+
+	float audioFrame = (GetTimeAudio() * video_header.fps) / 1000.0f;
+	float error = audioFrame - videoFrame;
+	
+	if(videoFrame > 6562.0f)
+	{
+		StopAudio();
+		GoBackToTitle();
+	}
+
+	if (fabsf(error) > 10.0f) videoFrame = audioFrame; else videoFrame += error * 0.01f;
+	
+	int frame = (int)videoFrame;
+	
+	if(frame != lastFrame)
+	{
+		lastFrame = frame;
+		Video_ReadFrame(frame);
+		
+		for(y = 0; y < GRID_H; y++)
+		{
+			for(x = 0; x < GRID_W; x++)
+			{
+				board[x][y].mine = frame_buffer[y * video_header.width + x];
+				board[x][y].revealed = !frame_buffer[y * video_header.width + x];
+			}
+		}
+		
+		CalculateNumbers();
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void LoadGameCallback(msgButton button, void *usrData)
+{
+	game_init = 1;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 char custom_main_path[256];
 char custom_win_path[256];
+char bad_apple_path[256];
 
 bool FindMusic(const char *base, char *out_path)
 {
@@ -2534,9 +2578,6 @@ int main(int argc, const char* argv[])
 	
 	srand(time(NULL));
 	tiny3d_Init(1024*1024);
-	//tiny3d_Init(2*1024*1024);
-	
-	//sysTrophyInit();
 	
 	sysModuleLoad(SYSMODULE_PNGDEC);
 	savestate_init();
@@ -2554,9 +2595,9 @@ int main(int argc, const char* argv[])
 	ioPadInit(7);
     LoadTexture();
 	
-	msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
+	msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON | MSG_DIALOG_BKG_INVISIBLE,
 		"Welcome to PS3Sweeper+!\n\nThis game is still under VERY HUGE development, so please join my discord server to not miss out new updates!\nLINK: https://discord.gg/7XuQDYjyzt",
-		StartMusicCallback, NULL, NULL);
+		LoadGameCallback, NULL, NULL);
 	
     while(1)
     {
@@ -2576,407 +2617,410 @@ int main(int argc, const char* argv[])
             TINY3D_BLEND_FUNC_DST_RGB_ONE_MINUS_SRC_ALPHA | TINY3D_BLEND_FUNC_DST_ALPHA_ZERO,
             TINY3D_BLEND_RGB_FUNC_ADD | TINY3D_BLEND_ALPHA_FUNC_ADD);
 		
-		ioPadGetInfo(&padinfo);
-		for(ip = 0; ip < MAX_PADS; ip++)
+		if(game_loaded)
 		{
-			if(padinfo.status[ip])
+			ioPadGetInfo(&padinfo);
+			for(ip = 0; ip < MAX_PADS; ip++)
 			{
-				ioPadGetData(ip, &paddata);
-				if(!in_game)
+				if(padinfo.status[ip])
 				{
-					if(!free_play)
+					ioPadGetData(ip, &paddata);
+					if(!in_game)
 					{
-						if(paddata.BTN_START && !oldpad.BTN_START)
+						if(!free_play)
 						{
-							if(paddata.BTN_R3) global_route = 1;
-							if(current_level==9) EPISODE=2;
-							if(!paddata.BTN_L3) current_level = 0;
-							current_minecoins = 0;
-							StopAudio();
-							LoadLevel(current_level);
-							in_game = 1;
-						}
-						if(paddata.BTN_SELECT && !oldpad.BTN_SELECT)
-						{
-							s32 ret;
-							
-							drawScene();
-							DrawFString(4,256,0xffffffff,0,"Loading...");
-							tiny3d_Flip();
-							
-							ret = sysSaveAutoLoad2(SYS_SAVE_CURRENT_VERSION,SAVE_DIR,
-								SYS_SAVE_ERROR_DIALOG_SHOW,&buffer,status_cb,
-								load_file_cb,0,NULL);
-							
-							printf("LOAD RET = %08x\n", ret);
-							printf("LEVEL = %d\n", gSave.save_level);
-							
-							if(ret == SYS_SAVE_RETURN_DONE)
+							if(paddata.BTN_START && !oldpad.BTN_START)
 							{
-								msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
-									"Load Success.", EmptyDialogCallback, NULL, NULL);
-								
-								current_level = gSave.save_level;
-								current_minecoins = gSave.save_current_minecoins;
-								global_minecoins = gSave.save_global_minecoins;
+								if(paddata.BTN_R3) global_route = 1;
+								if(current_level==9) EPISODE=2;
+								if(!paddata.BTN_L3) current_level = 0;
+								current_minecoins = 0;
+								StopAudio();
+								LoadLevel(current_level);
+								in_game = 1;
+							}
+							if(paddata.BTN_SELECT && !oldpad.BTN_SELECT)
+							{
 								free_play = 0;
 								StopAudio();
 								LoadLevel(current_level);
 								in_game = 1;
 							}
-						}
-						
-						if(paddata.BTN_TRIANGLE && !oldpad.BTN_TRIANGLE)
-						{
-							msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
-								"CREDITS\n\nOriginal Minesweeper Plus game made by Jorel Simpson\nXMB Background made by Zeltizy",
-								EmptyDialogCallback, NULL, NULL);
-						}
-						
-						if(paddata.BTN_SQUARE && !oldpad.BTN_SQUARE) free_play = 1;
-						if(paddata.BTN_R2 && !oldpad.BTN_R2) HolyShit();
-						
-						if(paddata.BTN_LEFT && !oldpad.BTN_LEFT)
-						{
-							current_level--;
-							if (current_level<0) current_level = 0;
-						}
-						if(paddata.BTN_RIGHT && !oldpad.BTN_RIGHT)
-						{
-							current_level++;
-							if (current_level>10) current_level = 10;
-						}
-					}
-					else
-					{
-						if(paddata.BTN_START && !oldpad.BTN_START)
-						{
-							current_level = 0;
-							LoadFPLevel();
-							in_game = 1;
-						}
-						
-						if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE)
-						{
-							splash = splashes_random[rand() % splash_count];
-							free_play = 0;
-						}
-						
-						if(paddata.BTN_UP && !oldpad.BTN_UP)
-						{
-							fp_menu--;
-							if (fp_menu<0) fp_menu = 0;
-						}
-						if(paddata.BTN_DOWN && !oldpad.BTN_DOWN)
-						{
-							fp_menu++;
-							if (fp_menu>4) fp_menu = 4;
-						}
-						
-						if(paddata.BTN_LEFT && !oldpad.BTN_LEFT)
-						{
-							switch(fp_menu)
+							
+							if(paddata.BTN_TRIANGLE && !oldpad.BTN_TRIANGLE)
 							{
-								case 0: fp_width--; if(fp_width<3) fp_width=3; break;
-								case 1: fp_height--; if(fp_height<3) fp_height=3; break;
-								case 2: fp_mines--; if(fp_mines<1) fp_mines=1; break;
-								case 3: fp_music--; if(fp_music<1) fp_music=1; break;
-								case 4: fp_back--; if(fp_back<0) fp_back=0; break;
+								msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
+									"CREDITS\n\nOriginal Minesweeper Plus game made by Jorel Simpson\nXMB Background made by Zeltizy",
+									EmptyDialogCallback, NULL, NULL);
 							}
 							
-							if(fp_mines>(fp_width*fp_height)-1) fp_mines=(fp_width*fp_height)-1;
-						}
-						if(paddata.BTN_RIGHT && !oldpad.BTN_RIGHT)
-						{
-							switch(fp_menu)
-							{
-								case 0: fp_width++; if(fp_width>48) fp_width=48; break;
-								case 1: fp_height++; if(fp_height>36) fp_height=36; break;
-								case 2: fp_mines++; break;
-								case 3: fp_music++; if(fp_music>8) fp_music=8; break;
-								case 4: fp_back++; if(fp_back>14) fp_back=14; break;
-							}
+							if(paddata.BTN_SQUARE && !oldpad.BTN_SQUARE) free_play = 1;
+							if(paddata.BTN_R2 && !oldpad.BTN_R2) HolyShit();
 							
-							if(fp_mines>(fp_width*fp_height)-1) fp_mines=(fp_width*fp_height)-1;
-						}
-						
-						if(paddata.BTN_SELECT && !oldpad.BTN_SELECT)
-						{
-							fp_width = 72;
-							fp_height = 48;
-							fp_mines = 111;
-							current_level = 0;
-							LoadFPLevel();
-							in_game = 1;
-						}
-						if(paddata.BTN_TRIANGLE && !oldpad.BTN_TRIANGLE)
-						{
-							if(Video_Open("/dev_hdd0/game/MINESWEEP/USRDIR/dlc00.dat"))
+							if(paddata.BTN_LEFT && !oldpad.BTN_LEFT)
 							{
-								fp_width = 48;
-								fp_height = 36;
-								fp_mines = 1;
-								temp_fp_music = fp_music;
-								fp_music = 100;
+								current_level--;
+								if (current_level<0) current_level = 0;
+							}
+							if(paddata.BTN_RIGHT && !oldpad.BTN_RIGHT)
+							{
+								current_level++;
+								if (current_level>10) current_level = 10;
+							}
+						}
+						else
+						{
+							if(paddata.BTN_START && !oldpad.BTN_START)
+							{
 								current_level = 0;
 								LoadFPLevel();
 								in_game = 1;
-								bad_apple = 1;
-								printf("Loaded Bad Apple!\n");
 							}
-							else msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
-								"Special-0 DLC is not installed. Please, install it.", EmptyDialogCallback, NULL, NULL);
-						}
-						
-						if(fp_menu==3 && paddata.BTN_SQUARE && !oldpad.BTN_SQUARE)
-						{
-							if(!custom_music)
+							
+							if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE)
 							{
-								has_custom_main = FindMusic("/dev_usb000/SWEEPING/bgm", custom_main_path);
-								has_custom_win  = FindMusic("/dev_usb000/SWEEPING/win", custom_win_path);
-
-								if(!has_custom_main)
+								splash = splashes_random[rand() % splash_count];
+								free_play = 0;
+							}
+							
+							if(paddata.BTN_UP && !oldpad.BTN_UP)
+							{
+								fp_menu--;
+								if (fp_menu<0) fp_menu = 0;
+							}
+							if(paddata.BTN_DOWN && !oldpad.BTN_DOWN)
+							{
+								fp_menu++;
+								if (fp_menu>4) fp_menu = 4;
+							}
+							
+							if(paddata.BTN_LEFT && !oldpad.BTN_LEFT)
+							{
+								switch(fp_menu)
 								{
-									msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
-										"Error!\nFile not found in:\n/dev_usb000/SWEEPING/bgm.mp3 (or bgm.ogg)!",
-										EmptyDialogCallback, NULL, NULL);
-									continue;
+									case 0: fp_width--; if(fp_width<3) fp_width=3; break;
+									case 1: fp_height--; if(fp_height<3) fp_height=3; break;
+									case 2: fp_mines--; if(fp_mines<1) fp_mines=1; break;
+									case 3: fp_music--; if(fp_music<1) fp_music=1; break;
+									case 4: fp_back--; if(fp_back<0) fp_back=0; break;
 								}
 								
-								bgm[99] = (unsigned char *)custom_main_path;
-								fp_music = 99;
+								if(fp_mines>(fp_width*fp_height)-1) fp_mines=(fp_width*fp_height)-1;
+							}
+							if(paddata.BTN_RIGHT && !oldpad.BTN_RIGHT)
+							{
+								switch(fp_menu)
+								{
+									case 0: fp_width++; if(fp_width>48) fp_width=48; break;
+									case 1: fp_height++; if(fp_height>36) fp_height=36; break;
+									case 2: fp_mines++; break;
+									case 3: fp_music++; if(fp_music>8) fp_music=8; break;
+									case 4: fp_back++; if(fp_back>14) fp_back=14; break;
+								}
+								
+								if(fp_mines>(fp_width*fp_height)-1) fp_mines=(fp_width*fp_height)-1;
+							}
+							
+							if(paddata.BTN_SELECT && !oldpad.BTN_SELECT)
+							{
+								fp_width = 72;
+								fp_height = 48;
+								fp_mines = 111;
+								current_level = 0;
+								LoadFPLevel();
+								in_game = 1;
+							}
+							if(paddata.BTN_TRIANGLE && !oldpad.BTN_TRIANGLE)
+							{
+								if(Video_Open("/dev_hdd0/game/MINESWEEP/USRDIR/dlc00/data.dat") && FindMusic("/dev_hdd0/game/MINESWEEP/USRDIR/dlc00/mus", bad_apple_path))
+								{
+									fp_width = 64;
+									fp_height = 48;
+									fp_mines = 1;
+									temp_fp_music = fp_music;
+									fp_music = 100;
+									bgm[100] = (unsigned char *)bad_apple_path;
+									current_level = 0;
+									LoadFPLevel();
+									in_game = 1;
+									bad_apple = 1;
+									printf("Loaded Bad Apple!!\n");
+								}
+								else msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
+									"Bad Apple!! DLC is not installed. Please, install it from AcidPS3 Store v0.2 or higher!", EmptyDialogCallback, NULL, NULL);
+							}
+							
+							if(fp_menu==3 && paddata.BTN_SQUARE && !oldpad.BTN_SQUARE)
+							{
+								if(!custom_music)
+								{
+									has_custom_main = FindMusic("/dev_usb000/SWEEPING/bgm", custom_main_path);
+									has_custom_win  = FindMusic("/dev_usb000/SWEEPING/win", custom_win_path);
 
-								if(!has_custom_win)
+									if(!has_custom_main)
+									{
+										msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
+											"Error!\nFile not found in:\n/dev_usb000/SWEEPING/bgm.mp3 (or bgm.ogg)!",
+											EmptyDialogCallback, NULL, NULL);
+										continue;
+									}
+									
+									bgm[99] = (unsigned char *)custom_main_path;
+									fp_music = 99;
+
+									if(!has_custom_win)
+									{
+										msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
+											"Warning!\nFile not found in:\n/dev_usb000/SWEEPING/win.mp3 (or win.ogg)!\nIt is not necessary, but winning music won't play.",
+											EmptyDialogCallback, NULL, NULL);
+										continue;
+									}
+									bgm[199] = (unsigned char *)custom_win_path;
+									custom_music = true;
+								}
+								else
+								{
+									fp_music = 1;
+									custom_music = false;
+								}
+							}
+						}
+					}
+					
+					if(gamelose && paddata.BTN_START && !oldpad.BTN_START) GoBackToTitle();
+					else if(gamewin)
+					{
+						if(paddata.BTN_SELECT && !oldpad.BTN_SELECT)
+						{
+							if(!free_play)
+							{
+								drawScene();
+								DrawFString(4,386,0xffffffff,0,"Saving...");
+								tiny3d_Flip();
+								
+								s32 ret;
+								gSave.save_level = current_level + 1;
+								gSave.save_current_minecoins = current_minecoins;
+								gSave.save_global_minecoins = global_minecoins;
+								gSave.save_global_route = global_route;
+								
+								ret = sysSaveAutoSave2(SYS_SAVE_CURRENT_VERSION,SAVE_DIR,
+									SYS_SAVE_ERROR_DIALOG_SHOW,&buffer,status_cb,save_file_cb,
+									0,NULL);
+								
+								printf("SAVE RET = %08x\n", ret);
+								
+								msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
+									"Save Completed.", EmptyDialogCallback, NULL, NULL);
+							}
+							else LoadFPLevel();
+						}
+
+						if(paddata.BTN_START && !oldpad.BTN_START)
+						{
+							if(!free_play)
+							{
+								current_level++;
+
+								if(current_level >= LEVEL_COUNT)
 								{
 									msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
-										"Warning!\nFile not found in:\n/dev_usb000/SWEEPING/win.mp3 (or win.ogg)!\nIt is not necessary, but winning music won't play.",
-										EmptyDialogCallback, NULL, NULL);
-									continue;
+										"The DEMO is completed. Returning to XMB..",
+										DemoCompleteCallback, NULL, NULL);
 								}
-								bgm[199] = (unsigned char *)custom_win_path;
-								custom_music = true;
+								else LoadLevel(current_level);
 							}
-							else
-							{
-								fp_music = 1;
-								custom_music = false;
-							}
-						}
-					}
-				}
-				
-				if(gamelose && paddata.BTN_START && !oldpad.BTN_START) GoBackToTitle();
-				else if(gamewin)
-				{
-					if(paddata.BTN_SELECT && !oldpad.BTN_SELECT)
-					{
-						if(!free_play)
-						{
-							drawScene();
-							DrawFString(4,386,0xffffffff,0,"Saving...");
-							tiny3d_Flip();
-							
-							s32 ret;
-							gSave.save_level = current_level + 1;
-							gSave.save_current_minecoins = current_minecoins;
-							gSave.save_global_minecoins = global_minecoins;
-							gSave.save_global_route = global_route;
-							
-							ret = sysSaveAutoSave2(SYS_SAVE_CURRENT_VERSION,SAVE_DIR,
-								SYS_SAVE_ERROR_DIALOG_SHOW,&buffer,status_cb,save_file_cb,
-								0,NULL);
-							
-							printf("SAVE RET = %08x\n", ret);
-							
-							msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
-								"Save Completed.", EmptyDialogCallback, NULL, NULL);
-						}
-						else LoadFPLevel();
-					}
-
-					if(paddata.BTN_START && !oldpad.BTN_START)
-					{
-						if(!free_play)
-						{
-							current_level++;
-
-							if(current_level >= LEVEL_COUNT)
-							{
-								msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
-									"The DEMO is completed. Returning to XMB..",
-									DemoCompleteCallback, NULL, NULL);
-							}
-							else LoadLevel(current_level);
-						}
-						else GoBackToTitle();
-					}
-				}
-				
-				if (!disable_control && in_game && !bad_apple)
-				{					
-					// basic
-					if(paddata.BTN_CROSS && !oldpad.BTN_CROSS)
-					{
-						if(FIRST_CLICK) timer_running = 1;
-						
-						if(board[cursorX][cursorY].mine && FIRST_CLICK)
-						{
-							do
-							{
-								GenerateBoard();
-								CalculateNumbers();
-							}
-							while(board[cursorX][cursorY].mine);
-						}
-						
-						FIRST_CLICK = 0;
-						
-						if(current_level==8 && !boss9_started)
-						{
-							boss9_started = 1;
-							
-							int i;
-							for (i = 0; i < boss9_count; i++)
-							{
-								boss9_list[i].active = true;
-							}
-							
-							StopAudio();
-							PlayBGM(11, 1);
-						}
-						if(current_level==9 && !boss10_started)
-						{
-							boss10_started = 1;
-							
-							int i;
-							for (i = 0; i < boss10_count; i++)
-							{
-								boss10_list[i].active = true;
-							}
-							
-							StopAudio();
-							PlayBGM(13, 1);
-						}
-						if (board[cursorX][cursorY].revealed) Chord(cursorX, cursorY);
-							else Reveal(cursorX, cursorY);
-						
-						if(!boss9_started) WinCheck();
-					}
-					if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE)
-					{
-						if(!board[cursorX][cursorY].revealed)
-						{
-							board[cursorX][cursorY].flagged = !board[cursorX][cursorY].flagged;
-							if(board[cursorX][cursorY].flagged)
-							{
-								PlaySFX(&sfx_flag);
-								mines_count--;
-							}
-							else
-							{
-								PlaySFX(&sfx_unflag);
-								mines_count++;
-							}
-						}
-					}
-					if(paddata.BTN_SQUARE && !oldpad.BTN_SQUARE)
-					{
-						if(current_level==8 && boss9_started) WinCheck();
-						else if(current_level==9 && boss10_started)
-						{
-							boss10_list[i_10].time=10;
-							boss10_list[i_10].tspeed+=0.031f;
-							float min_speed = boss10_list[i_10].tspeed;
-							
-							boss10_list[i_10].hsp = min_speed + (((float)rand() / (float)RAND_MAX) * boss10_list[i_10].tspeed);
-							boss10_list[i_10].vsp = min_speed + (((float)rand() / (float)RAND_MAX) * boss10_list[i_10].tspeed);
-							
-							PlaySFX(&sfx_10reset);
-							
-							if (rand() % 2) boss10_list[i_10].hsp = -boss10_list[i_10].hsp;
-							if (rand() % 2) boss10_list[i_10].vsp = -boss10_list[i_10].vsp;
-							
-							i_10++;
-							if(i_10>boss10_count) i_10=0;
+							else GoBackToTitle();
 						}
 					}
 					
-					// movement
-					if(paddata.BTN_LEFT && !oldpad.BTN_LEFT) MoveCursor(-1, 0);
-					if(paddata.BTN_RIGHT && !oldpad.BTN_RIGHT) MoveCursor(1, 0);
-					if(paddata.BTN_UP && !oldpad.BTN_UP) MoveCursor(0, -1);
-					if(paddata.BTN_DOWN && !oldpad.BTN_DOWN) MoveCursor(0, 1);
+					if (!disable_control && in_game && !bad_apple)
+					{					
+						// basic
+						if(paddata.BTN_CROSS && !oldpad.BTN_CROSS)
+						{
+							if(FIRST_CLICK) timer_running = 1;
+							
+							if(board[cursorX][cursorY].mine && FIRST_CLICK)
+							{
+								do
+								{
+									GenerateBoard();
+									CalculateNumbers();
+								}
+								while(board[cursorX][cursorY].mine);
+							}
+							
+							FIRST_CLICK = 0;
+							
+							if(current_level==8 && !boss9_started)
+							{
+								boss9_started = 1;
+								
+								int i;
+								for (i = 0; i < boss9_count; i++)
+								{
+									boss9_list[i].active = true;
+								}
+								
+								StopAudio();
+								PlayBGM(11, 1);
+							}
+							if(current_level==9 && !boss10_started)
+							{
+								boss10_started = 1;
+								
+								int i;
+								for (i = 0; i < boss10_count; i++)
+								{
+									boss10_list[i].active = true;
+								}
+								
+								StopAudio();
+								PlayBGM(13, 1);
+							}
+							if (board[cursorX][cursorY].revealed) Chord(cursorX, cursorY);
+								else Reveal(cursorX, cursorY);
+							
+							if(!boss9_started) WinCheck();
+						}
+						if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE)
+						{
+							if(!board[cursorX][cursorY].revealed)
+							{
+								board[cursorX][cursorY].flagged = !board[cursorX][cursorY].flagged;
+								if(board[cursorX][cursorY].flagged)
+								{
+									PlaySFX(&sfx_flag);
+									mines_count--;
+								}
+								else
+								{
+									PlaySFX(&sfx_unflag);
+									mines_count++;
+								}
+							}
+						}
+						if(paddata.BTN_SQUARE && !oldpad.BTN_SQUARE)
+						{
+							if(current_level==8 && boss9_started) WinCheck();
+							else if(current_level==9 && boss10_started)
+							{
+								boss10_list[i_10].time=10;
+								boss10_list[i_10].tspeed+=0.031f;
+								float min_speed = boss10_list[i_10].tspeed;
+								
+								boss10_list[i_10].hsp = min_speed + (((float)rand() / (float)RAND_MAX) * boss10_list[i_10].tspeed);
+								boss10_list[i_10].vsp = min_speed + (((float)rand() / (float)RAND_MAX) * boss10_list[i_10].tspeed);
+								
+								PlaySFX(&sfx_10reset);
+								
+								if (rand() % 2) boss10_list[i_10].hsp = -boss10_list[i_10].hsp;
+								if (rand() % 2) boss10_list[i_10].vsp = -boss10_list[i_10].vsp;
+								
+								i_10++;
+								if(i_10>boss10_count) i_10=0;
+							}
+						}
+						
+						// movement
+						if(paddata.BTN_LEFT && !oldpad.BTN_LEFT) MoveCursor(-1, 0);
+						if(paddata.BTN_RIGHT && !oldpad.BTN_RIGHT) MoveCursor(1, 0);
+						if(paddata.BTN_UP && !oldpad.BTN_UP) MoveCursor(0, -1);
+						if(paddata.BTN_DOWN && !oldpad.BTN_DOWN) MoveCursor(0, 1);
+						
+						// zoom check
+						if(paddata.BTN_R1 && !oldpad.BTN_R1) zoomCheck(1);
+						if(paddata.BTN_L1 && !oldpad.BTN_L1) zoomCheck(0);
+					}
+					oldpad = paddata;
+				}
+			}
+			
+			if(boss9_started && !disable_control)
+			{
+				int i;
+				for (i = 0; i < boss9_count; i++)
+				{
+					boss9_list[i].timer--;
+
+					if(boss9_list[i].timer <= 0)
+					{
+						boss9_list[i].timer = 6;
+						UpdateBoss9(i);
+					}
+				}
+			}
+			
+			if(current_level==8)
+			{
+				int i;
+				for (i = 0; i < boss9_count; i++)
+				{
+					boss9_list[i].rotation += ((float)boss9_list[i].angle * boss9_list[i].speed);
+				}
+			}
+			
+			if(timer_running) timer_seconds += 0.018f;
+			
+			if(boss10_started && !disable_control)
+			{
+				int i;
+
+				for (i = 0; i < boss10_count; i++)
+				{
+					boss10_list[i].timer += boss10_list[i].speed;
+					if(boss10_list[i].timer > 1.0f)
+					{
+						boss10_list[i].timer = 0.0f;
+						boss10_list[i].time--;
+						if(boss10_list[i].time<=0) game_lost();
+					}
 					
-					// zoom check
-					if(paddata.BTN_R1 && !oldpad.BTN_R1) zoomCheck(1);
-					if(paddata.BTN_L1 && !oldpad.BTN_L1) zoomCheck(0);
+					boss10_update(i);
 				}
-				oldpad = paddata;
 			}
-		}
-		
-		if(boss9_started && !disable_control)
-		{
-			int i;
-			for (i = 0; i < boss9_count; i++)
+			
+			if(disable_control && !gamelose && !gamewin)
 			{
-				boss9_list[i].timer--;
-
-				if(boss9_list[i].timer <= 0)
+				if(explode_time>0) explode_time--;
+				else
 				{
-					boss9_list[i].timer = 6;
-					UpdateBoss9(i);
+					DeactivateBosses();
+					gamelose = 1;
+					timer_running = 0;
+					playing_bgm = false;
+					StopAudio();
+					PlaySFX(&sfx_explosion);
 				}
 			}
 		}
 		
-		if(current_level==8)
+		if(game_init)
 		{
-			int i;
-			for (i = 0; i < boss9_count; i++)
+			game_init = 0;
+			
+			s32 ret;
+			ret = sysSaveAutoLoad2(SYS_SAVE_CURRENT_VERSION,SAVE_DIR, SYS_SAVE_ERROR_DIALOG_SHOW,&buffer,status_cb,
+				load_file_cb,0,NULL);
+			
+			if(ret == SYS_SAVE_RETURN_DONE)
 			{
-				boss9_list[i].rotation += ((float)boss9_list[i].angle * boss9_list[i].speed);
+				current_level = gSave.save_level;
+				current_minecoins = gSave.save_current_minecoins;
+				global_minecoins = gSave.save_global_minecoins;
+				printf("loaded!\n");
 			}
+			
+			game_loaded = 1;
+			start_music = 1;
+			printf("starting the game\n");
 		}
 		
-		if(timer_running) timer_seconds += 0.018f;
-		
-		if(boss10_started && !disable_control)
-		{
-			int i;
-
-			for (i = 0; i < boss10_count; i++)
-			{
-				boss10_list[i].timer += boss10_list[i].speed;
-				if(boss10_list[i].timer > 1.0f)
-				{
-					boss10_list[i].timer = 0.0f;
-					boss10_list[i].time--;
-					if(boss10_list[i].time<=0) game_lost();
-				}
-				
-				boss10_update(i);
-			}
-		}
-		
-		if(disable_control && !gamelose && !gamewin)
-		{
-			if(explode_time>0) explode_time--;
-			else
-			{
-				DeactivateBosses();
-				gamelose = 1;
-				timer_running = 0;
-				playing_bgm = false;
-				StopAudio();
-				PlaySFX(&sfx_explosion);
-			}
-		}
-		
-		if(game_loaded) drawScene();
 		if(playing_bgm) UpdateBGM();
 		if(bad_apple) badAppleUpdate();
 		
+		drawScene();
 		tiny3d_Flip();
 		usleep(3666);
     }
