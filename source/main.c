@@ -1,6 +1,6 @@
 char global_name[] = "PS3Sweeper+";
 char global_version[] = "v0.3";
-char global_build[] = "31";
+char global_build[] = "39";
 
 #include <math.h>
 #include <time.h>
@@ -88,6 +88,7 @@ char global_build[] = "31";
 
 // the fuck is that
 #include "episode2_shapes.h"
+#include "level_data.h"
 
 
 
@@ -108,36 +109,11 @@ bool has_custom_main = false;
 bool has_custom_win  = false;
 
 int EPISODE = 1;
+int LEVEL = 0;
+int DIFFICULTY = 1;
 
-typedef struct
-{
-    int width;
-    int height;
-    int mines;
-    int music;
-    int back;
-    int id;
-} LevelData;
+//levels
 
-LevelData levels[] =
-{
-    {6, 6, 3, 1, 0, 0},
-    {8, 8, 6, 1, 0, 0},
-    {10, 10, 10, 2, 1, 0},
-    {8, 12, 12, 2, 1, 0},
-    {18, 8, 20, 3, 2, 0},
-    {15, 15, 30, 3, 2, 0},
-    {18, 12, 33, 4, 3, 0},
-    {16, 16, 42, 4, 3, 0},
-    {13, 13, 29, 10, 4, 0},
-    {21, 21, 60, 12, 9, 91},
-    {21, 21, 55, 15, 14, 0}
-};
-
-#define LEVEL_COUNT (sizeof(levels)/sizeof(levels[0]))
-//#define LEVEL_COUNT 66
-
-int current_level = 0;
 int global_route = 0;
 int the_bg = 0;
 
@@ -155,73 +131,94 @@ FT_Face face;
 
 
 
-const char *splashes_random[] =
+const char *splashes_random[1024];
+int splash_count = 0;
+
+void SplashesInit()
 {
-	"Sweeping on PS3!",
-	"This is NOT a port!",
-	"DualShock supported",
-	"Does not require PS Eye!",
-	//"When Full Touhou Route?",
-	//"When Custom Sweeper?",
-	//"When NaN?",
-	"April fools joke was peak",
-	"Contains touhouslop",
-	"The Bad Apple!!",
-	"Why so serious?",
-	"Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven\nSix Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven\nSix Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven",
-	"Join AcidPS3 Server! https://discord.gg/7XuQDYjyzt",
-	"Play the original game first!",
-	"Also play yawn's minesweeper",
-	"Also play Minesweeper Plus Plus",
-	"Also play Minesweeper Minus",
-	"Also play Minesweeper Plus: Second Destination (if it comes out)",
-	"Also play Minesweeper Plus: Alien Captain Edition",
-	"Also play Minesweeper Times- oh wait. its canceled :(",
-	"Also play LandMinesweeper Plus",
-	"Also play Minesweeper Plus: Hard Mode",
-	"Also play Minesweeper Chronicles (if it gets hopefully finished)",
-	"Also play Minesweeper Plus Roblox",
-	"Also play PolySweep (if it comes out)",
-	"Also play Minesweeper Plus: Deluxe (if it comes out)",
-	"Also play Minesweeper Plus: Community Edition",
-	"The MORSHU.",
-	"Why it was rewritten?",
-	"C is better, than GMS1.4",
-	"PSDK3v2 is good, but the latest PSL1GHT update is better",
-	"When tutorial how to make games with PSL1GHT? Oh wait...",
-	"Yay, minecoins! I'm rich!!",
-	"Better, than Minesweeper Plus: PS3 Edition",
-	"AI-Assisted code, because I suck at C.",
-	"Optimizing is at it's peakest.",
-	"Baldi for PS3 re-write coming?",
-	"AcidPS3 Store coming as an app? Oh wait, it is here.",
-	"CELL Programming",
-	"Yellow light of Death",
-	"Reality Synthesizer can fail?",
-	//"NEC-Tokens included!",
-	"I really suck at PS3 games coding.",
-	"Languages not coming since technical encoding issues, sorry.",
-	"Definitely does NOT work with aPS3e!",
-	"May work with RPCS3, but freezes happen. Be careful!",
-	"Watch no one play this",
-	"The definition of Insanity.",
-	"F U C K",
-	"up up down down left right left right circle cross start.\n    oh wait, it doesnt work",
-	"why the fuck i stayed all night for this shit",
-	"Hold START + L3 + R3 for a surprise.",
-	"OK I'm not gonna use the SDL for graphics here...",
-	"Eleven and twelve coming soon, trust",
-	"TOUHOU KOUMAKYOU IS NOW ON PS3!!!",
-	"Nagareteku toki no naka de demo kedarusa ga hora guru guru mowaate watashi kara hanareru kokoro mo mienai waa soo shiranai do you even read this shit?",
-	"Oh now there is the title background :D",
-	"I wanna try making MS+ for PS1 sometime soon.",
-	"What R2 do? BEEP BEEP BEEP",
-	"48x36 boards DO NOT GIVE YOU FRAMEDROPS YIPPEEEEE!!!!!!!",
-	"11 is coming...",
-	"The Big LAG is no longer lagging?"
+	splash_count = 0;
+	int bad_apple_dlc_installed = 0;
+	
+	splashes_random[splash_count++] = "Sweeping on PS3!";
+	splashes_random[splash_count++] = "This is NOT a port!";
+	splashes_random[splash_count++] = "DualShock supported";
+	splashes_random[splash_count++] = "Does not require PS Eye!";
+	//splashes_random[splash_count++] = "When Full Touhou Route?";
+	//splashes_random[splash_count++] = "When Custom Sweeper?";
+	//splashes_random[splash_count++] = "When NaN?";
+	splashes_random[splash_count++] = "April fools joke was peak";
+	splashes_random[splash_count++] = "Contains touhouslop";
+	splashes_random[splash_count++] = "Why so serious?";
+	splashes_random[splash_count++] = "Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven\nSix Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven\nSix Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven";
+	splashes_random[splash_count++] = "Join AcidPS3 Server! https://discord.gg/7XuQDYjyzt";
+	splashes_random[splash_count++] = "Play the original game first!";
+	splashes_random[splash_count++] = "Also play yawn's minesweeper";
+	splashes_random[splash_count++] = "Also play Minesweeper Plus Plus";
+	splashes_random[splash_count++] = "Also play Minesweeper Minus";
+	splashes_random[splash_count++] = "Also play Minesweeper Plus: Second Destination (if it comes out)";
+	splashes_random[splash_count++] = "Also play Minesweeper Plus: Alien Captain Edition";
+	splashes_random[splash_count++] = "Also play Minesweeper Times- oh wait. its canceled :(";
+	splashes_random[splash_count++] = "Also play LandMinesweeper Plus";
+	splashes_random[splash_count++] = "Also play Minesweeper Plus: Hard Mode";
+	splashes_random[splash_count++] = "Also play Minesweeper Chronicles (if it gets hopefully finished)";
+	splashes_random[splash_count++] = "Also play Minesweeper Plus Roblox";
+	splashes_random[splash_count++] = "Also play PolySweep (if it comes out)";
+	splashes_random[splash_count++] = "Also play Minesweeper Plus: Deluxe (if it comes out)";
+	splashes_random[splash_count++] = "Also play Minesweeper Plus: Community Edition";
+	splashes_random[splash_count++] = "The MORSHU.";
+	splashes_random[splash_count++] = "Why it was rewritten?";
+	splashes_random[splash_count++] = "Better, than Minesweeper Plus: PS3 Edition";
+	splashes_random[splash_count++] = "AI-Assisted code, because I suck at C.";
+	splashes_random[splash_count++] = "Optimizing is at it's peakest.";
+	splashes_random[splash_count++] = "Baldi for PS3 re-write coming?";
+	splashes_random[splash_count++] = "CELL Programming";
+	splashes_random[splash_count++] = "Yellow light of Death";
+	splashes_random[splash_count++] = "Reality Synthesizer can fail?";
+	//splashes_random[splash_count++] = "NEC-Tokens included!";
+	splashes_random[splash_count++] = "I really suck at PS3 games coding.";
+	splashes_random[splash_count++] = "Languages not coming since technical encoding issues, sorry.";
+	splashes_random[splash_count++] = "Definitely does NOT work with aPS3e!";
+	splashes_random[splash_count++] = "May work with RPCS3, but freezes rarely happen. Be careful!";
+	splashes_random[splash_count++] = "Watch no one play this";
+	splashes_random[splash_count++] = "The definition of Insanity.";
+	splashes_random[splash_count++] = "up up down down left right left right circle cross start.\n    oh wait, it doesnt work";
+	splashes_random[splash_count++] = "why did i stay all night for this";
+	splashes_random[splash_count++] = "Hold START + L3 + R3 for a surprise.";
+	splashes_random[splash_count++] = "Eleven and twelve coming soon, trust";
+	splashes_random[splash_count++] = "I wanna try making MS+ for PS1 sometime soon.";
+	splashes_random[splash_count++] = "What R2 do? BEEP BEEP BEEP";
+	splashes_random[splash_count++] = "48x36 boards DO NOT GIVE YOU FRAMEDROPS YIPPEEEEE!!!!!!!";
+	splashes_random[splash_count++] = "11 is coming...";
+	splashes_random[splash_count++] = "The Big LAG is no longer lagging?";
+	splashes_random[splash_count++] = "Fine. I removed curse words in splashes.";
+	splashes_random[splash_count++] = "Now with Full Episode 2!";
+	
+	FILE *z1 = fopen("/dev_hdd0/game/MINESWEEP/USRDIR/dlc00/data.dat", "rb");
+	FILE *z2 = fopen("/dev_hdd0/game/MINESWEEP/USRDIR/dlc00/mus.mp3", "rb");
+	
+	if(z1!=NULL)
+	{
+		bad_apple_dlc_installed++;
+		fclose(z1);
+	}
+	if(z2!=NULL)
+	{
+		bad_apple_dlc_installed++;
+		fclose(z2);
+	}
+	
+	if(bad_apple_dlc_installed==2)
+	{
+		splashes_random[splash_count++] = "Nagareteku toki no naka de demo kedarusa ga hora guru guru mowaate\nwatashi kara hanareru kokoro mo mienai waa soo shiranai\ndo you even read this?";
+		splashes_random[splash_count++] = "Bad Apple!! DLC Initialized!";
+		splashes_random[splash_count++] = "I am a Bad Apple!! addict.";
+	}
+	else if(bad_apple_dlc_installed==1)
+	{
+		splashes_random[splash_count++] = "Bad Apple!! DLC not installed correctly.";
+	}
 };
 
-int splash_count;
 const char *splash;
 
 
@@ -403,6 +400,11 @@ void init_bgm()
 	bgm_size[110] = boss10_win_ogg_bin_size;
 	bgm_start[110] = 0;
 	bgm_end[110] = sex;
+	
+	bgm[111] = boss11_win_ogg_bin;
+	bgm_size[111] = boss11_win_ogg_bin_size;
+	bgm_start[111] = 0;
+	bgm_end[111] = sex;
 	
 	bgm[199] = (unsigned char *)"";
 	bgm_size[199] = 0;
@@ -1089,6 +1091,13 @@ void DeactivateBosses()
 		for (i = 0; i < boss10_count; i++) boss10_list[i].active = false;
 		if(gamewin) PlayBGM(110,0);
 	}
+	if(boss11_started)
+	{
+		boss11_started = 0;
+		int i;
+		for (i = 0; i < boss11_count; i++) boss11_list[i].active = false;
+		if(gamewin) PlayBGM(111,0);
+	}
 }
 
 
@@ -1148,7 +1157,6 @@ void GenerateBoard()
 		{
 			for (yy = 0; yy < GRID_H; yy++)
 			{
-				// im gonna set the id 91 for examples
 				if(EPISODE==2) board[xx][yy].active = (episode2_shapes[grd_id].shape[yy][xx] == '0');
 					else board[xx][yy].active = 1;
 				
@@ -1254,9 +1262,9 @@ int calculate_score()
 			//if(tile_array[i][j].doublemine)score++;
 		}
 	}
-	if(current_level==8) score += 999;
-	if(current_level==9) score += 1000;
-	if(current_level==10) score += 1111;
+	if(LEVEL==8) score += 999;
+	if(LEVEL==9) score += 1000;
+	if(LEVEL==10) score += 1111;
 	if (boss9_count > 0) score += 9;
 	if (boss10_count > 0) score += 10;
 	if (boss11_count > 0) score += 11;
@@ -1286,7 +1294,7 @@ void WinCheck()
 		}
 	}
 	
-	if(current_level==8) revealed_total+=9;
+	if(LEVEL==8) revealed_total+=9;
 	
 	if(revealed_total >= valid_total)
 	{
@@ -1299,7 +1307,7 @@ void WinCheck()
 		StopAudio();
 		
 		DeactivateBosses();
-		if(current_level<8) PlayBGM(100+desired_bgm, 0);
+		if(LEVEL<8) PlayBGM(100+desired_bgm, 0);
 		
 		int fx, fy;
 		
@@ -1315,7 +1323,7 @@ void WinCheck()
 		current_minecoins += level_minecoins;
 		global_minecoins += current_minecoins;
 	}
-	else if(current_level==8) game_lost();
+	else if(LEVEL==8) game_lost();
 }
 
 
@@ -1467,13 +1475,14 @@ void ResetGrid()
 
     FIRST_CLICK = 1;
     gamewin = 0;
+    disable_control = 0;
     gamelose = 0;
 	level_minecoins = 0;
 	
 	timer_running = 0;
 	timer_seconds = 0;
 	
-	if(current_level==8)
+	if(LEVEL==8)
 	{
 		SetupBoss9Positions(boss9_count);
 		msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON, "There is a boss battle in this game. The battle works the same as normal Minesweeper, but with some key distinctions:\n"
@@ -1481,7 +1490,7 @@ void ResetGrid()
 			"Clicking on a mine will make the time run out faster. To win, you must click SQUARE ONLY AFTER revealing all the tiles that don't contain mines.\n"
 			"If the timer hits 0, or you click on the boss before revealing the entire grid, it's game over.", EmptyDialogCallback, NULL, NULL);
 	}
-	else if(current_level==9)
+	else if(LEVEL==9)
 	{
 		SetupBoss10Positions(boss10_count);
 		msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
@@ -1490,7 +1499,7 @@ void ResetGrid()
 			"The boss will move faster and faster every time you click. Clicking on a mine will cause the boss to count down more quickly.\n"
 			"To win, reveal the entire grid before the boss is able to finish its countdown.", EmptyDialogCallback, NULL, NULL);
 	}
-	else if(current_level==10)
+	else if(LEVEL==10)
 	{
 		SetupBoss11Positions(boss11_count);
 		msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
@@ -1515,17 +1524,18 @@ void ResetGrid()
 	PlayBGM(desired_bgm, 1);
 }
 
-void LoadLevel(int level)
+void LoadLevel(int levelz)
 {
-    GRID_W = levels[level].width;
-    GRID_H = levels[level].height;
-    MINES  = levels[level].mines;
-	GRID_ID= levels[level].id;
-    desired_bgm = levels[level].music;
-	the_bg = levels[level].back;
+	DifficultyData *lvl = &episodes[EPISODE-1].levels[levelz].difficulties[DIFFICULTY];
+		
+    GRID_W = lvl->width;
+    GRID_H = lvl->height;
+    MINES  = lvl->mines;
+	GRID_ID= lvl->id;
+    desired_bgm = lvl->music;
+	the_bg = lvl->back;
 	
-	if(level==9) EPISODE = 2;
-	if(current_level==8) MINES-=8;
+	if(levelz==8) MINES-=8;
 	
 	ResetGrid();
 }
@@ -1544,7 +1554,7 @@ void LoadFPLevel()
 int getCaptainState(int anim_z, int anim1_z)
 {
 	int the_state = 0;
-	switch(current_level)
+	switch(LEVEL)
 	{
 		case 0: case 1:
 		{
@@ -2145,8 +2155,17 @@ void draw_game()
 			
 			if(board[x1][y1].revealed)
 			{
-				DrawSprite2D(tile_bg + anim + 2, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE),
-					RENDER_SIZE, RENDER_SIZE, 16, 16, 320, 320, 4, color);
+				if(board[x1][y1].mine)
+				{
+					DrawSprite2D(163, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE),
+						RENDER_SIZE, RENDER_SIZE, 16, 16, 320, 320, 3, color);
+					tile = 114+anim;
+				}
+				else
+				{
+					DrawSprite2D(tile_bg + anim + 2, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE),
+						RENDER_SIZE, RENDER_SIZE, 16, 16, 320, 320, 4, color);
+				}
 				
 				switch(board[x1][y1].neighbors)
 				{
@@ -2246,7 +2265,7 @@ void drawScene()
 				//DrawFString(ui_x,256, 0xffffffff, 0, "%d x %d", Video_Resolution.width,Video_Resolution.height);
 				DrawFString(ui_x,4, 0xffffffff, 0, "%s (%s Build %s)", global_name, global_version, global_build);
 				DrawFString(ui_x,484, 0xffffffff, 0, "%s", splash);
-				DrawFString(ui_x,128, 0xffffffff, 0, "START - New Game (TEMP: %d)", current_level);
+				DrawFString(ui_x,128, 0xffffffff, 0, "START - New Game (DIFFICULTY: %d)", DIFFICULTY);
 				DrawFString(ui_x,160, 0xffffffff, 0, "SELECT - Continue");
 				DrawFString(ui_x,192, 0xffffffff, 0, "SQUARE - Freeplay");
 				DrawFString(ui_x,224, 0xffffffff, 0, "TRIANGLE - Credits");
@@ -2270,7 +2289,7 @@ void drawScene()
 				DrawFString(ui_x,256, 0xffffffff, 0, "START - Start the game");
 				DrawFString(ui_x,288, 0xffffffff, 0, "CIRCLE - Go Back");
 				DrawFString(ui_x,320, 0xffffffff, 0, "SELECT - The Big One with 111 Mines");
-				DrawFString(ui_x,356, 0xffffffff, 0, "TRIANGLE - Bad Apple!!");
+				DrawFString(ui_x,356, 0xffffffff, 0, "TRIANGLE - Bad Apple!! (Requires DLC)");
 				
 				DrawFString(ui_x+256,64+(fp_menu*32), 0xffffffff, 0, "<");
 			}
@@ -2301,7 +2320,7 @@ void drawScene()
 			
 			if(global_route==1) SetTexture(4); else SetTexture(3);
 			
-			if(current_level==8)
+			if(LEVEL==8)
 			{
 				int i;
 
@@ -2316,7 +2335,7 @@ void drawScene()
 				}
 			}
 		
-			if(current_level==9)
+			if(LEVEL==9)
 			{
 				int jl = 0;
 				int num = 0;
@@ -2362,7 +2381,7 @@ void drawScene()
 				}
 			}
 			
-			if(current_level==10)
+			if(LEVEL==10)
 			{
 				int i;
 
@@ -2385,7 +2404,7 @@ void drawScene()
 		{
 			DrawFString(-20,160, 0xffffffff, 0, "LEVEL CLEAR!");
 			DrawFString(-20,320, 0xffffffff, 0, "+ %d Minecoins!", level_minecoins);
-			DrawFString(-20,356, 0xffffffff, 0, "%d seconds", timer_seconds);
+			DrawFString(-20,356, 0xffffffff, 0, "%.2f seconds", timer_seconds);
 			if(!free_play)
 			{
 				DrawFString(-20,192, 0xffffffff, 0, "START - Next Level");
@@ -2450,7 +2469,6 @@ void GoBackToTitle()
 	gamewin = 0;
 	gamelose = 0;
 	current_minecoins = 0;
-	EPISODE = 1;
 	disable_control = 0;
 
 	splash = splashes_random[rand() % splash_count];
@@ -2582,12 +2600,13 @@ int main(int argc, const char* argv[])
 	sysModuleLoad(SYSMODULE_PNGDEC);
 	savestate_init();
 	Initialize();
-	splash_count = sizeof(splashes_random) / sizeof(splashes_random[0]);
 	
-	for (dick = 0; dick < rand() % 100; dick++) splash = splashes_random[rand() % splash_count];
+	SplashesInit();
+	for (dick = 0; dick < rand() % splash_count; dick++) splash = splashes_random[rand() % splash_count];
 	
 	boss9_started = 0;
 	boss10_started = 0;
+	boss11_started = 0;
 	
 	init_bgm();
 	init_sfx();
@@ -2632,18 +2651,17 @@ int main(int argc, const char* argv[])
 							if(paddata.BTN_START && !oldpad.BTN_START)
 							{
 								if(paddata.BTN_R3) global_route = 1;
-								if(current_level==9) EPISODE=2;
-								if(!paddata.BTN_L3) current_level = 0;
+								LEVEL = 0;
 								current_minecoins = 0;
 								StopAudio();
-								LoadLevel(current_level);
+								LoadLevel(LEVEL);
 								in_game = 1;
 							}
 							if(paddata.BTN_SELECT && !oldpad.BTN_SELECT)
 							{
 								free_play = 0;
 								StopAudio();
-								LoadLevel(current_level);
+								LoadLevel(LEVEL);
 								in_game = 1;
 							}
 							
@@ -2659,20 +2677,20 @@ int main(int argc, const char* argv[])
 							
 							if(paddata.BTN_LEFT && !oldpad.BTN_LEFT)
 							{
-								current_level--;
-								if (current_level<0) current_level = 0;
+								DIFFICULTY--;
+								if (DIFFICULTY<0) DIFFICULTY = 0;
 							}
 							if(paddata.BTN_RIGHT && !oldpad.BTN_RIGHT)
 							{
-								current_level++;
-								if (current_level>10) current_level = 10;
+								DIFFICULTY++;
+								if (DIFFICULTY>3) DIFFICULTY = 3;
 							}
 						}
 						else
 						{
 							if(paddata.BTN_START && !oldpad.BTN_START)
 							{
-								current_level = 0;
+								LEVEL = 0;
 								LoadFPLevel();
 								in_game = 1;
 							}
@@ -2726,7 +2744,7 @@ int main(int argc, const char* argv[])
 								fp_width = 72;
 								fp_height = 48;
 								fp_mines = 111;
-								current_level = 0;
+								LEVEL = 0;
 								LoadFPLevel();
 								in_game = 1;
 							}
@@ -2740,7 +2758,7 @@ int main(int argc, const char* argv[])
 									temp_fp_music = fp_music;
 									fp_music = 100;
 									bgm[100] = (unsigned char *)bad_apple_path;
-									current_level = 0;
+									LEVEL = 0;
 									LoadFPLevel();
 									in_game = 1;
 									bad_apple = 1;
@@ -2799,7 +2817,7 @@ int main(int argc, const char* argv[])
 								tiny3d_Flip();
 								
 								s32 ret;
-								gSave.save_level = current_level + 1;
+								gSave.save_level = LEVEL + 1;
 								gSave.save_current_minecoins = current_minecoins;
 								gSave.save_global_minecoins = global_minecoins;
 								gSave.save_global_route = global_route;
@@ -2820,15 +2838,15 @@ int main(int argc, const char* argv[])
 						{
 							if(!free_play)
 							{
-								current_level++;
+								int max_lvl = episodes[EPISODE-1].level_count;
+								LEVEL++;
 
-								if(current_level >= LEVEL_COUNT)
+								if(LEVEL >= max_lvl)
 								{
-									msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
-										"The DEMO is completed. Returning to XMB..",
-										DemoCompleteCallback, NULL, NULL);
+									EPISODE++;
+									GoBackToTitle();
 								}
-								else LoadLevel(current_level);
+								else LoadLevel(LEVEL);
 							}
 							else GoBackToTitle();
 						}
@@ -2853,7 +2871,7 @@ int main(int argc, const char* argv[])
 							
 							FIRST_CLICK = 0;
 							
-							if(current_level==8 && !boss9_started)
+							if(LEVEL==8 && !boss9_started)
 							{
 								boss9_started = 1;
 								
@@ -2866,7 +2884,7 @@ int main(int argc, const char* argv[])
 								StopAudio();
 								PlayBGM(11, 1);
 							}
-							if(current_level==9 && !boss10_started)
+							else if(LEVEL==9 && !boss10_started)
 							{
 								boss10_started = 1;
 								
@@ -2879,6 +2897,20 @@ int main(int argc, const char* argv[])
 								StopAudio();
 								PlayBGM(13, 1);
 							}
+							else if(LEVEL==10 && !boss11_started)
+							{
+								boss11_started = 1;
+								
+								int i;
+								for (i = 0; i < boss11_count; i++)
+								{
+									boss11_list[i].active = true;
+								}
+								
+								StopAudio();
+								PlayBGM(16, 1);
+							}
+							
 							if (board[cursorX][cursorY].revealed) Chord(cursorX, cursorY);
 								else Reveal(cursorX, cursorY);
 							
@@ -2886,6 +2918,8 @@ int main(int argc, const char* argv[])
 						}
 						if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE)
 						{
+							if(LEVEL==10 && !boss11_started) continue;
+							
 							if(!board[cursorX][cursorY].revealed)
 							{
 								board[cursorX][cursorY].flagged = !board[cursorX][cursorY].flagged;
@@ -2898,13 +2932,19 @@ int main(int argc, const char* argv[])
 								{
 									PlaySFX(&sfx_unflag);
 									mines_count++;
+									
+									if(board[cursorX][cursorY].mine && LEVEL==10)
+									{
+										board[cursorX][cursorY].revealed = 1;
+										game_lost();
+									}
 								}
 							}
 						}
 						if(paddata.BTN_SQUARE && !oldpad.BTN_SQUARE)
 						{
-							if(current_level==8 && boss9_started) WinCheck();
-							else if(current_level==9 && boss10_started)
+							if(LEVEL==8 && boss9_started) WinCheck();
+							else if(LEVEL==9 && boss10_started)
 							{
 								boss10_list[i_10].time=10;
 								boss10_list[i_10].tspeed+=0.031f;
@@ -2952,7 +2992,7 @@ int main(int argc, const char* argv[])
 				}
 			}
 			
-			if(current_level==8)
+			if(LEVEL==8)
 			{
 				int i;
 				for (i = 0; i < boss9_count; i++)
@@ -3006,7 +3046,7 @@ int main(int argc, const char* argv[])
 			
 			if(ret == SYS_SAVE_RETURN_DONE)
 			{
-				current_level = gSave.save_level;
+				LEVEL = gSave.save_level;
 				current_minecoins = gSave.save_current_minecoins;
 				global_minecoins = gSave.save_global_minecoins;
 				printf("loaded!\n");
