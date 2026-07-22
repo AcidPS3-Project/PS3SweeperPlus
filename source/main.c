@@ -1,6 +1,6 @@
 char global_name[] = "PS3Sweeper+";
 char global_version[] = "v0.3";
-char global_build[] = "39";
+char global_build[] = "40";
 
 #include <math.h>
 #include <time.h>
@@ -39,6 +39,7 @@ char global_build[] = "39";
 #include "dualboss_sheet_png_bin.h"
 #include "cursed_sheet_png_bin.h"
 #include "background_sheet_png_bin.h"
+#include "trust_me_bro_png_bin.h"
 
 #include "icon0_png_bin.h"
 
@@ -450,7 +451,7 @@ void init_sfx()
 #define MAX_W 72
 #define MAX_H 48
 
-#define TOTAL_SHEETS 8
+#define TOTAL_SHEETS 9
 pngData spritesheet[TOTAL_SHEETS];
 u32 sprite_off[TOTAL_SHEETS];
 
@@ -1021,6 +1022,7 @@ void Load_PNG()
 	pngLoadFromBuffer(dualboss_sheet_png_bin, dualboss_sheet_png_bin_size, &spritesheet[5]);
 	pngLoadFromBuffer(cursed_sheet_png_bin, cursed_sheet_png_bin_size, &spritesheet[6]);
 	pngLoadFromBuffer(background_sheet_png_bin, background_sheet_png_bin_size, &spritesheet[7]);
+	pngLoadFromBuffer(trust_me_bro_png_bin, trust_me_bro_png_bin_size, &spritesheet[8]);
 }
 
 
@@ -2239,7 +2241,6 @@ void drawScene()
     static int anim2 = 0;
     static int anim3 = 0;
 	SetFontSize(28, 32);
-	SetTexture(7);
 	
 	int ui_x = 4;
 	
@@ -2259,7 +2260,10 @@ void drawScene()
 		
 		if(!in_game)
 		{
+			SetTexture(7);
 			DrawSprite2D(anim3, -40, -22, 916, 582, 1152, 960, 2304, 1920, 0, color);
+			//SetTexture(8);
+			//DrawSprite2D(0, -40, -22, 916, 582, 1280, 720, 1280, 720, 0, color);
 			if(!free_play)
 			{
 				//DrawFString(ui_x,256, 0xffffffff, 0, "%d x %d", Video_Resolution.width,Video_Resolution.height);
