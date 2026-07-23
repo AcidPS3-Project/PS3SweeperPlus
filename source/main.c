@@ -1,6 +1,6 @@
 char global_name[] = "PS3Sweeper+";
 char global_version[] = "v0.3";
-char global_build[] = "40";
+//char global_build[] = "UNUSED";
 
 #include <math.h>
 #include <time.h>
@@ -531,7 +531,8 @@ typedef struct
 typedef struct
 {
     bool active;
-    float x, y;
+    float x, y, timer;
+	int flags, rushing;
 } Boss11;
 
 Boss9 boss9_list[MAX_BOSS9];
@@ -541,6 +542,12 @@ Boss11 boss11_list[MAX_BOSS11];
 int boss9_started = 0;
 int boss10_started = 0;
 int boss11_started = 0;
+
+int boss9_cutscene = 0;
+int boss10_cutscene = 0;
+int boss11_cutscene = 0;
+
+
 
 int boss9_count = 1;
 int boss10_count = 1;
@@ -628,7 +635,7 @@ void status_cb(sysSaveCallbackResult *result, sysSaveStatusIn *in, sysSaveStatus
     memset(&param, 0, sizeof(param));
 
 	snprintf(param.title, sizeof(param.title), "%s", global_name);
-    snprintf(param.subtitle, sizeof(param.subtitle), "Game Save Data (%s Build %s)", global_version, global_build);
+    snprintf(param.subtitle, sizeof(param.subtitle), "Game Save Data (%s)", global_version);
     snprintf(param.detail, sizeof(param.detail), "%s\nTotal Minecoins: %d", splash, global_minecoins);
     if(out) out->setParam = &param;
 
@@ -1484,6 +1491,10 @@ void ResetGrid()
 	timer_running = 0;
 	timer_seconds = 0;
 	
+	boss9_cutscene = 0;
+	boss10_cutscene = 0;
+	boss11_cutscene = 0;
+	
 	if(LEVEL==8)
 	{
 		SetupBoss9Positions(boss9_count);
@@ -1560,37 +1571,88 @@ int getCaptainState(int anim_z, int anim1_z)
 	{
 		case 0: case 1:
 		{
-			if(gamewin) the_state = 0+anim_z; else if(gamelose) the_state = 74; else the_state = 24;
+			if(gamewin) the_state = 0+anim_z;
+			else if(gamelose) the_state = 74;
+			else the_state = 24;
 			break;
 		}
 		case 2: case 3:
 		{
-			if(gamewin) the_state = 4+anim_z; else if(gamelose) the_state = 78; else the_state = 28;
+			if(gamewin) the_state = 4+anim_z;
+			else if(gamelose) the_state = 78;
+			else the_state = 28;
 			break;
 		}
 		case 4: case 5:
 		{
-			if(gamewin) the_state = 8+anim_z; else if(gamelose) the_state = 82+anim_z; else the_state = 32+anim_z;
+			if(gamewin) the_state = 8+anim_z;
+			else if(gamelose) the_state = 82+anim_z;
+			else the_state = 32+anim_z;
 			break;
 		}
 		case 6: case 7:
 		{
-			if(gamewin) the_state = 16+anim_z; else if(gamelose) the_state = 90; else the_state = 40;
+			if(gamewin) the_state = 16+anim_z;
+			else if(gamelose) the_state = 90;
+			else the_state = 40;
 			break;
 		}
 		case 8:
 		{
-			if(gamewin) the_state = 96+anim_z; else if(gamelose) the_state = 218; else the_state = 120+anim1_z;
+			if(!boss9_cutscene) the_state = 240;
+			else
+			{
+				if(gamewin) the_state = 96+anim_z;
+				else if(gamelose) the_state = 218;
+				else the_state = 241;
+				//else the_state = 120+anim1_z;
+			}
 			break;
+			/*
+			switch (boss9_cutscene)
+			{
+				case 0: the_state = 240; break;
+				case 1: the_state = 241; break;
+				case 2: the_state = 242; break;
+				case 3: the_state = 264; break;
+				case 4: the_state = 265; break;
+				case 5: the_state = 266; break;
+				case 6: the_state = 216; break;
+				case 7: the_state = 217; break;
+				case 8: the_state = 288; break;
+				case 9: the_state = 289; break;
+				case 10: the_state = 290; break;
+				case -1:
+				{
+					if(gamewin) the_state = 96+anim_z;
+					else if(gamelose) the_state = 218;
+					else the_state = 120+anim1_z;
+					break;
+				}
+			}
+			break;
+			*/
 		}
 		case 9:
 		{
-			if(gamewin) the_state = 102+anim_z; else if(gamelose) the_state = 176; else the_state = 126;
+			if(!boss10_cutscene) the_state = 224;
+			else
+			{
+				if(gamewin) the_state = 102+anim_z;
+				else if(gamelose) the_state = 176;
+				else the_state = 126;
+			}
 			break;
 		}
 		case 10:
 		{
-			if(gamewin) the_state = 106+anim_z; else if(gamelose) the_state = 180; else the_state = 130;
+			if(!boss11_cutscene) the_state = 110;
+			else
+			{
+				if(gamewin) the_state = 106+anim_z;
+				else if(gamelose) the_state = 180;
+				else the_state = 130;
+			}
 			break;
 		}
 	}
@@ -1885,6 +1947,42 @@ void boss10_update(int i)
 }
 
 
+
+
+
+
+
+
+
+void boss11_update(int i)
+{
+	if(boss11_list[i].timer>0)
+	{
+		boss11_list[i].timer -= 0.02f;
+	}
+	else
+	{
+		int _x, _y;
+		
+		boss11_list[i].x = rand() % GRID_W;
+		boss11_list[i].y = rand() % GRID_H;
+		
+		_x = boss11_list[i].x;
+		_y = boss11_list[i].y;
+		
+		do
+		{
+			boss11_list[i].x = rand() % GRID_W;
+			boss11_list[i].y = rand() % GRID_H;
+			
+			_x = boss11_list[i].x;
+			_y = boss11_list[i].y;
+		}
+		while(!board[_x][_y].active && board[_x][_y].revealed && !board[_x][_y].flagged);
+		
+		boss11_list[i].timer = (float)RandRange(4, 5);
+	}
+}
 
 
 
@@ -2221,6 +2319,15 @@ void draw_game()
 	
 	DrawSprite2D(240, offset_x+(cursorX*RENDER_SIZE), offset_y+(cursorY*RENDER_SIZE),
 		RENDER_SIZE, RENDER_SIZE, 16, 16, 320, 320, -4, color);
+	
+	if(LEVEL>=8 && (!boss9_cutscene && !boss10_cutscene && !boss11_cutscene))
+	{
+		int center_x = GRID_W / 2;
+		int center_y = GRID_H / 2;
+		
+		DrawSprite2D(300, offset_x+(center_x*RENDER_SIZE), offset_y+(center_y*RENDER_SIZE),
+			RENDER_SIZE, RENDER_SIZE, 16, 16, 320, 320, -4, color);
+	}
 }
 
 
@@ -2267,9 +2374,10 @@ void drawScene()
 			if(!free_play)
 			{
 				//DrawFString(ui_x,256, 0xffffffff, 0, "%d x %d", Video_Resolution.width,Video_Resolution.height);
-				DrawFString(ui_x,4, 0xffffffff, 0, "%s (%s Build %s)", global_name, global_version, global_build);
+				//DrawFString(ui_x,4, 0xffffffff, 0, "%s (%s Build %s)", global_name, global_version, global_build);
+				DrawFString(ui_x,4, 0xffffffff, 0, "%s (%s)", global_name, global_version);
 				DrawFString(ui_x,484, 0xffffffff, 0, "%s", splash);
-				DrawFString(ui_x,128, 0xffffffff, 0, "START - New Game (DIFFICULTY: %d)", DIFFICULTY);
+				DrawFString(ui_x,128, 0xffffffff, 0, "START - New Game (LVL: %d; DIFF: %d)", LEVEL, DIFFICULTY);
 				DrawFString(ui_x,160, 0xffffffff, 0, "SELECT - Continue");
 				DrawFString(ui_x,192, 0xffffffff, 0, "SQUARE - Freeplay");
 				DrawFString(ui_x,224, 0xffffffff, 0, "TRIANGLE - Credits");
@@ -2310,7 +2418,15 @@ void drawScene()
 			DrawSpriteUI(268, -22, 384, 0, 768, 192, 1024, 1024, 308, 112, 1, color);
 			DrawSpriteUI(-20, -10, 0+(anim*264), 192, 264+(anim*264), 456, 1024, 1024, 94, 94, 1, color);
 			DrawSpriteUI(586, -10, 0+(anim*264), 456, 264+(anim*264), 720, 1024, 1024, 94, 94, 1, color);
-			DrawFString(94, -26, 0xff0000ff, 1, "%03d", mines_count);
+			if(LEVEL==8)
+			{
+				int random_mine = rand() % 1998;
+				random_mine -= 999;
+				
+				if(!boss9_cutscene) DrawFString(94, -26, 0xff0000ff, 1, "???");
+				else DrawFString(94, -26, 0xff0000ff, 1, "%03d", random_mine);
+			}
+			else DrawFString(94, -26, 0xff0000ff, 1, "%03d", mines_count);
 			DrawFString(714,-26, 0xff0000ff, 1, "%03d", the_timer);
 			SetTexture(0);
 			SetFontSize(28, 32);
@@ -2324,7 +2440,7 @@ void drawScene()
 			
 			if(global_route==1) SetTexture(4); else SetTexture(3);
 			
-			if(LEVEL==8)
+			if(boss9_count>0 && boss9_cutscene)
 			{
 				int i;
 
@@ -2339,7 +2455,7 @@ void drawScene()
 				}
 			}
 		
-			if(LEVEL==9)
+			if(boss10_count>0 && boss10_cutscene)
 			{
 				int jl = 0;
 				int num = 0;
@@ -2385,15 +2501,15 @@ void drawScene()
 				}
 			}
 			
-			if(LEVEL==10)
+			if(boss11_count>0 && boss11_cutscene)
 			{
 				int i;
 
 				for (i = 0; i < boss11_count; i++)
 				{
 					if(boss11_count>0 && i>0) SetTexture(5);
-					DrawSprite2D(0, offset_x+(boss11_list[i].x*RENDER_SIZE)-RENDER_SIZE, offset_y+(boss11_list[i].y*RENDER_SIZE)-RENDER_SIZE,
-						RENDER_SIZE*3, RENDER_SIZE*3, 384, 384, 1536, 1536, -1, color);
+					DrawSprite2D(2, offset_x+(boss11_list[i].x*RENDER_SIZE)-(RENDER_SIZE*0.5), offset_y+(boss11_list[i].y*RENDER_SIZE)-(RENDER_SIZE*0.5),
+						RENDER_SIZE*2, RENDER_SIZE*2, 384, 384, 1536, 1536, -1, color);
 				}
 			}
 		}
@@ -2656,6 +2772,11 @@ int main(int argc, const char* argv[])
 							{
 								if(paddata.BTN_R3) global_route = 1;
 								LEVEL = 0;
+								if(paddata.BTN_L2)
+								{
+									EPISODE = 2;
+									LEVEL = 10;
+								}
 								current_minecoins = 0;
 								StopAudio();
 								LoadLevel(LEVEL);
@@ -2688,6 +2809,18 @@ int main(int argc, const char* argv[])
 							{
 								DIFFICULTY++;
 								if (DIFFICULTY>3) DIFFICULTY = 3;
+							}
+							
+							if(paddata.BTN_UP && !oldpad.BTN_UP)
+							{
+								LEVEL--;
+								if (LEVEL<0) LEVEL = 0;
+							}
+							if(paddata.BTN_DOWN && !oldpad.BTN_DOWN)
+							{
+								int MAX_L = episodes[EPISODE-1].level_count - 1;
+								LEVEL++;
+								if (LEVEL>MAX_L) LEVEL = MAX_L;
 							}
 						}
 						else
@@ -2817,7 +2950,7 @@ int main(int argc, const char* argv[])
 							if(!free_play)
 							{
 								drawScene();
-								DrawFString(4,386,0xffffffff,0,"Saving...");
+								DrawFString(-27,386,0xffffffff,0,"Saving...");
 								tiny3d_Flip();
 								
 								s32 ret;
@@ -2861,64 +2994,94 @@ int main(int argc, const char* argv[])
 						// basic
 						if(paddata.BTN_CROSS && !oldpad.BTN_CROSS)
 						{
-							if(FIRST_CLICK) timer_running = 1;
-							
-							if(board[cursorX][cursorY].mine && FIRST_CLICK)
+							if(LEVEL==8 && !boss9_cutscene)
 							{
-								do
+								if(cursorX==GRID_W/2 && cursorY==GRID_H/2)
 								{
-									GenerateBoard();
-									CalculateNumbers();
+									boss9_cutscene = 1;
+									the_bg = 4;
+									PlayBGM(10, 1);
 								}
-								while(board[cursorX][cursorY].mine);
 							}
-							
-							FIRST_CLICK = 0;
-							
-							if(LEVEL==8 && !boss9_started)
+							else if(LEVEL==9 && !boss10_cutscene)
 							{
-								boss9_started = 1;
-								
-								int i;
-								for (i = 0; i < boss9_count; i++)
+								if(cursorX==GRID_W/2 && cursorY==GRID_H/2)
 								{
-									boss9_list[i].active = true;
+									boss10_cutscene = 1;
+									the_bg = 9;
+									PlayBGM(12, 1);
 								}
-								
-								StopAudio();
-								PlayBGM(11, 1);
 							}
-							else if(LEVEL==9 && !boss10_started)
+							else if(LEVEL==10 && !boss11_cutscene)
 							{
-								boss10_started = 1;
-								
-								int i;
-								for (i = 0; i < boss10_count; i++)
+								if(cursorX==GRID_W/2 && cursorY==GRID_H/2)
 								{
-									boss10_list[i].active = true;
+									boss11_cutscene = 1;
+									the_bg = 14;
+									PlayBGM(15, 1);
 								}
-								
-								StopAudio();
-								PlayBGM(13, 1);
 							}
-							else if(LEVEL==10 && !boss11_started)
+							else
 							{
-								boss11_started = 1;
+								if(FIRST_CLICK) timer_running = 1;
 								
-								int i;
-								for (i = 0; i < boss11_count; i++)
+								if(board[cursorX][cursorY].mine && FIRST_CLICK)
 								{
-									boss11_list[i].active = true;
+									do
+									{
+										GenerateBoard();
+										CalculateNumbers();
+									}
+									while(board[cursorX][cursorY].mine);
 								}
 								
-								StopAudio();
-								PlayBGM(16, 1);
+								FIRST_CLICK = 0;
+								
+								if(LEVEL==8 && !boss9_started)
+								{
+									boss9_started = 1;
+									
+									int i;
+									for (i = 0; i < boss9_count; i++)
+									{
+										boss9_list[i].active = true;
+									}
+									
+									StopAudio();
+									PlayBGM(11, 1);
+								}
+								else if(LEVEL==9 && !boss10_started)
+								{
+									boss10_started = 1;
+									
+									int i;
+									for (i = 0; i < boss10_count; i++)
+									{
+										boss10_list[i].active = true;
+									}
+									
+									StopAudio();
+									PlayBGM(13, 1);
+								}
+								else if(LEVEL==10 && !boss11_started)
+								{
+									boss11_started = 1;
+									
+									int i;
+									for (i = 0; i < boss11_count; i++)
+									{
+										boss11_list[i].active = true;
+									}
+									
+									StopAudio();
+									PlayBGM(16, 1);
+								}
+								
+								if (board[cursorX][cursorY].revealed) Chord(cursorX, cursorY);
+									else Reveal(cursorX, cursorY);
+								
+								if(!boss9_started) WinCheck();
 							}
-							
-							if (board[cursorX][cursorY].revealed) Chord(cursorX, cursorY);
-								else Reveal(cursorX, cursorY);
-							
-							if(!boss9_started) WinCheck();
 						}
 						if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE)
 						{
@@ -2947,8 +3110,7 @@ int main(int argc, const char* argv[])
 						}
 						if(paddata.BTN_SQUARE && !oldpad.BTN_SQUARE)
 						{
-							if(LEVEL==8 && boss9_started) WinCheck();
-							else if(LEVEL==9 && boss10_started)
+							if(boss10_started)
 							{
 								boss10_list[i_10].time=10;
 								boss10_list[i_10].tspeed+=0.031f;
@@ -2966,6 +3128,7 @@ int main(int argc, const char* argv[])
 								if(i_10>boss10_count) i_10=0;
 							}
 						}
+						if(paddata.BTN_TRIANGLE && !oldpad.BTN_TRIANGLE && boss9_started) WinCheck();
 						
 						// movement
 						if(paddata.BTN_LEFT && !oldpad.BTN_LEFT) MoveCursor(-1, 0);
@@ -2996,7 +3159,7 @@ int main(int argc, const char* argv[])
 				}
 			}
 			
-			if(LEVEL==8)
+			if(boss9_count>0)
 			{
 				int i;
 				for (i = 0; i < boss9_count; i++)
@@ -3022,6 +3185,15 @@ int main(int argc, const char* argv[])
 					}
 					
 					boss10_update(i);
+				}
+			}
+			
+			if(boss11_started && !disable_control)
+			{
+				int i;
+				for (i = 0; i < boss11_count; i++)
+				{
+					boss11_update(i);
 				}
 			}
 			
