@@ -469,6 +469,8 @@ typedef struct
 	u8 revealed;
 	u8 flagged;
 	u8 neighbors;
+	u8 doublemine;
+	u8 halfmine;
 	u8 active;
 	u8 processed;
 } Cell; //heh, funny
@@ -485,9 +487,14 @@ int RENDERING_PIXELS = 16;
 float RENDERING_SIZE = 2.0f;
 int FIRST_CLICK = 1;
 
+int enable_half = 0;
+int enable_double = 0;
+
 int fp_width = 9;
 int fp_height = 9;
 int fp_mines = 10;
+int fp_doubles = 0;
+int fp_halfes = 0;
 int fp_music = 1;
 int fp_back = 0;
 int fp_menu = 0;
@@ -1177,6 +1184,8 @@ void GenerateBoard()
 	}
 	
     int placed = 0;
+    int f_half = fp_halfes;
+    int f_doub = fp_doubles;
     while(placed < MINES)
     {
         int x = rand() % GRID_W;
@@ -1185,6 +1194,19 @@ void GenerateBoard()
 		if (board[x][y].mine) continue;
 
 		board[x][y].mine = 1;
+		if(f_doub > 0)
+		{
+			board[x][y].doublemine = 1;
+			enable_double = 1;
+			f_doub--;
+		}
+		else if(f_half > 0)
+		{
+			board[x][y].halfmine = 1;
+			enable_half = 1;
+			f_half--;
+		}
+		
 		placed++;
     }
 	
@@ -1223,7 +1245,10 @@ void CalculateNumbers()
                     if(nx < 0 || ny < 0 || nx >= GRID_W || ny >= GRID_H) continue;
 					
 					if (!board[nx][ny].active) continue;
-                    if(board[nx][ny].mine) count++;
+					
+                    if(board[nx][ny].mine) count+=2;
+                    if(board[nx][ny].doublemine) count+=2;
+					if(board[nx][ny].halfmine) count--;
                 }
             }
             board[x][y].neighbors = count;
@@ -1233,20 +1258,42 @@ void CalculateNumbers()
 
 int calculate_score()
 {
-	//if (win_tiles == 1): return 1
-	//if (Main.practice): return 0
-	//var double_multiplier = 1.0
-	//var anti_multiplier = 1.0
-	//var larger
+	//if (Main.practice) return 0;
+	//float anti_multiplier = 1.0;
+	float double_multiplier = 1.0;
+	float half_multiplier = 1.0;
+	int larger;
+	int doubles = 0; int halfs = 0;
 	
-	// if (doublemines):
-		// if (Main.double_method):
-			// if (Main.double_number != 0 && mines != 0):
-				// if (Main.double_number >= mines - Main.double_number): larger = Main.double_number
-				// else: larger = mines - Main.double_number
-				// double_multiplier = 1.0 + (float(larger) / float(mines))
-		// else:
-			// double_multiplier = 1.0 + (0.5 - abs(0.5 - (float(Main.double_number) / 100)))
+	for (int l = 0; l < GRID_W; l++)
+	{
+		for (int j = 0; j < GRID_H; j++)
+		{
+			if(board[l][j].doublemine) doubles++;
+			if(board[l][j].halfmine)  halfs++;
+		}
+	}
+	
+	if(enable_double)
+	{
+		if (doubles != 0 && MINES != 0)
+		{
+			if (doubles >= MINES - doubles) larger = doubles; else larger = MINES - doubles;
+			double_multiplier = 1.0 + (larger / MINES);
+		}
+		//else double_multiplier = 1.0 + (0.5 - abs(0.5 - (float)(doubles / 100)));
+	}
+	
+	if(enable_half)
+	{
+		if (halfs != 0 && MINES != 0)
+		{
+			if (halfs >= MINES - halfs) larger = halfs; else larger = MINES - halfs;
+			half_multiplier = 1 + (larger / MINES);
+		}
+		//else half_multiplier = 1.0 + (0.5 - abs(0.5 - (float)(halfs / 100)));
+	}
+	
 	// if (antimines):
 		// if (Main.anti_method):
 			// if (Main.anti_number != 0 && mines != 0):
@@ -1263,12 +1310,13 @@ int calculate_score()
 	{
 		for(j = 0; j < GRID_H; j++)
 		{
-			if(!board[i][j].mine && board[i][j].neighbors < 9)
+			if(!board[i][j].mine && board[i][j].neighbors < 16)
 			{
-				score += pow(2, board[i][j].neighbors - 1);
+				score += pow(2, (board[i][j].neighbors/2) - 1);
 			}
 			//if(tile_array[i][j].antimine)score++;  //< we are not ready for this yet.
-			//if(tile_array[i][j].doublemine)score++;
+			if(board[i][j].doublemine) score++;
+			if(board[i][j].halfmine) score++;
 		}
 	}
 	if(LEVEL==8) score += 999;
@@ -1280,7 +1328,8 @@ int calculate_score()
 	score += MINES;
 	score *= 1.5; // cuz we are practically ALWAYS in master LMAO
 	//if (Main.db["master"]): score \*= 1.5
-	//score \*= double_multiplier
+	score *= double_multiplier;
+	score *= half_multiplier;
 	//score \*= anti_multiplier
 	return score;
 }
@@ -1324,7 +1373,12 @@ void WinCheck()
 		{
 			for (fy = 0; fy < GRID_H; fy++)
 			{
-				if (board[fx][fy].mine) board[fx][fy].flagged = 1;
+				if (board[fx][fy].mine)
+				{
+					board[fx][fy].flagged = 2;
+					if(board[fx][fy].doublemine) board[fx][fy].flagged++;
+					if(board[fx][fy].halfmine) board[fx][fy].flagged--;
+				}
 			}
 		}
 		
@@ -1357,7 +1411,7 @@ void RevealIterative(int startx, int starty)
 
         board[x][y].processed = 0;
 
-        if(board[x][y].revealed || board[x][y].flagged) continue;
+        if(board[x][y].revealed || board[x][y].flagged>0) continue;
 
         board[x][y].revealed = 1;
 
@@ -1383,7 +1437,7 @@ void RevealIterative(int startx, int starty)
                 if(nx < 0 || ny < 0 || nx >= GRID_W || ny >= GRID_H) continue;
                 if(!board[nx][ny].active) continue;
                 if(board[nx][ny].revealed) continue;
-                if(board[nx][ny].flagged) continue;
+                if(board[nx][ny].flagged>0) continue;
                 if(board[nx][ny].processed) continue;
 
                 board[nx][ny].processed = 1;
@@ -1400,7 +1454,7 @@ void RevealRecursive(int x,int y)
 {
     if(x < 0 || y < 0 || x >= GRID_W || y >= GRID_H) return;
 	if (!board[x][y].active) return;
-    if(board[x][y].revealed || board[x][y].flagged) return;
+    if(board[x][y].revealed || board[x][y].flagged>0) return;
 
     board[x][y].revealed = 1;
 	
@@ -1433,7 +1487,7 @@ void Chord(int x, int y)
     if(x < 0 || y < 0 || x >= GRID_W || y >= GRID_H) return;
     if(!board[x][y].revealed) return;
 	if(board[x][y].neighbors == 0) return;
-
+	
     int required = board[x][y].neighbors;
     int flags = 0;
 
@@ -1445,7 +1499,12 @@ void Chord(int x, int y)
         {
             if(nx >= 0 && ny >= 0 && nx < GRID_W && ny < GRID_H)
             {
-                if(board[nx][ny].flagged) flags++;
+                if(board[nx][ny].flagged>0)
+				{
+					flags+=2;
+					if(board[nx][ny].flagged==3) flags+=2;
+					if(board[nx][ny].flagged==1) flags--;
+				}
             }
         }
     }
@@ -1459,7 +1518,7 @@ void Chord(int x, int y)
                 if(nx >= 0 && ny >= 0 && nx < GRID_W && ny < GRID_H)
                 {
 					if (!board[nx][ny].active) continue;
-                    if(!board[nx][ny].flagged)
+                    if(board[nx][ny].flagged==0)
                     {
                         if(board[nx][ny].mine)
                         {
@@ -1539,6 +1598,9 @@ void ResetGrid()
 
 void LoadLevel(int levelz)
 {
+	fp_doubles = 0;
+	fp_halfes = 0;
+	
 	DifficultyData *lvl = &episodes[EPISODE-1].levels[levelz].difficulties[DIFFICULTY];
 		
     GRID_W = lvl->width;
@@ -1560,6 +1622,7 @@ void LoadFPLevel()
     MINES  = fp_mines;
     desired_bgm = fp_music;
 	the_bg = fp_back;
+	GRID_ID = 0;
 	
 	ResetGrid();
 }
@@ -1978,7 +2041,12 @@ void boss11_update(int i)
 			_x = boss11_list[i].x;
 			_y = boss11_list[i].y;
 		}
-		while(!board[_x][_y].active && board[_x][_y].revealed && !board[_x][_y].flagged);
+		while(!board[_x][_y].active && board[_x][_y].revealed && board[_x][_y].flagged!=0);
+		
+		board[_x][_y].flagged = 2;
+		mines_count--;
+		
+		if(mines_count<=0) game_lost();
 		
 		boss11_list[i].timer = (float)RandRange(4, 5);
 	}
@@ -2269,14 +2337,25 @@ void draw_game()
 				
 				switch(board[x1][y1].neighbors)
 				{
-					case 1: tile = 105; break;
-					case 2: tile = 106; break;
-					case 3: tile = 107; break;
-					case 4: tile = 124; break;
-					case 5: tile = 125; break;
-					case 6: tile = 126; break;
-					case 7: tile = 127; break;
-					case 8: tile = 144; break;
+					case 1: tile = 152; break;
+					case 2: tile = 105; break;
+					case 3: tile = 153; break;
+					case 4: tile = 106; break;
+					case 5: tile = 154; break;
+					case 6: tile = 107; break;
+					case 7: tile = 155; break;
+					case 8: tile = 124; break;
+					case 9: tile = 172; break;
+					case 10: tile = 125; break;
+					case 11: tile = 173; break;
+					case 12: tile = 126; break;
+					case 13: tile = 174; break;
+					case 14: tile = 127; break;
+					case 15: tile = 175; break;
+					case 16: tile = 144; break;
+					case 18: tile = 145; break;
+					case 20: tile = 146; break;
+					case 22: tile = 147; break;
 				}
 				
 				if(board[x1][y1].mine) tile = 114+anim;
@@ -2298,14 +2377,24 @@ void draw_game()
 						RENDER_SIZE, RENDER_SIZE, 16, 16, 320, 320, 3, color);
 				}
 				
-				if(board[x1][y1].flagged)
+				if(board[x1][y1].flagged>0)
 				{
 					if(board[x1][y1].mine == 0 && gamelose)
 						DrawSprite2D(132, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE),
 							RENDER_SIZE, RENDER_SIZE, 16, 16, 320, 320, 3, color);
 					else if(!gamelose)
-						DrawSprite2D(112 + anim, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE),
+					{
+						int ze_flag = 0;
+						switch(board[x1][y1].flagged)
+						{
+							case 1: ze_flag = 72; break;
+							case 2: ze_flag = 112; break;
+							case 3: ze_flag = 92; break;
+						}
+						
+						DrawSprite2D(ze_flag + anim, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE),
 							RENDER_SIZE, RENDER_SIZE, 16, 16, 320, 320, 3, color);
+					}
 				}
 			}
 			
@@ -2388,20 +2477,22 @@ void drawScene()
 				DrawFString(ui_x,64, 0xffffffff, 0, "Width: %d", fp_width);
 				DrawFString(ui_x,96, 0xffffffff, 0, "Height: %d", fp_height);
 				DrawFString(ui_x,128, 0xffffffff, 0, "Mines count: %d", fp_mines);
+				DrawFString(ui_x,160, 0xffffffff, 0, "Doubles count: %d", fp_doubles);
+				DrawFString(ui_x,192, 0xffffffff, 0, "Halves count: %d", fp_halfes);
 				
-				if(fp_music==99) DrawFString(ui_x,160, 0xffffffff, 0, "Music Type: C");
-				else DrawFString(ui_x,160, 0xffffffff, 0, "Music Type: %d", fp_music);
+				if(fp_music==99) DrawFString(ui_x,224, 0xffffffff, 0, "Music Type: C");
+				else DrawFString(ui_x,224, 0xffffffff, 0, "Music Type: %d", fp_music);
 				
-				if(fp_menu==3)
+				if(fp_menu==5)
 				{
-					if(fp_music==99) DrawFString(ui_x+320,160, 0xffffffff, 0, "SQUARE - Use Custom Music: YES");
-					else DrawFString(ui_x+320,160, 0xffffffff, 0, "SQUARE - Use Custom Music: NO");
+					if(fp_music==99) DrawFString(ui_x+320,224, 0xffffffff, 0, "SQUARE - Use Custom Music: YES");
+					else DrawFString(ui_x+320,224, 0xffffffff, 0, "SQUARE - Use Custom Music: NO");
 				}
-				DrawFString(ui_x,192, 0xffffffff, 0, "Background Type: %d", (fp_back+1));
-				DrawFString(ui_x,256, 0xffffffff, 0, "START - Start the game");
-				DrawFString(ui_x,288, 0xffffffff, 0, "CIRCLE - Go Back");
-				DrawFString(ui_x,320, 0xffffffff, 0, "SELECT - The Big One with 111 Mines");
-				DrawFString(ui_x,356, 0xffffffff, 0, "TRIANGLE - Bad Apple!! (Requires DLC)");
+				DrawFString(ui_x,256, 0xffffffff, 0, "Background Type: %d", (fp_back+1));
+				DrawFString(ui_x,320, 0xffffffff, 0, "START - Start the game");
+				DrawFString(ui_x,352, 0xffffffff, 0, "CIRCLE - Go Back");
+				DrawFString(ui_x,384, 0xffffffff, 0, "SELECT - The Big One with 111 Mines");
+				DrawFString(ui_x,416, 0xffffffff, 0, "TRIANGLE - Bad Apple!! (Requires DLC)");
 				
 				DrawFString(ui_x+256,64+(fp_menu*32), 0xffffffff, 0, "<");
 			}
@@ -2595,6 +2686,9 @@ void GoBackToTitle()
 	free_play = 0;
 	
 	bad_apple = 0;
+	
+	enable_half = 0;
+	enable_double = 0;
 	
 	if(temp_fp_music==100) fp_music = temp_fp_music;
 	
@@ -2793,7 +2887,10 @@ int main(int argc, const char* argv[])
 							if(paddata.BTN_TRIANGLE && !oldpad.BTN_TRIANGLE)
 							{
 								msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
-									"CREDITS\n\nOriginal Minesweeper Plus game made by Jorel Simpson\nXMB Background made by Zeltizy",
+									"CREDITS\n\n"
+									"Original Minesweeper Plus game made by Jorel Simpson\n"
+									"XMB Background made by Zeltizy\n"
+									"Half Related Sprites by Axelbastian",
 									EmptyDialogCallback, NULL, NULL);
 							}
 							
@@ -2846,7 +2943,7 @@ int main(int argc, const char* argv[])
 							if(paddata.BTN_DOWN && !oldpad.BTN_DOWN)
 							{
 								fp_menu++;
-								if (fp_menu>4) fp_menu = 4;
+								if (fp_menu>6) fp_menu = 6;
 							}
 							
 							if(paddata.BTN_LEFT && !oldpad.BTN_LEFT)
@@ -2856,8 +2953,10 @@ int main(int argc, const char* argv[])
 									case 0: fp_width--; if(fp_width<3) fp_width=3; break;
 									case 1: fp_height--; if(fp_height<3) fp_height=3; break;
 									case 2: fp_mines--; if(fp_mines<1) fp_mines=1; break;
-									case 3: fp_music--; if(fp_music<1) fp_music=1; break;
-									case 4: fp_back--; if(fp_back<0) fp_back=0; break;
+									case 3: fp_doubles--; if(fp_doubles<0) fp_doubles=0; break;
+									case 4: fp_halfes--; if(fp_halfes<0) fp_halfes=0; break;
+									case 5: fp_music--; if(fp_music<1) fp_music=1; break;
+									case 6: fp_back--; if(fp_back<0) fp_back=0; break;
 								}
 								
 								if(fp_mines>(fp_width*fp_height)-1) fp_mines=(fp_width*fp_height)-1;
@@ -2869,8 +2968,10 @@ int main(int argc, const char* argv[])
 									case 0: fp_width++; if(fp_width>48) fp_width=48; break;
 									case 1: fp_height++; if(fp_height>36) fp_height=36; break;
 									case 2: fp_mines++; break;
-									case 3: fp_music++; if(fp_music>8) fp_music=8; break;
-									case 4: fp_back++; if(fp_back>14) fp_back=14; break;
+									case 3: fp_doubles++; if(fp_doubles>(fp_mines-fp_halfes)) fp_doubles=fp_mines-fp_halfes; break;
+									case 4: fp_halfes++; if(fp_halfes>(fp_mines-fp_doubles)) fp_halfes=fp_mines-fp_doubles; break;
+									case 5: fp_music++; if(fp_music>8) fp_music=8; break;
+									case 6: fp_back++; if(fp_back>14) fp_back=14; break;
 								}
 								
 								if(fp_mines>(fp_width*fp_height)-1) fp_mines=(fp_width*fp_height)-1;
@@ -2905,7 +3006,7 @@ int main(int argc, const char* argv[])
 									"Bad Apple!! DLC is not installed. Please, install it from AcidPS3 Store v0.2 or higher!", EmptyDialogCallback, NULL, NULL);
 							}
 							
-							if(fp_menu==3 && paddata.BTN_SQUARE && !oldpad.BTN_SQUARE)
+							if(fp_menu==5 && paddata.BTN_SQUARE && !oldpad.BTN_SQUARE)
 							{
 								if(!custom_music)
 								{
@@ -3089,14 +3190,12 @@ int main(int argc, const char* argv[])
 							
 							if(!board[cursorX][cursorY].revealed)
 							{
-								board[cursorX][cursorY].flagged = !board[cursorX][cursorY].flagged;
-								if(board[cursorX][cursorY].flagged)
+								if(board[cursorX][cursorY].flagged == 0) mines_count--;
+								board[cursorX][cursorY].flagged++;
+								
+								if(board[cursorX][cursorY].flagged > 3)
 								{
-									PlaySFX(&sfx_flag);
-									mines_count--;
-								}
-								else
-								{
+									board[cursorX][cursorY].flagged = 0;
 									PlaySFX(&sfx_unflag);
 									mines_count++;
 									
@@ -3104,6 +3203,17 @@ int main(int argc, const char* argv[])
 									{
 										board[cursorX][cursorY].revealed = 1;
 										game_lost();
+									}
+								}
+								else
+								{
+									PlaySFX(&sfx_flag);
+									if(!enable_half && board[cursorX][cursorY].flagged == 1) board[cursorX][cursorY].flagged = 2;
+									if(!enable_double && board[cursorX][cursorY].flagged == 3)
+									{
+										board[cursorX][cursorY].flagged = 0;
+										PlaySFX(&sfx_unflag);
+										mines_count++;
 									}
 								}
 							}
