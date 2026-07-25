@@ -86,6 +86,7 @@ char global_version[] = "v0.3";
 #include "ten_reset_ogg_bin.h"
 #include "game_mine_ogg_bin.h"
 #include "game_explosion_ogg_bin.h"
+#include "eleven_open_ogg_bin.h"
 
 // the fuck is that
 #include "episode2_shapes.h"
@@ -257,6 +258,7 @@ SoundEffect sfx_10bump;
 SoundEffect sfx_10reset;
 SoundEffect sfx_mine;
 SoundEffect sfx_explosion;
+SoundEffect sfx_11open;
 
 int sex = 2147483647;
 
@@ -439,6 +441,7 @@ void init_sfx()
 	LoadSFX(&sfx_10reset, ten_reset_ogg_bin, ten_reset_ogg_bin_size);
 	LoadSFX(&sfx_mine, game_mine_ogg_bin, game_mine_ogg_bin_size);
 	LoadSFX(&sfx_explosion, game_explosion_ogg_bin, game_explosion_ogg_bin_size);
+	LoadSFX(&sfx_11open, eleven_open_ogg_bin, eleven_open_ogg_bin_size);
 }
 
 
@@ -540,6 +543,8 @@ typedef struct
     bool active;
     float x, y, timer;
 	int flags, rushing;
+	int placed, alpha;
+	float vis_x1, vis_x2;
 } Boss11;
 
 Boss9 boss9_list[MAX_BOSS9];
@@ -553,8 +558,6 @@ int boss11_started = 0;
 int boss9_cutscene = 0;
 int boss10_cutscene = 0;
 int boss11_cutscene = 0;
-
-
 
 int boss9_count = 1;
 int boss10_count = 1;
@@ -970,6 +973,8 @@ void SetupBoss11Positions(int count)
     for (int i = 0; i < count; i++)
     {
         boss11_list[i].active = false;
+		boss11_list[i].placed = 0;
+		boss11_list[i].alpha = 255;
     }
 }
 
@@ -1748,6 +1753,24 @@ int max(int min, int max)
 
 
 
+bool Boss9Collides(int self, int nx, int ny)
+{
+    int i;
+
+    for(i = 0; i < MAX_BOSS9; i++)
+    {
+        if(i == self) continue;
+        if(!boss9_list[i].active) continue;
+
+        // 3x3 squares overlap?
+        if(abs(nx - boss9_list[i].x) <= 2 &&
+           abs(ny - boss9_list[i].y) <= 2)
+        {
+            return true;
+        }
+    }
+    return false;
+}
 
 void Boss9PlaceTiles(int i)
 {
@@ -1942,7 +1965,7 @@ void UpdateBoss9(int i)
     int nx = boss9_list[i].x + boss9_list[i].dx;
     int ny = boss9_list[i].y + boss9_list[i].dy;
 
-    if(!Boss9CanMove(nx, ny))
+    if(!Boss9CanMove(nx, ny) || Boss9Collides(i, nx, ny))
     {
         Boss9Stop(i);
         return;
@@ -2021,14 +2044,40 @@ void boss11_update(int i)
 {
 	if(boss11_list[i].timer>0)
 	{
-		boss11_list[i].timer -= 0.02f;
+		boss11_list[i].timer -= 0.031f;
+		
+		if(boss11_list[i].timer < 3 && boss11_list[i].placed == 0)
+		{
+			PlaySFX(&sfx_11open);
+			int _x, _y;
+			
+			_x = boss11_list[i].x;
+			_y = boss11_list[i].y;
+			
+			boss11_list[i].placed = 1;
+			board[_x][_y].flagged = 2;
+			mines_count--;
+		}
+		
+		if(boss11_list[i].placed == 1)
+		{
+			if(boss11_list[i].alpha > 5) boss11_list[i].alpha -= 5;
+			else boss11_list[i].alpha = 0;
+			boss11_list[i].vis_x1 += 0.5f;
+			boss11_list[i].vis_x2 += 0.5f;
+		}
 	}
 	else
 	{
 		int _x, _y;
+		int attempts = 0;
 		
 		boss11_list[i].x = rand() % GRID_W;
 		boss11_list[i].y = rand() % GRID_H;
+		boss11_list[i].placed = 0;
+		boss11_list[i].vis_x1 = 0.0f;
+		boss11_list[i].vis_x2 = 0.0f;
+		boss11_list[i].alpha = 255;
 		
 		_x = boss11_list[i].x;
 		_y = boss11_list[i].y;
@@ -2040,15 +2089,16 @@ void boss11_update(int i)
 			
 			_x = boss11_list[i].x;
 			_y = boss11_list[i].y;
+			attempts++;
 		}
-		while(!board[_x][_y].active && board[_x][_y].revealed && board[_x][_y].flagged!=0);
-		
-		board[_x][_y].flagged = 2;
-		mines_count--;
+		while((!board[_x][_y].active || board[_x][_y].revealed || board[_x][_y].flagged>0)
+			&& attempts < 200);
 		
 		if(mines_count<=0) game_lost();
+		else if(attempts>199) game_lost();
 		
-		boss11_list[i].timer = (float)RandRange(4, 5);
+		//boss11_list[i].timer = (float)RandRange(4, 5);
+		boss11_list[i].timer = 5.0;
 	}
 }
 
@@ -2598,9 +2648,15 @@ void drawScene()
 
 				for (i = 0; i < boss11_count; i++)
 				{
-					if(boss11_count>0 && i>0) SetTexture(5);
-					DrawSprite2D(2, offset_x+(boss11_list[i].x*RENDER_SIZE)-(RENDER_SIZE*0.5), offset_y+(boss11_list[i].y*RENDER_SIZE)-(RENDER_SIZE*0.5),
-						RENDER_SIZE*2, RENDER_SIZE*2, 384, 384, 1536, 1536, -1, color);
+					u32 colorz = (0xFFFFFF00 | boss11_list[i].alpha);
+					//if(boss11_count>0 && i>0) SetTexture(5);
+					DrawSprite2D(4, offset_x+(boss11_list[i].x*RENDER_SIZE)-(RENDER_SIZE*0.5)-boss11_list[i].vis_x1+(RENDER_SIZE*0.02),
+						offset_y+(boss11_list[i].y*RENDER_SIZE)-(RENDER_SIZE*0.5),
+						RENDER_SIZE, RENDER_SIZE*2, 192, 384, 1536, 1536, -1, colorz);
+					
+					DrawSprite2D(5, offset_x+(boss11_list[i].x*RENDER_SIZE)-(RENDER_SIZE*0.5)+RENDER_SIZE+boss11_list[i].vis_x2-(RENDER_SIZE*0.02),
+						offset_y+(boss11_list[i].y*RENDER_SIZE)-(RENDER_SIZE*0.5),
+						RENDER_SIZE, RENDER_SIZE*2, 192, 384, 1536, 1536, -1, colorz);
 				}
 			}
 		}
@@ -3214,6 +3270,12 @@ int main(int argc, const char* argv[])
 										board[cursorX][cursorY].flagged = 0;
 										PlaySFX(&sfx_unflag);
 										mines_count++;
+										
+										if(board[cursorX][cursorY].mine && LEVEL==10)
+										{
+											board[cursorX][cursorY].revealed = 1;
+											game_lost();
+										}
 									}
 								}
 							}

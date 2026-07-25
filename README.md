@@ -6,7 +6,7 @@ Don't like the adventure? You can always count on free play! Customize your most
 
 Please be aware, that on RPCS3 or aPS3e, the game is not optimized well and may halt any second! On aPS3e it may halt almost immediately. RPCS3 can handle the game, but freeze may occur (rarely). The game was optimized to work with actual PS3 consoles, and there is nothing I can do about it.
 
-NOTE: The Source code should be available RIGHT AFTER 1 month after initial release has been made. Thanks for understanding.
+NOTE: The Source code should be available RIGHT AFTER 1 month after the INITIAL release has been made. Thanks for understanding.
 
 <a href="https://github.com/AcidPS3-Project">
 	<img src="https://img.shields.io/badge/Powered%20By-AcidPS3%20Project-blue?logo=playstation3" />
