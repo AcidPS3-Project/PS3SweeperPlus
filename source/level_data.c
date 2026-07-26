@@ -119,6 +119,16 @@ LevelData lvl_ep2[] =
 		{21, 21, 60, 9, 5, 91},
 		{23, 23, 80, 9, 5, 92},
 		{25, 25, 100, 9, 5, 93}}
+    }
+};
+
+LevelData lvl_ep3[] =
+{
+    {"THE BOMB BAY EXPERT",{
+		{39, 30, 123, 4, 3, 67},
+		{39, 30, 123, 4, 3, 67},
+		{39, 30, 123, 4, 3, 67},
+		{39, 30, 123, 4, 3, 67}}
     },
     {"THE DEVIL'S LOCKER ALPHA",{
 		{19, 19, 40, 9, 0, 93},
@@ -131,7 +141,8 @@ LevelData lvl_ep2[] =
 EpisodeData episodes[] =
 {
     {"Episode 1", lvl_ep1, sizeof(lvl_ep1) / sizeof(LevelData)},
-    {"Episode 2", lvl_ep2, sizeof(lvl_ep2) / sizeof(LevelData)}
+    {"Episode 2", lvl_ep2, sizeof(lvl_ep2) / sizeof(LevelData)},
+    {"Episode 3", lvl_ep3, sizeof(lvl_ep3) / sizeof(LevelData)}
 };
 
 const int episode_count = sizeof(episodes) / sizeof(EpisodeData);
