@@ -2783,12 +2783,9 @@ bool FindMusic(const char *base, char *out_path)
 
 void ReplaceBGM()
 {
-	//s32 t = GetTimeAudio();
 	StopAudio();
 	usleep(3666);
 	PlayBGM(50+fp_music, 1);
-	//usleep(67);
-	//SetTimeAudio(t);
 }
 
 int main(int argc, const char* argv[])
