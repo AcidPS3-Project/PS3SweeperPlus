@@ -944,6 +944,8 @@ const char *shape_3_7_3[] =
     "00000XXX00000000000000XXXXXXXXXXXXXXXXX"
 };
 
+const char *shape_empty[] = {"0"};
+
 typedef struct {
     const char **shape;
     int the_id;
@@ -951,7 +953,8 @@ typedef struct {
     int h;
 } ShapeDef;
 
-static const ShapeDef episode2_shapes[] = {
+static const ShapeDef episode2_shapes[] =
+{
     {shape_2_1_0, 00, 9, 9},
     {shape_2_1_1, 01, 12, 12},
     {shape_2_1_2, 02, 15, 15},
@@ -992,7 +995,8 @@ static const ShapeDef episode2_shapes[] = {
     {shape_2_10_1, 91, 21, 21},
     {shape_2_10_2, 92, 23, 23},
     {shape_2_10_3, 93, 25, 25},
-    {shape_3_7_3, 67, 39, 30}
+    {shape_3_7_3, 67, 39, 30},
+    {shape_empty, 999, 1, 1}
 };
 
 static const int episode2_shapes_count = sizeof(episode2_shapes) / sizeof(episode2_shapes[0]);
