@@ -121,6 +121,8 @@ void GoBackToTitle()
 	adventure_select = 0;
 
 	PlayBGM(50+fp_music, 1);
+	
+	StartSave();
 }
 
 char custom_main_path[256];
@@ -147,13 +149,13 @@ int main(int argc, const char* argv[])
 	boss10_started = 0;
 	boss11_started = 0;
 	
-	game_init = 1;
-	
 	init_bgm();
 	init_sfx();
 	
 	ioPadInit(7);
     LoadTexture();
+	
+	StartLoad();
 	
     while(1)
     {
@@ -211,7 +213,10 @@ int main(int argc, const char* argv[])
 							{
 								if(challenge_select)
 								{
-									
+									if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE)
+									{
+										challenge_select = 0;
+									}
 								}
 								else if(adventure_select)
 								{
@@ -267,10 +272,11 @@ int main(int argc, const char* argv[])
 										{
 											case 0: adventure_select = 1; break;
 											case 1: free_play = 1; break;
+											case 2: challenge_select = 1; break;
 											default: break;
 										}
 									}
-									if(paddata.BTN_TRIANGLE && !oldpad.BTN_TRIANGLE)
+									if(paddata.BTN_TRIANGLE && !oldpad.BTN_TRIANGLE && LEVEL>0)
 									{
 										free_play = 0;
 										StopAudio();
@@ -432,28 +438,8 @@ int main(int argc, const char* argv[])
 							{
 								if(paddata.BTN_SELECT && !oldpad.BTN_SELECT)
 								{
-									if(!free_play)
-									{
-										drawScene();
-										DrawFString(-27,386,0xffffffff,0,"Saving...");
-										tiny3d_Flip();
-										
-										s32 ret;
-										gSave.save_level = LEVEL + 1;
-										gSave.save_current_minecoins = current_minecoins;
-										gSave.save_global_minecoins = global_minecoins;
-										gSave.save_global_route = global_route;
-										
-										ret = sysSaveAutoSave2(SYS_SAVE_CURRENT_VERSION,SAVE_DIR,
-											SYS_SAVE_ERROR_DIALOG_SHOW,&buffer,status_cb,save_file_cb,
-											0,NULL);
-										
-										printf("SAVE RET = %08x\n", ret);
-										
-										msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
-											"Save Completed.", EmptyDialogCallback, NULL, NULL);
-									}
-									else LoadFPLevel();
+									if(free_play) LoadFPLevel();
+									else GoBackToTitle();
 								}
 
 								if(paddata.BTN_START && !oldpad.BTN_START)
@@ -469,7 +455,11 @@ int main(int argc, const char* argv[])
 											LEVEL=0;
 											GoBackToTitle();
 										}
-										else LoadLevel(LEVEL);
+										else
+										{
+											StartSave();
+											LoadLevel(LEVEL);
+										}
 									}
 									else GoBackToTitle();
 								}
@@ -761,24 +751,42 @@ int main(int argc, const char* argv[])
 		
 		if(game_init)
 		{
-			drawScene();
-			tiny3d_Flip();
 			game_init = 0;
-			s32 ret;
-			ret = sysSaveAutoLoad2(SYS_SAVE_CURRENT_VERSION,SAVE_DIR, SYS_SAVE_ERROR_DIALOG_SHOW,&buffer,status_cb,
-				load_file_cb,0,NULL);
 			
-			if(ret == SYS_SAVE_RETURN_DONE)
+			LEVEL = gSave.save_level;
+			current_minecoins = gSave.save_current_minecoins;
+			global_minecoins = gSave.save_global_minecoins;
+			EPISODE = gSave.save_episode;
+			fp_width = gSave.save_fp_w;
+			fp_height = gSave.save_fp_h;
+			fp_mines = gSave.save_fp_m;
+			fp_music = gSave.save_fp_mus;
+			fp_back = gSave.save_fp_bg;
+			printf("loaded!\n");
+			
+			if(EPISODE<1) EPISODE=1;
+			if(fp_width<1) fp_width=9;
+			if(fp_height<1) fp_height=9;
+			if(fp_mines<1) fp_mines=10;
+			if(fp_music<1) fp_music=1;
+		}
+		else if(!game_loaded)
+		{
+			ioPadGetInfo(&padinfo);
+			for(ip = 0; ip < MAX_PADS; ip++)
 			{
-				LEVEL = gSave.save_level;
-				current_minecoins = gSave.save_current_minecoins;
-				global_minecoins = gSave.save_global_minecoins;
-				printf("loaded!\n");
+				if(padinfo.status[ip])
+				{
+					ioPadGetData(ip, &paddata);
+					if(paddata.BTN_CROSS && !oldpad.BTN_CROSS)
+					{
+						game_loaded = 1;
+						start_music = 1;
+						printf("starting the game\n");
+					}
+					oldpad = paddata;
+				}
 			}
-			
-			game_loaded = 1;
-			start_music = 1;
-			printf("starting the game\n");
 		}
 		
 		if(playing_bgm) UpdateBGM();

@@ -1,7 +1,7 @@
 #include "importer.h"
 
 char global_name[] = "PS3Sweeper+";
-char global_version[] = "v0.2.7";
+char global_version[] = "v0.3";
 
 int current_bgm = 1;
 int desired_bgm = 1;
@@ -62,6 +62,7 @@ static u64 last_time = 0;
 float menu_x = 0.0f;
 int menu_pos = 0;
 float ze_x = 0.0f;
+float ze_y = 0.0f;
 
 float lerp(int x, int y, float amount)
 {
@@ -428,6 +429,7 @@ void Load_PNG()
 	pngLoadFromBuffer(background_sheet_png_bin, background_sheet_png_bin_size, &spritesheet[7]);
 	pngLoadFromBuffer(trust_me_bro_png_bin, trust_me_bro_png_bin_size, &spritesheet[8]);
 	pngLoadFromBuffer(menu_sheet_png_bin, menu_sheet_png_bin_size, &spritesheet[9]);
+	pngLoadFromBuffer(coin_png_bin, coin_png_bin_size, &spritesheet[10]);
 }
 
 void ReplaceBGM(int music)
@@ -475,6 +477,15 @@ void Initialize()
 	sysSpuImageImport(&spu_image, spu_soundmodule_bin, 0);
 	sysSpuRawImageLoad(spu, &spu_image);
 	SND_Init(spu);
+	
+	menu_title[0] = "Minesweeper Adventure";
+	menu_desc[0] = "Test your minesweeping skills in a sequence of progressively difficult Minesweeper stages.";
+	menu_title[1] = "Free Play";
+	menu_desc[1] = "Create your own custom Minesweeper stages and sweep mines to your heart's content!";
+	menu_title[2] = "Bonus Games";
+	menu_desc[2] = "Enjoy a selection of bonus game modes that will test your minesweeping limits.";
+	menu_title[3] = "LoadOut";
+	menu_desc[3] = "Customize the captain and stock up on supplies.";
 }
 
 void HolyShit()

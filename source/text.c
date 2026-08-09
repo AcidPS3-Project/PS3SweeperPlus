@@ -43,3 +43,76 @@ void TTF_to_Bitmap(u8 chr, u8 * bitmap, short *w, short *h, short *y_correction)
     *w = ((slot->advance.x + 31) >> 6) + ((slot->bitmap_left < 0) ? -slot->bitmap_left : 0);
     *h = slot->bitmap.rows;
 }
+
+void DrawWrappedText(float x, float y, float line_h, int max_chars, const char *text)
+{
+    char line[512];
+    char word[128];
+    int line_len = 0;
+    int word_len = 0;
+    int i = 0;
+
+    line[0] = '\0';
+    word[0] = '\0';
+
+    while(1)
+    {
+        char c = text[i];
+
+        // build current word
+        if(c != ' ' && c != '\0' && c != '\n')
+        {
+            if(word_len < sizeof(word) - 1)
+            {
+                word[word_len++] = c;
+                word[word_len] = '\0';
+            }
+        }
+
+        // if word ended / newline / end of string
+        if(c == ' ' || c == '\0' || c == '\n')
+        {
+            if(word_len > 0)
+            {
+                int needed = word_len;
+                if(line_len > 0) needed += 1; // space
+
+                if(line_len + needed > max_chars)
+                {
+                    DrawFormatString(x, y, "%s", line);
+                    y += line_h;
+
+                    strcpy(line, word);
+                    line_len = word_len;
+                }
+                else
+                {
+                    if(line_len > 0)
+                    {
+                        strcat(line, " ");
+                        line_len++;
+                    }
+                    strcat(line, word);
+                    line_len += word_len;
+                }
+
+                word[0] = '\0';
+                word_len = 0;
+            }
+
+            if(c == '\n')
+            {
+                DrawFormatString(x, y, "%s", line);
+                y += line_h;
+                line[0] = '\0';
+                line_len = 0;
+            }
+
+            if(c == '\0') break;
+        }
+
+        i++;
+    }
+
+    if(line_len > 0) DrawFormatString(x, y, "%s", line);
+}

@@ -23,7 +23,8 @@ void SetTexture(int id);
 void draw_game();
 void drawScene();
 void LoadTexture();
-void DrawFString(float x, float y, u32 textColor, int BW, const char *fmt, ...);
+void DrawFString(int wrap, float x, float y, u32 textColor, int BW, const char *fmt, ...);
 void zoomCheck(int zoom);
+void DrawTextAligned(int wrap, float x1, float x2, float y, int align, u32 tc, int bw, int fsize, const char *text, ...);
 
 #endif

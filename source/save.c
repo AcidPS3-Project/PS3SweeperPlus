@@ -1,9 +1,16 @@
 #include "save.h"
 #include "importer.h"
+#include "core.h"
 
 static int saveMode;
+
+static sys_ppu_thread_t save_thread = 0;
 volatile int save_running = 0;
-sys_ppu_thread_t save_thread;
+volatile int save_result = 0;
+
+static sys_ppu_thread_t load_thread = 0;
+volatile int load_running = 0;
+volatile int load_result = 0;
 
 void savestate_init()
 {
@@ -78,4 +85,92 @@ void load_file_cb(sysSaveCallbackResult *result, sysSaveFileIn *in, sysSaveFileO
 
 	result->incrementProgress = 100;
 	result->result = SYS_SAVE_CALLBACK_RESULT_DONE;
+}
+
+static void SaveThread(void *arg)
+{
+	s32 ret;
+	
+	ret = sysSaveAutoSave2(SYS_SAVE_CURRENT_VERSION,SAVE_DIR,
+		SYS_SAVE_ERROR_DIALOG_SHOW,&buffer,status_cb,save_file_cb,
+		0,NULL);
+
+    save_result = ret;
+    save_running = 0;
+    save_thread = 0;
+
+    printf("Save finished: %d\n", ret);
+
+    sysThreadExit(0);
+}
+
+int StartSave(void)
+{
+    if(save_running) return -1;
+
+    gSave.save_level = LEVEL;
+    gSave.save_current_minecoins = current_minecoins;
+    gSave.save_global_minecoins = global_minecoins;
+    gSave.save_global_route = global_route;
+	gSave.save_episode = EPISODE;
+	gSave.save_fp_w = fp_width;
+	gSave.save_fp_h = fp_height;
+	gSave.save_fp_m = fp_mines;
+	gSave.save_fp_mus = fp_music;
+	gSave.save_fp_bg = fp_back;
+
+    save_running = 1;
+
+    s32 ret = sysThreadCreate(&save_thread, SaveThread, NULL, 1500, 0x4000, 0, "SaveThread");
+
+    if(ret != 0)
+    {
+        printf("SAVE: thread creation failed (%08X)\n", ret);
+        save_running = 0;
+        save_thread = 0;
+        return ret;
+    }
+
+    return 0;
+}
+
+static void LoadThread(void *arg)
+{
+    s32 ret;
+
+    printf("LOAD: starting...\n");
+
+    ret = sysSaveAutoLoad2(SYS_SAVE_CURRENT_VERSION,SAVE_DIR, SYS_SAVE_ERROR_DIALOG_SHOW,
+		&buffer,status_cb, load_file_cb,0,NULL);
+
+    load_result = ret;
+    load_running = 0;
+    load_thread = 0;
+	
+	if(ret>=0) game_init = 1;
+
+    printf("LOAD: finished (%08X)\n", ret);
+
+    sysThreadExit(0);
+}
+
+int StartLoad(void)
+{
+    if(load_running) return -1;
+
+    load_running = 1;
+
+    s32 ret = sysThreadCreate(&load_thread, LoadThread, NULL, 1500, 0x4000, 0, "LoadThread");
+
+    if(ret != 0)
+    {
+        printf("LOAD: thread creation failed (%08X)\n", ret);
+
+        load_running = 0;
+        load_thread = 0;
+
+        return ret;
+    }
+
+    return 0;
 }

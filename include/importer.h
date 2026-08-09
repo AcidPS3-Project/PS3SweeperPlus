@@ -22,6 +22,7 @@ extern char global_version[];
 #include "cursed_sheet_png_bin.h"
 #include "background_sheet_png_bin.h"
 #include "menu_sheet_png_bin.h"
+#include "coin_png_bin.h"
 
 #include "trust_me_bro_png_bin.h"
 #include "icon0_png_bin.h"
@@ -138,6 +139,7 @@ extern int start_music;
 extern int game_init;
 
 extern float ze_x;
+extern float ze_y;
 
 const char *splashes_random[1024];
 const char *splash;
@@ -166,7 +168,7 @@ SoundEffect sfx_11bonk;
 
 #define BGM_LIST 200
 
-#define TOTAL_SHEETS 10
+#define TOTAL_SHEETS 20
 pngData spritesheet[TOTAL_SHEETS];
 u32 sprite_off[TOTAL_SHEETS];
 
@@ -202,5 +204,9 @@ extern float menu_x;
 extern int menu_pos;
 
 float lerp(int x, int y, float amount);
+
+
+const char *menu_title[10];
+const char *menu_desc[10];
 
 #endif

@@ -1,6 +1,7 @@
 #include "drawing.h"
 #include "bosses.h"
 #include "text.h"
+#include "save.h"
 
 GameScreen currentScreen = TITLE;
 
@@ -243,7 +244,7 @@ void draw_game()
 	{
 		for(y0 = -99; y0 < (screen_h * 2) + 99; y0 += 64)
 		{
-			DrawSprite2D(tile_bg + anim, x0, y0, 64, 64, 16, 16, 320, 320, 5, 0xffffff88);
+			DrawSprite2D(tile_bg + anim + 2, x0, y0, 64, 64, 16, 16, 320, 320, 5, 0xffffff88);
 		}
 	}
 	
@@ -392,6 +393,7 @@ void drawScene()
     static int anim1 = 0;
     static int anim2 = 0;
     static int anim3 = 0;
+	static int animc = 0;
 	SetFontSize(28, 32);
 	
 	int ui_x = 4;
@@ -414,10 +416,10 @@ void drawScene()
 			{
 				SetTexture(7);
 				DrawSprite2D(anim3, -40, -22, 916, 582, 1152, 960, 2304, 1920, 0, color);
-				DrawFString(ui_x,4, 0xffffffff, 0, "%s (%s)", global_name, global_version);
-				DrawFString(ui_x,484, 0xffffffff, 0, "%s", splash);
-				DrawFString(ui_x,128, 0xffffffff, 0, "Press Start to continue.", LEVEL, DIFFICULTY);
-				DrawFString(ui_x,224, 0xffffffff, 0, "TRIANGLE - Credits");
+				DrawFString(0, ui_x,4, 0xffffffff, 0, "%s (%s)", global_name, global_version);
+				DrawFString(0, ui_x,484, 0xffffffff, 0, "%s", splash);
+				DrawFString(0, ui_x,128, 0xffffffff, 0, "Press Start to continue.", LEVEL, DIFFICULTY);
+				DrawFString(0, ui_x,224, 0xffffffff, 0, "TRIANGLE - Credits");
 				break;
 			}
 			case MENU:
@@ -426,6 +428,7 @@ void drawScene()
 				int x0, y0 = 0;
 				int zp = fp_back/5;
 				int mp = fp_back%5;
+				animc = (count_frames / 9) % 8;
 				
 				int tile_bg = (4*zp)+(mp * 20);
 				
@@ -440,19 +443,32 @@ void drawScene()
 				int zfp_x = 1184;
 				int zas_x = 1152;
 				
+				int zcs_y = 720;
+				
 				if(adventure_select) ze_x = (float)lerp(ze_x, -zas_x, 0.1f);
 				else if(free_play) ze_x = (float)lerp(ze_x, zfp_x, 0.1f);
 				else ze_x = (float)lerp(ze_x, 0, 0.1f);
 				
+				if(challenge_select) ze_y = (float)lerp(ze_y, -zcs_y, 0.1f);
+				else ze_y = (float)lerp(ze_y, 0, 0.1f);
+				
+				DrawFString(0, ze_x+ui_x, ze_y+4, 0xffffffff, 0, "Main Menu");
+				
 				SetTexture(9);
-				DrawSpriteUI(ui_x+ze_x+menu_x, 32, 512, 0, 960, 512, 1536, 1024, 224, 256, 4, color);
-				DrawSpriteUI(ui_x+ze_x+menu_x+262, 32, 512, 512, 960, 1024, 1536, 1024, 224, 256, 4, color);
-				DrawSpriteUI(ui_x+ze_x+menu_x+(262*2), 32, 960, 0, 960+448, 512, 1536, 1024, 224, 256, 4, color);
-				DrawSpriteUI(ui_x+ze_x+menu_x+(262*3), 32, 960, 512, 960+448, 1024, 1536, 1024, 224, 256, 4, color);
-				//DrawFString(ze_x+ui_x,128, 0xffffffff, 0, "CROSS - New Game");
-				//DrawFString(ze_x+ui_x,160, 0xffffffff, 0, "TRIANGLE - Continue");
-				//DrawFString(ze_x+ui_x,192, 0xffffffff, 0, "SQUARE - Freeplay");
-				DrawFString(ze_x+ui_x,290, 0xffffffff, 0, "LEVEL: %d", LEVEL);
+				DrawSpriteUI(ui_x+ze_x+menu_x, ze_y+48, 512, 0, 960, 512, 1536, 1024, 224, 256, 4, color);
+				DrawSpriteUI(ui_x+ze_x+menu_x+262, ze_y+48, 512, 512, 960, 1024, 1536, 1024, 224, 256, 4, color);
+				DrawSpriteUI(ui_x+ze_x+menu_x+(262*2), ze_y+48, 960, 0, 960+448, 512, 1536, 1024, 224, 256, 4, color);
+				DrawSpriteUI(ui_x+ze_x+menu_x+(262*3), ze_y+48, 960, 512, 960+448, 1024, 1536, 1024, 224, 256, 4, color);
+				DrawFString(0, ze_x+ui_x, ze_y+320, 0xffffffff, 0, "        ^^^^^^^^");
+				
+				if(LEVEL>0)
+				{
+					DrawFString(0, ze_x+ui_x, ze_y+322, 0xffffffff, 0, "TRIANGLE - CONTINUE");
+					DrawFString(0, ze_x+ui_x, ze_y+354, 0xffffffff, 0, "%d-%d", EPISODE, LEVEL);
+				}
+				
+				DrawFString(0, ze_x+ui_x, ze_y+386, 0xffffffff, 0, "%s", menu_title[menu_pos]);
+				DrawFString(52, ze_x+ui_x, ze_y+420, 0xffffffff, 0, "%s", menu_desc[menu_pos]);
 				
 				u32 color1 = 0xffffffff;
 				u32 color2 = 0xffffffff;
@@ -464,37 +480,44 @@ void drawScene()
 				if(DIFFICULTY==2) color3 = 0xffffffff; else color3 = 0xaaaaaaff;
 				if(DIFFICULTY==3) color4 = 0xffffffff; else color4 = 0xaaaaaaff;
 				
+				DrawFString(0, ze_x+zas_x, ze_y+4, 0xffffffff, 0, "Adventure Menu");
 				SetTexture(9);
-				DrawSpriteUI(ze_x+zas_x, 32, 0, 0, 512, 128, 1536, 1024, 256, 64, 4, color1);
-				DrawSpriteUI(ze_x+zas_x, 100, 0, 128, 512, 256, 1536, 1024, 256, 64, 4, color2);
-				DrawSpriteUI(ze_x+zas_x, 168, 0, 256, 512, 384, 1536, 1024, 256, 64, 4, color3);
-				DrawSpriteUI(ze_x+zas_x, 236, 0, 384, 512, 512, 1536, 1024, 256, 64, 4, color4);
-				DrawFString(ze_x+zas_x, 322, 0xffffffff, 0, "EPISODE: %d", EPISODE);
+				DrawSpriteUI(ze_x+zas_x, ze_y+48, 0, 0, 512, 128, 1536, 1024, 256, 64, 4, color1);
+				DrawSpriteUI(ze_x+zas_x, ze_y+116, 0, 128, 512, 256, 1536, 1024, 256, 64, 4, color2);
+				DrawSpriteUI(ze_x+zas_x, ze_y+184, 0, 256, 512, 384, 1536, 1024, 256, 64, 4, color3);
+				DrawSpriteUI(ze_x+zas_x, ze_y+252, 0, 384, 512, 512, 1536, 1024, 256, 64, 4, color4);
+				DrawFString(0, ze_x+zas_x, ze_y+322, 0xffffffff, 0, "EPISODE: %d", EPISODE);
 				
-				DrawFString(ze_x+ui_x-zfp_x,4, 0xffffffff, 0, "Freeplay Menu");
-				DrawFString(ze_x+ui_x-zfp_x,64, 0xffffffff, 0, "Width: %d", fp_width);
-				DrawFString(ze_x+ui_x-zfp_x,96, 0xffffffff, 0, "Height: %d", fp_height);
-				DrawFString(ze_x+ui_x-zfp_x,128, 0xffffffff, 0, "Mines count: %d", fp_mines);
-				DrawFString(ze_x+ui_x-zfp_x,160, 0xffffffff, 0, "Doubles count: %d", fp_doubles);
-				DrawFString(ze_x+ui_x-zfp_x,192, 0xffffffff, 0, "Halves count: %d", fp_halfes);
-				DrawFString(ze_x+ui_x-zfp_x,224, 0xffffffff, 0, "Antis count: %d (WIP)", fp_antis);
+				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+4, 0xffffffff, 0, "Freeplay Menu");
+				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+64, 0xffffffff, 0, "Width: %d", fp_width);
+				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+96, 0xffffffff, 0, "Height: %d", fp_height);
+				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+128, 0xffffffff, 0, "Mines count: %d", fp_mines);
+				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+160, 0xffffffff, 0, "Doubles count: %d", fp_doubles);
+				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+192, 0xffffffff, 0, "Halves count: %d", fp_halfes);
+				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+224, 0xffffffff, 0, "Antis count: %d (WIP)", fp_antis);
 				
-				if(fp_music==99) DrawFString(ze_x+ui_x-zfp_x,256, 0xffffffff, 0, "Music Type: CUSTOM");
-				else DrawFString(ze_x+ui_x-zfp_x,256, 0xffffffff, 0, "Music Type: %d", fp_music);
+				if(fp_music==99) DrawFString(0, ze_x+ui_x-zfp_x, ze_y+256, 0xffffffff, 0, "Music Type: CUSTOM");
+				else DrawFString(0, ze_x+ui_x-zfp_x, ze_y+256, 0xffffffff, 0, "Music Type: %d", fp_music);
 				
 				if(fp_menu==6)
 				{
-					if(fp_music==99) DrawFString(ze_x+ui_x-zfp_x+320,256, 0xffffffff, 0, "SQUARE - Disable Custom Music");
-					else DrawFString(ze_x+ui_x-zfp_x+320,256, 0xffffffff, 0, "SQUARE - Enable Custom Music");
+					if(fp_music==99) DrawFString(0, ze_x+ui_x-zfp_x+320, ze_y+256, 0xffffffff, 0, "SQUARE - Disable Custom Music");
+					else DrawFString(0, ze_x+ui_x-zfp_x+320, ze_y+256, 0xffffffff, 0, "SQUARE - Enable Custom Music");
 				}
-				DrawFString(ze_x+ui_x-zfp_x,288, 0xffffffff, 0, "Background Type: %d", (fp_back+1));
-				DrawFString(ze_x+ui_x-zfp_x,386, 0xffffffff, 0, "START - Start the game");
-				DrawFString(ze_x+ui_x-zfp_x,418, 0xffffffff, 0, "CIRCLE - Go Back");
-				DrawFString(ze_x+ui_x-zfp_x,450, 0xffffffff, 0, "SELECT - The Big One with 111 Mines");
-				DrawFString(ze_x+ui_x-zfp_x,482, 0xffffffff, 0, "TRIANGLE - Bad Apple!! (Requires DLC)");
+				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+288, 0xffffffff, 0, "Background Type: %d", (fp_back+1));
+				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+386, 0xffffffff, 0, "START - Start the game");
+				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+418, 0xffffffff, 0, "CIRCLE - Go Back");
+				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+450, 0xffffffff, 0, "SELECT - The Big One with 111 Mines");
+				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+482, 0xffffffff, 0, "TRIANGLE - Bad Apple!! (Requires DLC)");
 				
-				DrawFString(ze_x+ui_x-zfp_x+292,64+(fp_menu*32), 0xffffffff, 0, "<");
+				DrawFString(0, ze_x+ui_x-zfp_x+292, ze_y+64+(fp_menu*32), 0xffffffff, 0, "<");
+				
+				DrawFString(0, ze_x+ui_x, ze_y+zcs_y+4, 0xffffffff, 0, "Challenges Menu");
+				DrawFString(0, ze_x+ui_x, ze_y+zcs_y+64, 0xffffffff, 0, "This menu is currently in works :)");
 
+				SetTexture(10);
+				DrawSprite2D(animc, ui_x+818, 4, 32, 32, 64, 64, 512, 64, 0, 0xffffffff);
+				DrawTextAligned(0, ui_x+600, ui_x+800, 4, 2, 0xffffffff, 0, 14, "%d", global_minecoins);
 				break;
 			}
 			case MAP:
@@ -519,20 +542,20 @@ void drawScene()
 					int random_mine = rand() % 1998;
 					random_mine -= 999;
 					
-					if(!boss9_cutscene) DrawFString(94, -26, 0xff0000ff, 1, "???");
-					else DrawFString(94, -26, 0xff0000ff, 1, "%03d", random_mine);
+					if(!boss9_cutscene) DrawFString(0, 94, -26, 0xff0000ff, 1, "???");
+					else DrawFString(0, 94, -26, 0xff0000ff, 1, "%03d", random_mine);
 				}
-				else DrawFString(94, -26, 0xff0000ff, 1, "%03d", mines_count);
-				DrawFString(714,-26, 0xff0000ff, 1, "%03d", the_timer);
+				else DrawFString(0, 94, -26, 0xff0000ff, 1, "%03d", mines_count);
+				DrawFString(0, 714,-26, 0xff0000ff, 1, "%03d", the_timer);
 				SetTexture(0);
 				SetFontSize(28, 32);
 				
 				int capt_state = getCaptainState(anim1, anim2);
 				
 				DrawSprite2D(capt_state, 375, -14, 94, 94, 40, 40, 960, 560, 0, color);
-				//DrawFString(-20,32, 0xffffffff, 0, "TOTAL MINECOINS: %d", global_minecoins);
-				//DrawFString(-20,64, 0xffffffff, 0, "MINECOINS: %d", current_minecoins);
-				DrawFString(-20,88, 0xffffffff, 0, "FPS: %d", fps);
+				//DrawFString(0, -20,32, 0xffffffff, 0, "TOTAL MINECOINS: %d", global_minecoins);
+				//DrawFString(0, -20,64, 0xffffffff, 0, "MINECOINS: %d", current_minecoins);
+				DrawFString(0, -20,88, 0xffffffff, 0, "FPS: %d", fps);
 				
 				if(global_route==1) SetTexture(4); else SetTexture(3);
 				
@@ -619,23 +642,23 @@ void drawScene()
 				
 				if(gamelose)
 				{
-					DrawFString(-20,160, 0xffffffff, 0, "GAME OVER");
-					DrawFString(-20,192, 0xffffffff, 0, "PRESS START");
+					DrawFString(0, -20,160, 0xffffffff, 0, "GAME OVER");
+					DrawFString(0, -20,192, 0xffffffff, 0, "PRESS START");
 				}
 				else if(gamewin)
 				{
-					DrawFString(-20,160, 0xffffffff, 0, "LEVEL CLEAR!");
-					DrawFString(-20,320, 0xffffffff, 0, "+ %d Minecoins!", level_minecoins);
-					DrawFString(-20,356, 0xffffffff, 0, "%.2f seconds", timer_seconds);
+					DrawFString(0, -20,160, 0xffffffff, 0, "LEVEL CLEAR!");
+					DrawFString(0, -20,320, 0xffffffff, 0, "+ %d Minecoins!", level_minecoins);
+					DrawFString(0, -20,356, 0xffffffff, 0, "%.2f seconds", timer_seconds);
 					if(!free_play)
 					{
-						DrawFString(-20,192, 0xffffffff, 0, "START - Next Level");
-						DrawFString(-20,224, 0xffffffff, 0, "SELECT - Save Progress");
+						DrawFString(0, -20,192, 0xffffffff, 0, "START - Next Level");
+						DrawFString(0, -20,224, 0xffffffff, 0, "SELECT - Save Progress");
 					}
 					else
 					{
-						DrawFString(-20,192, 0xffffffff, 0, "START - Continue");
-						DrawFString(-20,224, 0xffffffff, 0, "SELECT - Reset");
+						DrawFString(0, -20,192, 0xffffffff, 0, "START - Continue");
+						DrawFString(0, -20,224, 0xffffffff, 0, "SELECT - Reset");
 					}
 				}
 				
@@ -651,12 +674,30 @@ void drawScene()
 	else
 	{
 		SetFontSize(24, 28);
-		DrawFString(4,4,0xff0000ff,1,"Made by AcidNT3.1 Productions");
-		DrawFString(4,36,0xff0000ff,1,"Loading...");
-		DrawFString(4,128,0xff0000ff,1,"Welcome to PS3Sweeper+!");
-		DrawFString(4,156,0xff0000ff,1,"This game is still under VERY HUGE development.");
-		DrawFString(4,188,0xff0000ff,1,"Please join my discord server to not miss out new updates!");
-		DrawFString(4,220,0xff0000ff,1,"LINK: https://discord.gg/7XuQDYjyzt");
+		DrawFString(0, 4,4,0x3333ffff,0,"Made by AcidNT3.1 Productions");
+		
+		if(game_init == 0)
+		{
+			DrawFString(0, 4,96,0xffffffff,0,"Welcome to PS3Sweeper+!");
+			DrawFString(0, 4,156,0xffffffff,0,"Warning! This game uses auto-save feature.");
+			DrawFString(0, 4,188,0xffffffff,0,"When you see the \"SAVING...\" text, it saves your data.");
+			DrawFString(0, 4,252,0xff0000ff,0,"Please, do NOT turn off your PlayStation 3 system while the \"SAVING...\"");
+			DrawFString(0, 4,284,0xff0000ff,0,"text is on-screen.");
+			DrawFString(0, 4,348,0x00aa00ff,0,"X - I understand.");
+		}
+		else
+		{
+			DrawFString(0, 4,36,0xffffffff,0,"Loading...");
+			DrawFString(0, 4,96,0xffffffff,0,"This game is still under VERY HUGE development.");
+			DrawFString(0, 4,188,0xffffffff,0,"Please join my discord server to not miss out new updates!");
+			DrawFString(0, 4,220,0xffffffff,0,"LINK: https://discord.gg/7XuQDYjyzt");
+		}
+	}
+	
+	if(save_running)
+	{
+		SetFontSize(28, 32);
+		DrawTextAligned(0, 600, 848, 512, 2, 0xffffffff, 0, 14, "SAVING...");
 	}
 }
 
@@ -687,7 +728,7 @@ void LoadTexture()
     }
 }
 
-void DrawFString(float x, float y, u32 textColor, int BW, const char *fmt, ...)
+void DrawFString(int wrap, float x, float y, u32 textColor, int BW, const char *fmt, ...)
 {
     char buffer[1024];
 	u32 shadowColor = 0x000000ff;
@@ -700,9 +741,38 @@ void DrawFString(float x, float y, u32 textColor, int BW, const char *fmt, ...)
     va_end(args);
 
     SetFontColor(shadowColor, 0x00000000);
-	DrawFormatString(x + 2, y + 2, buffer);
+	
+	if(wrap==0) DrawFormatString(x + 2, y + 2, buffer);
+	else DrawWrappedText(x + 2, y + 2, 32, wrap, buffer);
+	
     SetFontColor(textColor, 0x00000000);
-    DrawFormatString(x, y, buffer);
+	
+	if(wrap==0) DrawFormatString(x, y, buffer);
+	else DrawWrappedText(x, y, 32, wrap, buffer);
+}
+
+int GetFontWidth(const char *text, int fz)
+{
+    return strlen(text) * fz;
+}
+
+void DrawTextAligned(int wrap, float x1, float x2, float y, int align, u32 tc, int bw, int fsize, const char *text, ...)
+{
+    char bufferz[1024];
+    va_list args;
+    va_start(args, text);
+    vsnprintf(bufferz, sizeof(bufferz), text, args);
+    va_end(args);
+	
+    int width = GetFontWidth(bufferz, fsize);
+    float x;
+
+    if(align == 0) x = x1;
+    else if(align == 1) x = x1 + ((x2 - x1) - width) / 2.0f;
+    else x = x2 - width;
+
+    //DrawFormatString(x, y, "%s", text);
+	DrawFString(wrap, x, y, tc, bw, bufferz);
 }
 
 void zoomCheck(int zoom)
