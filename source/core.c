@@ -341,7 +341,7 @@ void WinCheck()
 	
 	if(revealed_total >= valid_total)
 	{
-		printf("game won!\n");
+		DebugLog("game won!");
 		gamewin = 1;
 		mines_count = 0;
 		timer_running = 0;
@@ -486,7 +486,8 @@ void Chord(int x, int y)
         }
     }
 	
-	//printf("%d/%d\n", flags, required);
+	char debug1[256];
+    DebugLog(debug1);
 	
     if(flags == required)
     {
@@ -515,7 +516,8 @@ void Chord(int x, int y)
 
 int FlagValue(int flag)
 {
-	//printf("FLAG TYPE: %d\n", flag);
+	char debug1[256];
+    DebugLog(debug1);
     switch(flag)
     {
         case 1: return 1;   // Half

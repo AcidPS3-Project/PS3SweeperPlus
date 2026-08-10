@@ -23,29 +23,90 @@ void TTF_to_Bitmap(u8 chr, u8 * bitmap, short *w, short *h, short *y_correction)
     FT_Set_Pixel_Sizes(face, (*w), (*h));
     FT_GlyphSlot slot = face->glyph;
     memset(bitmap, 0, (*w) * (*h));
-    if(FT_Load_Char(face, (char) chr, FT_LOAD_RENDER )) {(*w) = 0; return;}
+    
+    uint32_t unicode_cp = chr;
+    int is_kazakh_qa = 0;
+    
+    if      (chr == 0xA1) unicode_cp = 0x04D8;
+    else if (chr == 0xA2) unicode_cp = 0x04D9;
+    else if (chr == 0xA3) unicode_cp = 0x0492;
+    else if (chr == 0xA4) unicode_cp = 0x0493;
+	
+    else if (chr == 0xA5) { unicode_cp = 0x049A; is_kazakh_qa = 1; }
+	else if (chr == 0xA6) { unicode_cp = 0x049B; is_kazakh_qa = 2; }
+	
+    else if (chr == 0xA7) unicode_cp = 0x04A2;
+    else if (chr == 0xAA) unicode_cp = 0x04A3;
+	
+    else if (chr == 0xAB) unicode_cp = 0x04E8;
+    else if (chr == 0xAC) unicode_cp = 0x04E9;
+    else if (chr == 0xAD) unicode_cp = 0x04AE;
+    else if (chr == 0xAE) unicode_cp = 0x04AF;
+    else if (chr == 0xAF) unicode_cp = 0x04B0;
+    else if (chr == 0xB0) unicode_cp = 0x04B1;
+    else if (chr == 0xB1) unicode_cp = 0x04BA;
+    else if (chr == 0xB2) unicode_cp = 0x04BB;
+    else if (chr == 0xB8) unicode_cp = 0x0451;
+	
+    else if (chr >= 192 && chr <= 255) unicode_cp = (uint32_t)chr + 0x0350;
+    else if (chr == 168) unicode_cp = 0x0401;
+    else if (chr == 184) unicode_cp = 0x0451;
+	
+    if (chr == 0xA5 || chr == 0xA6) {
+        printf("[DEBUG FONT] Loading index: 0x%02X\n", chr);
+    }
+	
+    if(FT_Load_Char(face, unicode_cp, FT_LOAD_RENDER )) {(*w) = 0; return;}
+    
     int n, m, ww;
+    int target_w = *w;
+    int target_h = *h;
 
-    *y_correction = (*h) - 1 - slot->bitmap_top;
+    *y_correction = target_h - 1 - slot->bitmap_top;
     ww = 0;
 
     for(n = 0; n < slot->bitmap.rows; n++)
-	{
+    {
         for (m = 0; m < slot->bitmap.width; m++)
-		{
-            if(m >= (*w) || n >= (*h)) continue;
+        {
+            if(m >= target_w || n >= target_h) continue;
             bitmap[m] = (u8) slot->bitmap.buffer[ww + m];
         }
-		bitmap += *w;
-		ww += slot->bitmap.width;
+        bitmap += target_w;
+        ww += slot->bitmap.width;
+    }
+
+    bitmap -= (target_w * slot->bitmap.rows);
+
+    if (is_kazakh_qa > 0) {
+        int base_row = slot->bitmap.rows - 1;
+        int right_edge = slot->bitmap.width - 1;
+        
+        if (right_edge > target_w - 4) right_edge = target_w - 4;
+
+        if (base_row > 0 && right_edge > 0) {
+            bitmap[(base_row * target_w) + right_edge + 1] = 255;
+            bitmap[(base_row * target_w) + right_edge + 2] = 255;
+            if (base_row + 1 < target_h) {
+                bitmap[((base_row + 1) * target_w) + right_edge + 2] = 255;
+            }
+        }
     }
 
     *w = ((slot->advance.x + 31) >> 6) + ((slot->bitmap_left < 0) ? -slot->bitmap_left : 0);
+    
+    if (is_kazakh_qa > 0) {
+        *w += 3; 
+    }
+    
     *h = slot->bitmap.rows;
 }
 
 void DrawWrappedText(float x, float y, float line_h, int max_chars, const char *text)
 {
+    char cp1251_text[1024];
+    utf8_to_cp1251(text, cp1251_text, sizeof(cp1251_text));
+
     char line[512];
     char word[128];
     int line_len = 0;
@@ -57,9 +118,8 @@ void DrawWrappedText(float x, float y, float line_h, int max_chars, const char *
 
     while(1)
     {
-        char c = text[i];
+        char c = cp1251_text[i];
 
-        // build current word
         if(c != ' ' && c != '\0' && c != '\n')
         {
             if(word_len < sizeof(word) - 1)
@@ -69,13 +129,12 @@ void DrawWrappedText(float x, float y, float line_h, int max_chars, const char *
             }
         }
 
-        // if word ended / newline / end of string
         if(c == ' ' || c == '\0' || c == '\n')
         {
             if(word_len > 0)
             {
                 int needed = word_len;
-                if(line_len > 0) needed += 1; // space
+                if(line_len > 0) needed += 1;
 
                 if(line_len + needed > max_chars)
                 {
@@ -115,4 +174,44 @@ void DrawWrappedText(float x, float y, float line_h, int max_chars, const char *
     }
 
     if(line_len > 0) DrawFormatString(x, y, "%s", line);
+}
+
+void utf8_to_cp1251(const char* src, char* dest, size_t max_len)
+{
+    size_t i = 0, j = 0;
+    while (src[i] != '\0' && j < max_len - 1)
+	{
+        unsigned char c1 = (unsigned char)src[i];
+        unsigned char c2 = (unsigned char)src[i + 1];
+
+        if (c1 == 0xD3 && c2 == 0x98) { dest[j++] = (char)0xA1; i += 2; continue; } // Ә
+        if (c1 == 0xD3 && c2 == 0x99) { dest[j++] = (char)0xA2; i += 2; continue; } // ә
+        if (c1 == 0xD2 && c2 == 0x92) { dest[j++] = (char)0xA3; i += 2; continue; } // Ғ
+        if (c1 == 0xD2 && c2 == 0x93) { dest[j++] = (char)0xA4; i += 2; continue; } // ғ
+        
+        if (c1 == 0xD2 && c2 == 0x9A) { dest[j++] = (char)0xA5; i += 2; continue; } // Қ
+        if (c1 == 0xD2 && c2 == 0x9B) { dest[j++] = (char)0xA6; i += 2; continue; } // қ
+        
+        if (c1 == 0xD2 && c2 == 0xA2) { dest[j++] = (char)0xA7; i += 2; continue; } // Ң
+        if (c1 == 0xD2 && c2 == 0xA3) { dest[j++] = (char)0xAA; i += 2; continue; } // ң
+        if (c1 == 0xD3 && c2 == 0xA8) { dest[j++] = (char)0xAB; i += 2; continue; } // Ө
+        if (c1 == 0xD3 && c2 == 0xA9) { dest[j++] = (char)0xAC; i += 2; continue; } // ө
+        if (c1 == 0xD2 && c2 == 0xAE) { dest[j++] = (char)0xAD; i += 2; continue; } // Ұ
+        if (c1 == 0xD2 && c2 == 0xAF) { dest[j++] = (char)0xAE; i += 2; continue; } // ұ
+        if (c1 == 0xD2 && c2 == 0xB0) { dest[j++] = (char)0xAF; i += 2; continue; } // Ү
+        if (c1 == 0xD2 && c2 == 0xB1) { dest[j++] = (char)0xB0; i += 2; continue; } // ү
+        if (c1 == 0xD2 && c2 == 0xBA) { dest[j++] = (char)0xB1; i += 2; continue; } // Һ
+        if (c1 == 0xD2 && c2 == 0xBB) { dest[j++] = (char)0xB2; i += 2; continue; } // һ
+        if (c1 == 0xD0 && c2 == 0x86) { dest[j++] = (char)0x49; i += 2; continue; } // І
+        if (c1 == 0xD1 && c2 == 0x96) { dest[j++] = (char)0x69; i += 2; continue; } // і
+
+        if (c1 == 0xD0 && c2 == 0x81) { dest[j++] = (char)0xA8; i += 2; continue; } // Ё
+        if (c1 == 0xD1 && c2 == 0x91) { dest[j++] = (char)0xB8; i += 2; continue; } // ё
+        
+        if (c1 == 0xD0 && c2 >= 0x90 && c2 <= 0xBF) { dest[j++] = (char)(c2 + 0x30); i += 2; continue; }
+        if (c1 == 0xD1 && c2 >= 0x80 && c2 <= 0x8F) { dest[j++] = (char)(c2 + 0x70); i += 2; continue; }
+
+        dest[j++] = src[i++];
+    }
+    dest[j] = '\0';
 }

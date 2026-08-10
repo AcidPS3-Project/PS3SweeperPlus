@@ -16,6 +16,7 @@ float RENDERING_SIZE = 2.0f;
 int FIRST_CLICK = 1;
 
 int i_10 = 0;
+int language = 0;
 
 float timer_seconds = 0;
 int timer_running = 0;
@@ -82,6 +83,58 @@ void UpdateFPS()
     }
 }
 
+void LangInit()
+{
+	switch(language)
+	{
+		default:
+		{
+			langStr[0] = "Loading...";
+			langStr[1] = "Saving...";
+			langStr[2] = "Made by AcidNT3.1 Productions";
+			langStr[3] = "Welcome to PS3Sweeper+!";
+			langStr[4] = "Warning! This game uses auto-save feature.";
+			langStr[5] = "When you see the \"Saving...\" text, it saves your data.";
+			langStr[6] = "Please, do NOT turn off your PlayStation 3 system while the \"Saving...\"";
+			langStr[7] = "text is on-screen.";
+			langStr[8] = "X - I understand.";
+			langStr[9] = "This game is still under VERY HUGE development.";
+			langStr[10] = "Please join my discord server to not miss out new updates!";
+			langStr[11] = "LINK: https://discord.gg/7XuQDYjyzt";
+			langStr[12] = "There is nothing to load.";
+			langStr[13] = "Press Start to continue.";
+			langStr[14] = "TRIANGLE - Credits";
+			langStr[15] = "TRIANGLE - CONTINUE";
+			langStr[16] = "Main Menu";
+			langStr[17] = "Adventure Menu";
+			langStr[18] = "Width";
+			langStr[19] = "Height";
+			langStr[20] = "Mines count";
+			langStr[21] = "Doubles count";
+			langStr[22] = "Halves count";
+			langStr[23] = "Antis count";
+			langStr[24] = "EPISODE";
+			langStr[25] = "";
+			langStr[26] = "";
+			langStr[27] = "";
+			langStr[28] = "";
+			langStr[29] = "";
+			langStr[30] = "";
+			langStr[31] = "";
+			langStr[32] = "";
+			langStr[33] = "";
+			langStr[34] = "";
+			langStr[35] = "";
+			langStr[36] = "";
+			langStr[37] = "";
+			langStr[38] = "";
+			langStr[39] = "";
+			langStr[40] = "";
+			break;
+		}
+	}
+}
+
 void SplashesInit()
 {
 	splash_count = 0;
@@ -89,15 +142,12 @@ void SplashesInit()
 	
 	splashes_random[splash_count++] = "Sweeping on PS3!";
 	splashes_random[splash_count++] = "This is NOT a port!";
-	splashes_random[splash_count++] = "DualShock supported";
 	splashes_random[splash_count++] = "Does not require PS Eye!";
-	//splashes_random[splash_count++] = "When Full Touhou Route?";
-	//splashes_random[splash_count++] = "When Custom Sweeper?";
-	//splashes_random[splash_count++] = "When NaN?";
 	splashes_random[splash_count++] = "April fools joke was peak";
 	splashes_random[splash_count++] = "Contains touhouslop";
 	splashes_random[splash_count++] = "Why so serious?";
-	splashes_random[splash_count++] = "Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven\nSix Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven\nSix Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven Six Seven";
+	splashes_random[splash_count++] = "Keyboard is real?";
+	splashes_random[splash_count++] = "Removed 514 Boss";
 	splashes_random[splash_count++] = "Join AcidPS3 Server! https://discord.gg/7XuQDYjyzt";
 	splashes_random[splash_count++] = "Play the original game first!";
 	splashes_random[splash_count++] = "Also play yawn's minesweeper";
@@ -113,6 +163,7 @@ void SplashesInit()
 	splashes_random[splash_count++] = "Also play PolySweep (if it comes out)";
 	splashes_random[splash_count++] = "Also play Minesweeper Plus: Deluxe (if it comes out)";
 	splashes_random[splash_count++] = "Also play Minesweeper Plus: Community Edition";
+	splashes_random[splash_count++] = "Also play Minesweeper Oddysey (if it comes out)";
 	splashes_random[splash_count++] = "The MORSHU.";
 	splashes_random[splash_count++] = "Why it was rewritten?";
 	splashes_random[splash_count++] = "Better, than Minesweeper Plus: PS3 Edition";
@@ -124,22 +175,29 @@ void SplashesInit()
 	splashes_random[splash_count++] = "Reality Synthesizer can fail?";
 	//splashes_random[splash_count++] = "NEC-Tokens included!";
 	splashes_random[splash_count++] = "I really suck at PS3 games coding.";
-	splashes_random[splash_count++] = "Languages not coming since technical encoding issues, sorry.";
 	splashes_random[splash_count++] = "Definitely does NOT work with aPS3e!";
 	splashes_random[splash_count++] = "May work with RPCS3, but freezes rarely happen. Be careful!";
 	splashes_random[splash_count++] = "Watch no one play this";
 	splashes_random[splash_count++] = "The definition of Insanity.";
-	splashes_random[splash_count++] = "up up down down left right left right circle cross start.\n    oh wait, it doesnt work";
-	splashes_random[splash_count++] = "why did i stay all night for this";
-	splashes_random[splash_count++] = "Hold START + L3 + R3 for a surprise.";
+	splashes_random[splash_count++] = "up up down down left right left right circle cross start.\n   oh wait, it doesnt work";
+	splashes_random[splash_count++] = "why do i stay all night for this";
 	splashes_random[splash_count++] = "Eleven and twelve coming soon, trust";
-	splashes_random[splash_count++] = "I wanna try making MS+ for PS1 sometime soon.";
+	splashes_random[splash_count++] = "I wanna try making MS+ for PS1 sometime soon. Wait a second...";
 	splashes_random[splash_count++] = "What R2 do? BEEP BEEP BEEP";
-	splashes_random[splash_count++] = "48x36 boards DO NOT GIVE YOU FRAMEDROPS YIPPEEEEE!!!!!!!";
-	splashes_random[splash_count++] = "11 is coming...";
+	splashes_random[splash_count++] = "48x36 boards DO NOT GIVE YOU FRAMEDROPS!!!!!!!";
 	splashes_random[splash_count++] = "The Big LAG is no longer lagging?";
-	splashes_random[splash_count++] = "Fine. I removed curse words in splashes.";
 	splashes_random[splash_count++] = "Now with Full Episode 2!";
+	splashes_random[splash_count++] = "12 is coming...";
+	splashes_random[splash_count++] = "Minesweeper Plus on Java phones? Heh. Don't make me laugh.";
+	splashes_random[splash_count++] = "DoodleBob plays his game on PS3. Neat.";
+	splashes_random[splash_count++] = "The great fraction of time definition is... i forgor";
+	splashes_random[splash_count++] = "man why everyone focused on bruhsweeper delta -_-";
+	splashes_random[splash_count++] = "Привет, Россия!";
+	splashes_random[splash_count++] = "Сәлем, Қазақстан!";
+	splashes_random[splash_count++] = "01010000 01010011 00110011 !!!";
+	splashes_random[splash_count++] = "211208 :>";
+	splashes_random[splash_count++] = "Touhou mentioned";
+	splashes_random[splash_count++] = "True PS3 Gaming B)";
 	
 	FILE *z1 = fopen("/dev_hdd0/game/MINESWEEP/USRDIR/dlc00/data.dat", "rb");
 	FILE *z2 = fopen("/dev_hdd0/game/MINESWEEP/USRDIR/dlc00/mus.mp3", "rb");
@@ -161,11 +219,13 @@ void SplashesInit()
 		splashes_random[splash_count++] = "Bad Apple!! DLC Initialized!";
 		splashes_random[splash_count++] = "I am a Bad Apple!! addict.";
 		splashes_random[splash_count++] = "BAD APPLE!! SLOP";
+		DebugLog("Bad Apple!! DLC Init!");
 	}
 	else if(bad_apple_dlc_installed==1)
 	{
 		splashes_random[splash_count++] = "Bad Apple!! DLC not installed correctly.";
 		splashes_random[splash_count++] = "Please re-install Bad Apple!! DLC";
+		DebugLog("Bad Apple!! DLC Init fail.");
 	}
 };
 
@@ -470,6 +530,7 @@ void EmptyDialogCallback(msgButton button, void *usrData)
 
 void Initialize()
 {
+	DebugLog("Game initialization...");
 	u32 spu;
 	sysSpuImage spu_image;
 	sysSpuInitialize(6, 5);
@@ -491,4 +552,15 @@ void Initialize()
 void HolyShit()
 {
 	lv2syscall3(392, 0x1004, 0xA, 0x1B6);
+}
+
+void DebugLog(const char *text)
+{
+    FILE *fp = fopen("/dev_hdd0/game/MINESWEEP/USRDIR/logstuff.txt", "ab");
+
+    if(fp)
+    {
+        fprintf(fp, "%s\n", text);
+        fclose(fp);
+    }
 }

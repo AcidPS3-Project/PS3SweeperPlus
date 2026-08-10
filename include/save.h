@@ -11,15 +11,18 @@ typedef struct
 	int save_current_minecoins;
 	int save_global_route;
 	int save_episode;
+	
 	int save_fp_w;
 	int save_fp_h;
 	int save_fp_m;
 	int save_fp_mus;
 	int save_fp_bg;
+	
+	int save_lang;
 } SaveData;
 
-SaveData gSave;
-sysSaveBufferSettings buffer;
+extern SaveData gSave;
+extern sysSaveBufferSettings buffer;
 
 extern volatile int save_running;
 
@@ -28,6 +31,18 @@ enum
     SAVE_ICON,
     SAVE_DATA,
     SAVE_DONE
+};
+
+enum
+{
+    LOAD_DATA,
+    LOAD_DONE
+};
+
+enum
+{
+    MODE_SAVE,
+    MODE_LOAD
 };
 
 void savestate_init();

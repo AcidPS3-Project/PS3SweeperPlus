@@ -143,7 +143,10 @@ int main(int argc, const char* argv[])
 	Initialize();
 	
 	SplashesInit();
-	for (dick = 0; dick < rand() % SplashesCount(); dick++) splash = splashes_random[rand() % SplashesCount()];
+	for (dick = 0; dick < rand() % SplashesCount(); dick++)
+	{
+		splash = splashes_random[rand() % SplashesCount()];
+	}
 	
 	boss9_started = 0;
 	boss10_started = 0;
@@ -154,6 +157,7 @@ int main(int argc, const char* argv[])
 	
 	ioPadInit(7);
     LoadTexture();
+	LangInit();
 	
 	StartLoad();
 	
@@ -284,8 +288,6 @@ int main(int argc, const char* argv[])
 										in_game = 1;
 									}
 									
-									//if(paddata.BTN_R2 && !oldpad.BTN_R2) HolyShit();
-									
 									if(paddata.BTN_LEFT && !oldpad.BTN_LEFT)
 									{
 										menu_pos--;
@@ -385,7 +387,7 @@ int main(int argc, const char* argv[])
 								{
 									if(bad_apple_init())
 									{
-										printf("Loaded Bad Apple!!\n");
+										DebugLog("Loaded Bad Apple!!");
 										LoadFPLevel();
 									}
 								}
@@ -651,7 +653,7 @@ int main(int argc, const char* argv[])
 										if (rand() % 2) boss10_list[i_10].vsp = -boss10_list[i_10].vsp;
 										
 										i_10++;
-										if(i_10>boss10_count) i_10=0;
+										if(i_10>boss10_count-1) i_10=0;
 									}
 								}
 								if(paddata.BTN_TRIANGLE && !oldpad.BTN_TRIANGLE && boss9_started) WinCheck();
@@ -749,28 +751,7 @@ int main(int argc, const char* argv[])
 		}
 		
 		
-		if(game_init)
-		{
-			game_init = 0;
-			
-			LEVEL = gSave.save_level;
-			current_minecoins = gSave.save_current_minecoins;
-			global_minecoins = gSave.save_global_minecoins;
-			EPISODE = gSave.save_episode;
-			fp_width = gSave.save_fp_w;
-			fp_height = gSave.save_fp_h;
-			fp_mines = gSave.save_fp_m;
-			fp_music = gSave.save_fp_mus;
-			fp_back = gSave.save_fp_bg;
-			printf("loaded!\n");
-			
-			if(EPISODE<1) EPISODE=1;
-			if(fp_width<1) fp_width=9;
-			if(fp_height<1) fp_height=9;
-			if(fp_mines<1) fp_mines=10;
-			if(fp_music<1) fp_music=1;
-		}
-		else if(!game_loaded)
+		if(game_init && !game_loaded)
 		{
 			ioPadGetInfo(&padinfo);
 			for(ip = 0; ip < MAX_PADS; ip++)
@@ -782,7 +763,7 @@ int main(int argc, const char* argv[])
 					{
 						game_loaded = 1;
 						start_music = 1;
-						printf("starting the game\n");
+						DebugLog("starting the game");
 					}
 					oldpad = paddata;
 				}

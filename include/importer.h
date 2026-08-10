@@ -6,6 +6,8 @@
 extern char global_name[];
 extern char global_version[];
 
+const char *langStr[1024];
+
 #include "asimov_ttf_bin.h"
 
 #include "soundlib/spu_soundlib.h"
@@ -101,6 +103,7 @@ extern float RENDERING_SIZE;
 extern int FIRST_CLICK;
 
 extern int i_10;
+extern int language;
 
 extern float timer_seconds;
 extern int timer_running;
@@ -180,6 +183,7 @@ int bgm_end[BGM_LIST];
 int LoadSFX();
 void init_sfx();
 void init_bgm();
+void LangInit();
 
 int RandRange(int min, int max);
 int max(int min, int max);
@@ -205,6 +209,7 @@ extern int menu_pos;
 
 float lerp(int x, int y, float amount);
 
+void DebugLog(const char *text);
 
 const char *menu_title[10];
 const char *menu_desc[10];
