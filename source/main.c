@@ -140,17 +140,14 @@ int main(int argc, const char* argv[])
 	
 	sysModuleLoad(SYSMODULE_PNGDEC);
 	savestate_init();
-	Initialize();
-	
 	SplashesInit();
-	for (dick = 0; dick < rand() % SplashesCount(); dick++)
-	{
-		splash = splashes_random[rand() % SplashesCount()];
-	}
+	Initialize();
 	
 	boss9_started = 0;
 	boss10_started = 0;
 	boss11_started = 0;
+	
+	the_hat = 0;
 	
 	init_bgm();
 	init_sfx();
@@ -208,6 +205,12 @@ int main(int argc, const char* argv[])
 									EmptyDialogCallback, NULL, NULL);
 							}
 							
+							if(paddata.BTN_L2 && !oldpad.BTN_L2)
+							{
+								if(language==0) language=1; else language=0;
+								LangInit();
+							}
+							
 							break;
 						}
 						case MENU:
@@ -228,6 +231,7 @@ int main(int argc, const char* argv[])
 									{
 										if(paddata.BTN_R3) global_route = 1;
 										LEVEL = 0;
+										DIFFICULTY = DIFFICULTYs;
 										if(paddata.BTN_L2)
 										{
 											EPISODE = 3;
@@ -245,13 +249,13 @@ int main(int argc, const char* argv[])
 									}
 									if(paddata.BTN_UP && !oldpad.BTN_UP)
 									{
-										DIFFICULTY--;
-										if (DIFFICULTY<0) DIFFICULTY = 0;
+										DIFFICULTYs--;
+										if (DIFFICULTYs<0) DIFFICULTYs = 0;
 									}
 									if(paddata.BTN_DOWN && !oldpad.BTN_DOWN)
 									{
-										DIFFICULTY++;
-										if (DIFFICULTY>3) DIFFICULTY = 3;
+										DIFFICULTYs++;
+										if (DIFFICULTYs>3) DIFFICULTYs = 3;
 									}
 									if(paddata.BTN_LEFT && !oldpad.BTN_LEFT)
 									{
@@ -441,7 +445,11 @@ int main(int argc, const char* argv[])
 								if(paddata.BTN_SELECT && !oldpad.BTN_SELECT)
 								{
 									if(free_play) LoadFPLevel();
-									else GoBackToTitle();
+									else
+									{
+										LEVEL++;
+										GoBackToTitle();
+									}
 								}
 
 								if(paddata.BTN_START && !oldpad.BTN_START)
@@ -641,7 +649,7 @@ int main(int argc, const char* argv[])
 									if(boss10_started)
 									{
 										boss10_list[i_10].time=10;
-										boss10_list[i_10].tspeed+=0.031f;
+										boss10_list[i_10].tspeed+=(0.0155f*(1+DIFFICULTY));
 										float min_speed = boss10_list[i_10].tspeed;
 										
 										boss10_list[i_10].hsp = min_speed + (((float)rand() / (float)RAND_MAX) * boss10_list[i_10].tspeed);
@@ -667,6 +675,9 @@ int main(int argc, const char* argv[])
 								// zoom check
 								if(paddata.BTN_R1 && !oldpad.BTN_R1) zoomCheck(1);
 								if(paddata.BTN_L1 && !oldpad.BTN_L1) zoomCheck(0);
+								
+								if(paddata.BTN_L2 && !oldpad.BTN_L2) if(the_hat>-1) the_hat--;
+								if(paddata.BTN_R2 && !oldpad.BTN_R2) if(the_hat<6) the_hat++;
 							}
 							break;
 						}
@@ -761,6 +772,11 @@ int main(int argc, const char* argv[])
 					ioPadGetData(ip, &paddata);
 					if(paddata.BTN_CROSS && !oldpad.BTN_CROSS)
 					{
+						for (dick = 0; dick < RandRange(20, 666); dick++)
+						{
+							splash = splashes_random[RandRange(20, SplashesCount())];
+						}
+						
 						game_loaded = 1;
 						start_music = 1;
 						DebugLog("starting the game");

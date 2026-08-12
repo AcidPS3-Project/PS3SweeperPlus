@@ -130,7 +130,13 @@ void boss11_update(int i)
 		else if(attempts>199) game_lost();
 		
 		//boss11_list[i].timer = (float)RandRange(4, 5);
-		boss11_list[i].timer = 6.7f;
+		switch(DIFFICULTY)
+		{
+			case 0: boss11_list[i].timer = 11.2f; break;
+			case 1: boss11_list[i].timer = 9.5f; break;
+			case 2: boss11_list[i].timer = 6.7f; break;
+			case 3: boss11_list[i].timer = 4.2f; break;
+		}
 	}
 }
 

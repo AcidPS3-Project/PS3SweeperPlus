@@ -40,6 +40,7 @@ bool has_custom_win  = false;
 int EPISODE = 1;
 int LEVEL = 0;
 int DIFFICULTY = 1;
+int DIFFICULTYs = 1; //for showing off
 
 int the_bg = 0;
 
@@ -89,6 +90,15 @@ void LangInit()
 	{
 		default:
 		{
+			menu_title[0] = "Minesweeper Adventure";
+			menu_desc[0] = "Test your minesweeping skills in a sequence of progressively difficult Minesweeper stages.";
+			menu_title[1] = "Free Play";
+			menu_desc[1] = "Create your own custom Minesweeper stages and sweep mines to your heart's content!";
+			menu_title[2] = "Bonus Games";
+			menu_desc[2] = "Enjoy a selection of bonus game modes that will test your minesweeping limits.";
+			menu_title[3] = "LoadOut";
+			menu_desc[3] = "Customize the captain and stock up on supplies.";
+			
 			langStr[0] = "Loading...";
 			langStr[1] = "Saving...";
 			langStr[2] = "Made by AcidNT3.1 Productions";
@@ -97,14 +107,14 @@ void LangInit()
 			langStr[5] = "When you see the \"Saving...\" text, it saves your data.";
 			langStr[6] = "Please, do NOT turn off your PlayStation 3 system while the \"Saving...\"";
 			langStr[7] = "text is on-screen.";
-			langStr[8] = "X - I understand.";
-			langStr[9] = "This game is still under VERY HUGE development.";
+			langStr[8] = "I understand.";
+			langStr[9] = "This game is in early development stage.";
 			langStr[10] = "Please join my discord server to not miss out new updates!";
 			langStr[11] = "LINK: https://discord.gg/7XuQDYjyzt";
 			langStr[12] = "There is nothing to load.";
-			langStr[13] = "Press Start to continue.";
-			langStr[14] = "TRIANGLE - Credits";
-			langStr[15] = "TRIANGLE - CONTINUE";
+			langStr[13] = "Start the Game.";
+			langStr[14] = "Credits";
+			langStr[15] = "Continue";
 			langStr[16] = "Main Menu";
 			langStr[17] = "Adventure Menu";
 			langStr[18] = "Width";
@@ -114,22 +124,82 @@ void LangInit()
 			langStr[22] = "Halves count";
 			langStr[23] = "Antis count";
 			langStr[24] = "EPISODE";
-			langStr[25] = "";
-			langStr[26] = "";
-			langStr[27] = "";
-			langStr[28] = "";
-			langStr[29] = "";
-			langStr[30] = "";
-			langStr[31] = "";
-			langStr[32] = "";
-			langStr[33] = "";
-			langStr[34] = "";
-			langStr[35] = "";
-			langStr[36] = "";
-			langStr[37] = "";
-			langStr[38] = "";
-			langStr[39] = "";
-			langStr[40] = "";
+			langStr[25] = "Music Type";
+			langStr[26] = "CUSTOM";
+			langStr[27] = "Freeplay Menu";
+			langStr[28] = "Disable Custom Music";
+			langStr[29] = "Enable Custom Music";
+			langStr[30] = "Background Type";
+			langStr[31] = "Start your game";
+			langStr[32] = "Go Back";
+			langStr[33] = "The Big One";
+			langStr[34] = "Bad Apple!! (Requires DLC)";
+			langStr[35] = "Challenges Menu";
+			langStr[36] = "This menu is currently in works :)";
+			langStr[37] = "GAME OVER";
+			langStr[38] = "LEVEL CLEAR!";
+			langStr[39] = "Minecoins";
+			langStr[40] = "seconds";
+			langStr[41] = "Next Level";
+			langStr[42] = "Save and Quit";
+			langStr[43] = "Reset game";
+			break;
+		}
+		case 1: // Русский Язык
+		{
+			menu_title[0] = "Приключения Сапера";
+			menu_desc[0] = "Проверь свои навыки сапера в усложняющей последовательности уровней сапера.";
+			menu_title[1] = "Своя игра";
+			menu_desc[1] = "Создавайте свой уровень сапера и разминируйте мины как душе угодно!";
+			menu_title[2] = "Испытания";
+			menu_desc[2] = "Насладитесь выбором испытаний которые проверят ваши знания сапера.";
+			menu_title[3] = "Гардероб";
+			menu_desc[3] = "Измените вид капитана и пополните запасы.";
+			
+			langStr[0] = "Загружаю...";
+			langStr[1] = "Сохраняю...";
+			langStr[2] = "Разработано AcidNT3.1 Productions";
+			langStr[3] = "Приветствую вас в PS3Sweeper+!";
+			langStr[4] = "Внимание! У этой игры есть функция авто-сохранения.";
+			langStr[5] = "Когда вы видите текст \"Сохраняю...\", оно сохраняет игру.";
+			langStr[6] = "Пожалуйста, не выключайте ваш PlayStation 3 когда текст";
+			langStr[7] = "\"Сохраняю...\" находится на экране.";
+			langStr[8] = "Хорошо.";
+			langStr[9] = "Эта игра находится в раннем этапе разработки.";
+			langStr[10] = "Пожалуйста, присоединяйтесь к моему дискорд серверу, чтобы не";
+			langStr[11] = "пропустить обновления! ССЫЛКА: https://discord.gg/7XuQDYjyzt";
+			langStr[12] = "Здесь нечего загружать.";
+			langStr[13] = "Начать игру";
+			langStr[14] = "Благодарность";
+			langStr[15] = "Продолжить";
+			langStr[16] = "Главное меню";
+			langStr[17] = "Меню приключений";
+			langStr[18] = "Ширина";
+			langStr[19] = "Высота";
+			langStr[20] = "Кол-во мин";
+			langStr[21] = "Кол-во двойных мин";
+			langStr[22] = "Кол-во полу-мин";
+			langStr[23] = "Кол-во анти-мин";
+			langStr[24] = "ЭПИЗОД";
+			langStr[25] = "Стиль музыки";
+			langStr[26] = "СВОЯ";
+			langStr[27] = "Меню своей игры";
+			langStr[28] = "Выключить свою музыку";
+			langStr[29] = "Включить свою музыку";
+			langStr[30] = "Стиль фона";
+			langStr[31] = "Начать свою игру";
+			langStr[32] = "Назад";
+			langStr[33] = "Большевик";
+			langStr[34] = "Плохое Яблоко!! (Потребуется Адд-он)";
+			langStr[35] = "Меню испытаний";
+			langStr[36] = "Это меню находится в разработке :)";
+			langStr[37] = "ИГРА ОКОНЧЕНА";
+			langStr[38] = "ПРОЙДЕНО!";
+			langStr[39] = "Бомба-коины";
+			langStr[40] = "секунд";
+			langStr[41] = "Следующий уровень";
+			langStr[42] = "Сохранить и выйти";
+			langStr[43] = "Сбросить игру";
 			break;
 		}
 	}
@@ -159,17 +229,18 @@ void SplashesInit()
 	splashes_random[splash_count++] = "Also play LandMinesweeper Plus";
 	splashes_random[splash_count++] = "Also play Minesweeper Plus: Hard Mode";
 	splashes_random[splash_count++] = "Also play Minesweeper Chronicles (if it gets hopefully finished)";
-	splashes_random[splash_count++] = "Also play Minesweeper Plus Roblox";
+	splashes_random[splash_count++] = "Also play Minesweeper Plus on Roblox";
 	splashes_random[splash_count++] = "Also play PolySweep (if it comes out)";
 	splashes_random[splash_count++] = "Also play Minesweeper Plus: Deluxe (if it comes out)";
 	splashes_random[splash_count++] = "Also play Minesweeper Plus: Community Edition";
 	splashes_random[splash_count++] = "Also play Minesweeper Oddysey (if it comes out)";
+	splashes_random[splash_count++] = "Also play Minesweeper Plus: Epilogue";
 	splashes_random[splash_count++] = "The MORSHU.";
 	splashes_random[splash_count++] = "Why it was rewritten?";
 	splashes_random[splash_count++] = "Better, than Minesweeper Plus: PS3 Edition";
 	splashes_random[splash_count++] = "AI-Assisted code, because I suck at C.";
 	splashes_random[splash_count++] = "Optimizing is at it's peakest.";
-	splashes_random[splash_count++] = "Baldi for PS3 re-write coming?";
+	splashes_random[splash_count++] = "Baldi for PS3 re-write coming? Wait..";
 	splashes_random[splash_count++] = "CELL Programming";
 	splashes_random[splash_count++] = "Yellow light of Death";
 	splashes_random[splash_count++] = "Reality Synthesizer can fail?";
@@ -181,7 +252,6 @@ void SplashesInit()
 	splashes_random[splash_count++] = "The definition of Insanity.";
 	splashes_random[splash_count++] = "up up down down left right left right circle cross start.\n   oh wait, it doesnt work";
 	splashes_random[splash_count++] = "why do i stay all night for this";
-	splashes_random[splash_count++] = "Eleven and twelve coming soon, trust";
 	splashes_random[splash_count++] = "I wanna try making MS+ for PS1 sometime soon. Wait a second...";
 	splashes_random[splash_count++] = "What R2 do? BEEP BEEP BEEP";
 	splashes_random[splash_count++] = "48x36 boards DO NOT GIVE YOU FRAMEDROPS!!!!!!!";
@@ -198,6 +268,19 @@ void SplashesInit()
 	splashes_random[splash_count++] = "211208 :>";
 	splashes_random[splash_count++] = "Touhou mentioned";
 	splashes_random[splash_count++] = "True PS3 Gaming B)";
+	splashes_random[splash_count++] = "Bruhsweeper Delta is getting attention again:sob:";
+	splashes_random[splash_count++] = "Don't let your dreams be dreams!";
+	splashes_random[splash_count++] = "Stay safe, folks!";
+	splashes_random[splash_count++] = "High Definition B)";
+	splashes_random[splash_count++] = "Ask Jorel to get the PS3 ;)";
+	splashes_random[splash_count++] = "MOM GET THE CAMERA";
+	splashes_random[splash_count++] = "Share with your friends! The more, the merrier!";
+	splashes_random[splash_count++] = "WELCOME TO THE AMAZING DIGITAL CREATION OF HATRED wait wha-";
+	splashes_random[splash_count++] = "BRING BACK FLANDREKIDD";
+	splashes_random[splash_count++] = "JACK BEATED THE OG GAME WITH EVERY M RANK";
+	splashes_random[splash_count++] = "I dare anyone complete Expert 10 without dying";
+	splashes_random[splash_count++] = "Sweepers gonna sweep";
+	splashes_random[splash_count++] = "Sweepers gonna sweep";
 	
 	FILE *z1 = fopen("/dev_hdd0/game/MINESWEEP/USRDIR/dlc00/data.dat", "rb");
 	FILE *z2 = fopen("/dev_hdd0/game/MINESWEEP/USRDIR/dlc00/mus.mp3", "rb");
@@ -490,6 +573,8 @@ void Load_PNG()
 	pngLoadFromBuffer(trust_me_bro_png_bin, trust_me_bro_png_bin_size, &spritesheet[8]);
 	pngLoadFromBuffer(menu_sheet_png_bin, menu_sheet_png_bin_size, &spritesheet[9]);
 	pngLoadFromBuffer(coin_png_bin, coin_png_bin_size, &spritesheet[10]);
+	pngLoadFromBuffer(buttons_png_bin, buttons_png_bin_size, &spritesheet[11]);
+	pngLoadFromBuffer(hats_sheet_png_bin, hats_sheet_png_bin_size, &spritesheet[12]);
 }
 
 void ReplaceBGM(int music)
@@ -538,15 +623,6 @@ void Initialize()
 	sysSpuImageImport(&spu_image, spu_soundmodule_bin, 0);
 	sysSpuRawImageLoad(spu, &spu_image);
 	SND_Init(spu);
-	
-	menu_title[0] = "Minesweeper Adventure";
-	menu_desc[0] = "Test your minesweeping skills in a sequence of progressively difficult Minesweeper stages.";
-	menu_title[1] = "Free Play";
-	menu_desc[1] = "Create your own custom Minesweeper stages and sweep mines to your heart's content!";
-	menu_title[2] = "Bonus Games";
-	menu_desc[2] = "Enjoy a selection of bonus game modes that will test your minesweeping limits.";
-	menu_title[3] = "LoadOut";
-	menu_desc[3] = "Customize the captain and stock up on supplies.";
 }
 
 void HolyShit()
@@ -556,6 +632,7 @@ void HolyShit()
 
 void DebugLog(const char *text)
 {
+	printf("%s\n", text);
     FILE *fp = fopen("/dev_hdd0/game/MINESWEEP/USRDIR/logstuff.txt", "ab");
 
     if(fp)

@@ -116,8 +116,8 @@ void Boss9Stop(int i)
     boss9_list[i].isMoving = false;
     boss9_list[i].angle = -boss9_list[i].angle;
 
-    if(global_route==1) boss9_list[i].timer = RandRange(15,50);
-    else boss9_list[i].timer = RandRange(20,60);
+    if(global_route==1) boss9_list[i].timer = RandRange(14/(1+DIFFICULTY),100/(1+DIFFICULTY));
+    else boss9_list[i].timer = RandRange(40/(1+DIFFICULTY),120/(1+DIFFICULTY));
 
     PlaySFX(&sfx_9stop);
 }

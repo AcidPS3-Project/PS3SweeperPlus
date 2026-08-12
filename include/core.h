@@ -101,4 +101,8 @@ void LoadFPLevel();
 void MoveCursor(int dx, int dy);
 void ResetGrid();
 
+int StartSave();
+
+extern int the_hat;
+
 #endif

@@ -124,6 +124,19 @@ int getCaptainState(int anim_z, int anim1_z)
 	return the_state;
 }
 
+int getHatState(int hat, int anim_z)
+{
+	int the_state = 0;
+	
+	if(gamewin) the_state = 0+(!anim_z*7);
+	else if(gamelose) the_state = 5;
+	else the_state = 0;
+	
+	the_state = the_state+(hat*24);
+	
+	return the_state;
+}
+
 void DrawSprite2D(int id, float x, float y, int wid2, int hei2, int wid1, int hei1, int wid0, int hei0, float layer, u32 color)
 {
 	int cols = wid0 / wid1;
@@ -383,6 +396,13 @@ void draw_game()
 	}
 }
 
+void DrawButton(int x, int y, int button, int z)
+{
+	u32 color = 0xffffffff;
+	SetTexture(11);
+	DrawSprite2D(button, x, y+4, 32, 32, 20, 20, 120, 20, z, color);
+}
+
 void drawScene()
 {
 	u32 color = 0xffffffff;
@@ -415,11 +435,13 @@ void drawScene()
 			case TITLE:
 			{
 				SetTexture(7);
-				DrawSprite2D(anim3, -40, -22, 916, 582, 1152, 960, 2304, 1920, 0, color);
+				DrawSprite2D(anim3, -40, -22, 916, 582, 1152, 960, 2304, 1920, 1, color);
 				DrawFString(0, ui_x,4, 0xffffffff, 0, "%s (%s)", global_name, global_version);
 				DrawFString(0, ui_x,484, 0xffffffff, 0, "%s", splash);
-				DrawFString(0, ui_x,128, 0xffffffff, 0, langStr[13]);
-				DrawFString(0, ui_x,224, 0xffffffff, 0, langStr[14]);
+				DrawButton(ui_x, 128, 4, 0);
+				DrawFString(0, ui_x+36,128, 0xffffffff, 0, langStr[13]);
+				DrawButton(ui_x, 224, 0, 0);
+				DrawFString(0, ui_x+36,224, 0xffffffff, 0, langStr[14]);
 				break;
 			}
 			case MENU:
@@ -461,7 +483,11 @@ void drawScene()
 				DrawSpriteUI(ui_x+ze_x+menu_x+(262*3), ze_y+48, 960, 512, 960+448, 1024, 1536, 1024, 224, 256, 4, color);
 				DrawFString(0, ze_x+ui_x, ze_y+320, 0xffffffff, 0, "        ^^^^^^^^");
 				
-				if(LEVEL>0) DrawFString(0, ze_x+ui_x, ze_y+354, 0xffffffff, 0, "%s   (%d-%d)", langStr[15], EPISODE, LEVEL);
+				if(LEVEL>0)
+				{
+					DrawButton(ze_x+ui_x, ze_y+354, 0, 0);
+					DrawFString(0, ze_x+ui_x+36, ze_y+354, 0xffffffff, 0, "%s   (%d-%d)", langStr[15], EPISODE, LEVEL+1);
+				}
 				
 				DrawFString(0, ze_x+ui_x, ze_y+386, 0xffffffff, 0, "%s", menu_title[menu_pos]);
 				DrawFString(52, ze_x+ui_x, ze_y+420, 0xffffffff, 0, "%s", menu_desc[menu_pos]);
@@ -471,10 +497,10 @@ void drawScene()
 				u32 color3 = 0xffffffff;
 				u32 color4 = 0xffffffff;
 				
-				if(DIFFICULTY==0) color1 = 0xffffffff; else color1 = 0xaaaaaaff;
-				if(DIFFICULTY==1) color2 = 0xffffffff; else color2 = 0xaaaaaaff;
-				if(DIFFICULTY==2) color3 = 0xffffffff; else color3 = 0xaaaaaaff;
-				if(DIFFICULTY==3) color4 = 0xffffffff; else color4 = 0xaaaaaaff;
+				if(DIFFICULTYs==0) color1 = 0xffffffff; else color1 = 0xaaaaaaff;
+				if(DIFFICULTYs==1) color2 = 0xffffffff; else color2 = 0xaaaaaaff;
+				if(DIFFICULTYs==2) color3 = 0xffffffff; else color3 = 0xaaaaaaff;
+				if(DIFFICULTYs==3) color4 = 0xffffffff; else color4 = 0xaaaaaaff;
 				
 				DrawFString(0, ze_x+zas_x, ze_y+4, 0xffffffff, 0, langStr[17]);
 				SetTexture(9);
@@ -484,7 +510,7 @@ void drawScene()
 				DrawSpriteUI(ze_x+zas_x, ze_y+252, 0, 384, 512, 512, 1536, 1024, 256, 64, 4, color4);
 				DrawFString(0, ze_x+zas_x, ze_y+322, 0xffffffff, 0, "%s: %d", langStr[24], EPISODE);
 				
-				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+4, 0xffffffff, 0, "Freeplay Menu");
+				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+4, 0xffffffff, 0, langStr[27]);
 				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+64, 0xffffffff, 0, "%s: %d", langStr[18], fp_width);
 				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+96, 0xffffffff, 0, "%s: %d", langStr[19], fp_height);
 				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+128, 0xffffffff, 0, "%s: %d", langStr[20], fp_mines);
@@ -492,24 +518,30 @@ void drawScene()
 				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+192, 0xffffffff, 0, "%s: %d", langStr[22], fp_halfes);
 				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+224, 0xffffffff, 0, "%s: %d (WIP)", langStr[23], fp_antis);
 				
-				if(fp_music==99) DrawFString(0, ze_x+ui_x-zfp_x, ze_y+256, 0xffffffff, 0, "Music Type: CUSTOM");
-				else DrawFString(0, ze_x+ui_x-zfp_x, ze_y+256, 0xffffffff, 0, "Music Type: %d", fp_music);
+				if(fp_music==99) DrawFString(0, ze_x+ui_x-zfp_x, ze_y+256, 0xffffffff, 0, "%s: %s", langStr[25], langStr[26]);
+				else DrawFString(0, ze_x+ui_x-zfp_x, ze_y+256, 0xffffffff, 0, "%s: %d", langStr[25], fp_music);
 				
 				if(fp_menu==6)
 				{
-					if(fp_music==99) DrawFString(0, ze_x+ui_x-zfp_x+320, ze_y+256, 0xffffffff, 0, "SQUARE - Disable Custom Music");
-					else DrawFString(0, ze_x+ui_x-zfp_x+320, ze_y+256, 0xffffffff, 0, "SQUARE - Enable Custom Music");
+					DrawButton(ze_x+ui_x-zfp_x+320, ze_y+256, 3, 0);
+					if(fp_music==99) DrawFString(0, ze_x+ui_x-zfp_x+320+36, ze_y+256, 0xffffffff, 0, langStr[28]);
+					else DrawFString(0, ze_x+ui_x-zfp_x+320+36, ze_y+256, 0xffffffff, 0, langStr[29]);
 				}
-				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+288, 0xffffffff, 0, "Background Type: %d", (fp_back+1));
-				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+386, 0xffffffff, 0, "START - Start the game");
-				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+418, 0xffffffff, 0, "CIRCLE - Go Back");
-				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+450, 0xffffffff, 0, "SELECT - The Big One with 111 Mines");
-				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+482, 0xffffffff, 0, "TRIANGLE - Bad Apple!! (Requires DLC)");
 				
-				DrawFString(0, ze_x+ui_x-zfp_x+292, ze_y+64+(fp_menu*32), 0xffffffff, 0, "<");
+				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+288, 0xffffffff, 0, "%s: %d", langStr[30], (fp_back+1));
 				
-				DrawFString(0, ze_x+ui_x, ze_y+zcs_y+4, 0xffffffff, 0, "Challenges Menu");
-				DrawFString(0, ze_x+ui_x, ze_y+zcs_y+64, 0xffffffff, 0, "This menu is currently in works :)");
+				DrawButton(ze_x+ui_x-zfp_x, ze_y+386, 4, 0);
+				DrawButton(ze_x+ui_x-zfp_x, ze_y+418, 1, 0);
+				DrawButton(ze_x+ui_x-zfp_x, ze_y+450, 0, 0);
+				
+				DrawFString(0, ze_x+ui_x-zfp_x+36, ze_y+386, 0xffffffff, 0, langStr[31]);
+				DrawFString(0, ze_x+ui_x-zfp_x+36, ze_y+418, 0xffffffff, 0, langStr[32]);
+				DrawFString(0, ze_x+ui_x-zfp_x+36, ze_y+450, 0xffffffff, 0, langStr[34]);
+				
+				DrawFString(0, ze_x+ui_x-zfp_x+300, ze_y+64+(fp_menu*32), 0xffffffff, 0, "<");
+				
+				DrawFString(0, ze_x+ui_x, ze_y+zcs_y+4, 0xffffffff, 0, langStr[35]);
+				DrawFString(0, ze_x+ui_x, ze_y+zcs_y+64, 0xffffffff, 0, langStr[36]);
 
 				SetTexture(10);
 				DrawSprite2D(animc, ui_x+818, 4, 32, 32, 64, 64, 512, 64, 0, 0xffffffff);
@@ -543,12 +575,19 @@ void drawScene()
 				else DrawFString(0, 94, -26, 0xff0000ff, 1, "%03d", mines_count);
 				DrawFString(0, 714,-26, 0xff0000ff, 1, "%03d", the_timer);
 				
-				SetTexture(0);
 				SetFontSize(28, 32);
 				
+				SetTexture(0);
 				int capt_state = getCaptainState(anim1, anim2);
+				int capt_y = -9; if(the_hat==-1) capt_y = -14;
+				DrawSprite2D(capt_state, 375, capt_y, 94, 94, 40, 40, 960, 560, 0, color);
 				
-				DrawSprite2D(capt_state, 375, -14, 94, 94, 40, 40, 960, 560, 0, color);
+				if(the_hat!=-1)
+				{
+					SetTexture(12);
+					int hat_state = getHatState(the_hat, anim1);
+					DrawSprite2D(hat_state, 375, -14, 94, 94, 40, 40, 960, 320, 0, color);
+				}
 				//DrawFString(0, -20,32, 0xffffffff, 0, "TOTAL MINECOINS: %d", global_minecoins);
 				//DrawFString(0, -20,64, 0xffffffff, 0, "MINECOINS: %d", current_minecoins);
 				DrawFString(0, -20,88, 0xffffffff, 0, "FPS: %d", fps);
@@ -638,23 +677,26 @@ void drawScene()
 				
 				if(gamelose)
 				{
-					DrawFString(0, -20,160, 0xffffffff, 0, "GAME OVER");
-					DrawFString(0, -20,192, 0xffffffff, 0, "PRESS START");
+					DrawButton(-20, 192, 4, -1);
+					DrawFString(0, -20,160, 0xffffffff, 0, langStr[37]);
+					DrawFString(0, -20+36,192, 0xffffffff, 0, langStr[15]);
 				}
 				else if(gamewin)
 				{
-					DrawFString(0, -20,160, 0xffffffff, 0, "LEVEL CLEAR!");
-					DrawFString(0, -20,320, 0xffffffff, 0, "+ %d Minecoins!", level_minecoins);
-					DrawFString(0, -20,356, 0xffffffff, 0, "%.2f seconds", timer_seconds);
+					DrawFString(0, -20,160, 0xffffffff, 0, langStr[38]);
+					DrawFString(0, -20,320, 0xffffffff, 0, "+ %d %s!", level_minecoins, langStr[39]);
+					DrawFString(0, -20,356, 0xffffffff, 0, "%.2f %s", timer_seconds, langStr[40]);
+					DrawButton(-20, 192, 4, -1);
+					DrawButton(-20, 224, 5, -1);
 					if(!free_play)
 					{
-						DrawFString(0, -20,192, 0xffffffff, 0, "START - Next Level");
-						DrawFString(0, -20,224, 0xffffffff, 0, "SELECT - Save Progress");
+						DrawFString(0, -20+36,192, 0xffffffff, 0, langStr[41]);
+						DrawFString(0, -20+36,224, 0xffffffff, 0, langStr[42]);
 					}
 					else
 					{
-						DrawFString(0, -20,192, 0xffffffff, 0, "START - Continue");
-						DrawFString(0, -20,224, 0xffffffff, 0, "SELECT - Reset");
+						DrawFString(0, -20+36,192, 0xffffffff, 0, langStr[15]);
+						DrawFString(0, -20+36,224, 0xffffffff, 0, langStr[43]);
 					}
 				}
 				
@@ -679,7 +721,8 @@ void drawScene()
 			DrawFString(0, 4,188,0xffffffff,0,langStr[5]);
 			DrawFString(0, 4,252,0xff0000ff,0,langStr[6]);
 			DrawFString(0, 4,284,0xff0000ff,0,langStr[7]);
-			DrawFString(0, 4,348,0x00aa00ff,0,langStr[8]);
+			DrawFString(0, 40,348,0x00aa00ff,0,langStr[8]);
+			DrawButton(4, 348, 2, 0);
 		}
 		else
 		{

@@ -4,6 +4,7 @@
 #include "libraries.h"
 
 #define SAVE_DIR "PS3SWEEPERPLUS"
+
 typedef struct
 {
 	int save_level;
@@ -11,6 +12,7 @@ typedef struct
 	int save_current_minecoins;
 	int save_global_route;
 	int save_episode;
+	int save_difficulty;
 	
 	int save_fp_w;
 	int save_fp_h;
@@ -19,6 +21,8 @@ typedef struct
 	int save_fp_bg;
 	
 	int save_lang;
+	
+	int save_hat;
 } SaveData;
 
 extern SaveData gSave;
@@ -31,12 +35,6 @@ enum
     SAVE_ICON,
     SAVE_DATA,
     SAVE_DONE
-};
-
-enum
-{
-    LOAD_DATA,
-    LOAD_DONE
 };
 
 enum

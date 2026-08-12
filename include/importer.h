@@ -25,6 +25,8 @@ const char *langStr[1024];
 #include "background_sheet_png_bin.h"
 #include "menu_sheet_png_bin.h"
 #include "coin_png_bin.h"
+#include "buttons_png_bin.h"
+#include "hats_sheet_png_bin.h"
 
 #include "trust_me_bro_png_bin.h"
 #include "icon0_png_bin.h"
@@ -127,6 +129,7 @@ extern bool has_custom_win;
 extern int EPISODE;
 extern int LEVEL;
 extern int DIFFICULTY;
+extern int DIFFICULTYs;
 
 extern int the_bg;
 

@@ -6,7 +6,6 @@ SaveData gSave;
 sysSaveBufferSettings buffer;
 
 static int saveMode;
-static int loadMode;
 static int operationMode;
 
 static sys_ppu_thread_t save_thread = 0;
@@ -39,13 +38,40 @@ void status_cb(sysSaveCallbackResult *result, sysSaveStatusIn *in, sysSaveStatus
 	snprintf(param.title, sizeof(param.title), "%s", global_name);
     snprintf(param.subtitle, sizeof(param.subtitle), "Game Save Data (%s)", global_version);
     snprintf(param.detail, sizeof(param.detail), "%s\nTotal Minecoins: %d", splash, global_minecoins);
+	
     if(out)
 	{
 		out->setParam = &param;
-		if (operationMode == MODE_SAVE)
-			out->recreateMode = SYS_SAVE_RECREATE_MODE_DELETE;
+		if (operationMode == MODE_SAVE) out->recreateMode = SYS_SAVE_RECREATE_MODE_DELETE;
 		else if (operationMode == MODE_LOAD)
-			out->recreateMode = SYS_SAVE_RECREATE_MODE_OVERWRITE_NOT_CORRUPTED;
+		{
+            out->recreateMode = SYS_SAVE_RECREATE_MODE_OVERWRITE_NOT_CORRUPTED;
+
+            int found = 0;
+            for (int i = 0; i < in->numFiles; i++)
+            {
+                if (in->fileList[i].fileType == SYS_SAVE_FILETYPE_STANDARD_FILE)
+                {
+                    found = 1;
+                    if (in->fileList[i].fileSize != sizeof(gSave))
+                    {
+                        DebugLog("LOAD: SAVE.DAT has wrong size");
+                        result->result = SYS_SAVE_CALLBACK_RESULT_CORRUPTED;
+                        return;
+                    }
+
+                    DebugLog("LOAD: SAVE.DAT found");
+                    break;
+                }
+            }
+
+            if (!found)
+            {
+                DebugLog("LOAD: SAVE.DAT not found");
+                result->result = SYS_SAVE_CALLBACK_RESULT_NOT_FOUND;
+                return;
+            }
+		}
 	}
 
     result->result = SYS_SAVE_CALLBACK_RESULT_CONTINUE;
@@ -95,54 +121,21 @@ void save_file_cb(sysSaveCallbackResult *result, sysSaveFileIn *in, sysSaveFileO
 
 void load_file_cb(sysSaveCallbackResult *result, sysSaveFileIn *in, sysSaveFileOut *out)
 {
+	DebugLog("LOAD FILE CALLBACK ENTER");
     static char filename[] = "SAVE.DAT";
 
     memset(out, 0, sizeof(*out));
+	DebugLog("LOAD CALLBACK: requesting SAVE.DAT");
 
-    switch(loadMode)
-    {
-        case LOAD_DATA:
-        {
-            DebugLog("LOAD CALLBACK: requesting SAVE.DAT");
+	out->fileOperation = SYS_SAVE_FILE_OPERATION_READ;
+	out->fileType = SYS_SAVE_FILETYPE_STANDARD_FILE;
+	out->filename = filename;
+	out->buffer = &gSave;
+	out->bufferSize = sizeof(gSave);
+	out->size = sizeof(gSave);
 
-            out->fileOperation = SYS_SAVE_FILE_OPERATION_READ;
-            out->fileType = SYS_SAVE_FILETYPE_STANDARD_FILE;
-            out->filename = filename;
-            out->buffer = &gSave;
-            out->bufferSize = sizeof(gSave);
-            out->size = sizeof(gSave);
-
-            result->incrementProgress = 100;
-            result->result = SYS_SAVE_CALLBACK_RESULT_CONTINUE;
-
-            loadMode = LOAD_DONE;
-            break;
-        }
-
-        case LOAD_DONE:
-        {
-            char debug[256];
-
-            sprintf(debug,
-                "LOAD CALLBACK DONE: prevSize=%d expected=%d", (int)in->previousOperationResultSize,
-                (int)sizeof(gSave));
-
-            DebugLog(debug);
-
-            if(in->previousOperationResultSize == sizeof(gSave))
-            {
-                DebugLog("LOAD CALLBACK: SAVE.DAT read successfully");
-                result->result = SYS_SAVE_CALLBACK_RESULT_DONE;
-            }
-            else
-            {
-                DebugLog("LOAD CALLBACK: invalid SAVE.DAT size");
-                result->result = SYS_SAVE_CALLBACK_RESULT_CORRUPTED;
-            }
-
-            break;
-        }
-    }
+	result->incrementProgress = 100;
+	result->result = SYS_SAVE_CALLBACK_RESULT_DONE;
 }
 
 static void SaveThread(void *arg)
@@ -176,6 +169,7 @@ int StartSave(void)
     gSave.save_global_minecoins = global_minecoins;
     gSave.save_global_route = global_route;
 	gSave.save_episode = EPISODE;
+	gSave.save_difficulty = DIFFICULTY;
 	
 	gSave.save_fp_w = fp_width;
 	gSave.save_fp_h = fp_height;
@@ -184,6 +178,7 @@ int StartSave(void)
 	gSave.save_fp_bg = fp_back;
 	
 	gSave.save_lang = language;
+	gSave.save_hat = the_hat;
 	
 	char debug[256];
 
@@ -215,8 +210,8 @@ static void LoadThread(void *arg)
     s32 ret;
     DebugLog("LOAD: starting...");
 
-    ret = sysSaveAutoLoad2(SYS_SAVE_CURRENT_VERSION,SAVE_DIR, SYS_SAVE_ERROR_DIALOG_SHOW,
-		&buffer,status_cb, load_file_cb,0,NULL);
+    ret = sysSaveAutoLoad2(SYS_SAVE_CURRENT_VERSION, SAVE_DIR, SYS_SAVE_ERROR_DIALOG_SHOW,
+		&buffer, status_cb, load_file_cb, 0, NULL);
 
     load_result = ret;
     load_running = 0;
@@ -233,6 +228,7 @@ static void LoadThread(void *arg)
 		global_minecoins = gSave.save_global_minecoins;
 		global_route = gSave.save_global_route;
 		EPISODE = gSave.save_episode;
+		DIFFICULTY = gSave.save_difficulty;
 		
 		fp_width = gSave.save_fp_w;
 		fp_height = gSave.save_fp_h;
@@ -241,6 +237,8 @@ static void LoadThread(void *arg)
 		fp_back = gSave.save_fp_bg;
 		
 		language = gSave.save_lang;
+		
+		the_hat = gSave.save_hat;
 		
 		DebugLog("loaded!");
 		
@@ -253,8 +251,6 @@ static void LoadThread(void *arg)
 	}
 	else
 	{
-		msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
-			langStr[12], EmptyDialogCallback, NULL, NULL);
 		DebugLog("LOAD: no valid save, using defaults");
 
 		LEVEL = 0;
@@ -262,6 +258,8 @@ static void LoadThread(void *arg)
 		global_minecoins = 0;
 		global_route = 0;
 		EPISODE = 1;
+		
+		DIFFICULTY = 1;
 
 		fp_width = 9;
 		fp_height = 9;
@@ -287,7 +285,6 @@ int StartLoad(void)
     if(load_running) return -1;
 	
 	operationMode = MODE_LOAD;
-	loadMode = LOAD_DATA;
 	
     load_running = 1;
 

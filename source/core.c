@@ -15,6 +15,8 @@ int GRID_ID = 00;
 int mines_count = 0;
 int global_route = 0;
 
+int the_hat = 0;
+
 int enable_half = 0;
 int enable_double = 0;
 int enable_anti = 0;
@@ -486,9 +488,6 @@ void Chord(int x, int y)
         }
     }
 	
-	char debug1[256];
-    DebugLog(debug1);
-	
     if(flags == required)
     {
         for(nx = x - 1; nx <= x + 1; nx++)
@@ -516,8 +515,6 @@ void Chord(int x, int y)
 
 int FlagValue(int flag)
 {
-	char debug1[256];
-    DebugLog(debug1);
     switch(flag)
     {
         case 1: return 1;   // Half
@@ -612,6 +609,8 @@ void LoadLevel(int levelz)
 
 void LoadFPLevel()
 {
+	StartSave();
+	
     GRID_W = fp_width;
     GRID_H = fp_height;
     MINES  = fp_mines;
