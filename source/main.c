@@ -339,7 +339,7 @@ int main(int argc, const char* argv[])
 										case 2: fp_mines--; if(fp_mines<1) fp_mines=1; break;
 										case 3: fp_doubles--; if(fp_doubles<0) fp_doubles=0; break;
 										case 4: fp_halfes--; if(fp_halfes<0) fp_halfes=0; break;
-										//case 5: fp_antis--; if(fp_antis<0) fp_antis=0; break;
+										case 5: fp_antis--; if(fp_antis<0) fp_antis=0; break;
 										case 6:
 										{
 											fp_music--;
@@ -363,7 +363,7 @@ int main(int argc, const char* argv[])
 										case 2: fp_mines++; break;
 										case 3: fp_doubles++; if(fp_doubles>(fp_mines-fp_halfes-fp_antis)) fp_doubles=fp_mines-fp_halfes-fp_antis; break;
 										case 4: fp_halfes++; if(fp_halfes>(fp_mines-fp_doubles-fp_antis)) fp_halfes=fp_mines-fp_doubles-fp_antis; break;
-										//case 5: fp_antis++; if(fp_antis>(fp_mines-fp_doubles-fp_halfes)) fp_antis=fp_mines-fp_doubles-fp_halfes; break;
+										case 5: fp_antis++; if(fp_antis>(fp_mines-fp_doubles-fp_halfes)) fp_antis=fp_mines-fp_doubles-fp_halfes; break;
 										case 6:
 										{
 											fp_music++;

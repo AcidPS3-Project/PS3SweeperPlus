@@ -275,7 +275,6 @@ void draw_game()
 				{
 					DrawSprite2D(163, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE),
 						RENDER_SIZE, RENDER_SIZE, 16, 16, 320, 320, 3, color);
-					tile = 114+anim;
 				}
 				else
 				{
@@ -332,14 +331,20 @@ void draw_game()
 					case 42: tile = 205; break;
 					case 44: tile = 206; break;
 					case 46: tile = 207; break;
+					default: tile = 104; break;
 				}
 				
 				if(board[x1][y1].mine) tile = 114+anim;
+				if(board[x1][y1].doublemine) tile = 12+anim;
+				if(board[x1][y1].antimine) tile = 32+anim;
+				
+				int zpz = RENDER_SIZE;
+				if(board[x1][y1].halfmine) zpz = RENDER_SIZE/2;
 				
 				if(board[x1][y1].hasNeighborMines || board[x1][y1].mine)
 				{
 					DrawSprite2D(tile, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE),
-						RENDER_SIZE, RENDER_SIZE, 16, 16, 320, 320, 3, color);
+						RENDER_SIZE, zpz, 16, 16, 320, 320, 3, color);
 				}
 			}
 			else
@@ -349,8 +354,15 @@ void draw_game()
 				
 				if(board[x1][y1].mine && gamelose == 1)
 				{
-					DrawSprite2D(114+anim, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE),
-						RENDER_SIZE, RENDER_SIZE, 16, 16, 320, 320, 3, color);
+					if(board[x1][y1].mine) tile = 114+anim;
+					if(board[x1][y1].doublemine) tile = 12+anim;
+					if(board[x1][y1].antimine) tile = 32+anim;
+					
+					int zpz = RENDER_SIZE;
+					if(board[x1][y1].halfmine) zpz = RENDER_SIZE/2;
+					
+					DrawSprite2D(tile, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE),
+						RENDER_SIZE, zpz, 16, 16, 320, 320, 3, color);
 				}
 				
 				if(board[x1][y1].flagged>0)

@@ -210,24 +210,24 @@ void CalculateNumbers()
 					
 					if (!board[nx][ny].active) continue;
 					
-                    if(board[nx][ny].mine)
-					{
-						count += 2;
-						hasMine = true;
-					}
                     if(board[nx][ny].doublemine)
 					{
-						count += 2;
+						count += 4;
 						hasMine = true;
 					}
-					if(board[nx][ny].halfmine)
+					else if(board[nx][ny].halfmine)
 					{
-						count--;
+						count++;
 						hasMine = true;
 					}
-					if(board[nx][ny].antimine)
+					else if(board[nx][ny].antimine)
 					{
 						count -= 2;
+						hasMine = true;
+					}
+                    else if(board[nx][ny].mine)
+					{
+						count += 2;
 						hasMine = true;
 					}
                 }
@@ -365,7 +365,7 @@ void WinCheck()
 					board[fx][fy].flagged = 2;
 					if(board[fx][fy].doublemine) board[fx][fy].flagged++;
 					if(board[fx][fy].halfmine) board[fx][fy].flagged--;
-					if(board[fx][fy].antimine) board[fx][fy].flagged = -board[fx][fy].flagged;
+					if(board[fx][fy].antimine) board[fx][fy].flagged+=2;
 				}
 			}
 		}
@@ -408,7 +408,7 @@ void RevealIterative(int startx, int starty)
             return;
         }
 
-        if(board[x][y].neighbors != 0) continue;
+        if(board[x][y].hasNeighborMines) continue;
 		
 		int ox, oy;
 
@@ -451,7 +451,7 @@ void RevealRecursive(int x,int y)
 		return;
 	}
 
-    if(board[x][y].neighbors != 0) return;
+    if(board[x][y].hasNeighborMines) return;
 	
 	int ox, oy;
     for(ox=-1;ox<=1;ox++)
@@ -470,7 +470,7 @@ void Chord(int x, int y)
 {
     if(x < 0 || y < 0 || x >= GRID_W || y >= GRID_H) return;
     if(!board[x][y].revealed) return;
-	if(board[x][y].neighbors == 0) return;
+	if(board[x][y].neighbors == 0 && !board[x][y].hasNeighborMines) return;
 	
     int required = board[x][y].neighbors;
     int flags = 0;
