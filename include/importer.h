@@ -44,6 +44,7 @@ const char *langStr[1024];
 #include "bgm8_mp3_bin.h"
 
 #include "bgmrs_mp3_bin.h"
+#include "bgms3m_ogg_bin.h"
 
 #include "win1_mp3_bin.h"
 #include "win2_mp3_bin.h"
@@ -53,6 +54,9 @@ const char *langStr[1024];
 #include "win6_ogg_bin.h"
 #include "win7_ogg_bin.h"
 #include "win8_ogg_bin.h"
+
+#include "winrs_ogg_bin.h"
+#include "wins3m_ogg_bin.h"
 
 #include "ocean_mp3_bin.h"
 
@@ -66,6 +70,10 @@ const char *langStr[1024];
 #include "boss11_mp3_bin.h"
 #include "boss11_2_mp3_bin.h"
 #include "boss11_win_ogg_bin.h"
+#include "boss12_intro_ogg_bin.h"
+#include "boss12_ogg_bin.h"
+#include "boss12_2_ogg_bin.h"
+#include "boss12_win_ogg_bin.h"
 
 #include "Ags1_mp3_bin.h"
 #include "Ags2_mp3_bin.h"
@@ -79,6 +87,8 @@ const char *langStr[1024];
 #include "Ags10_mp3_bin.h"
 #include "Ags11_mp3_bin.h"
 #include "Agsrs_mp3_bin.h"
+#include "Agss3m_ogg_bin.h"
+#include "Ags12_ogg_bin.h"
 
 //IMPORT SFX
 #include "flag_ogg_bin.h"
@@ -127,6 +137,7 @@ extern bool has_custom_main;
 extern bool has_custom_win;
 
 extern int EPISODE;
+extern int EPISODEs;
 extern int LEVEL;
 extern int DIFFICULTY;
 extern int DIFFICULTYs;

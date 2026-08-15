@@ -38,6 +38,7 @@ bool has_custom_main = false;
 bool has_custom_win  = false;
 
 int EPISODE = 1;
+int EPISODEs = 1; //for showing off
 int LEVEL = 0;
 int DIFFICULTY = 1;
 int DIFFICULTYs = 1; //for showing off
@@ -235,6 +236,7 @@ void SplashesInit()
 	splashes_random[splash_count++] = "Also play Minesweeper Plus: Community Edition";
 	splashes_random[splash_count++] = "Also play Minesweeper Oddysey (if it comes out)";
 	splashes_random[splash_count++] = "Also play Minesweeper Plus: Epilogue";
+	splashes_random[splash_count++] = "Also play Hero's Advent";
 	splashes_random[splash_count++] = "The MORSHU.";
 	splashes_random[splash_count++] = "Why it was rewritten?";
 	splashes_random[splash_count++] = "Better, than Minesweeper Plus: PS3 Edition";
@@ -280,7 +282,18 @@ void SplashesInit()
 	splashes_random[splash_count++] = "JACK BEATED THE OG GAME WITH EVERY M RANK";
 	splashes_random[splash_count++] = "I dare anyone complete Expert 10 without dying";
 	splashes_random[splash_count++] = "Sweepers gonna sweep";
-	splashes_random[splash_count++] = "Sweepers gonna sweep";
+	splashes_random[splash_count++] = "3.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.";
+	splashes_random[splash_count++] = "Don't forget to feed me with a spoon!";
+	splashes_random[splash_count++] = "I am NOT doing Minesweeper Plus for Atari.";
+	splashes_random[splash_count++] = "Hi, Xbox Original :)";
+	splashes_random[splash_count++] = "I wonder what I can do for Mac OS 9 tho...";
+	
+	FILE *za = fopen("/dev_hdd0/game/ACIDSTORE/ICON0.PNG", "rb");
+	if(za!=NULL)
+	{
+		splashes_random[splash_count++] = "Thanks for installing AcidPS3 Store! :D";
+		fclose(za);
+	}
 	
 	FILE *z1 = fopen("/dev_hdd0/game/MINESWEEP/USRDIR/dlc00/data.dat", "rb");
 	FILE *z2 = fopen("/dev_hdd0/game/MINESWEEP/USRDIR/dlc00/mus.mp3", "rb");
@@ -406,6 +419,21 @@ void init_bgm()
 	bgm_start[17] = 44300;
 	bgm_end[17] = 103380;
 	
+	bgm[18] = bgms3m_ogg_bin;
+	bgm_size[18] = bgms3m_ogg_bin_size;
+	bgm_start[18] = 44300;
+	bgm_end[18] = 103380;
+	
+	bgm[19] = boss12_intro_ogg_bin;
+	bgm_size[19] = boss12_intro_ogg_bin_size;
+	bgm_start[19] = 23283;
+	bgm_end[19] = 35027-10;
+	
+	bgm[20] = boss12_ogg_bin;
+	bgm_size[20] = boss12_ogg_bin_size;
+	bgm_start[20] = 0;
+	bgm_end[20] = sex;
+	
 	bgm[51]=Ags1_mp3_bin;bgm_size[51]=Ags1_mp3_bin_size;bgm_start[51]=0;bgm_end[51]=sex;
 	bgm[52]=Ags2_mp3_bin;bgm_size[52]=Ags2_mp3_bin_size;bgm_start[52]=0;bgm_end[52]=sex;
 	bgm[53]=Ags3_mp3_bin;bgm_size[53]=Ags3_mp3_bin_size;bgm_start[53]=0;bgm_end[53]=sex;
@@ -418,6 +446,8 @@ void init_bgm()
 	bgm[60]=Ags10_mp3_bin;bgm_size[60]=Ags10_mp3_bin_size;bgm_start[60]=0;bgm_end[60]=sex;
 	bgm[61]=Ags11_mp3_bin;bgm_size[61]=Ags11_mp3_bin_size;bgm_start[61]=0;bgm_end[61]=sex;
 	bgm[62]=Agsrs_mp3_bin;bgm_size[62]=Agsrs_mp3_bin_size;bgm_start[62]=0;bgm_end[62]=sex;
+	bgm[63]=Agss3m_ogg_bin;bgm_size[63]=Agss3m_ogg_bin_size;bgm_start[63]=0;bgm_end[63]=sex;
+	bgm[64]=Ags12_ogg_bin;bgm_size[64]=Ags12_ogg_bin_size;bgm_start[64]=0;bgm_end[64]=sex;
 	
 	bgm[99] = (unsigned char *)""; // custom music
 	bgm_size[99] = 0;
@@ -483,6 +513,21 @@ void init_bgm()
 	bgm_size[111] = boss11_win_ogg_bin_size;
 	bgm_start[111] = 0;
 	bgm_end[111] = sex;
+	
+	bgm[112] = boss12_win_ogg_bin;
+	bgm_size[112] = boss12_win_ogg_bin_size;
+	bgm_start[112] = 0;
+	bgm_end[112] = sex;
+	
+	bgm[117] = winrs_ogg_bin;
+	bgm_size[117] = winrs_ogg_bin_size;
+	bgm_start[117] = 0;
+	bgm_end[117] = sex;
+	
+	bgm[118] = wins3m_ogg_bin;
+	bgm_size[118] = wins3m_ogg_bin_size;
+	bgm_start[118] = 0;
+	bgm_end[118] = sex;
 	
 	bgm[199] = (unsigned char *)"";
 	bgm_size[199] = 0;

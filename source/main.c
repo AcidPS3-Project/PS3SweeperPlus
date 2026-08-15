@@ -62,16 +62,16 @@ void ResetGrid()
 		// msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
 			// "ELEVEN TEMP DESCRIPTION", EmptyDialogCallback, NULL, NULL);
 	}
-	else if(LEVEL==11)
+	else if(LEVEL==11 || (free_play && desired_bgm == 14))
 	{
 		SetupBoss12Positions(boss12_count);
 		if(free_play)
 		{
-			//desired_bgm = 15;
+			desired_bgm = 19;
 			boss12_cutscene = 1;
 		}
 		// msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
-			// "ELEVEN TEMP DESCRIPTION", EmptyDialogCallback, NULL, NULL);
+			// "TWELVE TEMP DESCRIPTION", EmptyDialogCallback, NULL, NULL);
 	}
 	
 	int j;
@@ -100,8 +100,9 @@ void GoBackToTitle()
 	gamelose = 0;
 	current_minecoins = 0;
 	disable_control = 0;
-
-	splash = splashes_random[rand() % SplashesCount()];
+	
+	int randsplash = rand() % SplashesCount();
+	splash = splashes_random[randsplash];
 	free_play = 0;
 	
 	bad_apple = 0;
@@ -232,6 +233,7 @@ int main(int argc, const char* argv[])
 										if(paddata.BTN_R3) global_route = 1;
 										LEVEL = 0;
 										DIFFICULTY = DIFFICULTYs;
+										EPISODE = EPISODEs;
 										if(paddata.BTN_L2)
 										{
 											EPISODE = 3;
@@ -259,13 +261,13 @@ int main(int argc, const char* argv[])
 									}
 									if(paddata.BTN_LEFT && !oldpad.BTN_LEFT)
 									{
-										EPISODE--;
-										if (EPISODE<1) EPISODE = 1;
+										EPISODEs--;
+										if (EPISODEs<1) EPISODEs = 1;
 									}
 									if(paddata.BTN_RIGHT && !oldpad.BTN_RIGHT)
 									{
-										EPISODE++;
-										if (EPISODE>episode_count) EPISODE = episode_count;
+										EPISODEs++;
+										if (EPISODEs>episode_count) EPISODEs = episode_count;
 									}
 									if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE)
 									{
@@ -343,7 +345,7 @@ int main(int argc, const char* argv[])
 										case 6:
 										{
 											fp_music--;
-											if(fp_music>95) fp_music=8;
+											if(fp_music>95) fp_music=14;
 											if(fp_music<1) fp_music=1;
 											ReplaceBGM(fp_music);
 											break;
@@ -367,7 +369,7 @@ int main(int argc, const char* argv[])
 										case 6:
 										{
 											fp_music++;
-											if(fp_music>12) fp_music=12;
+											if(fp_music>14) fp_music=14;
 											ReplaceBGM(fp_music);
 											break;
 										}
@@ -448,6 +450,12 @@ int main(int argc, const char* argv[])
 									else
 									{
 										LEVEL++;
+										if(EPISODE==4)
+										{
+											if(LEVEL<4) LEVEL=4;
+											else if(LEVEL<8) LEVEL=8;
+											else if(LEVEL<11) LEVEL=11;
+										}
 										GoBackToTitle();
 									}
 								}
@@ -458,6 +466,13 @@ int main(int argc, const char* argv[])
 									{
 										int max_lvl = episodes[EPISODE-1].level_count;
 										LEVEL++;
+										
+										if(EPISODE==4)
+										{
+											if(LEVEL<4) LEVEL=4;
+											else if(LEVEL<8) LEVEL=8;
+											else if(LEVEL<11) LEVEL=11;
+										}
 
 										if(LEVEL >= max_lvl)
 										{
@@ -480,7 +495,7 @@ int main(int argc, const char* argv[])
 								// basic
 								if(paddata.BTN_CROSS && !oldpad.BTN_CROSS)
 								{
-									if(LEVEL==8 && !boss9_cutscene)
+									if(LEVEL==8 && boss9_cutscene==0)
 									{
 										if(cursorX==GRID_W/2 && cursorY==GRID_H/2)
 										{
@@ -489,7 +504,7 @@ int main(int argc, const char* argv[])
 											PlayBGM(10, 1);
 										}
 									}
-									else if(LEVEL==9 && !boss10_cutscene)
+									else if(LEVEL==9 && boss10_cutscene==0)
 									{
 										if(cursorX==GRID_W/2 && cursorY==GRID_H/2)
 										{
@@ -498,7 +513,7 @@ int main(int argc, const char* argv[])
 											PlayBGM(12, 1);
 										}
 									}
-									else if(LEVEL==10 && !boss11_cutscene)
+									else if(LEVEL==10 && boss11_cutscene==0)
 									{
 										if(cursorX==GRID_W/2 && cursorY==GRID_H/2)
 										{
@@ -507,13 +522,12 @@ int main(int argc, const char* argv[])
 											PlayBGM(15, 1);
 										}
 									}
-									else if(LEVEL==11 && !boss12_cutscene)
+									else if(LEVEL==11 && boss12_cutscene==0)
 									{
 										if(cursorX==GRID_W/2 && cursorY==GRID_H/2)
 										{
 											boss12_cutscene = 1;
-											the_bg = 14;
-											PlayBGM(15, 1);
+											PlayBGM(19, 1);
 										}
 									}
 									else
@@ -551,7 +565,7 @@ int main(int argc, const char* argv[])
 											}
 										}
 										
-										if((LEVEL==8 && !boss9_started) || (free_play && boss9_cutscene && !boss9_started))
+										if((LEVEL==8 && !boss9_started) || (free_play && boss9_cutscene==2 && !boss9_started))
 										{
 											boss9_started = 1;
 											
@@ -565,7 +579,7 @@ int main(int argc, const char* argv[])
 											PlayBGM(11, 1);
 											if(free_play) desired_bgm = 9;
 										}
-										else if((LEVEL==9 && !boss10_started) || (free_play && boss10_cutscene && !boss10_started))
+										else if((LEVEL==9 && !boss10_started) || (free_play && boss10_cutscene==2 && !boss10_started))
 										{
 											boss10_started = 1;
 											
@@ -579,7 +593,7 @@ int main(int argc, const char* argv[])
 											PlayBGM(13, 1);
 											if(free_play) desired_bgm = 10;
 										}
-										else if((LEVEL==10 && !boss11_started) || (free_play && boss11_cutscene && !boss11_started))
+										else if((LEVEL==10 && !boss11_started) || (free_play && boss11_cutscene==2 && !boss11_started))
 										{
 											boss11_started = 1;
 											
@@ -591,6 +605,20 @@ int main(int argc, const char* argv[])
 											
 											StopAudio();
 											PlayBGM(16, 1);
+											if(free_play) desired_bgm = 11;
+										}
+										else if((LEVEL==11 && !boss12_started) || (free_play && boss12_cutscene==2 && !boss12_started))
+										{
+											boss12_started = 1;
+											
+											int i;
+											for (i = 0; i < boss12_count; i++)
+											{
+												boss12_list[i].active = true;
+											}
+											
+											StopAudio();
+											PlayBGM(20, 1);
 											if(free_play) desired_bgm = 11;
 										}
 										
@@ -715,6 +743,15 @@ int main(int argc, const char* argv[])
 			for (i = 0; i < boss9_count; i++)
 			{
 				boss9_list[i].rotation += ((float)boss9_list[i].angle * boss9_list[i].speed);
+			}
+		}
+		
+		if(boss12_count>0)
+		{
+			int i;
+			for (i = 0; i < boss12_count; i++)
+			{
+				boss12_list[i].rotation += 1;
 			}
 		}
 		

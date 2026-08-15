@@ -91,7 +91,7 @@ void DeactivateBosses()
 	if(boss12_started)
 	{
 		boss12_started = 0;
-		//if(gamewin) PlayBGM(111,0);
+		if(gamewin) PlayBGM(112,0);
 		Deactivate12();
 	}
 }
@@ -617,6 +617,7 @@ void LoadFPLevel()
     desired_bgm = fp_music;
 	
 	if(desired_bgm==12) desired_bgm = 17;
+	if(desired_bgm==13) desired_bgm = 18;
 	
 	the_bg = fp_back;
 	GRID_ID = 0;

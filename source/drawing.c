@@ -520,7 +520,7 @@ void drawScene()
 				DrawSpriteUI(ze_x+zas_x, ze_y+116, 0, 128, 512, 256, 1536, 1024, 256, 64, 4, color2);
 				DrawSpriteUI(ze_x+zas_x, ze_y+184, 0, 256, 512, 384, 1536, 1024, 256, 64, 4, color3);
 				DrawSpriteUI(ze_x+zas_x, ze_y+252, 0, 384, 512, 512, 1536, 1024, 256, 64, 4, color4);
-				DrawFString(0, ze_x+zas_x, ze_y+322, 0xffffffff, 0, "%s: %d", langStr[24], EPISODE);
+				DrawFString(0, ze_x+zas_x, ze_y+322, 0xffffffff, 0, "%s: %d", langStr[24], EPISODEs);
 				
 				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+4, 0xffffffff, 0, langStr[27]);
 				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+64, 0xffffffff, 0, "%s: %d", langStr[18], fp_width);
@@ -528,7 +528,7 @@ void drawScene()
 				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+128, 0xffffffff, 0, "%s: %d", langStr[20], fp_mines);
 				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+160, 0xffffffff, 0, "%s: %d", langStr[21], fp_doubles);
 				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+192, 0xffffffff, 0, "%s: %d", langStr[22], fp_halfes);
-				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+224, 0xffffffff, 0, "%s: %d (WIP)", langStr[23], fp_antis);
+				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+224, 0xffffffff, 0, "%s: %d", langStr[23], fp_antis);
 				
 				if(fp_music==99) DrawFString(0, ze_x+ui_x-zfp_x, ze_y+256, 0xffffffff, 0, "%s: %s", langStr[25], langStr[26]);
 				else DrawFString(0, ze_x+ui_x-zfp_x, ze_y+256, 0xffffffff, 0, "%s: %d", langStr[25], fp_music);
@@ -682,6 +682,21 @@ void drawScene()
 						DrawSprite2D(5, offset_x+(boss11_list[i].x*RENDER_SIZE)-(RENDER_SIZE*0.5)+RENDER_SIZE+boss11_list[i].vis_x2-(RENDER_SIZE*0.022),
 							offset_y+(boss11_list[i].y*RENDER_SIZE)-(RENDER_SIZE*0.5),
 							RENDER_SIZE, RENDER_SIZE*2, 192, 384, 1536, 1536, -1, colorz);
+					}
+				}
+				
+				if(boss12_count>0 && boss12_cutscene)
+				{
+					int i;
+					float TMP_SIZ = 3.0f * RENDERING_PIXELS;
+
+					for (i = 0; i < boss12_count; i++)
+					{
+						//if(boss12_count>0 && i>0) SetTexture(5);
+						DrawSprite2DR(3, boss12_list[i].x - TMP_SIZ, boss12_list[i].y - TMP_SIZ, TMP_SIZ*3, TMP_SIZ*3,
+							384, 384, 1536, 1536, boss12_list[i].rotation, -3, color);
+						DrawSprite2D(7, boss12_list[i].x - TMP_SIZ, boss12_list[i].y - TMP_SIZ, TMP_SIZ*3, TMP_SIZ*3,
+							384, 384, 1536, 1536, -3, color);
 					}
 				}
 				

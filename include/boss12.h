@@ -9,6 +9,7 @@ typedef struct
 {
     bool active;
     float x, y;
+    float rotation;
 } Boss12;
 
 extern Boss12 boss12_list[MAX_BOSS12];
