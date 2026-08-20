@@ -2,8 +2,21 @@
 #include "bosses.h"
 #include "text.h"
 #include "save.h"
+#include "video.h"
 
-GameScreen currentScreen = TITLE;
+GameScreen currentScreen = LOGO;
+
+void DrawBackground2D(u32 rgba, int l)
+{
+    tiny3d_SetPolygon(TINY3D_QUADS);
+
+    tiny3d_VertexPos(-100, 0, l);
+    tiny3d_VertexColor(rgba);
+    tiny3d_VertexPos(1000, 0, l);
+    tiny3d_VertexPos(1000, 1000, l);
+    tiny3d_VertexPos(-100, 1000, l);
+    tiny3d_End();
+}
 
 u32 color_from_value(int value)
 {
@@ -387,6 +400,22 @@ void draw_game()
 				}
 			}
 			
+			if(board[x1][y1].wall_left)
+				DrawSprite2D(195 + grid_bg, offset_x + (x1 * RENDER_SIZE), offset_y + (y1 * RENDER_SIZE),
+					RENDER_SIZE / 16, RENDER_SIZE, 16, 16, 320, 320, 1, color);
+
+			if(board[x1][y1].wall_right)
+				DrawSprite2D(195 + grid_bg, offset_x + (x1 * RENDER_SIZE) + RENDER_SIZE, offset_y + (y1 * RENDER_SIZE),
+					RENDER_SIZE / 16, RENDER_SIZE, 16, 16, 320, 320, 1, color);
+
+			if(board[x1][y1].wall_up)
+				DrawSprite2D(195 + grid_bg, offset_x + (x1 * RENDER_SIZE), offset_y + (y1 * RENDER_SIZE),
+					RENDER_SIZE, RENDER_SIZE / 16, 16, 16, 320, 320, 1, color);
+
+			if(board[x1][y1].wall_down)
+				DrawSprite2D(195 + grid_bg, offset_x + (x1 * RENDER_SIZE), offset_y + (y1 * RENDER_SIZE) + RENDER_SIZE,
+					RENDER_SIZE, RENDER_SIZE / 16, 16, 16, 320, 320, 1, color);
+			
 			if(draw_grid_outlines)
 			{
 				DrawSprite2D(241 + grid_bg, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE),
@@ -444,6 +473,19 @@ void drawScene()
 		
 		switch(currentScreen)
 		{
+			case LOGO:
+			{
+				PS3Video_Update(&the_video);
+				if (vdec_picout_pending)
+				{
+					printf("PICOUT PENDING\n");
+					vdec_picout_pending = 0;
+					int ret = PS3Video_GetFrame(&the_video, the_video.framebuffer);
+					printf("[VDEC] GetFrame returned %08X\n", ret);
+				}
+				PS3Video_Draw(&the_video, 0);
+				break;
+			}
 			case TITLE:
 			{
 				SetTexture(7);
@@ -687,17 +729,17 @@ void drawScene()
 				
 				if(boss12_count>0 && boss12_cutscene)
 				{
-					int i;
 					float TMP_SIZ = 3.0f * RENDERING_PIXELS;
-
-					for (i = 0; i < boss12_count; i++)
+					
+					if(boss12.tempo>(495-boss12.mistake) && boss12.tempo<(500-boss12.mistake))
 					{
-						//if(boss12_count>0 && i>0) SetTexture(5);
-						DrawSprite2DR(3, boss12_list[i].x - TMP_SIZ, boss12_list[i].y - TMP_SIZ, TMP_SIZ*3, TMP_SIZ*3,
-							384, 384, 1536, 1536, boss12_list[i].rotation, -3, color);
-						DrawSprite2D(7, boss12_list[i].x - TMP_SIZ, boss12_list[i].y - TMP_SIZ, TMP_SIZ*3, TMP_SIZ*3,
-							384, 384, 1536, 1536, -3, color);
+						DrawBackground2D(0xffffffff, -2);
 					}
+					
+					DrawSprite2DR(3, boss12.x - TMP_SIZ, boss12.y - TMP_SIZ, TMP_SIZ*3, TMP_SIZ*3,
+						384, 384, 1536, 1536, -boss12.rotation, -3, color);
+					DrawSprite2D(7, boss12.x - TMP_SIZ, boss12.y - TMP_SIZ, TMP_SIZ*3, TMP_SIZ*3,
+						384, 384, 1536, 1536, -3, color);
 				}
 				
 				SetFontSize(28, 32);

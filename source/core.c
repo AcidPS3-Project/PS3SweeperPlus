@@ -58,12 +58,69 @@ int boss10_count = 1;
 int boss11_count = 1;
 int boss12_count = 1;
 
+bool CanMoveBetween(int x, int y, int nx, int ny)
+{
+    if(nx == x + 1 && ny == y) return !board[x][y].wall_right;
+    if(nx == x - 1 && ny == y) return !board[x][y].wall_left;
+    if(nx == x && ny == y + 1) return !board[x][y].wall_down;
+    if(nx == x && ny == y - 1) return !board[x][y].wall_up;
+
+    return true;
+}
+
+bool CanChordBetween(int x, int y, int nx, int ny)
+{
+    int dx = nx - x;
+    int dy = ny - y;
+
+    if(dx == 1 && dy == 0) return !board[x][y].wall_right;
+    if(dx == -1 && dy == 0) return !board[x][y].wall_left;
+    if(dx == 0 && dy == 1) return !board[x][y].wall_down;
+    if(dx == 0 && dy == -1) return !board[x][y].wall_up;
+
+    if(dx == 1 && dy == 1) return !board[x][y].wall_right && !board[x][y].wall_down;
+    if(dx == -1 && dy == 1)  return !board[x][y].wall_left && !board[x][y].wall_down;
+    if(dx == 1 && dy == -1) return !board[x][y].wall_right && !board[x][y].wall_up;
+    if(dx == -1 && dy == -1) return !board[x][y].wall_left && !board[x][y].wall_up;
+
+    return true;
+}
+
+void LoadBoardWalls(int grd_id)
+{
+    int x, y;
+	const ShapeDef2 *map = &episode3_shapes[grd_id];
+
+	for(y = 0; y < GRID_H; y++)
+    {
+		for(x = 0; x < GRID_W; x++)
+        {
+			u8 w = map->data[y * map->width + x];
+
+            board[x][y].wall_up    = (w & 0x01) != 0;
+            board[x][y].wall_right = (w & 0x02) != 0;
+            board[x][y].wall_down  = (w & 0x04) != 0;
+            board[x][y].wall_left  = (w & 0x08) != 0;
+        }
+    }
+}
+
 int FindEpisode2ShapeIndex(int the_id)
 {
     int i;
     for (i = 0; i < sizeof(episode2_shapes) / sizeof(episode2_shapes[0]); i++)
     {
         if (episode2_shapes[i].the_id == the_id) return i;
+    }
+    return -1;
+}
+
+int FindEpisode3ShapeIndex(int the_id)
+{
+    int i;
+    for (i = 0; i < sizeof(episode3_shapes) / sizeof(episode3_shapes[0]); i++)
+    {
+        if (episode3_shapes[i].the_id == the_id) return i;
     }
     return -1;
 }
@@ -136,6 +193,15 @@ void GenerateBoard()
 			}
 			if (MINES >= active_count) MINES = active_count - 1;
 			valid_total = active_count - MINES;
+		}
+	}
+	
+	if(EPISODE>=3)
+	{
+		if(GRID_ID!=999)
+		{
+			int grd_id = FindEpisode3ShapeIndex(GRID_ID);
+			LoadBoardWalls(grd_id);
 		}
 	}
 	

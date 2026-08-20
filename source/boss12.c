@@ -1,80 +1,81 @@
 #include "boss12.h"
 
-Boss12 boss12_list[MAX_BOSS12];
+Boss12 boss12;
 
-void SetupBoss12Positions(int count)
+void SetupBoss12Position()
 {
 	float center_x = screen_w-32.0f;
 	float center_y = screen_h + ui_offset_y-32.0f;
 	
-    float margin_x = center_x * 0.30f;
-    float margin_y = center_y * 0.30f;
-
-    float left   = margin_x;
-    float right  = (center_x * 2.0f) - margin_x;
-    float top    = margin_y;
-    float bottom = (center_y * 2.0f) - margin_y;
-	float dist = 0;
-
     float cx = center_x;
     float cy = center_y;
 
-    if (count > MAX_BOSS12) count = MAX_BOSS12;
-	boss12_count = count;
-
-    memset(boss12_list, 0, sizeof(boss12_list));
-
-    switch (count)
-    {
-        case 1:
-            boss12_list[0].x = cx;
-            boss12_list[0].y = cy;
-            break;
-			
-		case 2:
-			dist = screen_w * 0.55f;
-
-			boss12_list[0].x = cx - dist;
-			boss12_list[0].y = cy;
-
-			boss12_list[1].x = cx + dist;
-			boss12_list[1].y = cy;
-			break;
-
-        case 3:
-            boss12_list[0].x = left;
-            boss12_list[0].y = top;
-
-            boss12_list[1].x = right;
-            boss12_list[1].y = top;
-
-            boss12_list[2].x = cx;
-            boss12_list[2].y = bottom;
-            break;
-
-        default: // 4+
-            boss12_list[0].x = left;
-            boss12_list[0].y = top;
-
-            boss12_list[1].x = right;
-            boss12_list[1].y = top;
-
-            boss12_list[2].x = left;
-            boss12_list[2].y = bottom;
-
-            boss12_list[3].x = right;
-            boss12_list[3].y = bottom;
-            break;
-    }
-
-    for (int i = 0; i < count; i++)
-    {
-        boss12_list[i].active = false;
-    }
+	boss12.x = cx;
+	boss12.y = cy;
+	boss12.hsp = 1.0f;
+	boss12.vsp = 1.0f;
+	boss12.active = false;
+	boss12.mistake = 0;
+	boss12.tempo = 0;
+	boss12.rotation = 1;
 }
 
 void Deactivate12()
 {
-	int i;
-	for (i = 0; i < boss12_count; i++) boss12_list[i].active = false;
+	boss12.active = false;
+}
+
+void boss12_update()
+{
+	static int tempoz = 0;
+	
+    float TMP_SIZ = 3.0f * RENDERING_PIXELS;
+    float boss_half = (TMP_SIZ * 3.0f * 1.1f) * 0.5f;
+	float boundary = 384.0f / 4;
+
+    float left   = boss_half - boundary;
+    float right  = (screen_w*2) - boss_half + boundary - TMP_SIZ;
+    float top    = boss_half - boundary;
+    float bottom = (screen_h*2) - boss_half + boundary - TMP_SIZ;
+	
+	if(boss12.tempo>(500-boss12.mistake))
+	{
+		can_move_xd = 0;
+		tempoz++;
+		if(tempoz>100)
+		{
+			tempoz=0;
+			boss12.tempo=0;
+			can_move_xd = 1;
+		}
+	}
+	else
+	{
+		boss12.tempo++;
+		boss12.rotation += ((float)boss12.tempo/50);
+		
+		boss12.x += boss12.hsp * ((float)boss12.tempo/50);
+		boss12.y += boss12.vsp * ((float)boss12.tempo/50);
+
+		if (boss12.x < left)
+		{
+			boss12.x = left;
+			boss12.hsp = -boss12.hsp;
+		}
+		else if (boss12.x > right)
+		{
+			boss12.x = right;
+			boss12.hsp = -boss12.hsp;
+		}
+		if (boss12.y < top)
+		{
+			boss12.y = top;
+			boss12.vsp = -boss12.vsp;
+		}
+		else if (boss12.y > bottom)
+		{
+			boss12.y = bottom;
+			boss12.vsp = -boss12.vsp;
+		}
+	}
 }

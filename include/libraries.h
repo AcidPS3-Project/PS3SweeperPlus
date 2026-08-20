@@ -14,6 +14,10 @@
 #include <assert.h>
 #include <unistd.h>
 
+#include <ppu-types.h>
+#include <sys/process.h>
+#include <sys/memory.h>
+
 #include <tiny3d.h>
 #include <libfont.h>
 

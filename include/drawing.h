@@ -5,6 +5,7 @@
 
 typedef enum GameScreen
 {
+	LOGO,
 	TITLE,
 	MENU,
 	MAP,
@@ -14,6 +15,7 @@ typedef enum GameScreen
 GameScreen;
 
 extern GameScreen currentScreen;
+extern int vdec_picout_pending;
 
 int getCaptainState(int anim_z, int anim1_z);
 int getHatState(int hat, int anim_z);

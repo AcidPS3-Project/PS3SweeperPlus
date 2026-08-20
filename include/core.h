@@ -25,10 +25,19 @@ typedef struct
 	u8 antimine;
 	u8 active;
 	u8 processed;
+	
+    u8 wall_up;
+    u8 wall_down;
+    u8 wall_left;
+    u8 wall_right;
 } Cell; //heh, funny
 
 extern RevealNode reveal_queue[MAX_W * MAX_H];
 extern Cell board[MAX_W][MAX_H];
+
+bool CanMoveBetween(int x, int y, int nx, int ny);
+bool CanChordBetween(int x, int y, int nx, int ny);
+void LoadBoardWalls(int grd_id);
 
 extern int GRID_W;
 extern int GRID_H;
@@ -55,7 +64,7 @@ extern int cursorX;
 extern int cursorY;
 extern int gamewin;
 extern int gamelose;
-extern int in_game;
+extern int can_move_xd;
 
 extern int boss9_started;
 extern int boss10_started;

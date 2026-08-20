@@ -2,6 +2,7 @@
 #include "level_data.h"
 #include "save.h"
 #include "drawing.h"
+#include "video.h"
 
 void ResetGrid()
 {
@@ -30,7 +31,7 @@ void ResetGrid()
 		if(free_play)
 		{
 			desired_bgm = 10;
-			boss9_cutscene = 1;
+			boss9_cutscene = 2;
 		}
 		// msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON, "There is a boss battle in this game. The battle works the same as normal Minesweeper, but with some key distinctions:\n"
 			// "you won't know the number of mines hidden on the grid, you have limited time to complete the level, and you won't be able to use the sonar or pause the game.\n"
@@ -43,7 +44,7 @@ void ResetGrid()
 		if(free_play)
 		{
 			desired_bgm = 12;
-			boss10_cutscene = 1;
+			boss10_cutscene = 2;
 		}
 		// msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
 			// "There is another boss battle in this game. As soon as the game starts, this boss will start counting down from 10.\n"
@@ -57,18 +58,18 @@ void ResetGrid()
 		if(free_play)
 		{
 			desired_bgm = 15;
-			boss11_cutscene = 1;
+			boss11_cutscene = 2;
 		}
 		// msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
 			// "ELEVEN TEMP DESCRIPTION", EmptyDialogCallback, NULL, NULL);
 	}
 	else if(LEVEL==11 || (free_play && desired_bgm == 14))
 	{
-		SetupBoss12Positions(boss12_count);
+		SetupBoss12Position();
 		if(free_play)
 		{
 			desired_bgm = 19;
-			boss12_cutscene = 1;
+			boss12_cutscene = 2;
 		}
 		// msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
 			// "TWELVE TEMP DESCRIPTION", EmptyDialogCallback, NULL, NULL);
@@ -94,7 +95,7 @@ void ResetGrid()
 
 void GoBackToTitle()
 {
-	in_game = 0;
+	can_move_xd = 0;
 
 	gamewin = 0;
 	gamelose = 0;
@@ -140,6 +141,10 @@ int main(int argc, const char* argv[])
 	tiny3d_Init(1024*1024);
 	
 	sysModuleLoad(SYSMODULE_PNGDEC);
+	
+	s32 ret = sysModuleLoad(SYSMODULE_VDEC);
+	printf("[VDEC] sysModuleLoad(SYSMODULE_VDEC) = %08X\n", ret);
+	
 	savestate_init();
 	SplashesInit();
 	Initialize();
@@ -158,6 +163,8 @@ int main(int argc, const char* argv[])
 	LangInit();
 	
 	StartLoad();
+
+	PS3Video_Init(&the_video, 960, 720);
 	
     while(1)
     {
@@ -187,6 +194,10 @@ int main(int argc, const char* argv[])
 					ioPadGetData(ip, &paddata);
 					switch(currentScreen)
 					{
+						case LOGO:
+						{
+							break;
+						}
 						case TITLE:
 						{
 							if(paddata.BTN_START && !oldpad.BTN_START)
@@ -230,24 +241,21 @@ int main(int argc, const char* argv[])
 								{
 									if(paddata.BTN_CROSS && !oldpad.BTN_CROSS)
 									{
-										if(paddata.BTN_R3) global_route = 1;
+										if(paddata.BTN_R2) global_route = 1;
 										LEVEL = 0;
 										DIFFICULTY = DIFFICULTYs;
 										EPISODE = EPISODEs;
 										if(paddata.BTN_L2)
 										{
-											EPISODE = 3;
-											LEVEL = 1;
-										}
-										if(paddata.BTN_R2)
-										{
-											EPISODE = 3;
-											LEVEL = 0;
+											if(EPISODE==1) LEVEL = 8;
+											if(EPISODE==2) LEVEL = 9;
+											if(EPISODE==3) LEVEL = 10;
+											if(EPISODE==4) LEVEL = 11;
 										}
 										current_minecoins = 0;
 										StopAudio();
 										LoadLevel(LEVEL);
-										in_game = 1;
+										can_move_xd = 1;
 									}
 									if(paddata.BTN_UP && !oldpad.BTN_UP)
 									{
@@ -291,7 +299,7 @@ int main(int argc, const char* argv[])
 										free_play = 0;
 										StopAudio();
 										LoadLevel(LEVEL);
-										in_game = 1;
+										can_move_xd = 1;
 									}
 									
 									if(paddata.BTN_LEFT && !oldpad.BTN_LEFT)
@@ -312,7 +320,7 @@ int main(int argc, const char* argv[])
 								{
 									LEVEL = 0;
 									LoadFPLevel();
-									in_game = 1;
+									can_move_xd = 1;
 								}
 								
 								if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE)
@@ -387,7 +395,7 @@ int main(int argc, const char* argv[])
 									fp_mines = 111;
 									LEVEL = 0;
 									LoadFPLevel();
-									in_game = 1;
+									can_move_xd = 1;
 								}
 								if(paddata.BTN_TRIANGLE && !oldpad.BTN_TRIANGLE)
 								{
@@ -490,7 +498,7 @@ int main(int argc, const char* argv[])
 								}
 							}
 							
-							if (!disable_control && in_game && !bad_apple)
+							if (!disable_control && can_move_xd && !bad_apple)
 							{					
 								// basic
 								if(paddata.BTN_CROSS && !oldpad.BTN_CROSS)
@@ -610,16 +618,10 @@ int main(int argc, const char* argv[])
 										else if((LEVEL==11 && !boss12_started) || (free_play && boss12_cutscene==2 && !boss12_started))
 										{
 											boss12_started = 1;
-											
-											int i;
-											for (i = 0; i < boss12_count; i++)
-											{
-												boss12_list[i].active = true;
-											}
-											
+											boss12.active = true;
 											StopAudio();
 											PlayBGM(20, 1);
-											if(free_play) desired_bgm = 11;
+											if(free_play) desired_bgm = 12;
 										}
 										
 										if (bonked == 0)
@@ -746,14 +748,7 @@ int main(int argc, const char* argv[])
 			}
 		}
 		
-		if(boss12_count>0)
-		{
-			int i;
-			for (i = 0; i < boss12_count; i++)
-			{
-				boss12_list[i].rotation += 1;
-			}
-		}
+		boss12.rotation += 1;
 		
 		if(timer_running) timer_seconds += 0.018f;
 		
@@ -783,6 +778,8 @@ int main(int argc, const char* argv[])
 				boss11_update(i);
 			}
 		}
+		
+		if(boss12_started && !disable_control) boss12_update();
 		
 		if(disable_control && !gamelose && !gamewin)
 		{
@@ -815,8 +812,11 @@ int main(int argc, const char* argv[])
 						}
 						
 						game_loaded = 1;
-						start_music = 1;
+						//start_music = 1;
 						DebugLog("starting the game");
+						
+						PS3Video_Start(&the_video);
+						PS3Video_OpenFile(&the_video, "/dev_hdd0/game/MINESWEEP/USRDIR/data/test.264");
 					}
 					oldpad = paddata;
 				}
