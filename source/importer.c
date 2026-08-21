@@ -284,9 +284,9 @@ void SplashesInit()
 	splashes_random[splash_count++] = "Sweepers gonna sweep";
 	splashes_random[splash_count++] = "3.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.";
 	splashes_random[splash_count++] = "Don't forget to feed me with a spoon!";
-	splashes_random[splash_count++] = "I am NOT doing Minesweeper Plus for Atari.";
-	splashes_random[splash_count++] = "Hi, Xbox Original :)";
-	splashes_random[splash_count++] = "I wonder what I can do for Mac OS 9 tho...";
+	//splashes_random[splash_count++] = "Hi, Xbox Original :)";
+	//splashes_random[splash_count++] = "I wonder what I can do for Mac OS 9 tho...";
+	splashes_random[splash_count++] = "Cutscenes?";
 	
 	FILE *za = fopen("/dev_hdd0/game/ACIDSTORE/ICON0.PNG", "rb");
 	if(za!=NULL)
@@ -528,6 +528,11 @@ void init_bgm()
 	bgm_size[118] = wins3m_ogg_bin_size;
 	bgm_start[118] = 0;
 	bgm_end[118] = sex;
+	
+	bgm[198] = logo_mp3_bin;
+	bgm_size[198] = logo_mp3_bin_size;
+	bgm_start[198] = 0;
+	bgm_end[198] = sex;
 	
 	bgm[199] = (unsigned char *)"";
 	bgm_size[199] = 0;

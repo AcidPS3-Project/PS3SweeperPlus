@@ -8,22 +8,24 @@ int vdec_picout_pending = 0;
 
 static u32 PS3Video_Callback(u32 handle, u32 msgtype, u32 msgdata, u32 arg)
 {
-    (void)handle;
-    (void)msgdata;
-    (void)arg;
-
-    switch (msgtype)
-    {
-        case VDEC_CALLBACK_AUDONE: break;
-        case VDEC_CALLBACK_PICOUT:
-            vdec_picout_pending = 1;
-            break;
-        case VDEC_CALLBACK_SEQDONE: break;
-        case VDEC_CALLBACK_ERROR:
-            printf("[VDEC] ERROR: %08X\n", msgdata);
-            //video->error = 1;
-            break;
-    }
+	switch (msgtype)
+	{
+		case VDEC_CALLBACK_AUDONE: break;
+		case VDEC_CALLBACK_PICOUT:
+			vdec_picout_pending = 1;
+			break;
+		case VDEC_CALLBACK_SEQDONE:
+			printf("[VDEC] SEQDONE msgdata=%08X\n", msgdata);
+			break;
+		case VDEC_CALLBACK_ERROR:
+			printf("[VDEC] ERROR msgdata=%08X\n", msgdata);
+			break;
+		default:
+			printf("[VDEC] UNKNOWN CALLBACK");
+			break;
+	}
+	
+	fflush(stdout);
 
     return 0;
 }
@@ -55,10 +57,7 @@ static int GetNALType(const u8 *data, u32 size, u32 start)
     {
         header = start + 4;
     }
-    else
-    {
-        return -1;
-    }
+    else return -1;
 
     return data[header] & 0x1F;
 }
@@ -118,7 +117,7 @@ int PS3Video_Init(PS3Video *video, u32 width, u32 height)
     config.ppu_thread_prio = 500;
     config.ppu_thread_stack_size = 0x10000;
     config.spu_thread_prio = 250;
-    config.num_spus = 2;
+    config.num_spus = 1;
 
     memset(&closure, 0, sizeof(closure));
 
@@ -186,16 +185,12 @@ int PS3Video_Start(PS3Video *video)
     if (!video) return -1;
 	
     ret = vdecStartSequence(video->vdec_handle);
-	
-    if (ret != 0)
-    {
-        printf("[VDEC] vdecStartSequence failed: %08X\n", ret);
-        return -2;
-    }
+    if (ret != 0) return -2;
 
     video->picture_ready = 0;
     video->error = 0;
     video->frame_number = 0;
+    video->eof = 0;
 
     return 0;
 }
@@ -247,8 +242,8 @@ int PS3Video_OpenFile(PS3Video *video, const char *filename)
     }
 
     fclose(fp);
-
-    video->file_size = (u32)size;
+	
+	video->file_size = (u32)size;
     video->file_pos = 0;
 
     video->au_start = 0;
@@ -256,7 +251,7 @@ int PS3Video_OpenFile(PS3Video *video, const char *filename)
 
     video->file_open = 1;
     video->eof = 0;
-
+	
     printf("[VDEC] Opened %s (%u bytes)\n", filename, video->file_size);
 
     return 0;
@@ -328,16 +323,13 @@ int PS3Video_Update(PS3Video *video)
 
     video->file_pos = video->file_size;
     video->eof = 1;
-
-	printf("[VDEC] Update end");
+	
     return 1;
 }
 
 int PS3Video_DecodeAU(PS3Video *video, void *data, u32 size, u64 pts, u64 dts)
 {
     vdecAU au;
-	printf("[VDEC] sizeof(vdecAU)=%u\n", (u32)sizeof(au));
-
     s32 ret;
 
     if (!video || !data || size == 0) return -1;
@@ -352,14 +344,8 @@ int PS3Video_DecodeAU(PS3Video *video, void *data, u32 size, u64 pts, u64 dts)
     au.dts.hi = (u32)(dts >> 32);
     au.userdata = video->frame_number;
 	
-	printf("[VDEC] BEFORE DecodeAU addr=%08X size=%u\n", au.packet_addr, au.packet_size);
-	fflush(stdout);
-	
     ret = vdecDecodeAu(video->vdec_handle, VDEC_DECODER_MODE_NORMAL, &au);
 	
-	printf("[VDEC] AFTER DecodeAU ret=%08X\n", ret);
-	fflush(stdout);
-
     if (ret != 0)
     {
         printf("[VDEC] DecodeAU failed: %08X\n", ret);
@@ -386,35 +372,15 @@ int PS3Video_GetFrame(PS3Video *video, void *dst)
 
     memset(&fmt, 0, sizeof(fmt));
 
-    fmt.format_type = 0; // ARGB32
+    fmt.format_type = 0;
     fmt.color_matrix = VDEC_COLOR_MATRIX_BT709;
     fmt.alpha = 255;
 
     ret = vdecGetPicture(video->vdec_handle, &fmt, dst);
-    printf("[VDEC] vdecGetPicture = %08X\n", ret);
-	
-	u32 *p = (u32 *)dst;
-
-	printf("[VDEC] pixels: %08X %08X %08X %08X\n", p[0], p[1], p[2], p[3]);
-
     if (ret == 0)
     {
         u32 pic_addr = 0;
-
-        ret = vdecGetPicItem(video->vdec_handle, &pic_addr);
-        printf("[VDEC] vdecGetPicItem = %08X addr=%08X\n", ret, pic_addr);
-
-        if (ret == 0 && pic_addr)
-        {
-            vdecPicture *pic = (vdecPicture *)(uintptr_t)pic_addr;
-            printf("[VDEC] picture_size=%u codec_specific=%08X\n", pic->picture_size, pic->codec_specific_addr);
-
-            if (pic->codec_specific_addr)
-            {
-                vdecH264Info *info = (vdecH264Info *)(uintptr_t)pic->codec_specific_addr;
-                printf("[VDEC] H264: %ux%u\n", info->width, info->height);
-            }
-        }
+		vdecGetPicItem(video->vdec_handle, &pic_addr);
     }
 
     return ret;
@@ -481,6 +447,7 @@ void PS3Video_Stop(PS3Video *video)
     if (!video) return;
     if (video->vdec_handle) vdecEndSequence(video->vdec_handle);
     video->picture_ready = 0;
+	video->eof = 0;
 }
 
 void PS3Video_Destroy(PS3Video *video)

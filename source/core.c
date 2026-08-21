@@ -39,6 +39,7 @@ int in_game = 0;
 
 int adventure_select = 0;
 int challenge_select = 0;
+int loadout_select = 0;
 
 int revealed_total = 0;
 int valid_total = 0;

@@ -100,6 +100,7 @@ void Deactivate12(void);
 
 extern int adventure_select;
 extern int challenge_select;
+extern int loadout_select;
 
 void badAppleUpdate();
 bool bad_apple_init();

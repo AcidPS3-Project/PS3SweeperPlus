@@ -101,6 +101,7 @@ const char *langStr[1024];
 #include "game_explosion_ogg_bin.h"
 #include "eleven_open_ogg_bin.h"
 #include "eleven_bonk_ogg_bin.h"
+#include "logo_mp3_bin.h"
 
 extern int current_bgm;
 extern int desired_bgm;

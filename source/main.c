@@ -164,7 +164,7 @@ int main(int argc, const char* argv[])
 	
 	StartLoad();
 
-	PS3Video_Init(&the_video, 960, 720);
+	PS3Video_Init(&the_video, 1280, 720);
 	
     while(1)
     {
@@ -173,6 +173,7 @@ int main(int argc, const char* argv[])
 		
 		if(start_music)
 		{
+			StopAudio();
 			start_music = 0;
 			playing_bgm = true;
 			PlayBGM(0, 1);
@@ -212,8 +213,9 @@ int main(int argc, const char* argv[])
 								msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
 									"CREDITS\n\n"
 									"Original Minesweeper Plus game made by Jorel Simpson\n"
-									"XMB Background made by Zeltizy\n"
-									"Half Related Sprites by Axelbastian",
+									"Half-Mine Related Sprites by Axelbastian\n\n"
+									"SPECIAL THANKS\n\n"
+									"cruslan",
 									EmptyDialogCallback, NULL, NULL);
 							}
 							
@@ -235,6 +237,13 @@ int main(int argc, const char* argv[])
 									if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE)
 									{
 										challenge_select = 0;
+									}
+								}
+								if(loadout_select)
+								{
+									if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE)
+									{
+										loadout_select = 0;
 									}
 								}
 								else if(adventure_select)
@@ -291,6 +300,7 @@ int main(int argc, const char* argv[])
 											case 0: adventure_select = 1; break;
 											case 1: free_play = 1; break;
 											case 2: challenge_select = 1; break;
+											case 3: loadout_select = 1; break;
 											default: break;
 										}
 									}
@@ -811,12 +821,12 @@ int main(int argc, const char* argv[])
 							splash = splashes_random[RandRange(20, SplashesCount())];
 						}
 						
-						game_loaded = 1;
-						//start_music = 1;
-						DebugLog("starting the game");
+						DebugLog("LOGOSHOW");
 						
-						PS3Video_Start(&the_video);
 						PS3Video_OpenFile(&the_video, "/dev_hdd0/game/MINESWEEP/USRDIR/data/test.264");
+						PS3Video_Start(&the_video);
+						PlayBGM(198, 1);
+						game_loaded = 1;
 					}
 					oldpad = paddata;
 				}

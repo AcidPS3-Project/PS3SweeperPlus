@@ -400,21 +400,21 @@ void draw_game()
 				}
 			}
 			
-			if(board[x1][y1].wall_left)
-				DrawSprite2D(195 + grid_bg, offset_x + (x1 * RENDER_SIZE), offset_y + (y1 * RENDER_SIZE),
-					RENDER_SIZE / 16, RENDER_SIZE, 16, 16, 320, 320, 1, color);
+			// if(board[x1][y1].wall_left)
+				// DrawSprite2D(195 + grid_bg, offset_x + (x1 * RENDER_SIZE), offset_y + (y1 * RENDER_SIZE),
+					// RENDER_SIZE / 16, RENDER_SIZE, 16, 16, 320, 320, 1, color);
 
-			if(board[x1][y1].wall_right)
-				DrawSprite2D(195 + grid_bg, offset_x + (x1 * RENDER_SIZE) + RENDER_SIZE, offset_y + (y1 * RENDER_SIZE),
-					RENDER_SIZE / 16, RENDER_SIZE, 16, 16, 320, 320, 1, color);
+			// if(board[x1][y1].wall_right)
+				// DrawSprite2D(195 + grid_bg, offset_x + (x1 * RENDER_SIZE) + RENDER_SIZE, offset_y + (y1 * RENDER_SIZE),
+					// RENDER_SIZE / 16, RENDER_SIZE, 16, 16, 320, 320, 1, color);
 
-			if(board[x1][y1].wall_up)
-				DrawSprite2D(195 + grid_bg, offset_x + (x1 * RENDER_SIZE), offset_y + (y1 * RENDER_SIZE),
-					RENDER_SIZE, RENDER_SIZE / 16, 16, 16, 320, 320, 1, color);
+			// if(board[x1][y1].wall_up)
+				// DrawSprite2D(195 + grid_bg, offset_x + (x1 * RENDER_SIZE), offset_y + (y1 * RENDER_SIZE),
+					// RENDER_SIZE, RENDER_SIZE / 16, 16, 16, 320, 320, 1, color);
 
-			if(board[x1][y1].wall_down)
-				DrawSprite2D(195 + grid_bg, offset_x + (x1 * RENDER_SIZE), offset_y + (y1 * RENDER_SIZE) + RENDER_SIZE,
-					RENDER_SIZE, RENDER_SIZE / 16, 16, 16, 320, 320, 1, color);
+			// if(board[x1][y1].wall_down)
+				// DrawSprite2D(195 + grid_bg, offset_x + (x1 * RENDER_SIZE), offset_y + (y1 * RENDER_SIZE) + RENDER_SIZE,
+					// RENDER_SIZE, RENDER_SIZE / 16, 16, 16, 320, 320, 1, color);
 			
 			if(draw_grid_outlines)
 			{
@@ -475,15 +475,26 @@ void drawScene()
 		{
 			case LOGO:
 			{
+				static int video_frame = 0;
 				PS3Video_Update(&the_video);
+				
 				if (vdec_picout_pending)
 				{
-					printf("PICOUT PENDING\n");
+					fflush(stdout);
 					vdec_picout_pending = 0;
-					int ret = PS3Video_GetFrame(&the_video, the_video.framebuffer);
-					printf("[VDEC] GetFrame returned %08X\n", ret);
+					PS3Video_GetFrame(&the_video, the_video.framebuffer);
+					fflush(stdout);
 				}
-				PS3Video_Draw(&the_video, 0);
+				video_frame++;
+				
+				if(video_frame<150) PS3Video_Draw(&the_video, 0);
+				else
+				{
+					PS3Video_Stop(&the_video);
+					currentScreen = TITLE;
+					start_music = 1;
+				}
+				usleep(30000);
 				break;
 			}
 			case TITLE:
@@ -526,6 +537,7 @@ void drawScene()
 				else ze_x = (float)lerp(ze_x, 0, 0.1f);
 				
 				if(challenge_select) ze_y = (float)lerp(ze_y, -zcs_y, 0.1f);
+				else if(loadout_select) ze_y = (float)lerp(ze_y, zcs_y, 0.1f);
 				else ze_y = (float)lerp(ze_y, 0, 0.1f);
 				
 				DrawFString(0, ze_x+ui_x, ze_y+4, 0xffffffff, 0, langStr[16]);
@@ -781,8 +793,6 @@ void drawScene()
 	else
 	{
 		SetFontSize(24, 28);
-		DrawFString(0, 4,4,0x3333ffff,0,langStr[2]);
-		
 		if(game_init)
 		{
 			DrawFString(0, 4,96,0xffffffff,0,langStr[3]);
