@@ -156,6 +156,8 @@ extern int reveal_mode;
 extern int start_music;
 extern int game_init;
 
+extern bool use_custom_sweeper;
+
 extern float ze_x;
 extern float ze_y;
 
@@ -222,9 +224,13 @@ void HolyShit();
 extern float menu_x;
 extern int menu_pos;
 
+extern int setting_guarantee;
+
 float lerp(int x, int y, float amount);
 
 void DebugLog(const char *text);
+
+int LoadImageA(const char *path, pngData *texture);
 
 const char *menu_title[10];
 const char *menu_desc[10];

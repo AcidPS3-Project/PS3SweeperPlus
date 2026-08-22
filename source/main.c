@@ -102,8 +102,6 @@ void GoBackToTitle()
 	current_minecoins = 0;
 	disable_control = 0;
 	
-	int randsplash = rand() % SplashesCount();
-	splash = splashes_random[randsplash];
 	free_play = 0;
 	
 	bad_apple = 0;
@@ -120,11 +118,26 @@ void GoBackToTitle()
 	menu_pos = 0;
 	menu_x = 0.0f;
 	ze_x = 0.0f;
+	ze_y = 0.0f;
 	adventure_select = 0;
 
 	PlayBGM(50+fp_music, 1);
 	
 	StartSave();
+}
+
+void UnloadCustomSweeper()
+{
+	use_custom_sweeper = false;
+	if(spritesheet[13].bmp_out)
+	{
+		free(spritesheet[13].bmp_out);
+		spritesheet[13].bmp_out = NULL;
+	}
+
+	spritesheet[13].pitch = 0;
+	spritesheet[13].width = 0;
+	spritesheet[13].height = 0;
 }
 
 char custom_main_path[256];
@@ -201,30 +214,46 @@ int main(int argc, const char* argv[])
 						}
 						case TITLE:
 						{
-							if(paddata.BTN_START && !oldpad.BTN_START)
+							if(settings_select)
 							{
-								StopAudio();
-								PlayBGM(50+fp_music, 1);
-								currentScreen = MENU;
+								if(paddata.BTN_L2 && !oldpad.BTN_L2)
+								{
+									if(language>=2) language=0; else language++;
+									LangInit();
+								}
+								if(paddata.BTN_R2 && !oldpad.BTN_R2)
+								{
+									if(setting_guarantee>=2) setting_guarantee=0; else setting_guarantee++;
+								}
+								if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE)
+								{
+									splash = splashes_random[rand() % SplashesCount()];
+									settings_select = 0;
+								}
 							}
-							
-							if(paddata.BTN_TRIANGLE && !oldpad.BTN_TRIANGLE)
+							else
 							{
-								msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
-									"CREDITS\n\n"
-									"Original Minesweeper Plus game made by Jorel Simpson\n"
-									"Half-Mine Related Sprites by Axelbastian\n\n"
-									"SPECIAL THANKS\n\n"
-									"cruslan",
-									EmptyDialogCallback, NULL, NULL);
+								if(paddata.BTN_START && !oldpad.BTN_START)
+								{
+									menu_x = 0.0f;
+									ze_x = 0.0f;
+									ze_y = 0.0f;
+									StopAudio();
+									PlayBGM(50+fp_music, 1);
+									currentScreen = MENU;
+								}
+								
+								if(paddata.BTN_SQUARE && !oldpad.BTN_SQUARE)
+								{
+									settings_select = 1;
+								}
+								
+								if(paddata.BTN_TRIANGLE && !oldpad.BTN_TRIANGLE)
+								{
+									msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
+										langStr[52], EmptyDialogCallback, NULL, NULL);
+								}
 							}
-							
-							if(paddata.BTN_L2 && !oldpad.BTN_L2)
-							{
-								if(language==0) language=1; else language=0;
-								LangInit();
-							}
-							
 							break;
 						}
 						case MENU:
@@ -239,7 +268,7 @@ int main(int argc, const char* argv[])
 										challenge_select = 0;
 									}
 								}
-								if(loadout_select)
+								else if(loadout_select)
 								{
 									if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE)
 									{
@@ -250,21 +279,28 @@ int main(int argc, const char* argv[])
 								{
 									if(paddata.BTN_CROSS && !oldpad.BTN_CROSS)
 									{
-										if(paddata.BTN_R2) global_route = 1;
-										LEVEL = 0;
-										DIFFICULTY = DIFFICULTYs;
-										EPISODE = EPISODEs;
-										if(paddata.BTN_L2)
+										if(EPISODE==4)
 										{
-											if(EPISODE==1) LEVEL = 8;
-											if(EPISODE==2) LEVEL = 9;
-											if(EPISODE==3) LEVEL = 10;
-											if(EPISODE==4) LEVEL = 11;
+											msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
+												langStr[47], EmptyDialogCallback, NULL, NULL);
 										}
-										current_minecoins = 0;
-										StopAudio();
-										LoadLevel(LEVEL);
-										can_move_xd = 1;
+										else
+										{
+											if(paddata.BTN_R2) global_route = 1;
+											LEVEL = 0;
+											DIFFICULTY = DIFFICULTYs;
+											EPISODE = EPISODEs;
+											if(EPISODE==3) LEVEL=10;
+											// if(paddata.BTN_L2)
+											// {
+												// int max_lvl = episodes[EPISODE-1].level_count;
+												// LEVEL = max_lvl-1;
+											// }
+											current_minecoins = 0;
+											StopAudio();
+											LoadLevel(LEVEL);
+											can_move_xd = 1;
+										}
 									}
 									if(paddata.BTN_UP && !oldpad.BTN_UP)
 									{
@@ -322,6 +358,14 @@ int main(int argc, const char* argv[])
 										menu_pos++;
 										if (menu_pos>3) menu_pos = 3;
 									}
+									
+									if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE)
+									{
+										splash = splashes_random[rand() % SplashesCount()];
+										StopAudio();
+										PlayBGM(0, 1);
+										currentScreen = TITLE;
+									}
 								}
 							}
 							else
@@ -335,8 +379,48 @@ int main(int argc, const char* argv[])
 								
 								if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE)
 								{
-									splash = splashes_random[rand() % SplashesCount()];
 									free_play = 0;
+								}
+								
+								if(paddata.BTN_L1 && !oldpad.BTN_L1)
+								{
+									if(!use_custom_sweeper)
+									{
+										FILE *fp = fopen("/dev_usb000/SWEEPING/captain.png", "r");
+										if(!fp) msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
+											langStr[48], EmptyDialogCallback, NULL, NULL);
+										else
+										{
+											LoadImageA("/dev_usb000/SWEEPING/captain.png", &spritesheet[13]);
+											
+											if(spritesheet[13].width > 1024 || spritesheet[13].height > 1024)
+											{
+												DebugLog("CAPTAIN: Wrong image size!");
+												UnloadCustomSweeper();
+												msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
+													langStr[49], EmptyDialogCallback, NULL, NULL);
+											}
+											else if(spritesheet[13].width != spritesheet[13].height)
+											{
+												DebugLog("CAPTAIN: Wrong image size!");
+												UnloadCustomSweeper();
+												msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
+													langStr[53], EmptyDialogCallback, NULL, NULL);
+											}
+											else
+											{
+												memcpy(texture_pointer, spritesheet[13].bmp_out, spritesheet[13].pitch * spritesheet[13].height);
+												sprite_off[13] = tiny3d_TextureOffset(texture_pointer);
+												free(spritesheet[13].bmp_out);
+												spritesheet[13].bmp_out = NULL;
+												
+												texture_pointer += ((spritesheet[13].pitch * spritesheet[13].height + 15) & ~15) / 4;
+												
+												use_custom_sweeper = true;
+											}
+										}
+									}
+									else UnloadCustomSweeper();
 								}
 								
 								if(paddata.BTN_UP && !oldpad.BTN_UP)
@@ -386,8 +470,9 @@ int main(int argc, const char* argv[])
 										case 5: fp_antis++; if(fp_antis>(fp_mines-fp_doubles-fp_halfes)) fp_antis=fp_mines-fp_doubles-fp_halfes; break;
 										case 6:
 										{
+											int max_mus = 13;
 											fp_music++;
-											if(fp_music>14) fp_music=14;
+											if(fp_music>max_mus) fp_music=max_mus;
 											ReplaceBGM(fp_music);
 											break;
 										}
@@ -426,8 +511,7 @@ int main(int argc, const char* argv[])
 										if(!has_custom_main)
 										{
 											msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
-												"Error!\nFile not found in:\n/dev_usb000/SWEEPING/bgm.mp3 (or bgm.ogg)!",
-												EmptyDialogCallback, NULL, NULL);
+												langStr[50], EmptyDialogCallback, NULL, NULL);
 											continue;
 										}
 										
@@ -437,8 +521,7 @@ int main(int argc, const char* argv[])
 										if(!has_custom_win)
 										{
 											msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
-												"Warning!\nFile not found in:\n/dev_usb000/SWEEPING/win.mp3 (or win.ogg)!\nIt is not necessary, but winning music won't play.",
-												EmptyDialogCallback, NULL, NULL);
+												langStr[51], EmptyDialogCallback, NULL, NULL);
 											continue;
 										}
 										bgm[199] = (unsigned char *)custom_win_path;
@@ -552,7 +635,7 @@ int main(int argc, const char* argv[])
 									{
 										if(FIRST_CLICK) timer_running = 1;
 										
-										if(board[cursorX][cursorY].mine && FIRST_CLICK)
+										if(board[cursorX][cursorY].mine && FIRST_CLICK && setting_guarantee == 1)
 										{
 											do
 											{
@@ -560,6 +643,15 @@ int main(int argc, const char* argv[])
 												CalculateNumbers();
 											}
 											while(board[cursorX][cursorY].mine);
+										}
+										if((board[cursorX][cursorY].mine || board[cursorX][cursorY].neighbors!=0) && FIRST_CLICK && setting_guarantee == 0)
+										{
+											do
+											{
+												GenerateBoard();
+												CalculateNumbers();
+											}
+											while(board[cursorX][cursorY].mine || board[cursorX][cursorY].neighbors!=0);
 										}
 										
 										FIRST_CLICK = 0;
@@ -717,7 +809,7 @@ int main(int argc, const char* argv[])
 								if(paddata.BTN_L1 && !oldpad.BTN_L1) zoomCheck(0);
 								
 								if(paddata.BTN_L2 && !oldpad.BTN_L2) if(the_hat>-1) the_hat--;
-								if(paddata.BTN_R2 && !oldpad.BTN_R2) if(the_hat<6) the_hat++;
+								if(paddata.BTN_R2 && !oldpad.BTN_R2) if(the_hat<8) the_hat++;
 							}
 							break;
 						}

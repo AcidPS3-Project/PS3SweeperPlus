@@ -16,6 +16,29 @@ static sys_ppu_thread_t load_thread = 0;
 volatile int load_running = 0;
 volatile int load_result = 0;
 
+void SetSaveDefaults()
+{
+    memset(&gSave, 0, sizeof(gSave));
+
+    gSave.save_level = 0;
+    gSave.save_current_minecoins = 0;
+    gSave.save_global_minecoins = 0;
+    gSave.save_global_route = 0;
+    gSave.save_episode = 1;
+    gSave.save_difficulty = 1;
+
+    gSave.save_fp_w = 9;
+    gSave.save_fp_h = 9;
+    gSave.save_fp_m = 10;
+    gSave.save_fp_mus = 1;
+    gSave.save_fp_bg = 0;
+
+    gSave.save_lang = 0;
+    gSave.save_setting_guarantee = 0;
+
+    gSave.save_hat = 0;
+}
+
 void savestate_init()
 {
 	memset(&buffer, 0, sizeof(buffer));
@@ -53,7 +76,7 @@ void status_cb(sysSaveCallbackResult *result, sysSaveStatusIn *in, sysSaveStatus
                 if (in->fileList[i].fileType == SYS_SAVE_FILETYPE_STANDARD_FILE)
                 {
                     found = 1;
-                    if (in->fileList[i].fileSize != sizeof(gSave))
+                    if (in->fileList[i].fileSize > sizeof(gSave))
                     {
                         DebugLog("LOAD: SAVE.DAT has wrong size");
                         result->result = SYS_SAVE_CALLBACK_RESULT_CORRUPTED;
@@ -178,6 +201,8 @@ int StartSave(void)
 	gSave.save_fp_bg = fp_back;
 	
 	gSave.save_lang = language;
+	gSave.save_setting_guarantee = setting_guarantee;
+	
 	gSave.save_hat = the_hat;
 	
 	char debug[256];
@@ -207,6 +232,8 @@ int StartSave(void)
 
 static void LoadThread(void *arg)
 {
+	SetSaveDefaults();
+	
     s32 ret;
     DebugLog("LOAD: starting...");
 
@@ -221,56 +248,34 @@ static void LoadThread(void *arg)
 	sprintf(debug1,"LOAD: finished (%08X)",ret);
     DebugLog(debug1);
 	
-	if(ret == SYS_SAVE_RETURN_DONE)
-	{
-		LEVEL = gSave.save_level;
-		current_minecoins = gSave.save_current_minecoins;
-		global_minecoins = gSave.save_global_minecoins;
-		global_route = gSave.save_global_route;
-		EPISODE = gSave.save_episode;
-		DIFFICULTY = gSave.save_difficulty;
-		
-		fp_width = gSave.save_fp_w;
-		fp_height = gSave.save_fp_h;
-		fp_mines = gSave.save_fp_m;
-		fp_music = gSave.save_fp_mus;
-		fp_back = gSave.save_fp_bg;
-		
-		language = gSave.save_lang;
-		
-		the_hat = gSave.save_hat;
-		
-		DebugLog("loaded!");
-		
-		if(EPISODE<1) EPISODE=1;
-		if(fp_width<1) fp_width=9;
-		if(fp_height<1) fp_height=9;
-		if(fp_mines<1) fp_mines=10;
-		if(fp_music<1) fp_music=1;
-		game_init = 1;
-	}
-	else
-	{
-		DebugLog("LOAD: no valid save, using defaults");
-
-		LEVEL = 0;
-		current_minecoins = 0;
-		global_minecoins = 0;
-		global_route = 0;
-		EPISODE = 1;
-		
-		DIFFICULTY = 1;
-
-		fp_width = 9;
-		fp_height = 9;
-		fp_mines = 10;
-		fp_music = 1;
-		fp_back = 0;
-		
-		language = 0;
-		
-		game_init = 1;
-	}
+	LEVEL = gSave.save_level;
+	current_minecoins = gSave.save_current_minecoins;
+	global_minecoins = gSave.save_global_minecoins;
+	global_route = gSave.save_global_route;
+	EPISODE = gSave.save_episode;
+	DIFFICULTY = gSave.save_difficulty;
+	
+	fp_width = gSave.save_fp_w;
+	fp_height = gSave.save_fp_h;
+	fp_mines = gSave.save_fp_m;
+	fp_music = gSave.save_fp_mus;
+	fp_back = gSave.save_fp_bg;
+	
+	language = gSave.save_lang;
+	LangInit();
+	
+	setting_guarantee = gSave.save_setting_guarantee;
+	
+	the_hat = gSave.save_hat;
+	
+	DebugLog("loaded!");
+	
+	if(EPISODE<1) EPISODE=1;
+	if(fp_width<1) fp_width=9;
+	if(fp_height<1) fp_height=9;
+	if(fp_mines<1) fp_mines=10;
+	if(fp_music<1) fp_music=1;
+	game_init = 1;
 	
 	char debug[256];
 	sprintf(debug, "LOAD VALUES: level=%d current=%d global=%d route=%d episode=%d", gSave.save_level,

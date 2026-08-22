@@ -7,6 +7,9 @@
 
 typedef struct
 {
+	// my idiotic mistake i did earlier and such.
+	// whatever you do, please dont change the order!
+	// adding to it is fine as long as the order doesnt change :)
 	int save_level;
 	int save_global_minecoins;
 	int save_current_minecoins;
@@ -21,12 +24,15 @@ typedef struct
 	int save_fp_bg;
 	
 	int save_lang;
+	int save_setting_guarantee;
 	
 	int save_hat;
 } SaveData;
 
 extern SaveData gSave;
 extern sysSaveBufferSettings buffer;
+
+void SetSaveDefaults();
 
 extern volatile int save_running;
 

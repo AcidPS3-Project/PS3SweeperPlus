@@ -18,6 +18,9 @@ int FIRST_CLICK = 1;
 int i_10 = 0;
 int language = 0;
 
+bool use_custom_sweeper = false;
+int custom_sweeper_size = 0;
+
 float timer_seconds = 0;
 int timer_running = 0;
 
@@ -30,6 +33,8 @@ int ui_offset_y = 66;
 
 int bad_apple = 0;
 int temp_fp_music = 0;
+
+int setting_guarantee = 0;
 
 bool playing_bgm = false;
 bool custom_music = false;
@@ -102,8 +107,8 @@ void LangInit()
 			
 			langStr[0] = "Loading...";
 			langStr[1] = "Saving...";
-			langStr[2] = "Made by AcidNT3.1 Productions";
-			langStr[3] = "Welcome to PS3Sweeper+!";
+			langStr[2] = "Safe Tile Guarantee";
+			langStr[3] = "3x3 Guarantee";
 			langStr[4] = "Warning! This game uses auto-save feature.";
 			langStr[5] = "When you see the \"Saving...\" text, it saves your data.";
 			langStr[6] = "Please, do NOT turn off your PlayStation 3 system while the \"Saving...\"";
@@ -144,6 +149,17 @@ void LangInit()
 			langStr[41] = "Next Level";
 			langStr[42] = "Save and Quit";
 			langStr[43] = "Reset game";
+			langStr[44] = "Settings";
+			langStr[45] = "1x1 Guarantee";
+			langStr[46] = "No Guarantee";
+			langStr[47] = "Episode 4 is currently in works.";
+			langStr[48] = "Error!\nFile not found in:\n/\"dev_usb000/SWEEPING/captain.png\"!";
+			langStr[49] = "Error! Image's width or height are WAY above 1024px.";
+			langStr[50] = "Error!\nFile not found in:\n\"/dev_usb000/SWEEPING/bgm.mp3\" (or bgm.ogg)!";
+			langStr[51] = "Warning!\nFile not found in:\n\"/dev_usb000/SWEEPING/win.mp3\" (or win.ogg)!\nIt is not necessary, but winning music won't play.";
+			langStr[52] = "CREDITS\n\nOriginal Minesweeper Plus game made by Jorel Simpson\nHalf-Mine Related Sprites by Axelbastian\n\nSPECIAL THANKS\n\ncruslan";
+			langStr[53] = "Error! Image's width and height don't match!!";
+			langStr[54] = "Use Custom Sweeper";
 			break;
 		}
 		case 1: // Русский Язык
@@ -159,8 +175,8 @@ void LangInit()
 			
 			langStr[0] = "Загружаю...";
 			langStr[1] = "Сохраняю...";
-			langStr[2] = "Разработано AcidNT3.1 Productions";
-			langStr[3] = "Приветствую вас в PS3Sweeper+!";
+			langStr[2] = "Гарантия на безопасную клетку";
+			langStr[3] = "3x3 Гарантия";
 			langStr[4] = "Внимание! У этой игры есть функция авто-сохранения.";
 			langStr[5] = "Когда вы видите текст \"Сохраняю...\", оно сохраняет игру.";
 			langStr[6] = "Пожалуйста, не выключайте ваш PlayStation 3 когда текст";
@@ -201,6 +217,88 @@ void LangInit()
 			langStr[41] = "Следующий уровень";
 			langStr[42] = "Сохранить и выйти";
 			langStr[43] = "Сбросить игру";
+			langStr[44] = "Настройки";
+			langStr[45] = "1x1 Гарантия";
+			langStr[46] = "Без Гарантий";
+			langStr[47] = "Четвертый эпизод находится в разработке.";
+			langStr[48] = "Ошибка!\nФайл не найден:\n/\"dev_usb000/SWEEPING/captain.png\"!";
+			langStr[49] = "Ошибка! Ширина или длина изображения превышают 1024 пикселей.";
+			langStr[50] = "Ошибка!\nФайл не найден:\n\"/dev_usb000/SWEEPING/bgm.mp3\" (или bgm.ogg)!";
+			langStr[51] = "Предупреждение!\nФайл не найден:\n\"/dev_usb000/SWEEPING/win.mp3\" (или win.ogg)!\nЭто не особо важно, но возможно звук победы не заиграет.";
+			langStr[52] = "БЛАГОДАРНОСТЬ\n\nОригинальная игра Сапер Плюс от Jorel Simpson\nСпрайты связанные с полу-минами от Axelbastian\n\nСПЕЦИАЛЬНАЯ БЛАГОДАРНОСТЬ\n\ncruslan";
+			langStr[53] = "Ошибка! Ширина и длина изображения не совпадают!!";
+			langStr[54] = "Использовать своего сапера";
+			break;
+		}
+		case 2: // Қазақ Тілі
+		{
+			// Cheat-sheet! heheh
+			// ӘәҒғІіҚқҢңӨөҰұҮүҺһ
+			
+			menu_title[0] = "Приключения Сапера";
+			menu_desc[0] = "Проверь свои навыки сапера в усложняющей последовательности уровней сапера.";
+			menu_title[1] = "Сенің ойнасы";
+			menu_desc[1] = "Создавайте свой уровень сапера и разминируйте мины как душе угодно!";
+			menu_title[2] = "Испытания";
+			menu_desc[2] = "Насладитесь выбором испытаний которые проверят ваши знания сапера.";
+			menu_title[3] = "Гардероб";
+			menu_desc[3] = "Измените вид капитана и пополните запасы.";
+			
+			langStr[0] = "...";
+			langStr[1] = "Сақтамың...";
+			langStr[2] = "Гарантия на безопасную клетку";
+			langStr[3] = "3x3 Гарантия";
+			langStr[4] = "Назар аударыңыз! У этой игры есть функция авто-сохранения.";
+			langStr[5] = "Когда вы видите текст \"Сақтамың...\", оно сохраняет игру.";
+			langStr[6] = "Пожалуйста, не выключайте ваш PlayStation 3 когда текст";
+			langStr[7] = "\"Сақтамың...\" находится на экране.";
+			langStr[8] = "Жарайды.";
+			langStr[9] = "Эта игра находится в раннем этапе разработки.";
+			langStr[10] = "Пожалуйста, присоединяйтесь к моему дискорд серверу, чтобы не";
+			langStr[11] = "пропустить обновления! ССЫЛКА: https://discord.gg/7XuQDYjyzt";
+			langStr[12] = "Здесь нечего загружать.";
+			langStr[13] = "Бастау";
+			langStr[14] = "Алғыс";
+			langStr[15] = "Продолжить";
+			langStr[16] = "Басты меню";
+			langStr[17] = "Меню приключений";
+			langStr[18] = "Ширина";
+			langStr[19] = "Высота";
+			langStr[20] = "Кол-во мин";
+			langStr[21] = "Кол-во двойных мин";
+			langStr[22] = "Кол-во полу-мин";
+			langStr[23] = "Кол-во анти-мин";
+			langStr[24] = "ЭПИЗОД";
+			langStr[25] = "Музыка стильді";
+			langStr[26] = "СЕНІКІ";
+			langStr[27] = "Сенің ойнасы меню";
+			langStr[28] = "Сенің музыкасы аяқтау";
+			langStr[29] = "Сенің музыкасы бастау";
+			langStr[30] = "Өң стильді";
+			langStr[31] = "Сенің ойнасы бастау";
+			langStr[32] = "Артқа";
+			langStr[33] = "Үлкені";
+			langStr[34] = "Жаман Алма!! (Потребуется Адд-он)";
+			langStr[35] = "Меню испытаний";
+			langStr[36] = "Это меню находится в разработке :)";
+			langStr[37] = "ОЙНА БОЛДЫ";
+			langStr[38] = "КЕРЕМЕТ!";
+			langStr[39] = "Бомба-коинлер";
+			langStr[40] = "секунд";
+			langStr[41] = "Келесі ?????";
+			langStr[42] = "Сақтау және Шығу";
+			langStr[43] = "Сбросить игру";
+			langStr[44] = "Параметрлер";
+			langStr[45] = "1x1 Гарантия";
+			langStr[46] = "Гарантия Жоқ";
+			langStr[47] = "Четвертый эпизод находится в разработке.";
+			langStr[48] = "Ошибка!\nФайл не найден:\n/\"dev_usb000/SWEEPING/captain.png\"!";
+			langStr[49] = "Ошибка! Ширина или длина изображения превышают 1024 пикселей.";
+			langStr[50] = "Ошибка!\nФайл не найден:\n\"/dev_usb000/SWEEPING/bgm.mp3\" (или bgm.ogg)!";
+			langStr[51] = "Предупреждение!\nФайл не найден:\n\"/dev_usb000/SWEEPING/win.mp3\" (или win.ogg)!\nЭто не особо важно, но возможно звук победы не заиграет.";
+			langStr[52] = "БЛАГОДАРНОСТЬ\n\nОригинальная игра Сапер Плюс от Jorel Simpson\nСпрайты связанные с полу-минами от Axelbastian\n\nСПЕЦИАЛЬНАЯ БЛАГОДАРНОСТЬ\n\ncruslan";
+			langStr[53] = "Ошибка! Ширина и длина изображения не совпадают!!";
+			langStr[54] = "Использовать своего сапера";
 			break;
 		}
 	}
@@ -618,13 +716,14 @@ void Load_PNG()
 	pngLoadFromBuffer(boss_sheet_png_bin, boss_sheet_png_bin_size, &spritesheet[3]);
 	pngLoadFromBuffer(boss1_sheet_png_bin, boss1_sheet_png_bin_size, &spritesheet[4]);
 	pngLoadFromBuffer(dualboss_sheet_png_bin, dualboss_sheet_png_bin_size, &spritesheet[5]);
-	pngLoadFromBuffer(cursed_sheet_png_bin, cursed_sheet_png_bin_size, &spritesheet[6]);
+	//pngLoadFromBuffer(cursed_sheet_png_bin, cursed_sheet_png_bin_size, &spritesheet[6]); unused
 	pngLoadFromBuffer(background_sheet_png_bin, background_sheet_png_bin_size, &spritesheet[7]);
-	pngLoadFromBuffer(trust_me_bro_png_bin, trust_me_bro_png_bin_size, &spritesheet[8]);
+	//pngLoadFromBuffer(trust_me_bro_png_bin, trust_me_bro_png_bin_size, &spritesheet[8]); not used totally, i might remove this someday
 	pngLoadFromBuffer(menu_sheet_png_bin, menu_sheet_png_bin_size, &spritesheet[9]);
 	pngLoadFromBuffer(coin_png_bin, coin_png_bin_size, &spritesheet[10]);
 	pngLoadFromBuffer(buttons_png_bin, buttons_png_bin_size, &spritesheet[11]);
 	pngLoadFromBuffer(hats_sheet_png_bin, hats_sheet_png_bin_size, &spritesheet[12]);
+	// WE ARE SKIPPING 13 cuz its reserved for custom captain spritesheet.
 }
 
 void ReplaceBGM(int music)
@@ -690,4 +789,48 @@ void DebugLog(const char *text)
         fprintf(fp, "%s\n", text);
         fclose(fp);
     }
+}
+
+int LoadImageA(const char *path, pngData *texture)
+{
+    FILE *fp;
+    u8 *buffer;
+    long size;
+    s32 ret;
+
+    DebugLog("LoadImageA: opening");
+
+    fp = fopen(path, "rb");
+    if(!fp)
+    {
+        DebugLog("LoadImageA: fopen failed");
+        return 0;
+    }
+
+    fseek(fp, 0, SEEK_END);
+    size = ftell(fp);
+    fseek(fp, 0, SEEK_SET);
+
+    buffer = malloc(size);
+    if(!buffer)
+    {
+        DebugLog("LoadImageA: malloc failed");
+        fclose(fp);
+        return 0;
+    }
+
+    DebugLog("LoadImageA: reading");
+
+    fread(buffer, 1, size, fp);
+    fclose(fp);
+
+    DebugLog("LoadImageA: calling pngLoadFromBuffer");
+
+    ret = pngLoadFromBuffer(buffer, (u32)size, texture);
+
+    free(buffer);
+
+    DebugLog("LoadImageA: done");
+
+    return ret == 0;
 }

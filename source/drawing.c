@@ -45,7 +45,13 @@ u32 color_from_value(int value)
 int getCaptainState(int anim_z, int anim1_z)
 {
 	int the_state = 0;
-	switch(LEVEL)
+	if(use_custom_sweeper)
+	{
+		if(gamewin) the_state = 0+anim_z;
+		else if(gamelose) the_state = 14;
+		else the_state = 4;
+	}
+	else switch(LEVEL)
 	{
 		case 0: case 1:
 		{
@@ -441,7 +447,7 @@ void DrawButton(int x, int y, int button, int z)
 {
 	u32 color = 0xffffffff;
 	SetTexture(11);
-	DrawSprite2D(button, x, y+4, 32, 32, 20, 20, 120, 20, z, color);
+	DrawSprite2D(button, x, y+4, 32, 32, 20, 20, 120, 40, z, color);
 }
 
 void drawScene()
@@ -501,12 +507,43 @@ void drawScene()
 			{
 				SetTexture(7);
 				DrawSprite2D(anim3, -40, -22, 916, 582, 1152, 960, 2304, 1920, 1, color);
-				DrawFString(0, ui_x,4, 0xffffffff, 0, "%s (%s)", global_name, global_version);
-				DrawFString(0, ui_x,484, 0xffffffff, 0, "%s", splash);
-				DrawButton(ui_x, 128, 4, 0);
-				DrawFString(0, ui_x+36,128, 0xffffffff, 0, langStr[13]);
-				DrawButton(ui_x, 224, 0, 0);
-				DrawFString(0, ui_x+36,224, 0xffffffff, 0, langStr[14]);
+				if(settings_select)
+				{
+					DrawFString(0, ui_x,4, 0xffffffff, 0, langStr[44]);
+					DrawButton(ui_x, 64, 8, 0);
+					switch(language)
+					{
+						case 0: DrawFString(0, ui_x+36, 64, 0xffffffff, 0, "Language: English"); break;
+						case 1: DrawFString(0, ui_x+36, 64, 0xffffffff, 0, "Язык: Русский"); break;
+						case 2: DrawFString(0, ui_x+36, 64, 0xffffffff, 0, "Тілі: Қазақ"); break;
+					}
+					DrawButton(ui_x, 96, 9, 0);
+					switch(setting_guarantee)
+					{
+						case 0:
+							DrawFString(0, ui_x+36, 96, 0xffffffff, 0, "%s: %s", langStr[2], langStr[3]);
+							break;
+						case 1:
+							DrawFString(0, ui_x+36, 96, 0xffffffff, 0, "%s: %s", langStr[2], langStr[45]);
+							break;
+						case 2:
+							DrawFString(0, ui_x+36, 96, 0xffffffff, 0, "%s: %s", langStr[2], langStr[46]);
+							break;
+					}
+					DrawButton(ui_x, 484, 1, 0);
+					DrawFString(0, ui_x+36, 484, 0xffffffff, 0, langStr[32]);
+				}
+				else
+				{
+					DrawFString(0, ui_x,4, 0xffffffff, 0, "%s (%s)", global_name, global_version);
+					DrawFString(0, ui_x,484, 0xffffffff, 0, "%s", splash);
+					DrawButton(ui_x, 128, 4, 0);
+					DrawFString(0, ui_x+36,128, 0xffffffff, 0, langStr[13]);
+					DrawButton(ui_x, 160, 3, 0);
+					DrawFString(0, ui_x+36,160, 0xffffffff, 0, langStr[44]);
+					DrawButton(ui_x, 224, 0, 0);
+					DrawFString(0, ui_x+36,224, 0xffffffff, 0, langStr[14]);
+				}
 				break;
 			}
 			case MENU:
@@ -599,10 +636,16 @@ void drawScene()
 				DrawButton(ze_x+ui_x-zfp_x, ze_y+386, 4, 0);
 				DrawButton(ze_x+ui_x-zfp_x, ze_y+418, 1, 0);
 				DrawButton(ze_x+ui_x-zfp_x, ze_y+450, 0, 0);
+				DrawButton(ze_x+ui_x-zfp_x, ze_y+482, 6, 0);
 				
 				DrawFString(0, ze_x+ui_x-zfp_x+36, ze_y+386, 0xffffffff, 0, langStr[31]);
 				DrawFString(0, ze_x+ui_x-zfp_x+36, ze_y+418, 0xffffffff, 0, langStr[32]);
 				DrawFString(0, ze_x+ui_x-zfp_x+36, ze_y+450, 0xffffffff, 0, langStr[34]);
+				
+				if(use_custom_sweeper)
+					DrawFString(0, ze_x+ui_x-zfp_x+36, ze_y+482, 0xffffffff, 0, "%s: V", langStr[54]);
+				else
+					DrawFString(0, ze_x+ui_x-zfp_x+36, ze_y+482, 0xffffffff, 0, "%s: X", langStr[54]);
 				
 				DrawFString(0, ze_x+ui_x-zfp_x+300, ze_y+64+(fp_menu*32), 0xffffffff, 0, "<");
 				
@@ -646,13 +689,25 @@ void drawScene()
 				SetTexture(0);
 				int capt_state = getCaptainState(anim1, anim2);
 				int capt_y = -9; if(the_hat==-1) capt_y = -14;
-				DrawSprite2D(capt_state, 375, capt_y, 94, 94, 40, 40, 960, 560, 0, color);
+				
+				int capt_w = 960; int capt_h = 560; int capt_p = 40;
+				
+				if(use_custom_sweeper)
+				{
+					capt_y = -14;
+					capt_w = spritesheet[13].width;
+					capt_h = spritesheet[13].height;
+					capt_p = capt_w / 4;
+					SetTexture(13);
+				}
+				
+				DrawSprite2D(capt_state, 375, capt_y, 94, 94, capt_p, capt_p, capt_w, capt_h, 0, color);
 				
 				if(the_hat!=-1)
 				{
 					SetTexture(12);
 					int hat_state = getHatState(the_hat, anim1);
-					DrawSprite2D(hat_state, 375, -14, 94, 94, 40, 40, 960, 320, 0, color);
+					DrawSprite2D(hat_state, 375, -14, 94, 94, 40, 40, 960, 360, 0, color);
 				}
 				//DrawFString(0, -20,32, 0xffffffff, 0, "TOTAL MINECOINS: %d", global_minecoins);
 				//DrawFString(0, -20,64, 0xffffffff, 0, "MINECOINS: %d", current_minecoins);
@@ -795,7 +850,6 @@ void drawScene()
 		SetFontSize(24, 28);
 		if(game_init)
 		{
-			DrawFString(0, 4,96,0xffffffff,0,langStr[3]);
 			DrawFString(0, 4,156,0xffffffff,0,langStr[4]);
 			DrawFString(0, 4,188,0xffffffff,0,langStr[5]);
 			DrawFString(0, 4,252,0xff0000ff,0,langStr[6]);
@@ -819,12 +873,13 @@ void drawScene()
 	}
 }
 
+u32 *texture_pointer = NULL;
+
 void LoadTexture()
 {
 	int g;
 	
     u32 * texture_mem = tiny3d_AllocTexture(64*1024*1024);
-    u32 * texture_pointer;
     if(!texture_mem) return;
     texture_pointer = texture_mem;
 	

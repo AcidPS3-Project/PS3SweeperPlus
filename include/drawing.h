@@ -17,6 +17,8 @@ GameScreen;
 extern GameScreen currentScreen;
 extern int vdec_picout_pending;
 
+extern u32 *texture_pointer;
+
 int getCaptainState(int anim_z, int anim1_z);
 int getHatState(int hat, int anim_z);
 void DrawSprite2D(int id, float x, float y, int wid2, int hei2, int wid1, int hei1, int wid0, int hei0, float layer, u32 color);

@@ -124,18 +124,18 @@ void boss11_update(int i)
 			attempts++;
 		}
 		while((!board[_x][_y].active || board[_x][_y].revealed || board[_x][_y].flagged>0)
-			&& attempts < 200);
+			&& attempts < 400);
 		
 		if(mines_count<=0) game_lost();
-		else if(attempts>199) game_lost();
+		else if(attempts>400) game_lost();
 		
 		//boss11_list[i].timer = (float)RandRange(4, 5);
 		switch(DIFFICULTY)
 		{
-			case 0: boss11_list[i].timer = 11.2f; break;
-			case 1: boss11_list[i].timer = 9.5f; break;
-			case 2: boss11_list[i].timer = 6.7f; break;
-			case 3: boss11_list[i].timer = 4.2f; break;
+			case 0: boss11_list[i].timer = 9.8f; break;
+			case 1: boss11_list[i].timer = 8.8f; break;
+			case 2: boss11_list[i].timer = 7.7f; break;
+			case 3: boss11_list[i].timer = 6.7f; break;
 		}
 	}
 }
