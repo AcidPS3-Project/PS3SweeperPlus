@@ -776,6 +776,8 @@ void drawScene()
 					}
 				}
 				
+				if(global_route==1) SetTexture(4); else SetTexture(3);
+				
 				if(boss11_count>0 && boss11_cutscene)
 				{
 					int i;

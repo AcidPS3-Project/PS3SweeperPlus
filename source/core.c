@@ -179,7 +179,7 @@ void GenerateBoard()
         }
     }
 	
-	if(EPISODE>=2)
+	if(EPISODE>=2 && !free_play)
 	{
 		if(GRID_ID!=999)
 		{
@@ -199,7 +199,7 @@ void GenerateBoard()
 		}
 	}
 	
-	if(EPISODE>=3)
+	if(EPISODE>=3 && !free_play)
 	{
 		if(GRID_ID!=999)
 		{

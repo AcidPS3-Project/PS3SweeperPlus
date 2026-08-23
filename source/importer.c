@@ -1,7 +1,7 @@
 #include "importer.h"
 
 char global_name[] = "PS3Sweeper+";
-char global_version[] = "v0.3";
+char global_version[] = "v0.3.1";
 
 int current_bgm = 1;
 int desired_bgm = 1;
@@ -154,7 +154,7 @@ void LangInit()
 			langStr[46] = "No Guarantee";
 			langStr[47] = "Episode 4 is currently in works.";
 			langStr[48] = "Error!\nFile not found in:\n/\"dev_usb000/SWEEPING/captain.png\"!";
-			langStr[49] = "Error! Image's width or height are WAY above 1024px.";
+			langStr[49] = "Error! Image's width or height are WAY above 2048 pixels.";
 			langStr[50] = "Error!\nFile not found in:\n\"/dev_usb000/SWEEPING/bgm.mp3\" (or bgm.ogg)!";
 			langStr[51] = "Warning!\nFile not found in:\n\"/dev_usb000/SWEEPING/win.mp3\" (or win.ogg)!\nIt is not necessary, but winning music won't play.";
 			langStr[52] = "CREDITS\n\nOriginal Minesweeper Plus game made by Jorel Simpson\nHalf-Mine Related Sprites by Axelbastian\n\nSPECIAL THANKS\n\ncruslan";
@@ -222,7 +222,7 @@ void LangInit()
 			langStr[46] = "Без Гарантий";
 			langStr[47] = "Четвертый эпизод находится в разработке.";
 			langStr[48] = "Ошибка!\nФайл не найден:\n/\"dev_usb000/SWEEPING/captain.png\"!";
-			langStr[49] = "Ошибка! Ширина или длина изображения превышают 1024 пикселей.";
+			langStr[49] = "Ошибка! Ширина или длина изображения превышают 2048 пикселей.";
 			langStr[50] = "Ошибка!\nФайл не найден:\n\"/dev_usb000/SWEEPING/bgm.mp3\" (или bgm.ogg)!";
 			langStr[51] = "Предупреждение!\nФайл не найден:\n\"/dev_usb000/SWEEPING/win.mp3\" (или win.ogg)!\nЭто не особо важно, но возможно звук победы не заиграет.";
 			langStr[52] = "БЛАГОДАРНОСТЬ\n\nОригинальная игра Сапер Плюс от Jorel Simpson\nСпрайты связанные с полу-минами от Axelbastian\n\nСПЕЦИАЛЬНАЯ БЛАГОДАРНОСТЬ\n\ncruslan";
@@ -293,7 +293,7 @@ void LangInit()
 			langStr[46] = "Гарантия Жоқ";
 			langStr[47] = "Четвертый эпизод находится в разработке.";
 			langStr[48] = "Ошибка!\nФайл не найден:\n/\"dev_usb000/SWEEPING/captain.png\"!";
-			langStr[49] = "Ошибка! Ширина или длина изображения превышают 1024 пикселей.";
+			langStr[49] = "Ошибка! Ширина или длина изображения превышают 2048 пикселей.";
 			langStr[50] = "Ошибка!\nФайл не найден:\n\"/dev_usb000/SWEEPING/bgm.mp3\" (или bgm.ogg)!";
 			langStr[51] = "Предупреждение!\nФайл не найден:\n\"/dev_usb000/SWEEPING/win.mp3\" (или win.ogg)!\nЭто не особо важно, но возможно звук победы не заиграет.";
 			langStr[52] = "БЛАГОДАРНОСТЬ\n\nОригинальная игра Сапер Плюс от Jorel Simpson\nСпрайты связанные с полу-минами от Axelbastian\n\nСПЕЦИАЛЬНАЯ БЛАГОДАРНОСТЬ\n\ncruslan";
@@ -316,8 +316,7 @@ void SplashesInit()
 	splashes_random[splash_count++] = "Contains touhouslop";
 	splashes_random[splash_count++] = "Why so serious?";
 	splashes_random[splash_count++] = "Keyboard is real?";
-	splashes_random[splash_count++] = "Removed 514 Boss";
-	splashes_random[splash_count++] = "Join AcidPS3 Server! https://discord.gg/7XuQDYjyzt";
+	splashes_random[splash_count++] = "Join AcidPS3DEV Discord Server!";
 	splashes_random[splash_count++] = "Play the original game first!";
 	splashes_random[splash_count++] = "Also play yawn's minesweeper";
 	splashes_random[splash_count++] = "Also play Minesweeper Plus Plus";
@@ -334,6 +333,7 @@ void SplashesInit()
 	splashes_random[splash_count++] = "Also play Minesweeper Plus: Community Edition";
 	splashes_random[splash_count++] = "Also play Minesweeper Oddysey (if it comes out)";
 	splashes_random[splash_count++] = "Also play Minesweeper Plus: Epilogue";
+	splashes_random[splash_count++] = "Also play Minesweeper Plus: Silver's Custom Adventure";
 	splashes_random[splash_count++] = "Also play Hero's Advent";
 	splashes_random[splash_count++] = "The MORSHU.";
 	splashes_random[splash_count++] = "Why it was rewritten?";
@@ -355,7 +355,6 @@ void SplashesInit()
 	splashes_random[splash_count++] = "I wanna try making MS+ for PS1 sometime soon. Wait a second...";
 	splashes_random[splash_count++] = "What R2 do? BEEP BEEP BEEP";
 	splashes_random[splash_count++] = "48x36 boards DO NOT GIVE YOU FRAMEDROPS!!!!!!!";
-	splashes_random[splash_count++] = "The Big LAG is no longer lagging?";
 	splashes_random[splash_count++] = "Now with Full Episode 2!";
 	splashes_random[splash_count++] = "12 is coming...";
 	splashes_random[splash_count++] = "Minesweeper Plus on Java phones? Heh. Don't make me laugh.";
@@ -385,11 +384,14 @@ void SplashesInit()
 	//splashes_random[splash_count++] = "Hi, Xbox Original :)";
 	//splashes_random[splash_count++] = "I wonder what I can do for Mac OS 9 tho...";
 	splashes_random[splash_count++] = "Cutscenes?";
+	splashes_random[splash_count++] = "Oh god v0.3.1, just like in v3.1 in original game, and in v3.1.1";
+	splashes_random[splash_count++] = "BUGS. I HATE BUGS!!!!";
 	
 	FILE *za = fopen("/dev_hdd0/game/ACIDSTORE/ICON0.PNG", "rb");
 	if(za!=NULL)
 	{
 		splashes_random[splash_count++] = "Thanks for installing AcidPS3 Store! :D";
+		splashes_random[splash_count++] = "Wow dude you have AcidPS3 Store installed? :)";
 		fclose(za);
 	}
 	
@@ -413,6 +415,7 @@ void SplashesInit()
 		splashes_random[splash_count++] = "Bad Apple!! DLC Initialized!";
 		splashes_random[splash_count++] = "I am a Bad Apple!! addict.";
 		splashes_random[splash_count++] = "BAD APPLE!! SLOP";
+		splashes_random[splash_count++] = "THE. BAD. APPLE. !!.";
 		DebugLog("Bad Apple!! DLC Init!");
 	}
 	else if(bad_apple_dlc_installed==1)
@@ -718,7 +721,7 @@ void Load_PNG()
 	pngLoadFromBuffer(dualboss_sheet_png_bin, dualboss_sheet_png_bin_size, &spritesheet[5]);
 	//pngLoadFromBuffer(cursed_sheet_png_bin, cursed_sheet_png_bin_size, &spritesheet[6]); unused
 	pngLoadFromBuffer(background_sheet_png_bin, background_sheet_png_bin_size, &spritesheet[7]);
-	//pngLoadFromBuffer(trust_me_bro_png_bin, trust_me_bro_png_bin_size, &spritesheet[8]); not used totally, i might remove this someday
+	// Replacing with something else later...
 	pngLoadFromBuffer(menu_sheet_png_bin, menu_sheet_png_bin_size, &spritesheet[9]);
 	pngLoadFromBuffer(coin_png_bin, coin_png_bin_size, &spritesheet[10]);
 	pngLoadFromBuffer(buttons_png_bin, buttons_png_bin_size, &spritesheet[11]);

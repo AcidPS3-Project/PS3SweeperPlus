@@ -24,6 +24,7 @@ void ResetGrid()
 	boss9_cutscene = 0;
 	boss10_cutscene = 0;
 	boss11_cutscene = 0;
+	boss12_cutscene = 0;
 	
 	if(LEVEL==8 || (free_play && desired_bgm == 9))
 	{
@@ -165,6 +166,7 @@ int main(int argc, const char* argv[])
 	boss9_started = 0;
 	boss10_started = 0;
 	boss11_started = 0;
+	boss12_started = 0;
 	
 	the_hat = 0;
 	
@@ -279,7 +281,7 @@ int main(int argc, const char* argv[])
 								{
 									if(paddata.BTN_CROSS && !oldpad.BTN_CROSS)
 									{
-										if(EPISODE==4)
+										if(EPISODEs==4)
 										{
 											msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
 												langStr[47], EmptyDialogCallback, NULL, NULL);
@@ -393,7 +395,9 @@ int main(int argc, const char* argv[])
 										{
 											LoadImageA("/dev_usb000/SWEEPING/captain.png", &spritesheet[13]);
 											
-											if(spritesheet[13].width > 1024 || spritesheet[13].height > 1024)
+											int temp = 2048;
+											
+											if(spritesheet[13].width > temp || spritesheet[13].height > temp)
 											{
 												DebugLog("CAPTAIN: Wrong image size!");
 												UnloadCustomSweeper();
@@ -434,6 +438,8 @@ int main(int argc, const char* argv[])
 									if (fp_menu>7) fp_menu = 7;
 								}
 								
+								int max_mus = 13;
+								
 								if(paddata.BTN_LEFT && !oldpad.BTN_LEFT)
 								{
 									switch(fp_menu)
@@ -447,7 +453,7 @@ int main(int argc, const char* argv[])
 										case 6:
 										{
 											fp_music--;
-											if(fp_music>95) fp_music=14;
+											if(fp_music>95) fp_music=max_mus;
 											if(fp_music<1) fp_music=1;
 											ReplaceBGM(fp_music);
 											break;
@@ -470,7 +476,6 @@ int main(int argc, const char* argv[])
 										case 5: fp_antis++; if(fp_antis>(fp_mines-fp_doubles-fp_halfes)) fp_antis=fp_mines-fp_doubles-fp_halfes; break;
 										case 6:
 										{
-											int max_mus = 13;
 											fp_music++;
 											if(fp_music>max_mus) fp_music=max_mus;
 											ReplaceBGM(fp_music);

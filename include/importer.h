@@ -28,7 +28,6 @@ const char *langStr[1024];
 #include "buttons_png_bin.h"
 #include "hats_sheet_png_bin.h"
 
-#include "trust_me_bro_png_bin.h"
 #include "icon0_png_bin.h"
 
 //IMPORT MUSIC
