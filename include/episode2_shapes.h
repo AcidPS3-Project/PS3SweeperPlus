@@ -1280,6 +1280,8 @@ static const ShapeDef episode2_shapes[] =
 
 static const int episode2_shapes_count = sizeof(episode2_shapes) / sizeof(episode2_shapes[0]);
 
+// ok ignore those stupid walls ahhhh
+
 #define WN 0x00
 #define WU 0x01
 #define WR 0x02

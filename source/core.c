@@ -50,16 +50,19 @@ int boss9_started = 0;
 int boss10_started = 0;
 int boss11_started = 0;
 int boss12_started = 0;
+int bossnan_started = 0;
 
 int boss9_cutscene = 0;
 int boss10_cutscene = 0;
 int boss11_cutscene = 0;
 int boss12_cutscene = 0;
+int bossnan_cutscene = 0;
 
 int boss9_count = 1;
 int boss10_count = 1;
 int boss11_count = 1;
 int boss12_count = 1;
+int bossnan_count = 1;
 
 bool CanMoveBetween(int x, int y, int nx, int ny)
 {
@@ -154,6 +157,12 @@ void DeactivateBosses()
 		if(gamewin) PlayBGM(112,0);
 		Deactivate12();
 	}
+	if(bossnan_started)
+	{
+		bossnan_started = 0;
+		//if(gamewin) PlayBGM(112,0);
+		DeactivateNaN();
+	}
 }
 
 void game_lost()
@@ -212,6 +221,7 @@ void GenerateBoard()
     int f_half = fp_halfes;
     int f_doub = fp_doubles;
     int f_anti = fp_antis;
+	
     while(placed < MINES)
     {
         int x = rand() % GRID_W;
@@ -377,10 +387,12 @@ int calculate_score()
 	if(LEVEL==9) score += 1000;
 	if(LEVEL==10) score += 1111;
 	if(LEVEL==11) score += 1212;
+	if(LEVEL==12) score += 1500;
 	if (boss9_count > 0) score += 9;
 	if (boss10_count > 0) score += 10;
 	if (boss11_count > 0) score += 11;
 	if (boss12_count > 0) score += 12;
+	if (bossnan_count > 0) score += 15;
 	score += MINES;
 	score *= 1.5; // cuz we are practically ALWAYS in master LMAO
 	//if (Main.db["master"]): score \*= 1.5

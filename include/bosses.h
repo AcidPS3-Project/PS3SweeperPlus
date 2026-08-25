@@ -5,5 +5,6 @@
 #include "boss10.h"
 #include "boss11.h"
 #include "boss12.h"
+#include "bossnan.h"
 
 #endif

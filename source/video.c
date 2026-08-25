@@ -423,11 +423,11 @@ void PS3Video_Draw(PS3Video *video, int layer)
     rsxTextureWrapMode(ctx, 0, GCM_TEXTURE_CLAMP_TO_EDGE, GCM_TEXTURE_CLAMP_TO_EDGE,
         GCM_TEXTURE_CLAMP_TO_EDGE, 0, GCM_TEXTURE_ZFUNC_LESS, 0);
 		
-	int x0 = -40;
-	int y0 = -22;
+	int x0 = 0;
+	int y0 = 0;
 	
-	int w0 = 898;
-	int h0 = 566;
+	int w0 = 916;
+	int h0 = 582;
 	
     tiny3d_SetPolygon(TINY3D_TRIANGLE_STRIP);
     tiny3d_VertexPos(x0, y0, layer);

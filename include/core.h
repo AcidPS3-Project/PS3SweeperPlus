@@ -70,16 +70,19 @@ extern int boss9_started;
 extern int boss10_started;
 extern int boss11_started;
 extern int boss12_started;
+extern int bossnan_started;
 
 extern int boss9_cutscene;
 extern int boss10_cutscene;
 extern int boss11_cutscene;
 extern int boss12_cutscene;
+extern int bossnan_cutscene;
 
 extern int boss9_count;
 extern int boss10_count;
 extern int boss11_count;
 extern int boss12_count;
+extern int bossnan_count;
 
 void game_lost();
 void GenerateBoard();
@@ -97,6 +100,7 @@ void Deactivate9(void);
 void Deactivate10(void);
 void Deactivate11(void);
 void Deactivate12(void);
+void DeactivateNaN(void);
 
 extern int adventure_select;
 extern int challenge_select;

@@ -10,11 +10,11 @@ void DrawBackground2D(u32 rgba, int l)
 {
     tiny3d_SetPolygon(TINY3D_QUADS);
 
-    tiny3d_VertexPos(-100, 0, l);
+    tiny3d_VertexPos(-60, 22, l);
     tiny3d_VertexColor(rgba);
-    tiny3d_VertexPos(1000, 0, l);
-    tiny3d_VertexPos(1000, 1000, l);
-    tiny3d_VertexPos(-100, 1000, l);
+    tiny3d_VertexPos(1040, 22, l);
+    tiny3d_VertexPos(1040, 1022, l);
+    tiny3d_VertexPos(-60, 1022, l);
     tiny3d_End();
 }
 
@@ -168,14 +168,14 @@ void DrawSprite2D(int id, float x, float y, int wid2, int hei2, int wid1, int he
 	
     tiny3d_SetPolygon(TINY3D_QUADS);
 
-    tiny3d_VertexPos(x, y, layer);
+    tiny3d_VertexPos(x+40, y+22, layer);
     tiny3d_VertexColor(color);
     tiny3d_VertexTexture(u0, v0);
-    tiny3d_VertexPos(x+wid2, y, layer);
+    tiny3d_VertexPos(x+wid2+40, y+22, layer);
     tiny3d_VertexTexture(u1, v0);
-    tiny3d_VertexPos(x+wid2, y+hei2, layer);
+    tiny3d_VertexPos(x+wid2+40, y+hei2+22, layer);
     tiny3d_VertexTexture(u1, v1);
-    tiny3d_VertexPos(x, y+hei2, layer);
+    tiny3d_VertexPos(x+40, y+hei2+22, layer);
     tiny3d_VertexTexture(u0, v1);
 
     tiny3d_End();
@@ -190,14 +190,14 @@ void DrawSpriteUI(float x, float y, int wid1, int hei1, int wid2, int hei2, int 
 	
     tiny3d_SetPolygon(TINY3D_QUADS);
 
-    tiny3d_VertexPos(x, y, layer);
+    tiny3d_VertexPos(x+40, y+22, layer);
     tiny3d_VertexColor(color);
     tiny3d_VertexTexture(u0, v0);
-    tiny3d_VertexPos(x+wid3, y, layer);
+    tiny3d_VertexPos(x+wid3+40, y+22, layer);
     tiny3d_VertexTexture(u1, v0);
-    tiny3d_VertexPos(x+wid3, y+hei3, layer);
+    tiny3d_VertexPos(x+wid3+40, y+hei3+22, layer);
     tiny3d_VertexTexture(u1, v1);
-    tiny3d_VertexPos(x, y+hei3, layer);
+    tiny3d_VertexPos(x+40, y+hei3+22, layer);
     tiny3d_VertexTexture(u0, v1);
 
     tiny3d_End();
@@ -234,14 +234,14 @@ void DrawSprite2DR(int id, float x, float y, int wid2, int hei2, int wid1, int h
 
     tiny3d_SetPolygon(TINY3D_QUADS);
 
-    tiny3d_VertexPos(cx + x0, cy + y0, layer);
+    tiny3d_VertexPos(cx + x0 + 40, cy + y0 + 22, layer);
     tiny3d_VertexColor(color);
     tiny3d_VertexTexture(u0, v0);
-    tiny3d_VertexPos(cx + x1, cy + y1, layer);
+    tiny3d_VertexPos(cx + x1 + 40, cy + y1 + 22, layer);
     tiny3d_VertexTexture(u1, v0);
-    tiny3d_VertexPos(cx + x2, cy + y2, layer);
+    tiny3d_VertexPos(cx + x2 + 40, cy + y2 + 22, layer);
     tiny3d_VertexTexture(u1, v1);
-    tiny3d_VertexPos(cx + x3, cy + y3, layer);
+    tiny3d_VertexPos(cx + x3 + 40, cy + y3 + 22, layer);
     tiny3d_VertexTexture(u0, v1);
 
     tiny3d_End();
@@ -651,6 +651,10 @@ void drawScene()
 				
 				DrawFString(0, ze_x+ui_x, ze_y+zcs_y+4, 0xffffffff, 0, langStr[35]);
 				DrawFString(0, ze_x+ui_x, ze_y+zcs_y+64, 0xffffffff, 0, langStr[36]);
+				
+				DrawButton(ze_x+ui_x, ze_y+zcs_y+386, 8, 0);
+				
+				DrawFString(0, ze_x+ui_x+36, ze_y+zcs_y+386, 0xffffffff, 0, langStr[33]);
 
 				SetTexture(10);
 				DrawSprite2D(animc, ui_x+818, 4, 32, 32, 64, 64, 512, 64, 0, 0xffffffff);
@@ -844,6 +848,10 @@ void drawScene()
 			{
 				break;
 			}
+			case SHOP:
+			{
+				break;
+			}
 			default: break;
 		}
 	}
@@ -930,13 +938,13 @@ void DrawFString(int wrap, float x, float y, u32 textColor, int BW, const char *
 
     SetFontColor(shadowColor, 0x00000000);
 	
-	if(wrap==0) MyDrawFormatString(x + 2, y + 2, buffer);
-	else DrawWrappedText(x + 2, y + 2, 32, wrap, buffer);
+	if(wrap==0) MyDrawFormatString(x + 42, y + 24, buffer);
+	else DrawWrappedText(x + 42, y + 24, 32, wrap, buffer);
 	
     SetFontColor(textColor, 0x00000000);
 	
-	if(wrap==0) MyDrawFormatString(x, y, buffer);
-	else DrawWrappedText(x, y, 32, wrap, buffer);
+	if(wrap==0) MyDrawFormatString(x + 40, y + 22, buffer);
+	else DrawWrappedText(x + 40, y + 22, 32, wrap, buffer);
 }
 
 int GetFontWidth(const char *text, int fz)

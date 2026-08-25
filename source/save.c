@@ -37,6 +37,8 @@ void SetSaveDefaults()
     gSave.save_setting_guarantee = 0;
 
     gSave.save_hat = 0;
+	
+    gSave.save_shop_unlocked = false;
 }
 
 void savestate_init()
@@ -204,10 +206,11 @@ int StartSave(void)
 	gSave.save_setting_guarantee = setting_guarantee;
 	
 	gSave.save_hat = the_hat;
+	gSave.save_shop_unlocked = shop_unlocked;
 	
 	char debug[256];
 
-	sprintf(debug,"SAVING VALUES: level=%d current=%d global=%d route=%d\n", gSave.save_level,
+	sprintf(debug,"SAVING VALUES: level=%d current=%d global=%d route=%d", gSave.save_level,
 		gSave.save_current_minecoins, gSave.save_global_minecoins, gSave.save_global_route);
 	DebugLog(debug);
 	
@@ -267,6 +270,7 @@ static void LoadThread(void *arg)
 	setting_guarantee = gSave.save_setting_guarantee;
 	
 	the_hat = gSave.save_hat;
+	shop_unlocked = gSave.save_shop_unlocked;
 	
 	DebugLog("loaded!");
 	

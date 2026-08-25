@@ -7,6 +7,7 @@ extern char global_name[];
 extern char global_version[];
 
 const char *langStr[1024];
+const char *credits[256];
 
 #include "asimov_ttf_bin.h"
 
@@ -89,6 +90,8 @@ const char *langStr[1024];
 #include "Agss3m_ogg_bin.h"
 #include "Ags12_ogg_bin.h"
 
+#include "shop_ogg_bin.h"
+
 //IMPORT SFX
 #include "flag_ogg_bin.h"
 #include "unflag_mp3_bin.h"
@@ -101,6 +104,7 @@ const char *langStr[1024];
 #include "eleven_open_ogg_bin.h"
 #include "eleven_bonk_ogg_bin.h"
 #include "logo_mp3_bin.h"
+#include "cash_register_mp3_bin.h"
 
 extern int current_bgm;
 extern int desired_bgm;
@@ -156,6 +160,8 @@ extern int start_music;
 extern int game_init;
 
 extern bool use_custom_sweeper;
+extern bool shop_unlocked;
+extern bool shop_first;
 
 extern float ze_x;
 extern float ze_y;
@@ -184,6 +190,7 @@ SoundEffect sfx_mine;
 SoundEffect sfx_explosion;
 SoundEffect sfx_11open;
 SoundEffect sfx_11bonk;
+SoundEffect sfx_buy;
 
 #define BGM_LIST 200
 
@@ -219,6 +226,7 @@ void DemoCompleteCallback(msgButton button, void *usrData);
 void EmptyDialogCallback(msgButton button, void *usrData);
 void Initialize();
 void HolyShit();
+void creditsInit();
 
 extern float menu_x;
 extern int menu_pos;

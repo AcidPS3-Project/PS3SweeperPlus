@@ -27,6 +27,8 @@ typedef struct
 	int save_setting_guarantee;
 	
 	int save_hat;
+	
+	bool save_shop_unlocked;
 } SaveData;
 
 extern SaveData gSave;

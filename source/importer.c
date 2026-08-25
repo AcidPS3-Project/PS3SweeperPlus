@@ -1,7 +1,7 @@
 #include "importer.h"
 
 char global_name[] = "PS3Sweeper+";
-char global_version[] = "v0.3.1";
+char global_version[] = "v0.4";
 
 int current_bgm = 1;
 int desired_bgm = 1;
@@ -35,6 +35,7 @@ int bad_apple = 0;
 int temp_fp_music = 0;
 
 int setting_guarantee = 0;
+bool shop_unlocked = 0;
 
 bool playing_bgm = false;
 bool custom_music = false;
@@ -62,6 +63,7 @@ int start_music = 0;
 int game_init = 0;
 
 int splash_count = 0;
+bool shop_first = false;
 
 int fps = 0;
 static int frames = 0;
@@ -88,6 +90,14 @@ void UpdateFPS()
         frames = 0;
         last_time = now;
     }
+}
+
+void creditsInit()
+{
+	credits[0] = "Jorel Simpson";
+	credits[1] = "Axelbastian";
+	credits[2] = "cruslan";
+	credits[3] = "bucanero";
 }
 
 void LangInit()
@@ -157,9 +167,11 @@ void LangInit()
 			langStr[49] = "Error! Image's width or height are WAY above 2048 pixels.";
 			langStr[50] = "Error!\nFile not found in:\n\"/dev_usb000/SWEEPING/bgm.mp3\" (or bgm.ogg)!";
 			langStr[51] = "Warning!\nFile not found in:\n\"/dev_usb000/SWEEPING/win.mp3\" (or win.ogg)!\nIt is not necessary, but winning music won't play.";
-			langStr[52] = "CREDITS\n\nOriginal Minesweeper Plus game made by Jorel Simpson\nHalf-Mine Related Sprites by Axelbastian\n\nSPECIAL THANKS\n\ncruslan";
+			langStr[52] = "Original Minesweeper Plus game made by";
 			langStr[53] = "Error! Image's width and height don't match!!";
 			langStr[54] = "Use Custom Sweeper";
+			langStr[55] = "Half-Mine Related Sprites by";
+			langStr[56] = "SPECIAL THANKS";
 			break;
 		}
 		case 1: // Русский Язык
@@ -225,9 +237,11 @@ void LangInit()
 			langStr[49] = "Ошибка! Ширина или длина изображения превышают 2048 пикселей.";
 			langStr[50] = "Ошибка!\nФайл не найден:\n\"/dev_usb000/SWEEPING/bgm.mp3\" (или bgm.ogg)!";
 			langStr[51] = "Предупреждение!\nФайл не найден:\n\"/dev_usb000/SWEEPING/win.mp3\" (или win.ogg)!\nЭто не особо важно, но возможно звук победы не заиграет.";
-			langStr[52] = "БЛАГОДАРНОСТЬ\n\nОригинальная игра Сапер Плюс от Jorel Simpson\nСпрайты связанные с полу-минами от Axelbastian\n\nСПЕЦИАЛЬНАЯ БЛАГОДАРНОСТЬ\n\ncruslan";
+			langStr[52] = "Оригинальная игра Сапер Плюс от";
 			langStr[53] = "Ошибка! Ширина и длина изображения не совпадают!!";
 			langStr[54] = "Использовать своего сапера";
+			langStr[55] = "Спрайты связанные с полу-минами от";
+			langStr[56] = "СПЕЦИАЛЬНАЯ БЛАГОДАРНОСТЬ";
 			break;
 		}
 		case 2: // Қазақ Тілі
@@ -296,9 +310,11 @@ void LangInit()
 			langStr[49] = "Ошибка! Ширина или длина изображения превышают 2048 пикселей.";
 			langStr[50] = "Ошибка!\nФайл не найден:\n\"/dev_usb000/SWEEPING/bgm.mp3\" (или bgm.ogg)!";
 			langStr[51] = "Предупреждение!\nФайл не найден:\n\"/dev_usb000/SWEEPING/win.mp3\" (или win.ogg)!\nЭто не особо важно, но возможно звук победы не заиграет.";
-			langStr[52] = "БЛАГОДАРНОСТЬ\n\nОригинальная игра Сапер Плюс от Jorel Simpson\nСпрайты связанные с полу-минами от Axelbastian\n\nСПЕЦИАЛЬНАЯ БЛАГОДАРНОСТЬ\n\ncruslan";
+			langStr[52] = "Оригинальная игра Сапер Плюс от";
 			langStr[53] = "Ошибка! Ширина и длина изображения не совпадают!!";
 			langStr[54] = "Использовать своего сапера";
+			langStr[55] = "Спрайты связанные с полу-минами от";
+			langStr[56] = "СПЕЦИАЛЬНАЯ БЛАГОДАРНОСТЬ";
 			break;
 		}
 	}
@@ -630,6 +646,11 @@ void init_bgm()
 	bgm_start[118] = 0;
 	bgm_end[118] = sex;
 	
+	bgm[197] = shop_ogg_bin;
+	bgm_size[197] = shop_ogg_bin_size;
+	bgm_start[197] = 0;
+	bgm_end[197] = sex;
+	
 	bgm[198] = logo_mp3_bin;
 	bgm_size[198] = logo_mp3_bin_size;
 	bgm_start[198] = 0;
@@ -669,6 +690,7 @@ void init_sfx()
 	LoadSFX(&sfx_explosion, game_explosion_ogg_bin, game_explosion_ogg_bin_size);
 	LoadSFX(&sfx_11open, eleven_open_ogg_bin, eleven_open_ogg_bin_size);
 	LoadSFX(&sfx_11bonk, eleven_bonk_ogg_bin, eleven_bonk_ogg_bin_size);
+	LoadSFX(&sfx_buy, cash_register_mp3_bin, cash_register_mp3_bin_size);
 }
 
 int RandRange(int min, int max)

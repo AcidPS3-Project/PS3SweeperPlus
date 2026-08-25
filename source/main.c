@@ -75,6 +75,17 @@ void ResetGrid()
 		// msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
 			// "TWELVE TEMP DESCRIPTION", EmptyDialogCallback, NULL, NULL);
 	}
+	else if(LEVEL==12 || (free_play && desired_bgm == 15))
+	{
+		SetupBossNaNPositions(bossnan_count);
+		if(free_play)
+		{
+			desired_bgm = 19;
+			bossnan_cutscene = 2;
+		}
+		// msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
+			// "NAN TEMP DESCRIPTION", EmptyDialogCallback, NULL, NULL);
+	}
 	
 	int j;
 	for (j = 0; j < boss10_count; j++)
@@ -153,6 +164,8 @@ int main(int argc, const char* argv[])
 	
 	srand(time(NULL));
 	tiny3d_Init(1024*1024);
+	tiny3d_UserViewport(1, 0, 0, (float)(Video_Resolution.width / 916.0f), (float)(Video_Resolution.height / 582.0f),
+		(float)(Video_Resolution.width / 1920.0f), (float)(Video_Resolution.height / 1080.0f));
 	
 	sysModuleLoad(SYSMODULE_PNGDEC);
 	
@@ -167,6 +180,7 @@ int main(int argc, const char* argv[])
 	boss10_started = 0;
 	boss11_started = 0;
 	boss12_started = 0;
+	bossnan_started = 0;
 	
 	the_hat = 0;
 	
@@ -176,6 +190,7 @@ int main(int argc, const char* argv[])
 	ioPadInit(7);
     LoadTexture();
 	LangInit();
+	creditsInit();
 	
 	StartLoad();
 
@@ -252,8 +267,22 @@ int main(int argc, const char* argv[])
 								
 								if(paddata.BTN_TRIANGLE && !oldpad.BTN_TRIANGLE)
 								{
+									char ze_credits[512];
+									sprintf(ze_credits,"%s\n\n"
+										"%s %s\n"
+										"%s %s\n\n"
+										"%s\n\n"
+										"%s\n"
+										"%s\n",
+										langStr[14],
+										langStr[52], credits[0],
+										langStr[55], credits[1],
+										langStr[56],
+										credits[2], credits[3]
+									);
+									DebugLog(ze_credits);
 									msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
-										langStr[52], EmptyDialogCallback, NULL, NULL);
+										ze_credits, EmptyDialogCallback, NULL, NULL);
 								}
 							}
 							break;
@@ -265,6 +294,17 @@ int main(int argc, const char* argv[])
 							{
 								if(challenge_select)
 								{
+									if(paddata.BTN_L2 && !oldpad.BTN_L2)
+									{
+										free_play = 1;
+										fp_width = 72;
+										fp_height = 48;
+										fp_mines = 111;
+										LEVEL = 0;
+										LoadFPLevel();
+										can_move_xd = 1;
+									}
+									
 									if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE)
 									{
 										challenge_select = 0;
@@ -276,33 +316,55 @@ int main(int argc, const char* argv[])
 									{
 										loadout_select = 0;
 									}
+									if(paddata.BTN_TRIANGLE && !oldpad.BTN_TRIANGLE)
+									{
+										if(!shop_unlocked)
+										{
+											if(global_minecoins > 250)
+											{
+												shop_first = true;
+												shop_unlocked = true;
+												global_minecoins -= 250;
+												menu_x = 0.0f;
+												ze_x = 0.0f;
+												ze_y = 0.0f;
+												StopAudio();
+												currentScreen = SHOP;
+												PlaySFX(&sfx_buy);
+												StartSave();
+											}
+										}
+										else
+										{
+											shop_first = false;
+											menu_x = 0.0f;
+											ze_x = 0.0f;
+											ze_y = 0.0f;
+											StopAudio();
+											PlayBGM(197, 1);
+											currentScreen = SHOP;
+										}
+									}
 								}
 								else if(adventure_select)
 								{
 									if(paddata.BTN_CROSS && !oldpad.BTN_CROSS)
 									{
-										if(EPISODEs==4)
+										if(paddata.BTN_R2) global_route = 1;
+										LEVEL = 0;
+										DIFFICULTY = DIFFICULTYs;
+										EPISODE = EPISODEs;
+										
+										if(paddata.BTN_L2)
 										{
-											msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
-												langStr[47], EmptyDialogCallback, NULL, NULL);
+											int max_lvl = episodes[EPISODE-1].level_count;
+											LEVEL = max_lvl-1;
 										}
-										else
-										{
-											if(paddata.BTN_R2) global_route = 1;
-											LEVEL = 0;
-											DIFFICULTY = DIFFICULTYs;
-											EPISODE = EPISODEs;
-											if(EPISODE==3) LEVEL=10;
-											// if(paddata.BTN_L2)
-											// {
-												// int max_lvl = episodes[EPISODE-1].level_count;
-												// LEVEL = max_lvl-1;
-											// }
-											current_minecoins = 0;
-											StopAudio();
-											LoadLevel(LEVEL);
-											can_move_xd = 1;
-										}
+										
+										current_minecoins = 0;
+										StopAudio();
+										LoadLevel(LEVEL);
+										can_move_xd = 1;
 									}
 									if(paddata.BTN_UP && !oldpad.BTN_UP)
 									{
@@ -438,7 +500,7 @@ int main(int argc, const char* argv[])
 									if (fp_menu>7) fp_menu = 7;
 								}
 								
-								int max_mus = 13;
+								int max_mus = 14;
 								
 								if(paddata.BTN_LEFT && !oldpad.BTN_LEFT)
 								{
@@ -468,8 +530,8 @@ int main(int argc, const char* argv[])
 								{
 									switch(fp_menu)
 									{
-										case 0: fp_width++; if(fp_width>48) fp_width=48; break;
-										case 1: fp_height++; if(fp_height>36) fp_height=36; break;
+										case 0: fp_width++; if(fp_width>72) fp_width=72; break;
+										case 1: fp_height++; if(fp_height>48) fp_height=48; break;
 										case 2: fp_mines++; break;
 										case 3: fp_doubles++; if(fp_doubles>(fp_mines-fp_halfes-fp_antis)) fp_doubles=fp_mines-fp_halfes-fp_antis; break;
 										case 4: fp_halfes++; if(fp_halfes>(fp_mines-fp_doubles-fp_antis)) fp_halfes=fp_mines-fp_doubles-fp_antis; break;
@@ -488,15 +550,6 @@ int main(int argc, const char* argv[])
 									if(fp_mines>(fp_width*fp_height)-1) fp_mines=(fp_width*fp_height)-1;
 								}
 								
-								if(paddata.BTN_SELECT && !oldpad.BTN_SELECT)
-								{
-									fp_width = 72;
-									fp_height = 48;
-									fp_mines = 111;
-									LEVEL = 0;
-									LoadFPLevel();
-									can_move_xd = 1;
-								}
 								if(paddata.BTN_TRIANGLE && !oldpad.BTN_TRIANGLE)
 								{
 									if(bad_apple_init())
@@ -819,6 +872,10 @@ int main(int argc, const char* argv[])
 							break;
 						}
 						case ENDING:
+						{
+							break;
+						}
+						case SHOP:
 						{
 							break;
 						}

@@ -10,7 +10,8 @@ typedef enum GameScreen
 	MENU,
 	MAP,
 	GAME,
-	ENDING
+	ENDING,
+	SHOP
 }
 GameScreen;
 
