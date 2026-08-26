@@ -59,6 +59,7 @@ extern int fp_antis;
 extern int fp_music;
 extern int fp_back;
 extern int fp_menu;
+extern int fp_lifes;
 
 extern int cursorX;
 extern int cursorY;

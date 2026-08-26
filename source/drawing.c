@@ -4,18 +4,58 @@
 #include "save.h"
 #include "video.h"
 
+#include "level_data.h"
+
+#define FADE_NONE 0
+#define FADE_IN   1
+#define FADE_OUT  2
+
+static int fade_mode = FADE_NONE;
+static float fade_alpha = 0.0f;
+
+static GameScreen *fade_variable = NULL;
+static GameScreen fade_value;
+
 GameScreen currentScreen = LOGO;
 
-void DrawBackground2D(u32 rgba, int l)
+void DrawProjectiles()
+{
+    int i;
+
+    for(i = 0; i < MAX_PROJECTILES; i++)
+    {
+        Projectile *p = &projectiles[i];
+        if(!p->active) continue;
+		
+		if(p->type == 0)
+		{
+			SetTexture(8);
+			DrawSprite2D(p->anim, p->x - 32, p->y - 32, 96, 96, 48, 48, 240, 240, -5, 0xFFFFFFFF);
+		}
+	}
+}
+
+void DrawBackground2D(u32 rgba, float l)
 {
     tiny3d_SetPolygon(TINY3D_QUADS);
 
-    tiny3d_VertexPos(-60, 22, l);
+    tiny3d_VertexPos(-40, -22, l);
     tiny3d_VertexColor(rgba);
-    tiny3d_VertexPos(1040, 22, l);
+    tiny3d_VertexPos(1040, -22, l);
     tiny3d_VertexPos(1040, 1022, l);
-    tiny3d_VertexPos(-60, 1022, l);
+    tiny3d_VertexPos(-40, 1022, l);
     tiny3d_End();
+}
+
+void DrawFade(void)
+{
+    if(fade_alpha <= 0.0f) return;
+
+    u32 alpha = (u32)fade_alpha;
+    u32 color = alpha;
+    color = 0x00000000 | alpha;
+	
+	DrawBackground2D(color, -8);
 }
 
 u32 color_from_value(int value)
@@ -42,14 +82,49 @@ u32 color_from_value(int value)
     return (r << 24) | (g << 16) | (b << 8) | 0xff;
 }
 
-int getCaptainState(int anim_z, int anim1_z)
+int getShipRot(int rot)
 {
+	switch(rot)
+	{
+		case 0: return 156; break;
+		case 1: return 158; break;
+		case 2: return 176; break;
+		case 3: return 178; break;
+		default: return 0; break;
+	}
+}
+
+
+int getCaptainState(int anim_z, int anim1_z, int anim2_z)
+{
+	int left = 318;
+	int right = 518;
+	int cursor = offset_x+(cursorX*RENDER_SIZE);
+	
 	int the_state = 0;
 	if(use_custom_sweeper)
 	{
 		if(gamewin) the_state = 0+anim_z;
 		else if(gamelose) the_state = 14;
-		else the_state = 4;
+		else
+		{
+			if(LEVEL!=11 && !can_move_xd) the_state = 12+anim_z;
+			else if(disable_control)
+			{
+				if(cursor<left) the_state = 3;
+				else if(cursor>right) the_state = 2;
+				else the_state = 15;
+			}
+			else
+			{
+				if(cursor<left) the_state = 7;
+				else if(cursor>right) the_state = 5;
+				else the_state = 6;
+				
+				if(button_x_hold) the_state+=4;
+				if(button_start_hold) the_state=8;
+			}
+		}
 	}
 	else switch(LEVEL)
 	{
@@ -57,13 +132,32 @@ int getCaptainState(int anim_z, int anim1_z)
 		{
 			if(gamewin) the_state = 0+anim_z;
 			else if(gamelose) the_state = 74;
-			else the_state = 24;
+			else
+			{
+				if(LEVEL!=11 && !can_move_xd) the_state = 72+anim_z;
+				else if(disable_control)
+				{
+					if(cursor<left) the_state = 3;
+					else if(cursor>right) the_state = 2;
+					else the_state = 75;
+				}
+				else
+				{
+					if(cursor<left) the_state = 27;
+					else if(cursor>right) the_state = 25;
+					else the_state = 26;
+					
+					if(button_x_hold) the_state+=24;
+					if(button_start_hold) the_state=48;
+				}
+			}
 			break;
 		}
 		case 2: case 3:
 		{
 			if(gamewin) the_state = 4+anim_z;
 			else if(gamelose) the_state = 78;
+			else if(disable_control && !can_move_xd) the_state = 76+anim_z;
 			else the_state = 28;
 			break;
 		}
@@ -71,6 +165,7 @@ int getCaptainState(int anim_z, int anim1_z)
 		{
 			if(gamewin) the_state = 8+anim_z;
 			else if(gamelose) the_state = 82+anim_z;
+			else if(disable_control && !can_move_xd) the_state = 80+anim_z;
 			else the_state = 32+anim_z;
 			break;
 		}
@@ -78,6 +173,7 @@ int getCaptainState(int anim_z, int anim1_z)
 		{
 			if(gamewin) the_state = 16+anim_z;
 			else if(gamelose) the_state = 90;
+			else if(disable_control && !can_move_xd) the_state = 88+anim_z;
 			else the_state = 40;
 			break;
 		}
@@ -88,6 +184,7 @@ int getCaptainState(int anim_z, int anim1_z)
 			{
 				if(gamewin) the_state = 96+anim_z;
 				else if(gamelose) the_state = 218;
+				else if(disable_control && !can_move_xd) the_state = 216+anim_z;
 				else the_state = 241;
 				//else the_state = 120+anim1_z;
 			}
@@ -124,6 +221,7 @@ int getCaptainState(int anim_z, int anim1_z)
 			{
 				if(gamewin) the_state = 102+anim_z;
 				else if(gamelose) the_state = 176;
+				else if(disable_control && !can_move_xd) the_state = 174+anim_z;
 				else the_state = 126;
 			}
 			break;
@@ -135,6 +233,11 @@ int getCaptainState(int anim_z, int anim1_z)
 			{
 				if(gamewin) the_state = 106+anim_z;
 				else if(gamelose) the_state = 180;
+				else if(disable_control && !can_move_xd)
+				{
+					if(anim2_z<2) the_state = 216+anim2_z;
+					else the_state = 238+anim2_z;
+				}
 				else the_state = 130;
 			}
 			break;
@@ -146,10 +249,24 @@ int getCaptainState(int anim_z, int anim1_z)
 int getHatState(int hat, int anim_z)
 {
 	int the_state = 0;
+	int left = 318;
+	int right = 518;
+	int cursor = offset_x+(cursorX*RENDER_SIZE);
 	
 	if(gamewin) the_state = 0+(!anim_z*7);
 	else if(gamelose) the_state = 5;
-	else the_state = 0;
+	else
+	{
+		if(LEVEL!=11 && !can_move_xd) the_state = 5+anim_z;
+		else
+		{
+			if(cursor<left) the_state = 4;
+			else if(cursor>right) the_state = 2;
+			else the_state = 3;
+			
+			if(button_start_hold) the_state=0;
+		}
+	}
 	
 	the_state = the_state+(hat*24);
 	
@@ -272,9 +389,9 @@ void draw_game()
 	count_frames++;
 	anim = (count_frames / 30) % 2;
 	
-	for(x0 = -99; x0 < (screen_w * 2) + 99; x0 += 64)
+	for(x0 = -40; x0 < (screen_w * 2) + 99; x0 += 64)
 	{
-		for(y0 = -99; y0 < (screen_h * 2) + 99; y0 += 64)
+		for(y0 = -22; y0 < (screen_h * 2) + 99; y0 += 64)
 		{
 			DrawSprite2D(tile_bg + anim + 2, x0, y0, 64, 64, 16, 16, 320, 320, 5, 0xffffff88);
 		}
@@ -556,9 +673,9 @@ void drawScene()
 				
 				int tile_bg = (4*zp)+(mp * 20);
 				
-				for(x0 = -99; x0 < (screen_w * 2) + 99; x0 += 32)
+				for(x0 = -40; x0 < (screen_w * 2) + 99; x0 += 32)
 				{
-					for(y0 = -99; y0 < (screen_h * 2) + 99; y0 += 32)
+					for(y0 = -22; y0 < (screen_h * 2) + 99; y0 += 32)
 					{
 						DrawSprite2D(tile_bg+anim+2, x0, y0, 32, 32, 16, 16, 320, 320, 5, 0xffffffff);
 					}
@@ -663,6 +780,78 @@ void drawScene()
 			}
 			case MAP:
 			{
+				SetTexture(1);
+				DifficultyData *lvl = &episodes[EPISODE-1].levels[LEVEL].difficulties[DIFFICULTY];
+				int bg_map = lvl->back;
+				int zp = bg_map/5;
+				int mp = bg_map%5;
+				
+				int tile_bg = (4*zp)+(mp * 20);
+				int grid_bg = (20*zp)+mp;
+				
+				for(int x0 = -40; x0 < (screen_w * 2) + 99; x0 += 32)
+				{
+					for(int y0 = -22; y0 < (screen_h * 2) + 99; y0 += 32)
+					{
+						DrawSprite2D(tile_bg+anim, x0, y0, 32, 32, 16, 16, 320, 320, 5, 0xffffffff);
+					}
+				}
+				
+				int max_lvl = episodes[EPISODE-1].level_count;
+				
+				switch(EPISODE)
+				{
+					case 1:
+					{
+						for(int _t = 1; _t < max_lvl; _t++)
+						{
+							DrawSprite2D(241 + grid_bg, 120+(64*_t), -22+(32*11), 32, 32, 16, 16, 320, 320, 5, 0xffffffff);
+							
+							if(LEVEL<_t)
+							{
+								int tile = 0;
+								switch(_t)
+								{
+									case 1: tile = 105; break;
+									case 2: tile = 106; break;
+									case 3: tile = 107; break;
+									case 4: tile = 124; break;
+									case 5: tile = 125; break;
+									case 6: tile = 126; break;
+									case 7: tile = 127; break;
+									case 8: tile = 144; break;
+									case 9: tile = 145; break;
+									case 10: tile = 146; break;
+									case 11: tile = 147; break;
+									case 12: tile = 164; break;
+									case 13: tile = 165; break;
+									case 14: tile = 166; break;
+									case 15: tile = 167; break;
+									case 16: tile = 184; break;
+									case 17: tile = 185; break;
+									case 18: tile = 186; break;
+									case 19: tile = 187; break;
+									case 20: tile = 204; break;
+									case 21: tile = 205; break;
+									case 22: tile = 206; break;
+									case 23: tile = 207; break;
+									default: tile = 104; break;
+								}
+								DrawSprite2D(tile, 120+(64*_t), -22+(32*11), 32, 32, 16, 16, 320, 320, 5, 0xffffffff);
+							}
+							else DrawSprite2D(112+anim, 120+(64*_t), -22+(32*11), 32, 32, 16, 16, 320, 320, 5, 0xffffffff);
+						}
+						break;
+					}
+					default: break;
+				}
+				
+				DrawSprite2D(getShipRot(ship_r)+anim1, ship_x, ship_y, 32, 32, 16, 16, 320, 320, 5, 0xffffffff);
+				
+				SetFontSize(84, 96);
+				const char *LevelName = episodes[EPISODE-1].levels[LEVEL].name;
+				if(!ship_a) DrawTextAligned(0, 418, 876, -22+(32*4), 1, 0xffffffff, 0, 84, "%s", LevelName);
+				
 				break;
 			}
 			case GAME:
@@ -691,7 +880,7 @@ void drawScene()
 				SetFontSize(28, 32);
 				
 				SetTexture(0);
-				int capt_state = getCaptainState(anim1, anim2);
+				int capt_state = getCaptainState(anim1, anim2, anim3);
 				int capt_y = -9; if(the_hat==-1) capt_y = -14;
 				
 				int capt_w = 960; int capt_h = 560; int capt_p = 40;
@@ -848,6 +1037,22 @@ void drawScene()
 			{
 				break;
 			}
+			case GOTOSHOP:
+			{
+				SetTexture(1);
+				for(int x0 = -40; x0 < (screen_w * 2) + 99; x0 += 32)
+				{
+					for(int y0 = -22; y0 < (screen_h * 2) + 99; y0 += 32)
+					{
+						DrawSprite2D(anim, x0, y0, 32, 32, 16, 16, 320, 320, 5, 0xffffffff);
+					}
+				}
+				DrawSprite2D(192+anim2, -40+(32*16), -22+(32*6), 32, 32, 16, 16, 320, 320, 5, 0xffffffff);
+				
+				DrawSprite2D(getShipRot(ship_r)+anim1, ship_x, ship_y, 32, 32, 16, 16, 320, 320, 5, 0xffffffff);
+				
+				break;
+			}
 			case SHOP:
 			{
 				break;
@@ -881,6 +1086,10 @@ void drawScene()
 		SetFontSize(28, 32);
 		DrawTextAligned(0, 600, 848, 512, 2, 0xffffffff, 0, 14, langStr[1]);
 	}
+	
+	DrawProjectiles();
+	
+	DrawFade();
 }
 
 u32 *texture_pointer = NULL;
@@ -987,4 +1196,95 @@ void zoomCheck(int zoom)
 	RENDER_SIZE = RENDERING_SIZE * RENDERING_PIXELS;
 	offset_x = screen_w - (RENDER_SIZE * GRID_W / 2);
 	offset_y = screen_h - (RENDER_SIZE * GRID_H / 2) + ui_offset_y;
+}
+
+void FadeInOut(GameScreen *variable, GameScreen value)
+{
+    fade_variable = variable;
+    fade_value = value;
+	
+	if(*fade_variable == value) return;
+
+    fade_alpha = 0.0f;
+    fade_mode = FADE_OUT;
+}
+
+void UpdateFade(float dt)
+{
+    if(fade_mode == FADE_OUT)
+    {
+        fade_alpha += 255.0f * dt / 0.5f;
+
+        if(fade_alpha >= 255.0f)
+        {
+            fade_alpha = 255.0f;
+            fade_mode = FADE_IN;
+
+            if(fade_variable)
+            {
+                *fade_variable = fade_value;
+                fade_variable = NULL;
+            }
+        }
+    }
+    else if(fade_mode == FADE_IN)
+    {
+        fade_alpha -= 255.0f * dt / 0.5f;
+
+        if(fade_alpha <= 0.0f)
+        {
+            fade_alpha = 0.0f;
+            fade_mode = FADE_NONE;
+        }
+    }
+}
+
+
+void SpawnProjectile(float x, float y, float vx, float vy, int type)
+{
+    int i;
+
+    for(i = 0; i < MAX_PROJECTILES; i++)
+    {
+        if(!projectiles[i].active)
+        {
+            projectiles[i].active = 1;
+            projectiles[i].x = x;
+            projectiles[i].y = y;
+            projectiles[i].vx = vx;
+            projectiles[i].vy = vy;
+            projectiles[i].lifetime = 1.0f;
+            projectiles[i].type = type;
+            projectiles[i].anim = 0;
+            return;
+        }
+    }
+}
+
+void UpdateProjectiles(float dt)
+{
+    int i;
+
+    for(i = 0; i < MAX_PROJECTILES; i++)
+    {
+        Projectile *p = &projectiles[i];
+
+        if(!p->active) continue;
+
+        p->x += p->vx * dt;
+        p->y += p->vy * dt;
+
+        p->lifetime -= dt;
+		
+		if(p->type == 0) p->anim += 1;
+
+        if(p->lifetime <= 0.0f)
+        {
+			if(p->type == 0) // explosion :)
+			{
+				can_move_xd = 1;
+			}
+            p->active = 0;
+        }
+    }
 }

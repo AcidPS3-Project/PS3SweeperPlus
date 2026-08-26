@@ -4,9 +4,17 @@
 #include "drawing.h"
 #include "video.h"
 
+bool play_map_bgm = false;
+
+int start_menu = 0;
+int start_game_mus = 0;
+int startbgmgtsp = 0;
+
 void ResetGrid()
 {
-	currentScreen = GAME;
+	start_game_mus = 1;
+	FadeInOut(&currentScreen, GAME);
+	
     mines_count = MINES;
 
     cursorX = GRID_W/2;
@@ -102,12 +110,11 @@ void ResetGrid()
 	
 	if(desired_bgm!=100) playing_bgm = true;
 	else playing_bgm = false;
-	PlayBGM(desired_bgm, 1);
 }
 
 void GoBackToTitle()
 {
-	can_move_xd = 0;
+	can_move_xd = 1;
 
 	gamewin = 0;
 	gamelose = 0;
@@ -126,16 +133,16 @@ void GoBackToTitle()
 	
 	i_10 = 0;
 	
-	currentScreen = MENU;
 	menu_pos = 0;
 	menu_x = 0.0f;
 	ze_x = 0.0f;
 	ze_y = 0.0f;
 	adventure_select = 0;
-
-	PlayBGM(50+fp_music, 1);
 	
 	StartSave();
+	
+	start_menu = 1;
+	FadeInOut(&currentScreen, MENU);
 }
 
 void UnloadCustomSweeper()
@@ -201,13 +208,8 @@ int main(int argc, const char* argv[])
 		sysUtilCheckCallback();
 		UpdateFPS();
 		
-		if(start_music)
-		{
-			StopAudio();
-			start_music = 0;
-			playing_bgm = true;
-			PlayBGM(0, 1);
-		}
+		UpdateFade(1.0f / 60.0f);
+		UpdateProjectiles(1.0f / 60.0f);
 		
         tiny3d_Clear(0xff000000, TINY3D_CLEAR_ALL);
 		tiny3d_AlphaTest(1, 0x10, TINY3D_ALPHA_FUNC_GEQUAL);
@@ -223,6 +225,13 @@ int main(int argc, const char* argv[])
 				if(padinfo.status[ip])
 				{
 					ioPadGetData(ip, &paddata);
+					
+					if(paddata.BTN_CROSS || paddata.BTN_CIRCLE) button_x_hold = true;
+					else button_x_hold = false;
+					
+					if(paddata.BTN_START) button_start_hold = true;
+					else button_start_hold = false;
+					
 					switch(currentScreen)
 					{
 						case LOGO:
@@ -231,6 +240,13 @@ int main(int argc, const char* argv[])
 						}
 						case TITLE:
 						{
+							if(start_music)
+							{
+								start_music = 0;
+								playing_bgm = true;
+								PlayBGM(0, 1);
+							}
+							
 							if(settings_select)
 							{
 								if(paddata.BTN_L2 && !oldpad.BTN_L2)
@@ -256,8 +272,9 @@ int main(int argc, const char* argv[])
 									ze_x = 0.0f;
 									ze_y = 0.0f;
 									StopAudio();
-									PlayBGM(50+fp_music, 1);
-									currentScreen = MENU;
+									start_menu = 1;
+									PlaySFX(&sfx_gamestart);
+									FadeInOut(&currentScreen, MENU);
 								}
 								
 								if(paddata.BTN_SQUARE && !oldpad.BTN_SQUARE)
@@ -289,6 +306,12 @@ int main(int argc, const char* argv[])
 						}
 						case MENU:
 						{
+							if(start_menu)
+							{
+								start_menu = 0;
+								PlayBGM(50+fp_music, 1);
+							}
+							
 							menu_x = lerp(menu_x, -262 * menu_pos, 0.1f);
 							if(!free_play)
 							{
@@ -316,8 +339,15 @@ int main(int argc, const char* argv[])
 									{
 										loadout_select = 0;
 									}
+									if(paddata.BTN_SELECT && !oldpad.BTN_SELECT)
+									{
+										global_minecoins += 125000;
+									}
 									if(paddata.BTN_TRIANGLE && !oldpad.BTN_TRIANGLE)
 									{
+										startbgmgtsp = 1;
+										ship_x = -80;
+										ship_y = -22+(32*6);
 										if(!shop_unlocked)
 										{
 											if(global_minecoins > 250)
@@ -329,9 +359,9 @@ int main(int argc, const char* argv[])
 												ze_x = 0.0f;
 												ze_y = 0.0f;
 												StopAudio();
-												currentScreen = SHOP;
 												PlaySFX(&sfx_buy);
 												StartSave();
+												FadeInOut(&currentScreen, GOTOSHOP);
 											}
 										}
 										else
@@ -341,8 +371,7 @@ int main(int argc, const char* argv[])
 											ze_x = 0.0f;
 											ze_y = 0.0f;
 											StopAudio();
-											PlayBGM(197, 1);
-											currentScreen = SHOP;
+											FadeInOut(&currentScreen, GOTOSHOP);
 										}
 									}
 								}
@@ -363,8 +392,9 @@ int main(int argc, const char* argv[])
 										
 										current_minecoins = 0;
 										StopAudio();
-										LoadLevel(LEVEL);
-										can_move_xd = 1;
+										PlaySFX(&sfx_gamestart);
+										FadeInOut(&currentScreen, MAP);
+										ship_a = true;
 									}
 									if(paddata.BTN_UP && !oldpad.BTN_UP)
 									{
@@ -408,8 +438,9 @@ int main(int argc, const char* argv[])
 									{
 										free_play = 0;
 										StopAudio();
-										LoadLevel(LEVEL);
-										can_move_xd = 1;
+										FadeInOut(&currentScreen, MAP);
+										PlaySFX(&sfx_gamestart);
+										ship_a = true;
 									}
 									
 									if(paddata.BTN_LEFT && !oldpad.BTN_LEFT)
@@ -428,7 +459,9 @@ int main(int argc, const char* argv[])
 										splash = splashes_random[rand() % SplashesCount()];
 										StopAudio();
 										PlayBGM(0, 1);
-										currentScreen = TITLE;
+										start_music = 1;
+										FadeInOut(&currentScreen, TITLE);
+										PlaySFX(&sfx_gamestart);
 									}
 								}
 							}
@@ -437,6 +470,7 @@ int main(int argc, const char* argv[])
 								if(paddata.BTN_START && !oldpad.BTN_START)
 								{
 									LEVEL = 0;
+									PlaySFX(&sfx_gamestart);
 									LoadFPLevel();
 									can_move_xd = 1;
 								}
@@ -555,6 +589,7 @@ int main(int argc, const char* argv[])
 									if(bad_apple_init())
 									{
 										DebugLog("Loaded Bad Apple!!");
+										PlaySFX(&sfx_gamestart);
 										LoadFPLevel();
 									}
 								}
@@ -592,14 +627,74 @@ int main(int argc, const char* argv[])
 									}
 								}
 							}
-						break;
-					}
+							break;
+						}
 						case MAP:
 						{
+							if(!play_map_bgm)
+							{
+								int lvl_slct_bgm = 0;
+								switch(EPISODE)
+								{
+									case 1:
+									{
+										if(LEVEL==0) lvl_slct_bgm = 151;
+										else if(LEVEL==1) lvl_slct_bgm = 151;
+										else if(LEVEL==2) lvl_slct_bgm = 152;
+										else if(LEVEL==3) lvl_slct_bgm = 152;
+										else if(LEVEL==4) lvl_slct_bgm = 153;
+										else if(LEVEL==5) lvl_slct_bgm = 153;
+										else if(LEVEL==6) lvl_slct_bgm = 154;
+										else if(LEVEL==7) lvl_slct_bgm = 154;
+										break;
+									}
+									default: break;
+								}
+								
+								if(lvl_slct_bgm>0) PlayBGM(lvl_slct_bgm, 1);
+								play_map_bgm = true;
+							}
+							
+							ship_r=0;
+							if(ship_a)
+							{
+								switch(EPISODE)
+								{
+									case 1:
+									{
+										ship_r = 0;
+										ship_y = -22+(32*9);
+										if(ship_x < 120+(64*(LEVEL+1)))
+										{
+											ship_x++;
+										}
+										else ship_a = false;
+										break;
+									}
+									default: break;
+								}
+							}
+							else
+							{
+								if(paddata.BTN_CROSS && !oldpad.BTN_CROSS)
+								{
+									StopAudio();
+									LoadLevel(LEVEL);
+									PlaySFX(&sfx_level);
+									can_move_xd = 1;
+								}
+							}
 							break;
 						}
 						case GAME:
 						{
+							if(start_game_mus)
+							{
+								play_map_bgm = false;
+								start_game_mus = 0;
+								PlayBGM(desired_bgm, 1);
+							}
+							
 							if(gamelose && paddata.BTN_START && !oldpad.BTN_START) GoBackToTitle();
 							else if(gamewin)
 							{
@@ -642,7 +737,8 @@ int main(int argc, const char* argv[])
 										else
 										{
 											StartSave();
-											LoadLevel(LEVEL);
+											ship_a = true;
+											FadeInOut(&currentScreen, MAP);
 										}
 									}
 									else GoBackToTitle();
@@ -875,6 +971,26 @@ int main(int argc, const char* argv[])
 						{
 							break;
 						}
+						case GOTOSHOP:
+						{
+							if(startbgmgtsp)
+							{
+								startbgmgtsp = 0;
+								PlayBGM(9, 1);
+							}
+							
+							ship_r=0;
+							if(ship_x<-40+(32*15)) ship_x++;
+							else
+							{
+								if(ship_x == -40+(32*15))
+								{
+									FadeInOut(&currentScreen, SHOP);
+									ship_x++;
+								}
+							}
+							break;
+						}
 						case SHOP:
 						{
 							break;
@@ -885,8 +1001,6 @@ int main(int argc, const char* argv[])
 				}
 			}
 		}
-		
-		
 
 		if(boss9_started && !disable_control)
 		{
@@ -950,12 +1064,23 @@ int main(int argc, const char* argv[])
 			if(explode_time>0) explode_time--;
 			else
 			{
-				DeactivateBosses();
-				gamelose = 1;
-				timer_running = 0;
-				playing_bgm = false;
-				StopAudio();
+				can_move_xd = 0;
+				disable_control = 0;
+				
+				if(free_play) fp_lifes--;
+				else LIFES--;
+				
 				PlaySFX(&sfx_explosion);
+				SpawnProjectile(offset_x+(cursorX*RENDER_SIZE), offset_y+(cursorY*RENDER_SIZE), 0, 0, 0);
+				if((fp_lifes < 1 && free_play) || (LIFES < 1))
+				{
+					disable_control = 1;
+					gamelose = 1;
+					DeactivateBosses();
+					timer_running = 0;
+					playing_bgm = false;
+					StopAudio();
+				}
 			}
 		}
 		

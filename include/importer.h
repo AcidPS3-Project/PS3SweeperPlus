@@ -28,6 +28,8 @@ const char *credits[256];
 #include "coin_png_bin.h"
 #include "buttons_png_bin.h"
 #include "hats_sheet_png_bin.h"
+#include "explosion_png_bin.h"
+#include "explosion_anti_png_bin.h"
 
 #include "icon0_png_bin.h"
 
@@ -58,6 +60,24 @@ const char *credits[256];
 #include "winrs_ogg_bin.h"
 #include "wins3m_ogg_bin.h"
 
+#include "ls1_mp3_bin.h"
+#include "ls2_mp3_bin.h"
+#include "ls3_mp3_bin.h"
+#include "ls4_mp3_bin.h"
+#include "ls5_mp3_bin.h"
+#include "ls6_mp3_bin.h"
+#include "ls7_mp3_bin.h"
+#include "ls8_mp3_bin.h"
+
+#include "ls9_mp3_bin.h"
+#include "ls10_mp3_bin.h"
+#include "ls11_mp3_bin.h"
+#include "ls12_ogg_bin.h"
+#include "lsNaN_ogg_bin.h"
+
+#include "lsrs_ogg_bin.h"
+#include "lss3m_ogg_bin.h"
+
 #include "ocean_mp3_bin.h"
 
 #include "boss9_intro_mp3_bin.h"
@@ -83,12 +103,15 @@ const char *credits[256];
 #include "Ags6_mp3_bin.h"
 #include "Ags7_mp3_bin.h"
 #include "Ags8_mp3_bin.h"
+
 #include "Ags9_mp3_bin.h"
 #include "Ags10_mp3_bin.h"
 #include "Ags11_mp3_bin.h"
+#include "Ags12_ogg_bin.h"
+#include "AgsNaN_ogg_bin.h"
+
 #include "Agsrs_mp3_bin.h"
 #include "Agss3m_ogg_bin.h"
-#include "Ags12_ogg_bin.h"
 
 #include "shop_ogg_bin.h"
 
@@ -106,8 +129,17 @@ const char *credits[256];
 #include "logo_mp3_bin.h"
 #include "cash_register_mp3_bin.h"
 
+#include "level_start_ogg_bin.h"
+#include "level_start2_mp3_bin.h"
+#include "game_start_mp3_bin.h"
+
 extern int current_bgm;
 extern int desired_bgm;
+
+extern int ship_x;
+extern int ship_y;
+extern int ship_r;
+extern bool ship_a;
 
 extern int global_minecoins;
 extern int current_minecoins;
@@ -123,6 +155,9 @@ extern int language;
 
 extern float timer_seconds;
 extern int timer_running;
+
+extern bool button_x_hold;
+extern bool button_start_hold;
 
 extern int screen_w;
 extern int screen_h;
@@ -145,6 +180,7 @@ extern int EPISODEs;
 extern int LEVEL;
 extern int DIFFICULTY;
 extern int DIFFICULTYs;
+extern int LIFES;
 
 extern int the_bg;
 
@@ -162,6 +198,7 @@ extern int game_init;
 extern bool use_custom_sweeper;
 extern bool shop_unlocked;
 extern bool shop_first;
+extern bool first_playing;
 
 extern float ze_x;
 extern float ze_y;
@@ -178,6 +215,7 @@ typedef struct
     int pcm_size;
     int freq;
     int stereo;
+    int voice;
 } SoundEffect;
 
 SoundEffect sfx_flag;
@@ -191,6 +229,9 @@ SoundEffect sfx_explosion;
 SoundEffect sfx_11open;
 SoundEffect sfx_11bonk;
 SoundEffect sfx_buy;
+SoundEffect sfx_gamestart;
+SoundEffect sfx_level;
+SoundEffect sfx_level2;
 
 #define BGM_LIST 200
 

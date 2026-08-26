@@ -6,6 +6,14 @@ char global_version[] = "v0.4";
 int current_bgm = 1;
 int desired_bgm = 1;
 
+int ship_x = -40;
+int ship_y = -22;
+int ship_r = 0;
+bool ship_a = false;
+
+bool button_x_hold = false;
+bool button_start_hold = false;
+
 int global_minecoins = 0;
 int current_minecoins = 0;
 int level_minecoins = 0;
@@ -48,6 +56,7 @@ int EPISODEs = 1; //for showing off
 int LEVEL = 0;
 int DIFFICULTY = 1;
 int DIFFICULTYs = 1; //for showing off
+int LIFES = 3;
 
 int the_bg = 0;
 
@@ -64,6 +73,7 @@ int game_init = 0;
 
 int splash_count = 0;
 bool shop_first = false;
+bool first_playing = true;
 
 int fps = 0;
 static int frames = 0;
@@ -451,10 +461,14 @@ int sex = 2147483647;
 
 void init_bgm()
 {
+	for(int z = 0; z < BGM_LIST; z++)
+	{
+		bgm_start[z] = 0;
+		bgm_end[z] = sex;
+	}
+	
 	bgm[0] = title_mp3_bin;
 	bgm_size[0] = title_mp3_bin_size;
-	bgm_start[0] = 0;
-	bgm_end[0] = sex;
 	
 	bgm[1] = bgm1_mp3_bin;
 	bgm_size[1] = bgm1_mp3_bin_size;
@@ -478,8 +492,6 @@ void init_bgm()
 	
 	bgm[5] = bgm5_mp3_bin;
 	bgm_size[5] = bgm5_mp3_bin_size;
-	bgm_start[5] = 0;
-	bgm_end[5] = sex;
 	
 	bgm[6] = bgm6_mp3_bin;
 	bgm_size[6] = bgm6_mp3_bin_size;
@@ -488,8 +500,6 @@ void init_bgm()
 	
 	bgm[7] = bgm7_mp3_bin;
 	bgm_size[7] = bgm7_mp3_bin_size;
-	bgm_start[7] = 0;
-	bgm_end[7] = sex;
 	
 	bgm[8] = bgm8_mp3_bin;
 	bgm_size[8] = bgm8_mp3_bin_size;
@@ -498,8 +508,6 @@ void init_bgm()
 	
 	bgm[9] = ocean_mp3_bin;
 	bgm_size[9] = ocean_mp3_bin_size;
-	bgm_start[9] = 0;
-	bgm_end[9] = sex;
 	
 	bgm[10] = boss9_intro_mp3_bin;
 	bgm_size[10] = boss9_intro_mp3_bin_size;
@@ -518,8 +526,6 @@ void init_bgm()
 	
 	bgm[13] = boss10_mp3_bin;
 	bgm_size[13] = boss10_mp3_bin_size;
-	bgm_start[13] = 0;
-	bgm_end[13] = sex;
 	
 	bgm[15] = boss11_intro_mp3_bin;
 	bgm_size[15] = boss11_intro_mp3_bin_size;
@@ -548,118 +554,93 @@ void init_bgm()
 	
 	bgm[20] = boss12_ogg_bin;
 	bgm_size[20] = boss12_ogg_bin_size;
-	bgm_start[20] = 0;
-	bgm_end[20] = sex;
 	
-	bgm[51]=Ags1_mp3_bin;bgm_size[51]=Ags1_mp3_bin_size;bgm_start[51]=0;bgm_end[51]=sex;
-	bgm[52]=Ags2_mp3_bin;bgm_size[52]=Ags2_mp3_bin_size;bgm_start[52]=0;bgm_end[52]=sex;
-	bgm[53]=Ags3_mp3_bin;bgm_size[53]=Ags3_mp3_bin_size;bgm_start[53]=0;bgm_end[53]=sex;
-	bgm[54]=Ags4_mp3_bin;bgm_size[54]=Ags4_mp3_bin_size;bgm_start[54]=0;bgm_end[54]=sex;
-	bgm[55]=Ags5_mp3_bin;bgm_size[55]=Ags5_mp3_bin_size;bgm_start[55]=0;bgm_end[55]=sex;
-	bgm[56]=Ags6_mp3_bin;bgm_size[56]=Ags6_mp3_bin_size;bgm_start[56]=0;bgm_end[56]=sex;
-	bgm[57]=Ags7_mp3_bin;bgm_size[57]=Ags7_mp3_bin_size;bgm_start[57]=0;bgm_end[57]=sex;
-	bgm[58]=Ags8_mp3_bin;bgm_size[58]=Ags8_mp3_bin_size;bgm_start[58]=0;bgm_end[58]=sex;
-	bgm[59]=Ags9_mp3_bin;bgm_size[59]=Ags9_mp3_bin_size;bgm_start[59]=0;bgm_end[59]=sex;
-	bgm[60]=Ags10_mp3_bin;bgm_size[60]=Ags10_mp3_bin_size;bgm_start[60]=0;bgm_end[60]=sex;
-	bgm[61]=Ags11_mp3_bin;bgm_size[61]=Ags11_mp3_bin_size;bgm_start[61]=0;bgm_end[61]=sex;
-	bgm[62]=Agsrs_mp3_bin;bgm_size[62]=Agsrs_mp3_bin_size;bgm_start[62]=0;bgm_end[62]=sex;
-	bgm[63]=Agss3m_ogg_bin;bgm_size[63]=Agss3m_ogg_bin_size;bgm_start[63]=0;bgm_end[63]=sex;
-	bgm[64]=Ags12_ogg_bin;bgm_size[64]=Ags12_ogg_bin_size;bgm_start[64]=0;bgm_end[64]=sex;
+	bgm[51]=Ags1_mp3_bin;bgm_size[51]=Ags1_mp3_bin_size;
+	bgm[52]=Ags2_mp3_bin;bgm_size[52]=Ags2_mp3_bin_size;
+	bgm[53]=Ags3_mp3_bin;bgm_size[53]=Ags3_mp3_bin_size;
+	bgm[54]=Ags4_mp3_bin;bgm_size[54]=Ags4_mp3_bin_size;
+	bgm[55]=Ags5_mp3_bin;bgm_size[55]=Ags5_mp3_bin_size;
+	bgm[56]=Ags6_mp3_bin;bgm_size[56]=Ags6_mp3_bin_size;
+	bgm[57]=Ags7_mp3_bin;bgm_size[57]=Ags7_mp3_bin_size;
+	bgm[58]=Ags8_mp3_bin;bgm_size[58]=Ags8_mp3_bin_size;
+	bgm[59]=Ags9_mp3_bin;bgm_size[59]=Ags9_mp3_bin_size;
+	bgm[60]=Ags10_mp3_bin;bgm_size[60]=Ags10_mp3_bin_size;
+	bgm[61]=Ags11_mp3_bin;bgm_size[61]=Ags11_mp3_bin_size;
+	bgm[62]=Agsrs_mp3_bin;bgm_size[62]=Agsrs_mp3_bin_size;
+	bgm[63]=Agss3m_ogg_bin;bgm_size[63]=Agss3m_ogg_bin_size;
+	bgm[64]=Ags12_ogg_bin;bgm_size[64]=Ags12_ogg_bin_size;
 	
 	bgm[99] = (unsigned char *)""; // custom music
 	bgm_size[99] = 0;
-	bgm_start[99] = 0;
-	bgm_end[99] = sex;
 	
 	bgm[100] = (unsigned char *)""; // bad apple!!
 	bgm_size[100] = 0;
-	bgm_start[100] = 0;
-	bgm_end[100] = sex;
 	
 	bgm[101] = win1_mp3_bin;
 	bgm_size[101] = win1_mp3_bin_size;
-	bgm_start[101] = 0;
-	bgm_end[101] = sex;
 	
 	bgm[102] = win2_mp3_bin;
 	bgm_size[102] = win2_mp3_bin_size;
-	bgm_start[102] = 0;
-	bgm_end[102] = sex;
 	
 	bgm[103] = win3_mp3_bin;
 	bgm_size[103] = win3_mp3_bin_size;
-	bgm_start[103] = 0;
-	bgm_end[103] = sex;
 	
 	bgm[104] = win4_mp3_bin;
 	bgm_size[104] = win4_mp3_bin_size;
-	bgm_start[104] = 0;
-	bgm_end[104] = sex;
 	
 	bgm[105] = win5_ogg_bin;
 	bgm_size[105] = win5_ogg_bin_size;
-	bgm_start[105] = 0;
-	bgm_end[105] = sex;
 	
 	bgm[106] = win6_ogg_bin;
 	bgm_size[106] = win6_ogg_bin_size;
-	bgm_start[106] = 0;
-	bgm_end[106] = sex;
 	
 	bgm[107] = win7_ogg_bin;
 	bgm_size[107] = win7_ogg_bin_size;
-	bgm_start[107] = 0;
-	bgm_end[107] = sex;
 	
 	bgm[108] = win8_ogg_bin;
 	bgm_size[108] = win8_ogg_bin_size;
-	bgm_start[108] = 0;
-	bgm_end[108] = sex;
 	
 	bgm[109] = boss9_win_ogg_bin;
 	bgm_size[109] = boss9_win_ogg_bin_size;
-	bgm_start[109] = 0;
-	bgm_end[109] = sex;
 	
 	bgm[110] = boss10_win_ogg_bin;
 	bgm_size[110] = boss10_win_ogg_bin_size;
-	bgm_start[110] = 0;
-	bgm_end[110] = sex;
 	
 	bgm[111] = boss11_win_ogg_bin;
 	bgm_size[111] = boss11_win_ogg_bin_size;
-	bgm_start[111] = 0;
-	bgm_end[111] = sex;
 	
 	bgm[112] = boss12_win_ogg_bin;
 	bgm_size[112] = boss12_win_ogg_bin_size;
-	bgm_start[112] = 0;
-	bgm_end[112] = sex;
 	
 	bgm[117] = winrs_ogg_bin;
 	bgm_size[117] = winrs_ogg_bin_size;
-	bgm_start[117] = 0;
-	bgm_end[117] = sex;
 	
 	bgm[118] = wins3m_ogg_bin;
 	bgm_size[118] = wins3m_ogg_bin_size;
-	bgm_start[118] = 0;
-	bgm_end[118] = sex;
+	
+	bgm[151]=ls1_mp3_bin;bgm_size[151]=ls1_mp3_bin_size;
+	bgm[152]=ls2_mp3_bin;bgm_size[152]=ls2_mp3_bin_size;
+	bgm[153]=ls3_mp3_bin;bgm_size[153]=ls3_mp3_bin_size;
+	bgm[154]=ls4_mp3_bin;bgm_size[154]=ls4_mp3_bin_size;
+	bgm[155]=ls5_mp3_bin;bgm_size[155]=ls5_mp3_bin_size;
+	bgm[156]=ls6_mp3_bin;bgm_size[156]=ls6_mp3_bin_size;
+	bgm[157]=ls7_mp3_bin;bgm_size[157]=ls7_mp3_bin_size;
+	bgm[158]=ls8_mp3_bin;bgm_size[158]=ls8_mp3_bin_size;
+	bgm[159]=ls9_mp3_bin;bgm_size[159]=ls9_mp3_bin_size;
+	bgm[160]=ls10_mp3_bin;bgm_size[160]=ls10_mp3_bin_size;
+	bgm[161]=ls11_mp3_bin;bgm_size[161]=ls11_mp3_bin_size;
+	bgm[162]=lsrs_ogg_bin;bgm_size[162]=lsrs_ogg_bin_size;
+	bgm[163]=lss3m_ogg_bin;bgm_size[163]=lss3m_ogg_bin_size;
+	bgm[164]=ls12_ogg_bin;bgm_size[164]=ls12_ogg_bin_size;
 	
 	bgm[197] = shop_ogg_bin;
 	bgm_size[197] = shop_ogg_bin_size;
-	bgm_start[197] = 0;
-	bgm_end[197] = sex;
 	
 	bgm[198] = logo_mp3_bin;
 	bgm_size[198] = logo_mp3_bin_size;
-	bgm_start[198] = 0;
-	bgm_end[198] = sex;
 	
-	bgm[199] = (unsigned char *)"";
+	bgm[199] = (unsigned char *)""; // custom win music
 	bgm_size[199] = 0;
-	bgm_start[199] = 0;
-	bgm_end[199] = sex;
 }
 
 int LoadSFX(SoundEffect *sfx, const void *data, int size)
@@ -691,6 +672,9 @@ void init_sfx()
 	LoadSFX(&sfx_11open, eleven_open_ogg_bin, eleven_open_ogg_bin_size);
 	LoadSFX(&sfx_11bonk, eleven_bonk_ogg_bin, eleven_bonk_ogg_bin_size);
 	LoadSFX(&sfx_buy, cash_register_mp3_bin, cash_register_mp3_bin_size);
+	LoadSFX(&sfx_level, level_start_ogg_bin, level_start_ogg_bin_size);
+	LoadSFX(&sfx_level2, level_start2_mp3_bin, level_start2_mp3_bin_size);
+	LoadSFX(&sfx_gamestart, game_start_mp3_bin, game_start_mp3_bin_size);
 }
 
 int RandRange(int min, int max)
@@ -731,6 +715,17 @@ void PlaySFX(SoundEffect *sfx)
 	
     SND_SetVoice(voice, sfx->stereo ? VOICE_STEREO_16BIT : VOICE_MONO_16BIT,
         sfx->freq, 0, sfx->pcm, sfx->pcm_size, 255, 255, NULL);
+	
+	sfx->voice = voice;
+}
+
+void StopSFX(SoundEffect *sfx)
+{
+    if (sfx->voice >= 1)
+    {
+        SND_StopVoice(sfx->voice);
+        sfx->voice = -1;
+    }
 }
 
 void Load_PNG()
@@ -743,12 +738,13 @@ void Load_PNG()
 	pngLoadFromBuffer(dualboss_sheet_png_bin, dualboss_sheet_png_bin_size, &spritesheet[5]);
 	//pngLoadFromBuffer(cursed_sheet_png_bin, cursed_sheet_png_bin_size, &spritesheet[6]); unused
 	pngLoadFromBuffer(background_sheet_png_bin, background_sheet_png_bin_size, &spritesheet[7]);
-	// Replacing with something else later...
+	pngLoadFromBuffer(explosion_png_bin, explosion_png_bin_size, &spritesheet[8]);
 	pngLoadFromBuffer(menu_sheet_png_bin, menu_sheet_png_bin_size, &spritesheet[9]);
 	pngLoadFromBuffer(coin_png_bin, coin_png_bin_size, &spritesheet[10]);
 	pngLoadFromBuffer(buttons_png_bin, buttons_png_bin_size, &spritesheet[11]);
 	pngLoadFromBuffer(hats_sheet_png_bin, hats_sheet_png_bin_size, &spritesheet[12]);
 	// WE ARE SKIPPING 13 cuz its reserved for custom captain spritesheet.
+	pngLoadFromBuffer(explosion_anti_png_bin, explosion_anti_png_bin_size, &spritesheet[14]);
 }
 
 void ReplaceBGM(int music)

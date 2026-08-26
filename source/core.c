@@ -30,6 +30,7 @@ int fp_antis = 0;
 int fp_music = 1;
 int fp_back = 0;
 int fp_menu = 0;
+int fp_lifes = 3;
 
 int cursorX = 0;
 int cursorY = 0;
@@ -690,6 +691,7 @@ void LoadLevel(int levelz)
 
 void LoadFPLevel()
 {
+	fp_lifes = 3;
 	StartSave();
 	
     GRID_W = fp_width;

@@ -39,6 +39,8 @@ void SetSaveDefaults()
     gSave.save_hat = 0;
 	
     gSave.save_shop_unlocked = false;
+    gSave.save_first_playing = true;
+    gSave.save_lifes = 3;
 }
 
 void savestate_init()
@@ -208,6 +210,9 @@ int StartSave(void)
 	gSave.save_hat = the_hat;
 	gSave.save_shop_unlocked = shop_unlocked;
 	
+	gSave.save_first_playing = first_playing;
+	gSave.save_lifes = LIFES;
+	
 	char debug[256];
 
 	sprintf(debug,"SAVING VALUES: level=%d current=%d global=%d route=%d", gSave.save_level,
@@ -271,6 +276,9 @@ static void LoadThread(void *arg)
 	
 	the_hat = gSave.save_hat;
 	shop_unlocked = gSave.save_shop_unlocked;
+	
+	first_playing = gSave.save_first_playing;
+	LIFES = gSave.save_lifes;
 	
 	DebugLog("loaded!");
 	
