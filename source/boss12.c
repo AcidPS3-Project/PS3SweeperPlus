@@ -47,6 +47,19 @@ void boss12_update()
 			tempoz=0;
 			boss12.tempo=0;
 			can_move_xd = 1;
+			
+			SpawnProjectile(boss12.x, boss12.y, 10.0f, 0, 1, 10.0f);
+			SpawnProjectile(boss12.x, boss12.y, 6.67f, 3.33f, 1, 10.0f);
+			SpawnProjectile(boss12.x, boss12.y, 3.33f, 6.67f, 1, 10.0f);
+			SpawnProjectile(boss12.x, boss12.y, 0, 10.0f, 1, 10.0f);
+			SpawnProjectile(boss12.x, boss12.y, -3.33f, 6.67f, 1, 10.0f);
+			SpawnProjectile(boss12.x, boss12.y, -6.67f, 3.33f, 1, 10.0f);
+			SpawnProjectile(boss12.x, boss12.y, -10.0f, 0, 1, 10.0f);
+			SpawnProjectile(boss12.x, boss12.y, -6.67f, -3.33f, 1, 10.0f);
+			SpawnProjectile(boss12.x, boss12.y, -3.33f, -6.67f, 1, 10.0f);
+			SpawnProjectile(boss12.x, boss12.y, 0, -10.0f, 1, 10.0f);
+			SpawnProjectile(boss12.x, boss12.y, 3.33f, -6.67f, 1, 10.0f);
+			SpawnProjectile(boss12.x, boss12.y, 6.67f, -3.33f, 1, 10.0f);
 		}
 	}
 	else

@@ -453,7 +453,11 @@ void WinCheck()
 		}
 		
 		level_minecoins = calculate_score();
-		current_minecoins += level_minecoins;
+		if(!free_play)
+		{
+			level_time[LEVEL] = timer_seconds;
+			current_minecoins += level_minecoins;
+		}
 		global_minecoins += current_minecoins;
 	}
 	else if(LEVEL==8) game_lost();

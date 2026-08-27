@@ -121,4 +121,7 @@ int StartSave();
 
 extern int the_hat;
 
+#define MAXLVLTEST 20
+float level_time[MAXLVLTEST];
+
 #endif

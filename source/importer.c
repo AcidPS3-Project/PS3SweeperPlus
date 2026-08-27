@@ -6,13 +6,14 @@ char global_version[] = "v0.4";
 int current_bgm = 1;
 int desired_bgm = 1;
 
-int ship_x = -40;
+float ship_x = -40.0f;
 int ship_y = -22;
 int ship_r = 0;
 bool ship_a = false;
 
 bool button_x_hold = false;
 bool button_start_hold = false;
+bool paused = false;
 
 int global_minecoins = 0;
 int current_minecoins = 0;
@@ -50,6 +51,14 @@ bool custom_music = false;
 
 bool has_custom_main = false;
 bool has_custom_win  = false;
+
+void SetupTimeSettings()
+{
+	for(int _t = 0; _t < MAXLVLTEST; _t++)
+	{
+		level_time[_t] = 99999.9f;
+	}
+}
 
 int EPISODE = 1;
 int EPISODEs = 1; //for showing off
@@ -182,6 +191,19 @@ void LangInit()
 			langStr[54] = "Use Custom Sweeper";
 			langStr[55] = "Half-Mine Related Sprites by";
 			langStr[56] = "SPECIAL THANKS";
+			langStr[57] = "Paused";
+			langStr[58] = "";
+			langStr[59] = "";
+			langStr[60] = "";
+			langStr[61] = "Kiddie Pool";
+			langStr[62] = "Rainy Puddle";
+			langStr[63] = "Small Pond";
+			langStr[64] = "Blue Lagoon";
+			langStr[65] = "Lazy River";
+			langStr[66] = "Great Lake";
+			langStr[67] = "Open Ocean";
+			langStr[68] = "Dead Sea";
+			langStr[69] = "THE DEVIL'S TRIANGLE";
 			break;
 		}
 		case 1: // Русский Язык
@@ -252,6 +274,19 @@ void LangInit()
 			langStr[54] = "Использовать своего сапера";
 			langStr[55] = "Спрайты связанные с полу-минами от";
 			langStr[56] = "СПЕЦИАЛЬНАЯ БЛАГОДАРНОСТЬ";
+			langStr[57] = "Пауза";
+			langStr[58] = "";
+			langStr[59] = "";
+			langStr[60] = "";
+			langStr[61] = "Kiddie Pool";
+			langStr[62] = "Rainy Puddle";
+			langStr[63] = "Small Pond";
+			langStr[64] = "Blue Lagoon";
+			langStr[65] = "Lazy River";
+			langStr[66] = "Great Lake";
+			langStr[67] = "Open Ocean";
+			langStr[68] = "Dead Sea";
+			langStr[69] = "THE DEVIL'S TRIANGLE";
 			break;
 		}
 		case 2: // Қазақ Тілі
@@ -325,6 +360,19 @@ void LangInit()
 			langStr[54] = "Использовать своего сапера";
 			langStr[55] = "Спрайты связанные с полу-минами от";
 			langStr[56] = "СПЕЦИАЛЬНАЯ БЛАГОДАРНОСТЬ";
+			langStr[57] = "Пауза";
+			langStr[58] = "";
+			langStr[59] = "";
+			langStr[60] = "";
+			langStr[61] = "Kiddie Pool";
+			langStr[62] = "Rainy Puddle";
+			langStr[63] = "Small Pond";
+			langStr[64] = "Blue Lagoon";
+			langStr[65] = "Lazy River";
+			langStr[66] = "Great Lake";
+			langStr[67] = "Open Ocean";
+			langStr[68] = "Dead Sea";
+			langStr[69] = "THE DEVIL'S TRIANGLE";
 			break;
 		}
 	}

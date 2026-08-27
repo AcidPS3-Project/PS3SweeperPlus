@@ -41,6 +41,12 @@ void SetSaveDefaults()
     gSave.save_shop_unlocked = false;
     gSave.save_first_playing = true;
     gSave.save_lifes = 3;
+	
+	for(int _t = 0; _t < MAXLVLTEST; _t++)
+	{
+		gSave.save_level_time[_t] = 99999.9f;
+	}
+	
 }
 
 void savestate_init()
@@ -55,6 +61,8 @@ void savestate_init()
 	sprintf(debug1,"buffer = %p",buffer.buffer);
     DebugLog(debug1);
 }
+
+static u64 load_file_size;
 
 void status_cb(sysSaveCallbackResult *result, sysSaveStatusIn *in, sysSaveStatusOut *out)
 {
@@ -80,7 +88,8 @@ void status_cb(sysSaveCallbackResult *result, sysSaveStatusIn *in, sysSaveStatus
                 if (in->fileList[i].fileType == SYS_SAVE_FILETYPE_STANDARD_FILE)
                 {
                     found = 1;
-                    if (in->fileList[i].fileSize > sizeof(gSave))
+					load_file_size = in->fileList[i].fileSize;
+                    if (load_file_size > sizeof(gSave))
                     {
                         DebugLog("LOAD: SAVE.DAT has wrong size");
                         result->result = SYS_SAVE_CALLBACK_RESULT_CORRUPTED;
@@ -150,19 +159,46 @@ void load_file_cb(sysSaveCallbackResult *result, sysSaveFileIn *in, sysSaveFileO
 {
 	DebugLog("LOAD FILE CALLBACK ENTER");
     static char filename[] = "SAVE.DAT";
+	
+	memset(out, 0, sizeof(*out));
 
-    memset(out, 0, sizeof(*out));
-	DebugLog("LOAD CALLBACK: requesting SAVE.DAT");
+    if(in->previousOperationResultSize == 0)
+    {
+        DebugLog("LOAD CALLBACK: requesting SAVE.DAT");
 
-	out->fileOperation = SYS_SAVE_FILE_OPERATION_READ;
-	out->fileType = SYS_SAVE_FILETYPE_STANDARD_FILE;
-	out->filename = filename;
-	out->buffer = &gSave;
-	out->bufferSize = sizeof(gSave);
-	out->size = sizeof(gSave);
+        out->fileOperation = SYS_SAVE_FILE_OPERATION_READ;
+        out->fileType = SYS_SAVE_FILETYPE_STANDARD_FILE;
+        out->filename = filename;
 
-	result->incrementProgress = 100;
-	result->result = SYS_SAVE_CALLBACK_RESULT_DONE;
+        out->buffer = &gSave;
+        out->bufferSize = sizeof(gSave);
+        out->size = load_file_size;
+
+        result->incrementProgress = 100;
+        result->result = SYS_SAVE_CALLBACK_RESULT_CONTINUE;
+    }
+    else
+    {
+        char debug[256];
+
+        sprintf(debug,
+            "LOAD CALLBACK: read=%d expected=%d",
+            (int)in->previousOperationResultSize,
+            (int)load_file_size);
+
+        DebugLog(debug);
+
+        if(in->previousOperationResultSize == load_file_size)
+        {
+            DebugLog("LOAD CALLBACK: SAVE.DAT read successfully");
+            result->result = SYS_SAVE_CALLBACK_RESULT_DONE;
+        }
+        else
+        {
+            DebugLog("LOAD CALLBACK: SAVE.DAT read failed");
+            result->result = SYS_SAVE_CALLBACK_RESULT_CORRUPTED;
+        }
+    }
 }
 
 static void SaveThread(void *arg)
@@ -212,6 +248,11 @@ int StartSave(void)
 	
 	gSave.save_first_playing = first_playing;
 	gSave.save_lifes = LIFES;
+	
+	for(int _t = 0; _t < MAXLVLTEST; _t++)
+	{
+		gSave.save_level_time[_t] = level_time[_t];
+	}
 	
 	char debug[256];
 
@@ -279,6 +320,11 @@ static void LoadThread(void *arg)
 	
 	first_playing = gSave.save_first_playing;
 	LIFES = gSave.save_lifes;
+	
+	for(int _t = 0; _t < MAXLVLTEST; _t++)
+	{
+		level_time[_t] = gSave.save_level_time[_t];
+	}
 	
 	DebugLog("loaded!");
 	

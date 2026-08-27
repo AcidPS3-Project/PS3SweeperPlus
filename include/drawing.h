@@ -2,6 +2,8 @@
 #define DRAWING_H
 
 #include "libraries.h"
+#define MAXLVLTEST 20
+float level_time[MAXLVLTEST];
 
 typedef struct
 {
@@ -16,7 +18,7 @@ typedef struct
     float lifetime;
 
     int type;
-    int anim;
+    float anim;
 } Projectile;
 
 #define MAX_PROJECTILES 64
@@ -24,7 +26,7 @@ typedef struct
 Projectile projectiles[MAX_PROJECTILES];
 
 void UpdateProjectiles(float dt);
-void SpawnProjectile(float x, float y, float vx, float vy, int type);
+void SpawnProjectile(float x, float y, float vx, float vy, int type, float lifetime);
 
 typedef enum GameScreen
 {
@@ -59,6 +61,8 @@ int RandRange();
 void DrawFString(int wrap, float x, float y, u32 textColor, int BW, const char *fmt, ...);
 void zoomCheck(int zoom);
 void DrawTextAligned(int wrap, float x1, float x2, float y, int align, u32 tc, int bw, int fsize, const char *text, ...);
+
+int tile_map_num(int _t);
 
 void FadeInOut(GameScreen *variable, GameScreen value);
 void UpdateFade(float dt);

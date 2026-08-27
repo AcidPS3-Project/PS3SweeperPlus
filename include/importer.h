@@ -136,7 +136,7 @@ const char *credits[256];
 extern int current_bgm;
 extern int desired_bgm;
 
-extern int ship_x;
+extern float ship_x;
 extern int ship_y;
 extern int ship_r;
 extern bool ship_a;
@@ -153,8 +153,13 @@ extern int FIRST_CLICK;
 extern int i_10;
 extern int language;
 
+extern bool paused;
+
 extern float timer_seconds;
 extern int timer_running;
+
+#define MAXLVLTEST 20
+extern float level_time[MAXLVLTEST];
 
 extern bool button_x_hold;
 extern bool button_start_hold;
@@ -268,6 +273,8 @@ void EmptyDialogCallback(msgButton button, void *usrData);
 void Initialize();
 void HolyShit();
 void creditsInit();
+
+void SetupTimeSettings();
 
 extern float menu_x;
 extern int menu_pos;

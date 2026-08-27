@@ -10,6 +10,9 @@ int start_menu = 0;
 int start_game_mus = 0;
 int startbgmgtsp = 0;
 
+int LEVEL_BKP = 0;
+int ready_to_click = 0;
+
 void ResetGrid()
 {
 	start_game_mus = 1;
@@ -114,14 +117,9 @@ void ResetGrid()
 
 void GoBackToTitle()
 {
-	can_move_xd = 1;
-
-	gamewin = 0;
-	gamelose = 0;
 	current_minecoins = 0;
-	disable_control = 0;
 	
-	free_play = 0;
+	if(free_play) LEVEL=LEVEL_BKP;
 	
 	bad_apple = 0;
 	
@@ -198,6 +196,7 @@ int main(int argc, const char* argv[])
     LoadTexture();
 	LangInit();
 	creditsInit();
+	SetupTimeSettings();
 	
 	StartLoad();
 
@@ -245,6 +244,7 @@ int main(int argc, const char* argv[])
 								start_music = 0;
 								playing_bgm = true;
 								PlayBGM(0, 1);
+								ready_to_click = 1;
 							}
 							
 							if(settings_select)
@@ -264,10 +264,11 @@ int main(int argc, const char* argv[])
 									settings_select = 0;
 								}
 							}
-							else
+							else if(ready_to_click)
 							{
 								if(paddata.BTN_START && !oldpad.BTN_START)
 								{
+									ready_to_click = 0;
 									menu_x = 0.0f;
 									ze_x = 0.0f;
 									ze_y = 0.0f;
@@ -308,322 +309,343 @@ int main(int argc, const char* argv[])
 						{
 							if(start_menu)
 							{
+								menu_x = 0.0f;
+								ze_x = 0.0f;
+								ze_y = 0.0f;
 								start_menu = 0;
+								
+								disable_control = 0;
+								can_move_xd = 1;
+								
+								free_play = 0;
+
+								gamewin = 0;
+								gamelose = 0;
 								PlayBGM(50+fp_music, 1);
+								paused = false;
+								ready_to_click = 1;
 							}
 							
 							menu_x = lerp(menu_x, -262 * menu_pos, 0.1f);
-							if(!free_play)
+							
+							if(ready_to_click)
 							{
-								if(challenge_select)
+								if(!free_play)
 								{
-									if(paddata.BTN_L2 && !oldpad.BTN_L2)
+									if(challenge_select)
 									{
-										free_play = 1;
-										fp_width = 72;
-										fp_height = 48;
-										fp_mines = 111;
-										LEVEL = 0;
+										if(paddata.BTN_L2 && !oldpad.BTN_L2)
+										{
+											ready_to_click = 0;
+											free_play = 1;
+											fp_width = 72;
+											fp_height = 48;
+											fp_mines = 111;
+											LEVEL_BKP = LEVEL;
+											LEVEL = 0;
+											LoadFPLevel();
+											can_move_xd = 1;
+										}
+										
+										if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE)
+										{
+											challenge_select = 0;
+										}
+									}
+									else if(loadout_select)
+									{
+										if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE)
+										{
+											loadout_select = 0;
+										}
+										if(paddata.BTN_TRIANGLE && !oldpad.BTN_TRIANGLE)
+										{
+											startbgmgtsp = 1;
+											ship_x = -80;
+											ship_y = -22+(32*6);
+											if(!shop_unlocked)
+											{
+												if(global_minecoins > 250)
+												{
+													ready_to_click = 0;
+													shop_first = true;
+													shop_unlocked = true;
+													global_minecoins -= 250;
+													StopAudio();
+													PlaySFX(&sfx_buy);
+													StartSave();
+													FadeInOut(&currentScreen, GOTOSHOP);
+												}
+											}
+											else
+											{
+												ready_to_click = 0;
+												shop_first = false;
+												StopAudio();
+												FadeInOut(&currentScreen, GOTOSHOP);
+											}
+										}
+									}
+									else if(adventure_select)
+									{
+										if(paddata.BTN_CROSS && !oldpad.BTN_CROSS)
+										{
+											ready_to_click = 0;
+											ship_x = -80;
+											ship_y = -44;
+											if(paddata.BTN_R2) global_route = 1;
+											LEVEL = 0;
+											DIFFICULTY = DIFFICULTYs;
+											EPISODE = EPISODEs;
+											LIFES = 3;
+											
+											if(paddata.BTN_L2)
+											{
+												int max_lvl = episodes[EPISODE-1].level_count;
+												LEVEL = max_lvl-1;
+											}
+											
+											current_minecoins = 0;
+											SetupTimeSettings();
+											StopAudio();
+											PlaySFX(&sfx_gamestart);
+											FadeInOut(&currentScreen, MAP);
+											ship_a = true;
+										}
+										if(paddata.BTN_UP && !oldpad.BTN_UP)
+										{
+											DIFFICULTYs--;
+											if (DIFFICULTYs<0) DIFFICULTYs = 0;
+										}
+										if(paddata.BTN_DOWN && !oldpad.BTN_DOWN)
+										{
+											DIFFICULTYs++;
+											if (DIFFICULTYs>3) DIFFICULTYs = 3;
+										}
+										if(paddata.BTN_LEFT && !oldpad.BTN_LEFT)
+										{
+											EPISODEs--;
+											if (EPISODEs<1) EPISODEs = 1;
+										}
+										if(paddata.BTN_RIGHT && !oldpad.BTN_RIGHT)
+										{
+											EPISODEs++;
+											if (EPISODEs>episode_count) EPISODEs = episode_count;
+										}
+										if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE)
+										{
+											adventure_select = 0;
+										}
+									}
+									else
+									{
+										if(paddata.BTN_CROSS && !oldpad.BTN_CROSS)
+										{
+											switch(menu_pos)
+											{
+												case 0: adventure_select = 1; break;
+												case 1: free_play = 1; break;
+												case 2: challenge_select = 1; break;
+												case 3: loadout_select = 1; break;
+												default: break;
+											}
+										}
+										if(paddata.BTN_TRIANGLE && !oldpad.BTN_TRIANGLE && LEVEL>0)
+										{
+											ready_to_click = 0;
+											free_play = 0;
+											ship_x = 120.0f+(64*LEVEL);
+											StopAudio();
+											FadeInOut(&currentScreen, MAP);
+											PlaySFX(&sfx_gamestart);
+											ship_a = true;
+										}
+										
+										if(paddata.BTN_LEFT && !oldpad.BTN_LEFT)
+										{
+											menu_pos--;
+											if (menu_pos<0) menu_pos = 0;
+										}
+										if(paddata.BTN_RIGHT && !oldpad.BTN_RIGHT)
+										{
+											menu_pos++;
+											if (menu_pos>3) menu_pos = 3;
+										}
+										
+										if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE)
+										{
+											ready_to_click = 0;
+											splash = splashes_random[rand() % SplashesCount()];
+											StopAudio();
+											start_music = 1;
+											FadeInOut(&currentScreen, TITLE);
+											PlaySFX(&sfx_gamestart);
+										}
+									}
+								}
+								else
+								{
+									if(paddata.BTN_START && !oldpad.BTN_START)
+									{
+										ready_to_click = 0;
+										LEVEL_BKP = LEVEL;
+										PlaySFX(&sfx_gamestart);
 										LoadFPLevel();
 										can_move_xd = 1;
 									}
 									
 									if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE)
 									{
-										challenge_select = 0;
+										free_play = 0;
 									}
-								}
-								else if(loadout_select)
-								{
-									if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE)
+									
+									if(paddata.BTN_L1 && !oldpad.BTN_L1)
 									{
-										loadout_select = 0;
-									}
-									if(paddata.BTN_SELECT && !oldpad.BTN_SELECT)
-									{
-										global_minecoins += 125000;
-									}
-									if(paddata.BTN_TRIANGLE && !oldpad.BTN_TRIANGLE)
-									{
-										startbgmgtsp = 1;
-										ship_x = -80;
-										ship_y = -22+(32*6);
-										if(!shop_unlocked)
+										if(!use_custom_sweeper)
 										{
-											if(global_minecoins > 250)
+											FILE *fp = fopen("/dev_usb000/SWEEPING/captain.png", "r");
+											if(!fp) msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
+												langStr[48], EmptyDialogCallback, NULL, NULL);
+											else
 											{
-												shop_first = true;
-												shop_unlocked = true;
-												global_minecoins -= 250;
-												menu_x = 0.0f;
-												ze_x = 0.0f;
-												ze_y = 0.0f;
-												StopAudio();
-												PlaySFX(&sfx_buy);
-												StartSave();
-												FadeInOut(&currentScreen, GOTOSHOP);
+												LoadImageA("/dev_usb000/SWEEPING/captain.png", &spritesheet[13]);
+												
+												int temp = 2048;
+												
+												if(spritesheet[13].width > temp || spritesheet[13].height > temp)
+												{
+													DebugLog("CAPTAIN: Wrong image size!");
+													UnloadCustomSweeper();
+													msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
+														langStr[49], EmptyDialogCallback, NULL, NULL);
+												}
+												else if(spritesheet[13].width != spritesheet[13].height)
+												{
+													DebugLog("CAPTAIN: Wrong image size!");
+													UnloadCustomSweeper();
+													msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
+														langStr[53], EmptyDialogCallback, NULL, NULL);
+												}
+												else
+												{
+													memcpy(texture_pointer, spritesheet[13].bmp_out, spritesheet[13].pitch * spritesheet[13].height);
+													sprite_off[13] = tiny3d_TextureOffset(texture_pointer);
+													free(spritesheet[13].bmp_out);
+													spritesheet[13].bmp_out = NULL;
+													
+													texture_pointer += ((spritesheet[13].pitch * spritesheet[13].height + 15) & ~15) / 4;
+													
+													use_custom_sweeper = true;
+												}
 											}
 										}
-										else
-										{
-											shop_first = false;
-											menu_x = 0.0f;
-											ze_x = 0.0f;
-											ze_y = 0.0f;
-											StopAudio();
-											FadeInOut(&currentScreen, GOTOSHOP);
-										}
+										else UnloadCustomSweeper();
 									}
-								}
-								else if(adventure_select)
-								{
-									if(paddata.BTN_CROSS && !oldpad.BTN_CROSS)
-									{
-										if(paddata.BTN_R2) global_route = 1;
-										LEVEL = 0;
-										DIFFICULTY = DIFFICULTYs;
-										EPISODE = EPISODEs;
-										
-										if(paddata.BTN_L2)
-										{
-											int max_lvl = episodes[EPISODE-1].level_count;
-											LEVEL = max_lvl-1;
-										}
-										
-										current_minecoins = 0;
-										StopAudio();
-										PlaySFX(&sfx_gamestart);
-										FadeInOut(&currentScreen, MAP);
-										ship_a = true;
-									}
+									
 									if(paddata.BTN_UP && !oldpad.BTN_UP)
 									{
-										DIFFICULTYs--;
-										if (DIFFICULTYs<0) DIFFICULTYs = 0;
+										fp_menu--;
+										if (fp_menu<0) fp_menu = 0;
 									}
 									if(paddata.BTN_DOWN && !oldpad.BTN_DOWN)
 									{
-										DIFFICULTYs++;
-										if (DIFFICULTYs>3) DIFFICULTYs = 3;
+										fp_menu++;
+										if (fp_menu>7) fp_menu = 7;
 									}
+									
+									int max_mus = 14;
+									
 									if(paddata.BTN_LEFT && !oldpad.BTN_LEFT)
 									{
-										EPISODEs--;
-										if (EPISODEs<1) EPISODEs = 1;
-									}
-									if(paddata.BTN_RIGHT && !oldpad.BTN_RIGHT)
-									{
-										EPISODEs++;
-										if (EPISODEs>episode_count) EPISODEs = episode_count;
-									}
-									if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE)
-									{
-										adventure_select = 0;
-									}
-								}
-								else
-								{
-									if(paddata.BTN_CROSS && !oldpad.BTN_CROSS)
-									{
-										switch(menu_pos)
+										switch(fp_menu)
 										{
-											case 0: adventure_select = 1; break;
-											case 1: free_play = 1; break;
-											case 2: challenge_select = 1; break;
-											case 3: loadout_select = 1; break;
+											case 0: fp_width--; if(fp_width<3) fp_width=3; break;
+											case 1: fp_height--; if(fp_height<3) fp_height=3; break;
+											case 2: fp_mines--; if(fp_mines<1) fp_mines=1; break;
+											case 3: fp_doubles--; if(fp_doubles<0) fp_doubles=0; break;
+											case 4: fp_halfes--; if(fp_halfes<0) fp_halfes=0; break;
+											case 5: fp_antis--; if(fp_antis<0) fp_antis=0; break;
+											case 6:
+											{
+												fp_music--;
+												if(fp_music>95) fp_music=max_mus;
+												if(fp_music<1) fp_music=1;
+												ReplaceBGM(fp_music);
+												break;
+											}
+											case 7: fp_back--; if(fp_back<0) fp_back=0; break;
 											default: break;
 										}
-									}
-									if(paddata.BTN_TRIANGLE && !oldpad.BTN_TRIANGLE && LEVEL>0)
-									{
-										free_play = 0;
-										StopAudio();
-										FadeInOut(&currentScreen, MAP);
-										PlaySFX(&sfx_gamestart);
-										ship_a = true;
-									}
-									
-									if(paddata.BTN_LEFT && !oldpad.BTN_LEFT)
-									{
-										menu_pos--;
-										if (menu_pos<0) menu_pos = 0;
+										
+										if(fp_mines>(fp_width*fp_height)-1) fp_mines=(fp_width*fp_height)-1;
 									}
 									if(paddata.BTN_RIGHT && !oldpad.BTN_RIGHT)
 									{
-										menu_pos++;
-										if (menu_pos>3) menu_pos = 3;
-									}
-									
-									if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE)
-									{
-										splash = splashes_random[rand() % SplashesCount()];
-										StopAudio();
-										PlayBGM(0, 1);
-										start_music = 1;
-										FadeInOut(&currentScreen, TITLE);
-										PlaySFX(&sfx_gamestart);
-									}
-								}
-							}
-							else
-							{
-								if(paddata.BTN_START && !oldpad.BTN_START)
-								{
-									LEVEL = 0;
-									PlaySFX(&sfx_gamestart);
-									LoadFPLevel();
-									can_move_xd = 1;
-								}
-								
-								if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE)
-								{
-									free_play = 0;
-								}
-								
-								if(paddata.BTN_L1 && !oldpad.BTN_L1)
-								{
-									if(!use_custom_sweeper)
-									{
-										FILE *fp = fopen("/dev_usb000/SWEEPING/captain.png", "r");
-										if(!fp) msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
-											langStr[48], EmptyDialogCallback, NULL, NULL);
-										else
+										switch(fp_menu)
 										{
-											LoadImageA("/dev_usb000/SWEEPING/captain.png", &spritesheet[13]);
-											
-											int temp = 2048;
-											
-											if(spritesheet[13].width > temp || spritesheet[13].height > temp)
+											case 0: fp_width++; if(fp_width>72) fp_width=72; break;
+											case 1: fp_height++; if(fp_height>48) fp_height=48; break;
+											case 2: fp_mines++; break;
+											case 3: fp_doubles++; if(fp_doubles>(fp_mines-fp_halfes-fp_antis)) fp_doubles=fp_mines-fp_halfes-fp_antis; break;
+											case 4: fp_halfes++; if(fp_halfes>(fp_mines-fp_doubles-fp_antis)) fp_halfes=fp_mines-fp_doubles-fp_antis; break;
+											case 5: fp_antis++; if(fp_antis>(fp_mines-fp_doubles-fp_halfes)) fp_antis=fp_mines-fp_doubles-fp_halfes; break;
+											case 6:
 											{
-												DebugLog("CAPTAIN: Wrong image size!");
-												UnloadCustomSweeper();
-												msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
-													langStr[49], EmptyDialogCallback, NULL, NULL);
+												fp_music++;
+												if(fp_music>max_mus) fp_music=max_mus;
+												ReplaceBGM(fp_music);
+												break;
 											}
-											else if(spritesheet[13].width != spritesheet[13].height)
-											{
-												DebugLog("CAPTAIN: Wrong image size!");
-												UnloadCustomSweeper();
-												msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
-													langStr[53], EmptyDialogCallback, NULL, NULL);
-											}
-											else
-											{
-												memcpy(texture_pointer, spritesheet[13].bmp_out, spritesheet[13].pitch * spritesheet[13].height);
-												sprite_off[13] = tiny3d_TextureOffset(texture_pointer);
-												free(spritesheet[13].bmp_out);
-												spritesheet[13].bmp_out = NULL;
-												
-												texture_pointer += ((spritesheet[13].pitch * spritesheet[13].height + 15) & ~15) / 4;
-												
-												use_custom_sweeper = true;
-											}
-										}
-									}
-									else UnloadCustomSweeper();
-								}
-								
-								if(paddata.BTN_UP && !oldpad.BTN_UP)
-								{
-									fp_menu--;
-									if (fp_menu<0) fp_menu = 0;
-								}
-								if(paddata.BTN_DOWN && !oldpad.BTN_DOWN)
-								{
-									fp_menu++;
-									if (fp_menu>7) fp_menu = 7;
-								}
-								
-								int max_mus = 14;
-								
-								if(paddata.BTN_LEFT && !oldpad.BTN_LEFT)
-								{
-									switch(fp_menu)
-									{
-										case 0: fp_width--; if(fp_width<3) fp_width=3; break;
-										case 1: fp_height--; if(fp_height<3) fp_height=3; break;
-										case 2: fp_mines--; if(fp_mines<1) fp_mines=1; break;
-										case 3: fp_doubles--; if(fp_doubles<0) fp_doubles=0; break;
-										case 4: fp_halfes--; if(fp_halfes<0) fp_halfes=0; break;
-										case 5: fp_antis--; if(fp_antis<0) fp_antis=0; break;
-										case 6:
-										{
-											fp_music--;
-											if(fp_music>95) fp_music=max_mus;
-											if(fp_music<1) fp_music=1;
-											ReplaceBGM(fp_music);
-											break;
-										}
-										case 7: fp_back--; if(fp_back<0) fp_back=0; break;
-										default: break;
-									}
-									
-									if(fp_mines>(fp_width*fp_height)-1) fp_mines=(fp_width*fp_height)-1;
-								}
-								if(paddata.BTN_RIGHT && !oldpad.BTN_RIGHT)
-								{
-									switch(fp_menu)
-									{
-										case 0: fp_width++; if(fp_width>72) fp_width=72; break;
-										case 1: fp_height++; if(fp_height>48) fp_height=48; break;
-										case 2: fp_mines++; break;
-										case 3: fp_doubles++; if(fp_doubles>(fp_mines-fp_halfes-fp_antis)) fp_doubles=fp_mines-fp_halfes-fp_antis; break;
-										case 4: fp_halfes++; if(fp_halfes>(fp_mines-fp_doubles-fp_antis)) fp_halfes=fp_mines-fp_doubles-fp_antis; break;
-										case 5: fp_antis++; if(fp_antis>(fp_mines-fp_doubles-fp_halfes)) fp_antis=fp_mines-fp_doubles-fp_halfes; break;
-										case 6:
-										{
-											fp_music++;
-											if(fp_music>max_mus) fp_music=max_mus;
-											ReplaceBGM(fp_music);
-											break;
-										}
-										case 7: fp_back++; if(fp_back>14) fp_back=14; break;
-										default: break;
-									}
-									
-									if(fp_mines>(fp_width*fp_height)-1) fp_mines=(fp_width*fp_height)-1;
-								}
-								
-								if(paddata.BTN_TRIANGLE && !oldpad.BTN_TRIANGLE)
-								{
-									if(bad_apple_init())
-									{
-										DebugLog("Loaded Bad Apple!!");
-										PlaySFX(&sfx_gamestart);
-										LoadFPLevel();
-									}
-								}
-								
-								if(fp_menu==6 && paddata.BTN_SQUARE && !oldpad.BTN_SQUARE)
-								{
-									if(!custom_music)
-									{
-										has_custom_main = FindMusic("/dev_usb000/SWEEPING/bgm", custom_main_path);
-										has_custom_win  = FindMusic("/dev_usb000/SWEEPING/win", custom_win_path);
-
-										if(!has_custom_main)
-										{
-											msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
-												langStr[50], EmptyDialogCallback, NULL, NULL);
-											continue;
+											case 7: fp_back++; if(fp_back>14) fp_back=14; break;
+											default: break;
 										}
 										
-										bgm[99] = (unsigned char *)custom_main_path;
-										fp_music = 99;
-
-										if(!has_custom_win)
-										{
-											msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
-												langStr[51], EmptyDialogCallback, NULL, NULL);
-											continue;
-										}
-										bgm[199] = (unsigned char *)custom_win_path;
-										custom_music = true;
+										if(fp_mines>(fp_width*fp_height)-1) fp_mines=(fp_width*fp_height)-1;
 									}
-									else
+									
+									if(paddata.BTN_TRIANGLE && !oldpad.BTN_TRIANGLE)
 									{
-										fp_music = 1;
-										custom_music = false;
+										if(bad_apple_init())
+										{
+											ready_to_click = 0;
+											LEVEL_BKP = LEVEL;
+											DebugLog("Loaded Bad Apple!!");
+											PlaySFX(&sfx_gamestart);
+											LoadFPLevel();
+										}
+									}
+									
+									if(fp_menu==6 && paddata.BTN_SQUARE && !oldpad.BTN_SQUARE)
+									{
+										if(!custom_music)
+										{
+											has_custom_main = FindMusic("/dev_usb000/SWEEPING/bgm", custom_main_path);
+											has_custom_win  = FindMusic("/dev_usb000/SWEEPING/win", custom_win_path);
+
+											if(!has_custom_main)
+											{
+												msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
+													langStr[50], EmptyDialogCallback, NULL, NULL);
+												continue;
+											}
+											
+											bgm[99] = (unsigned char *)custom_main_path;
+											fp_music = 99;
+
+											if(!has_custom_win)
+											{
+												msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
+													langStr[51], EmptyDialogCallback, NULL, NULL);
+												continue;
+											}
+											bgm[199] = (unsigned char *)custom_win_path;
+											custom_music = true;
+										}
+										else
+										{
+											fp_music = 1;
+											custom_music = false;
+										}
 									}
 								}
 							}
@@ -648,11 +670,25 @@ int main(int argc, const char* argv[])
 										else if(LEVEL==7) lvl_slct_bgm = 154;
 										break;
 									}
+									case 2:
+									{
+										if(LEVEL==0) lvl_slct_bgm = 155;
+										else if(LEVEL==1) lvl_slct_bgm = 155;
+										else if(LEVEL==2) lvl_slct_bgm = 156;
+										else if(LEVEL==3) lvl_slct_bgm = 156;
+										else if(LEVEL==4) lvl_slct_bgm = 157;
+										else if(LEVEL==5) lvl_slct_bgm = 157;
+										else if(LEVEL==6) lvl_slct_bgm = 158;
+										else if(LEVEL==7) lvl_slct_bgm = 158;
+										else if(LEVEL==8) lvl_slct_bgm = 159;
+										break;
+									}
 									default: break;
 								}
 								
 								if(lvl_slct_bgm>0) PlayBGM(lvl_slct_bgm, 1);
 								play_map_bgm = true;
+								ready_to_click = 1;
 							}
 							
 							ship_r=0;
@@ -664,9 +700,20 @@ int main(int argc, const char* argv[])
 									{
 										ship_r = 0;
 										ship_y = -22+(32*9);
-										if(ship_x < 120+(64*(LEVEL+1)))
+										if(ship_x < 120.0f+(64*(LEVEL+1)))
 										{
-											ship_x++;
+											ship_x+=0.75f;
+										}
+										else ship_a = false;
+										break;
+									}
+									case 2:
+									{
+										ship_r = 0;
+										ship_y = -22+(32*9);
+										if(ship_x < 120.0f+(64*(LEVEL+1)))
+										{
+											ship_x+=0.75f;
 										}
 										else ship_a = false;
 										break;
@@ -674,10 +721,11 @@ int main(int argc, const char* argv[])
 									default: break;
 								}
 							}
-							else
+							else if(ready_to_click)
 							{
 								if(paddata.BTN_CROSS && !oldpad.BTN_CROSS)
 								{
+									ready_to_click = 0;
 									StopAudio();
 									LoadLevel(LEVEL);
 									PlaySFX(&sfx_level);
@@ -693,277 +741,309 @@ int main(int argc, const char* argv[])
 								play_map_bgm = false;
 								start_game_mus = 0;
 								PlayBGM(desired_bgm, 1);
+								ready_to_click = 1;
 							}
 							
-							if(gamelose && paddata.BTN_START && !oldpad.BTN_START) GoBackToTitle();
-							else if(gamewin)
+							if(ready_to_click)
 							{
-								if(paddata.BTN_SELECT && !oldpad.BTN_SELECT)
+								if(gamelose && paddata.BTN_START && !oldpad.BTN_START) GoBackToTitle();
+								else if(paused)
 								{
-									if(free_play) LoadFPLevel();
-									else
+									if(paddata.BTN_SELECT && !oldpad.BTN_SELECT)
 									{
-										LEVEL++;
-										if(EPISODE==4)
-										{
-											if(LEVEL<4) LEVEL=4;
-											else if(LEVEL<8) LEVEL=8;
-											else if(LEVEL<11) LEVEL=11;
-										}
+										ready_to_click = 0;
 										GoBackToTitle();
 									}
-								}
-
-								if(paddata.BTN_START && !oldpad.BTN_START)
-								{
-									if(!free_play)
+									if(!paddata.BTN_START && oldpad.BTN_START)
 									{
-										int max_lvl = episodes[EPISODE-1].level_count;
-										LEVEL++;
-										
-										if(EPISODE==4)
+										ready_to_click = 0;
+										paused = false;
+										SND_Pause(0);
+									}
+								}
+								else if(gamewin)
+								{
+									if(paddata.BTN_SELECT && !oldpad.BTN_SELECT)
+									{
+										ready_to_click = 0;
+										if(free_play) LoadFPLevel();
+										else
 										{
-											if(LEVEL<4) LEVEL=4;
-											else if(LEVEL<8) LEVEL=8;
-											else if(LEVEL<11) LEVEL=11;
-										}
-
-										if(LEVEL >= max_lvl)
-										{
-											EPISODE++;
-											LEVEL=0;
+											LEVEL++;
+											if(EPISODE==4)
+											{
+												if(LEVEL<4) LEVEL=4;
+												else if(LEVEL<8) LEVEL=8;
+												else if(LEVEL<11) LEVEL=11;
+											}
 											GoBackToTitle();
 										}
-										else
-										{
-											StartSave();
-											ship_a = true;
-											FadeInOut(&currentScreen, MAP);
-										}
 									}
-									else GoBackToTitle();
+
+									if(paddata.BTN_START && !oldpad.BTN_START)
+									{
+										ready_to_click = 0;
+										if(!free_play)
+										{
+											int max_lvl = episodes[EPISODE-1].level_count;
+											LEVEL++;
+											
+											if(EPISODE==4)
+											{
+												if(LEVEL<4) LEVEL=4;
+												else if(LEVEL<8) LEVEL=8;
+												else if(LEVEL<11) LEVEL=11;
+											}
+
+											if(LEVEL >= max_lvl)
+											{
+												EPISODE++;
+												LEVEL=0;
+												GoBackToTitle();
+											}
+											else
+											{
+												StartSave();
+												ship_a = true;
+												FadeInOut(&currentScreen, MAP);
+											}
+										}
+										else GoBackToTitle();
+									}
 								}
-							}
-							
-							if (!disable_control && can_move_xd && !bad_apple)
-							{					
-								// basic
-								if(paddata.BTN_CROSS && !oldpad.BTN_CROSS)
+								else
 								{
-									if(LEVEL==8 && boss9_cutscene==0)
+									if (!disable_control && can_move_xd && !bad_apple)
 									{
-										if(cursorX==GRID_W/2 && cursorY==GRID_H/2)
+										// pausing shit
+										if(!paddata.BTN_START && oldpad.BTN_START)
 										{
-											boss9_cutscene = 1;
-											the_bg = 4;
-											PlayBGM(10, 1);
-										}
-									}
-									else if(LEVEL==9 && boss10_cutscene==0)
-									{
-										if(cursorX==GRID_W/2 && cursorY==GRID_H/2)
-										{
-											boss10_cutscene = 1;
-											the_bg = 9;
-											PlayBGM(12, 1);
-										}
-									}
-									else if(LEVEL==10 && boss11_cutscene==0)
-									{
-										if(cursorX==GRID_W/2 && cursorY==GRID_H/2)
-										{
-											boss11_cutscene = 1;
-											the_bg = 14;
-											PlayBGM(15, 1);
-										}
-									}
-									else if(LEVEL==11 && boss12_cutscene==0)
-									{
-										if(cursorX==GRID_W/2 && cursorY==GRID_H/2)
-										{
-											boss12_cutscene = 1;
-											PlayBGM(19, 1);
-										}
-									}
-									else
-									{
-										if(FIRST_CLICK) timer_running = 1;
-										
-										if(board[cursorX][cursorY].mine && FIRST_CLICK && setting_guarantee == 1)
-										{
-											do
+											if((!free_play && LEVEL<8) || (free_play && fp_music<9))
 											{
-												GenerateBoard();
-												CalculateNumbers();
+												paused = true;
+												SND_Pause(1);
 											}
-											while(board[cursorX][cursorY].mine);
-										}
-										if((board[cursorX][cursorY].mine || board[cursorX][cursorY].neighbors!=0) && FIRST_CLICK && setting_guarantee == 0)
-										{
-											do
-											{
-												GenerateBoard();
-												CalculateNumbers();
-											}
-											while(board[cursorX][cursorY].mine || board[cursorX][cursorY].neighbors!=0);
 										}
 										
-										FIRST_CLICK = 0;
-										
-										int bonked = 0;
-										
-										if(boss11_started)
+										// basic crap
+										if(paddata.BTN_CROSS && !oldpad.BTN_CROSS)
 										{
-											int i;
-											for (i = 0; i < boss11_count; i++)
+											if(LEVEL==8 && boss9_cutscene==0)
 											{
-												if(boss11_list[i].x == cursorX && boss11_list[i].y == cursorY && !boss11_list[i].placed)
+												if(cursorX==GRID_W/2 && cursorY==GRID_H/2)
 												{
-													boss11_list[i].bonk = true;
-													boss11_list[i].placed = 1;
-													boss11_list[i].timer = 3.01f;
-													bonked = 1;
-													PlaySFX(&sfx_11bonk);
-													continue;
+													boss9_cutscene = 1;
+													the_bg = 4;
+													PlayBGM(10, 1);
 												}
 											}
-										}
-										
-										if((LEVEL==8 && !boss9_started) || (free_play && boss9_cutscene==2 && !boss9_started))
-										{
-											boss9_started = 1;
-											
-											int i;
-											for (i = 0; i < boss9_count; i++)
+											else if(LEVEL==9 && boss10_cutscene==0)
 											{
-												boss9_list[i].active = true;
+												if(cursorX==GRID_W/2 && cursorY==GRID_H/2)
+												{
+													boss10_cutscene = 1;
+													the_bg = 9;
+													PlayBGM(12, 1);
+												}
 											}
-											
-											StopAudio();
-											PlayBGM(11, 1);
-											if(free_play) desired_bgm = 9;
-										}
-										else if((LEVEL==9 && !boss10_started) || (free_play && boss10_cutscene==2 && !boss10_started))
-										{
-											boss10_started = 1;
-											
-											int i;
-											for (i = 0; i < boss10_count; i++)
+											else if(LEVEL==10 && boss11_cutscene==0)
 											{
-												boss10_list[i].active = true;
+												if(cursorX==GRID_W/2 && cursorY==GRID_H/2)
+												{
+													boss11_cutscene = 1;
+													the_bg = 14;
+													PlayBGM(15, 1);
+												}
 											}
-											
-											StopAudio();
-											PlayBGM(13, 1);
-											if(free_play) desired_bgm = 10;
-										}
-										else if((LEVEL==10 && !boss11_started) || (free_play && boss11_cutscene==2 && !boss11_started))
-										{
-											boss11_started = 1;
-											
-											int i;
-											for (i = 0; i < boss11_count; i++)
+											else if(LEVEL==11 && boss12_cutscene==0)
 											{
-												boss11_list[i].active = true;
+												if(cursorX==GRID_W/2 && cursorY==GRID_H/2)
+												{
+													boss12_cutscene = 1;
+													PlayBGM(19, 1);
+												}
 											}
-											
-											StopAudio();
-											PlayBGM(16, 1);
-											if(free_play) desired_bgm = 11;
-										}
-										else if((LEVEL==11 && !boss12_started) || (free_play && boss12_cutscene==2 && !boss12_started))
-										{
-											boss12_started = 1;
-											boss12.active = true;
-											StopAudio();
-											PlayBGM(20, 1);
-											if(free_play) desired_bgm = 12;
-										}
-										
-										if (bonked == 0)
-										{
-											if (board[cursorX][cursorY].revealed) Chord(cursorX, cursorY);
-												else Reveal(cursorX, cursorY);
-										}
-										
-										if(!boss9_started) WinCheck();
-									}
-								}
-								if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE)
-								{
-									if((LEVEL==10 && !boss11_started) || (free_play && boss11_cutscene && !boss11_started)) continue;
-									
-									if(!board[cursorX][cursorY].revealed)
-									{
-										if(board[cursorX][cursorY].flagged == 0) mines_count--;
-										board[cursorX][cursorY].flagged++;
-										
-										if(board[cursorX][cursorY].flagged > 4)
-										{
-											board[cursorX][cursorY].flagged = 0;
-											PlaySFX(&sfx_unflag);
-											mines_count++;
-											
-											if(board[cursorX][cursorY].mine && (LEVEL==10 || (free_play && boss11_cutscene)))
+											else
 											{
-												board[cursorX][cursorY].revealed = 1;
-												game_lost();
-											}
-										}
-										else
-										{
-											PlaySFX(&sfx_flag);
-											if(!enable_half && board[cursorX][cursorY].flagged == 1) board[cursorX][cursorY].flagged = 2;
-											if(!enable_double && board[cursorX][cursorY].flagged == 3) board[cursorX][cursorY].flagged = 4;
-											if(!enable_anti && board[cursorX][cursorY].flagged == 4)
-											{
-												board[cursorX][cursorY].flagged = 0;
-												PlaySFX(&sfx_unflag);
-												mines_count++;
+												if(FIRST_CLICK) timer_running = 1;
 												
-												if(board[cursorX][cursorY].mine && (LEVEL==10 || (free_play && boss11_cutscene)))
+												if(board[cursorX][cursorY].mine && FIRST_CLICK && setting_guarantee == 1)
 												{
-													board[cursorX][cursorY].revealed = 1;
-													game_lost();
+													do
+													{
+														GenerateBoard();
+														CalculateNumbers();
+													}
+													while(board[cursorX][cursorY].mine);
+												}
+												if((board[cursorX][cursorY].mine || board[cursorX][cursorY].neighbors!=0) && FIRST_CLICK && setting_guarantee == 0)
+												{
+													do
+													{
+														GenerateBoard();
+														CalculateNumbers();
+													}
+													while(board[cursorX][cursorY].mine || board[cursorX][cursorY].neighbors!=0);
+												}
+												
+												FIRST_CLICK = 0;
+												
+												int bonked = 0;
+												
+												if(boss11_started)
+												{
+													int i;
+													for (i = 0; i < boss11_count; i++)
+													{
+														if(boss11_list[i].x == cursorX && boss11_list[i].y == cursorY && !boss11_list[i].placed)
+														{
+															boss11_list[i].bonk = true;
+															boss11_list[i].placed = 1;
+															boss11_list[i].timer = 3.01f;
+															bonked = 1;
+															PlaySFX(&sfx_11bonk);
+															continue;
+														}
+													}
+												}
+												
+												if((LEVEL==8 && !boss9_started) || (free_play && boss9_cutscene==2 && !boss9_started))
+												{
+													boss9_started = 1;
+													
+													int i;
+													for (i = 0; i < boss9_count; i++)
+													{
+														boss9_list[i].active = true;
+													}
+													
+													StopAudio();
+													PlayBGM(11, 1);
+													if(free_play) desired_bgm = 9;
+												}
+												else if((LEVEL==9 && !boss10_started) || (free_play && boss10_cutscene==2 && !boss10_started))
+												{
+													boss10_started = 1;
+													
+													int i;
+													for (i = 0; i < boss10_count; i++)
+													{
+														boss10_list[i].active = true;
+													}
+													
+													StopAudio();
+													PlayBGM(13, 1);
+													if(free_play) desired_bgm = 10;
+												}
+												else if((LEVEL==10 && !boss11_started) || (free_play && boss11_cutscene==2 && !boss11_started))
+												{
+													boss11_started = 1;
+													
+													int i;
+													for (i = 0; i < boss11_count; i++)
+													{
+														boss11_list[i].active = true;
+													}
+													
+													StopAudio();
+													PlayBGM(16, 1);
+													if(free_play) desired_bgm = 11;
+												}
+												else if((LEVEL==11 && !boss12_started) || (free_play && boss12_cutscene==2 && !boss12_started))
+												{
+													boss12_started = 1;
+													boss12.active = true;
+													StopAudio();
+													PlayBGM(20, 1);
+													if(free_play) desired_bgm = 12;
+												}
+												
+												if (bonked == 0)
+												{
+													if (board[cursorX][cursorY].revealed) Chord(cursorX, cursorY);
+														else Reveal(cursorX, cursorY);
+												}
+												
+												if(!boss9_started) WinCheck();
+											}
+										}
+										if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE)
+										{
+											if((LEVEL==10 && !boss11_started) || (free_play && boss11_cutscene && !boss11_started)) continue;
+											
+											if(!board[cursorX][cursorY].revealed)
+											{
+												if(board[cursorX][cursorY].flagged == 0) mines_count--;
+												board[cursorX][cursorY].flagged++;
+												
+												if(board[cursorX][cursorY].flagged > 4)
+												{
+													board[cursorX][cursorY].flagged = 0;
+													PlaySFX(&sfx_unflag);
+													mines_count++;
+													
+													if(board[cursorX][cursorY].mine && (LEVEL==10 || (free_play && boss11_cutscene)))
+													{
+														board[cursorX][cursorY].revealed = 1;
+														game_lost();
+													}
+												}
+												else
+												{
+													PlaySFX(&sfx_flag);
+													if(!enable_half && board[cursorX][cursorY].flagged == 1) board[cursorX][cursorY].flagged = 2;
+													if(!enable_double && board[cursorX][cursorY].flagged == 3) board[cursorX][cursorY].flagged = 4;
+													if(!enable_anti && board[cursorX][cursorY].flagged == 4)
+													{
+														board[cursorX][cursorY].flagged = 0;
+														PlaySFX(&sfx_unflag);
+														mines_count++;
+														
+														if(board[cursorX][cursorY].mine && (LEVEL==10 || (free_play && boss11_cutscene)))
+														{
+															board[cursorX][cursorY].revealed = 1;
+															game_lost();
+														}
+													}
 												}
 											}
 										}
+										if(paddata.BTN_SQUARE && !oldpad.BTN_SQUARE)
+										{
+											if(boss10_started)
+											{
+												boss10_list[i_10].time=10;
+												boss10_list[i_10].tspeed+=(0.0155f*(1+DIFFICULTY));
+												float min_speed = boss10_list[i_10].tspeed;
+												
+												boss10_list[i_10].hsp = min_speed + (((float)rand() / (float)RAND_MAX) * boss10_list[i_10].tspeed);
+												boss10_list[i_10].vsp = min_speed + (((float)rand() / (float)RAND_MAX) * boss10_list[i_10].tspeed);
+												
+												PlaySFX(&sfx_10reset);
+												
+												if (rand() % 2) boss10_list[i_10].hsp = -boss10_list[i_10].hsp;
+												if (rand() % 2) boss10_list[i_10].vsp = -boss10_list[i_10].vsp;
+												
+												i_10++;
+												if(i_10>boss10_count-1) i_10=0;
+											}
+										}
+										if(paddata.BTN_TRIANGLE && !oldpad.BTN_TRIANGLE && boss9_started) WinCheck();
+										
+										// movement
+										if(paddata.BTN_LEFT && !oldpad.BTN_LEFT) MoveCursor(-1, 0);
+										if(paddata.BTN_RIGHT && !oldpad.BTN_RIGHT) MoveCursor(1, 0);
+										if(paddata.BTN_UP && !oldpad.BTN_UP) MoveCursor(0, -1);
+										if(paddata.BTN_DOWN && !oldpad.BTN_DOWN) MoveCursor(0, 1);
+										
+										// zoom check
+										if(paddata.BTN_R1 && !oldpad.BTN_R1) zoomCheck(1);
+										if(paddata.BTN_L1 && !oldpad.BTN_L1) zoomCheck(0);
+										
+										if(paddata.BTN_L2 && !oldpad.BTN_L2) if(the_hat>-1) the_hat--;
+										if(paddata.BTN_R2 && !oldpad.BTN_R2) if(the_hat<8) the_hat++;
 									}
 								}
-								if(paddata.BTN_SQUARE && !oldpad.BTN_SQUARE)
-								{
-									if(boss10_started)
-									{
-										boss10_list[i_10].time=10;
-										boss10_list[i_10].tspeed+=(0.0155f*(1+DIFFICULTY));
-										float min_speed = boss10_list[i_10].tspeed;
-										
-										boss10_list[i_10].hsp = min_speed + (((float)rand() / (float)RAND_MAX) * boss10_list[i_10].tspeed);
-										boss10_list[i_10].vsp = min_speed + (((float)rand() / (float)RAND_MAX) * boss10_list[i_10].tspeed);
-										
-										PlaySFX(&sfx_10reset);
-										
-										if (rand() % 2) boss10_list[i_10].hsp = -boss10_list[i_10].hsp;
-										if (rand() % 2) boss10_list[i_10].vsp = -boss10_list[i_10].vsp;
-										
-										i_10++;
-										if(i_10>boss10_count-1) i_10=0;
-									}
-								}
-								if(paddata.BTN_TRIANGLE && !oldpad.BTN_TRIANGLE && boss9_started) WinCheck();
-								
-								// movement
-								if(paddata.BTN_LEFT && !oldpad.BTN_LEFT) MoveCursor(-1, 0);
-								if(paddata.BTN_RIGHT && !oldpad.BTN_RIGHT) MoveCursor(1, 0);
-								if(paddata.BTN_UP && !oldpad.BTN_UP) MoveCursor(0, -1);
-								if(paddata.BTN_DOWN && !oldpad.BTN_DOWN) MoveCursor(0, 1);
-								
-								// zoom check
-								if(paddata.BTN_R1 && !oldpad.BTN_R1) zoomCheck(1);
-								if(paddata.BTN_L1 && !oldpad.BTN_L1) zoomCheck(0);
-								
-								if(paddata.BTN_L2 && !oldpad.BTN_L2) if(the_hat>-1) the_hat--;
-								if(paddata.BTN_R2 && !oldpad.BTN_R2) if(the_hat<8) the_hat++;
 							}
 							break;
 						}
@@ -980,13 +1060,13 @@ int main(int argc, const char* argv[])
 							}
 							
 							ship_r=0;
-							if(ship_x<-40+(32*15)) ship_x++;
+							if(ship_x<-40.0f+(32*15)) ship_x+=1.75f;
 							else
 							{
-								if(ship_x == -40+(32*15))
+								if(ship_x <= -38.0f+(32*15))
 								{
 									FadeInOut(&currentScreen, SHOP);
-									ship_x++;
+									ship_x+=1.75f;
 								}
 							}
 							break;
@@ -1028,7 +1108,7 @@ int main(int argc, const char* argv[])
 		
 		boss12.rotation += 1;
 		
-		if(timer_running) timer_seconds += 0.018f;
+		if(timer_running && !paused) timer_seconds += 0.018f;
 		
 		if(boss10_started && !disable_control)
 		{
@@ -1067,11 +1147,10 @@ int main(int argc, const char* argv[])
 				can_move_xd = 0;
 				disable_control = 0;
 				
-				if(free_play) fp_lifes--;
-				else LIFES--;
+				if(free_play && fp_music<9) fp_lifes--;
+				else if(LEVEL<8) LIFES--;
 				
-				PlaySFX(&sfx_explosion);
-				SpawnProjectile(offset_x+(cursorX*RENDER_SIZE), offset_y+(cursorY*RENDER_SIZE), 0, 0, 0);
+				SpawnProjectile(offset_x+(cursorX*RENDER_SIZE), offset_y+(cursorY*RENDER_SIZE), 0, 0, 0, 1.0f);
 				if((fp_lifes < 1 && free_play) || (LIFES < 1))
 				{
 					disable_control = 1;

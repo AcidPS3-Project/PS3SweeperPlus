@@ -19,6 +19,8 @@ extern Boss12 boss12;
 
 int can_move_xd;
 
+void SpawnProjectile(float x, float y, float vx, float vy, int type, float lifetime);
+
 void SetupBoss12Position();
 void Deactivate12();
 void boss12_update();

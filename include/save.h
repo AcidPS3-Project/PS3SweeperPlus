@@ -4,6 +4,8 @@
 #include "libraries.h"
 
 #define SAVE_DIR "PS3SWEEPERPLUS"
+#define MAXLVLTEST 20
+float level_time[MAXLVLTEST];
 
 typedef struct
 {
@@ -32,6 +34,7 @@ typedef struct
 	bool save_first_playing;
 	
 	int save_lifes;
+	float save_level_time[MAXLVLTEST];
 } SaveData;
 
 extern SaveData gSave;
