@@ -17,19 +17,26 @@ const char *credits[256];
 
 // IMPORT IMAGES
 #include "captain_sheet_png_bin.h"
+#include "hats_sheet_png_bin.h"
 #include "tiles_sheet_png_bin.h"
 #include "ui_sheet_png_bin.h"
+
 #include "boss_sheet_png_bin.h"
 #include "boss1_sheet_png_bin.h"
 #include "dualboss_sheet_png_bin.h"
 #include "cursed_sheet_png_bin.h"
+
 #include "background_sheet_png_bin.h"
+#include "end1_png_bin.h"
+#include "end2_png_bin.h"
+#include "end3_png_bin.h"
+
 #include "menu_sheet_png_bin.h"
 #include "coin_png_bin.h"
 #include "buttons_png_bin.h"
-#include "hats_sheet_png_bin.h"
 #include "explosion_png_bin.h"
 #include "explosion_anti_png_bin.h"
+#include "shopkeeper_sheet_png_bin.h"
 
 #include "icon0_png_bin.h"
 
@@ -113,7 +120,12 @@ const char *credits[256];
 #include "Agsrs_mp3_bin.h"
 #include "Agss3m_ogg_bin.h"
 
+#include "ending_ogg_bin.h"
 #include "shop_ogg_bin.h"
+#include "credits_ogg_bin.h"
+
+#include "fourofakind_intro_ogg_bin.h"
+#include "fourofakind_ogg_bin.h"
 
 //IMPORT SFX
 #include "flag_ogg_bin.h"
@@ -153,7 +165,10 @@ extern int FIRST_CLICK;
 extern int i_10;
 extern int language;
 
+extern bool specialthanks;
+
 extern bool paused;
+extern int mistakes;
 
 extern float timer_seconds;
 extern int timer_running;

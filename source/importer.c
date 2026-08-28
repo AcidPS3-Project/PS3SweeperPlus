@@ -27,6 +27,8 @@ int FIRST_CLICK = 1;
 int i_10 = 0;
 int language = 0;
 
+int mistakes = 0;
+
 bool use_custom_sweeper = false;
 int custom_sweeper_size = 0;
 
@@ -93,6 +95,8 @@ int menu_pos = 0;
 float ze_x = 0.0f;
 float ze_y = 0.0f;
 
+bool specialthanks = false;
+
 float lerp(int x, int y, float amount)
 {
 	return x + amount * (y - x);
@@ -117,6 +121,26 @@ void creditsInit()
 	credits[1] = "Axelbastian";
 	credits[2] = "cruslan";
 	credits[3] = "bucanero";
+	credits[4] = "Pren3k";
+	credits[5] = "LokiThePlug";
+	credits[6] = "EnergyPumpkin";
+	credits[7] = "Team Shanghai Alice";
+	credits[8] = "Alien Captain's Creator";
+	credits[9] = "Cynthia";
+	credits[10] = "PSL1GHT";
+	credits[11] = "TOCHARA";
+	credits[12] = "tiptopik";
+	credits[13] = "Kirill9ka";
+	credits[14] = "MirrorGuy";
+	credits[15] = "artmet17";
+	credits[16] = "Giga-T";
+	credits[17] = "GemThe14";
+	credits[18] = "Twelv";
+	credits[19] = "Affocoder";
+	credits[20] = "Jack Heredia";
+	credits[21] = "SilverClockBFDI";
+	credits[22] = "1tsLek";
+	credits[23] = "Creeper7925";
 }
 
 void LangInit()
@@ -190,11 +214,11 @@ void LangInit()
 			langStr[53] = "Error! Image's width and height don't match!!";
 			langStr[54] = "Use Custom Sweeper";
 			langStr[55] = "Half-Mine Related Sprites by";
-			langStr[56] = "SPECIAL THANKS";
+			langStr[56] = "Special Thanks";
 			langStr[57] = "Paused";
-			langStr[58] = "";
-			langStr[59] = "";
-			langStr[60] = "";
+			langStr[58] = "Four of a Kind";
+			langStr[59] = "Frozen Nine mechanics";
+			langStr[60] = "Nuclear Ten Idea";
 			langStr[61] = "Kiddie Pool";
 			langStr[62] = "Rainy Puddle";
 			langStr[63] = "Small Pond";
@@ -204,6 +228,11 @@ void LangInit()
 			langStr[67] = "Open Ocean";
 			langStr[68] = "Dead Sea";
 			langStr[69] = "THE DEVIL'S TRIANGLE";
+			langStr[70] = "Original 9 Boss Music";
+			langStr[71] = "Touhou Stuff";
+			langStr[72] = "Alien Captain's Hat";
+			langStr[73] = "Frozen Captain Sprite";
+			langStr[74] = "";
 			break;
 		}
 		case 1: // Русский Язык
@@ -278,15 +307,15 @@ void LangInit()
 			langStr[58] = "";
 			langStr[59] = "";
 			langStr[60] = "";
-			langStr[61] = "Kiddie Pool";
-			langStr[62] = "Rainy Puddle";
-			langStr[63] = "Small Pond";
-			langStr[64] = "Blue Lagoon";
-			langStr[65] = "Lazy River";
-			langStr[66] = "Great Lake";
-			langStr[67] = "Open Ocean";
-			langStr[68] = "Dead Sea";
-			langStr[69] = "THE DEVIL'S TRIANGLE";
+			langStr[61] = "Детский Бассейн";
+			langStr[62] = "Дождевая Лужа";
+			langStr[63] = "Малый Пруд";
+			langStr[64] = "Синее Море";
+			langStr[65] = "Ленивая Река";
+			langStr[66] = "Большое Озеро";
+			langStr[67] = "Открытый Океан";
+			langStr[68] = "Море Мертвеца";
+			langStr[69] = "ДЬЯВОЛЬСКИЙ ТРЕУГОЛЬНИК";
 			break;
 		}
 		case 2: // Қазақ Тілі
@@ -359,20 +388,20 @@ void LangInit()
 			langStr[53] = "Ошибка! Ширина и длина изображения не совпадают!!";
 			langStr[54] = "Использовать своего сапера";
 			langStr[55] = "Спрайты связанные с полу-минами от";
-			langStr[56] = "СПЕЦИАЛЬНАЯ БЛАГОДАРНОСТЬ";
+			langStr[56] = "ҮЛКЕН РАХМЕТ";
 			langStr[57] = "Пауза";
 			langStr[58] = "";
 			langStr[59] = "";
 			langStr[60] = "";
-			langStr[61] = "Kiddie Pool";
-			langStr[62] = "Rainy Puddle";
-			langStr[63] = "Small Pond";
-			langStr[64] = "Blue Lagoon";
-			langStr[65] = "Lazy River";
-			langStr[66] = "Great Lake";
-			langStr[67] = "Open Ocean";
-			langStr[68] = "Dead Sea";
-			langStr[69] = "THE DEVIL'S TRIANGLE";
+			langStr[61] = "Балаларың Бассейн";
+			langStr[62] = "Дождевая Лужа";
+			langStr[63] = "Малый Пруд";
+			langStr[64] = "Көктің Лагуна";
+			langStr[65] = "Ерінші Өзен";
+			langStr[66] = "Үлкен Қөл";
+			langStr[67] = "Открытый Океан";
+			langStr[68] = "Море Мертвеца";
+			langStr[69] = "ДЬЯВОЛЬСКИЙ ТРЕУГОЛЬНИК";
 			break;
 		}
 	}
@@ -383,6 +412,7 @@ void SplashesInit()
 	splash_count = 0;
 	int bad_apple_dlc_installed = 0;
 	
+	splashes_random[0] = "Unused Splash?";
 	splashes_random[splash_count++] = "Sweeping on PS3!";
 	splashes_random[splash_count++] = "This is NOT a port!";
 	splashes_random[splash_count++] = "Does not require PS Eye!";
@@ -458,7 +488,7 @@ void SplashesInit()
 	//splashes_random[splash_count++] = "Hi, Xbox Original :)";
 	//splashes_random[splash_count++] = "I wonder what I can do for Mac OS 9 tho...";
 	splashes_random[splash_count++] = "Cutscenes?";
-	splashes_random[splash_count++] = "Oh god v0.3.1, just like in v3.1 in original game, and in v3.1.1";
+	splashes_random[splash_count++] = "v0.4 is here. Prepare thyself!!!";
 	splashes_random[splash_count++] = "BUGS. I HATE BUGS!!!!";
 	
 	FILE *za = fopen("/dev_hdd0/game/ACIDSTORE/ICON0.PNG", "rb");
@@ -681,6 +711,18 @@ void init_bgm()
 	bgm[163]=lss3m_ogg_bin;bgm_size[163]=lss3m_ogg_bin_size;
 	bgm[164]=ls12_ogg_bin;bgm_size[164]=ls12_ogg_bin_size;
 	
+	bgm[192] = credits_ogg_bin;
+	bgm_size[192] = credits_ogg_bin_size;
+	
+	bgm[193] = ending_ogg_bin;
+	bgm_size[193] = ending_ogg_bin_size;
+	
+	bgm[194] = fourofakind_intro_ogg_bin;
+	bgm_size[194] = fourofakind_intro_ogg_bin_size;
+	
+	bgm[195] = fourofakind_ogg_bin;
+	bgm_size[195] = fourofakind_ogg_bin_size;
+	
 	bgm[197] = shop_ogg_bin;
 	bgm_size[197] = shop_ogg_bin_size;
 	
@@ -742,6 +784,7 @@ int max(int min, int max)
 
 void PlayBGM(int id, int inf)
 {
+	StopAudio();
 	FILE *fp;
 	if(id==99 || id==199 || id==100) fp = fopen((char *)bgm[id], "rb");
     else fp = (FILE *)mem_open((char *)bgm[id], bgm_size[id]);
@@ -793,6 +836,10 @@ void Load_PNG()
 	pngLoadFromBuffer(hats_sheet_png_bin, hats_sheet_png_bin_size, &spritesheet[12]);
 	// WE ARE SKIPPING 13 cuz its reserved for custom captain spritesheet.
 	pngLoadFromBuffer(explosion_anti_png_bin, explosion_anti_png_bin_size, &spritesheet[14]);
+	pngLoadFromBuffer(shopkeeper_sheet_png_bin, shopkeeper_sheet_png_bin_size, &spritesheet[15]);
+	pngLoadFromBuffer(end1_png_bin, end1_png_bin_size, &spritesheet[16]);
+	pngLoadFromBuffer(end2_png_bin, end2_png_bin_size, &spritesheet[17]);
+	pngLoadFromBuffer(end3_png_bin, end3_png_bin_size, &spritesheet[18]);
 }
 
 void ReplaceBGM(int music)
@@ -867,8 +914,6 @@ int LoadImageA(const char *path, pngData *texture)
     long size;
     s32 ret;
 
-    DebugLog("LoadImageA: opening");
-
     fp = fopen(path, "rb");
     if(!fp)
     {
@@ -888,18 +933,11 @@ int LoadImageA(const char *path, pngData *texture)
         return 0;
     }
 
-    DebugLog("LoadImageA: reading");
-
     fread(buffer, 1, size, fp);
     fclose(fp);
-
-    DebugLog("LoadImageA: calling pngLoadFromBuffer");
 
     ret = pngLoadFromBuffer(buffer, (u32)size, texture);
 
     free(buffer);
-
-    DebugLog("LoadImageA: done");
-
     return ret == 0;
 }

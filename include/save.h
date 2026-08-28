@@ -35,6 +35,7 @@ typedef struct
 	
 	int save_lifes;
 	float save_level_time[MAXLVLTEST];
+	int save_mistakes;
 } SaveData;
 
 extern SaveData gSave;

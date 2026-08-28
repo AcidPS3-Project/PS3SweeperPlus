@@ -13,7 +13,12 @@ void SetupBoss11Positions(int count)
 
     memset(boss11_list, 0, sizeof(boss11_list));
 
-    switch (count)
+	if(free_play) for (int i = 0; i < count; i++)
+    {
+		boss11_list[i].x = RandRange(0, GRID_W - pad);
+		boss11_list[i].y = RandRange(0, GRID_H - pad);
+	}
+    else switch(count)
     {
         case 1:
             boss11_list[0].x = cx;
@@ -21,32 +26,32 @@ void SetupBoss11Positions(int count)
             break;
 
         case 2:
-            boss11_list[0].x = pad;
-            boss11_list[0].y = pad;
+            boss11_list[0].x = 0;
+            boss11_list[0].y = 0;
 
             boss11_list[1].x = GRID_W - pad;
             boss11_list[1].y = GRID_H - pad;
             break;
 
         case 3:
-            boss11_list[0].x = pad;
-            boss11_list[0].y = pad;
+            boss11_list[0].x = 0;
+            boss11_list[0].y = 0;
 
             boss11_list[1].x = GRID_W - pad;
-            boss11_list[1].y = pad;
+            boss11_list[1].y = 0;
 
             boss11_list[2].x = cx;
             boss11_list[2].y = GRID_H - pad;
             break;
 
         default: // 4+
-            boss11_list[0].x = pad;
-            boss11_list[0].y = pad;
+            boss11_list[0].x = 0;
+            boss11_list[0].y = 0;
 
             boss11_list[1].x = GRID_W - pad;
-            boss11_list[1].y = pad;
+            boss11_list[1].y = 0;
 
-            boss11_list[2].x = pad;
+            boss11_list[2].x = 0;
             boss11_list[2].y = GRID_H - pad;
 
             boss11_list[3].x = GRID_W - pad;

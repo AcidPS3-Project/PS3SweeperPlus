@@ -9,9 +9,27 @@ void SetupBoss12Position()
 	
     float cx = center_x;
     float cy = center_y;
+	
+	if(free_play)
+	{
+		float TMP_SIZ = 3.0f * RENDERING_PIXELS;
+		float boss_half = (TMP_SIZ * 3.0f * 1.1f) * 0.5f;
+		float boundary = 384.0f / 4;
+		
+		float leftz   = boss_half - boundary;
+		float rightz  = (screen_w*2) - boss_half + boundary - TMP_SIZ;
+		float topz    = boss_half - boundary;
+		float bottomz = (screen_h*2) - boss_half + boundary - TMP_SIZ;
 
-	boss12.x = cx;
-	boss12.y = cy;
+		boss12.x = RandRange(leftz, rightz);
+		boss12.y = RandRange(topz, bottomz);
+	}
+	else
+	{
+		boss12.x = cx;
+		boss12.y = cy;
+	}
+
 	boss12.hsp = 1.0f;
 	boss12.vsp = 1.0f;
 	boss12.active = false;
@@ -25,7 +43,7 @@ void Deactivate12()
 	boss12.active = false;
 }
 
-void boss12_update()
+void boss12_update(int mute)
 {
 	static int tempoz = 0;
 	
@@ -64,7 +82,7 @@ void boss12_update()
 	}
 	else
 	{
-		boss12.tempo++;
+		if(!mute) boss12.tempo++;
 		boss12.rotation += ((float)boss12.tempo/50);
 		
 		boss12.x += boss12.hsp * ((float)boss12.tempo/50);

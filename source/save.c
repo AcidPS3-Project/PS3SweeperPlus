@@ -254,6 +254,8 @@ int StartSave(void)
 		gSave.save_level_time[_t] = level_time[_t];
 	}
 	
+	gSave.save_mistakes = mistakes;
+	
 	char debug[256];
 
 	sprintf(debug,"SAVING VALUES: level=%d current=%d global=%d route=%d", gSave.save_level,
@@ -325,6 +327,8 @@ static void LoadThread(void *arg)
 	{
 		level_time[_t] = gSave.save_level_time[_t];
 	}
+	
+	mistakes = gSave.save_mistakes;
 	
 	DebugLog("loaded!");
 	

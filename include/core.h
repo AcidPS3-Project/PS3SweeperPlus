@@ -85,6 +85,12 @@ extern int boss11_count;
 extern int boss12_count;
 extern int bossnan_count;
 
+extern bool enable_9;
+extern bool enable_10;
+extern bool enable_11;
+extern bool enable_12;
+extern bool enable_nan;
+
 void game_lost();
 void GenerateBoard();
 void CalculateNumbers();
@@ -123,5 +129,7 @@ extern int the_hat;
 
 #define MAXLVLTEST 20
 float level_time[MAXLVLTEST];
+
+int calculate_rank(float time);
 
 #endif

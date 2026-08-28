@@ -65,6 +65,12 @@ int boss11_count = 1;
 int boss12_count = 1;
 int bossnan_count = 1;
 
+bool enable_9 = false;
+bool enable_10 = false;
+bool enable_11 = false;
+bool enable_12 = false;
+bool enable_nan = false;
+
 bool CanMoveBetween(int x, int y, int nx, int ny)
 {
     if(nx == x + 1 && ny == y) return !board[x][y].wall_right;
@@ -117,7 +123,7 @@ int FindEpisode2ShapeIndex(int the_id)
     int i;
     for (i = 0; i < sizeof(episode2_shapes) / sizeof(episode2_shapes[0]); i++)
     {
-        if (episode2_shapes[i].the_id == the_id) return i;
+        if(episode2_shapes[i].the_id == the_id) return i;
     }
     return -1;
 }
@@ -127,7 +133,7 @@ int FindEpisode3ShapeIndex(int the_id)
     int i;
     for (i = 0; i < sizeof(episode3_shapes) / sizeof(episode3_shapes[0]); i++)
     {
-        if (episode3_shapes[i].the_id == the_id) return i;
+        if(episode3_shapes[i].the_id == the_id) return i;
     }
     return -1;
 }
@@ -201,10 +207,10 @@ void GenerateBoard()
 					if(EPISODE>=2) board[xx][yy].active = (episode2_shapes[grd_id].shape[yy][xx] == '0');
 						else board[xx][yy].active = 1;
 					
-					if (board[xx][yy].active) active_count++;
+					if(board[xx][yy].active) active_count++;
 				}
 			}
-			if (MINES >= active_count) MINES = active_count - 1;
+			if(MINES >= active_count) MINES = active_count - 1;
 			valid_total = active_count - MINES;
 		}
 	}
@@ -227,8 +233,8 @@ void GenerateBoard()
     {
         int x = rand() % GRID_W;
         int y = rand() % GRID_H;
-		if (!board[x][y].active) continue;
-		if (board[x][y].mine) continue;
+		if(!board[x][y].active) continue;
+		if(board[x][y].mine) continue;
 
 		board[x][y].mine = 1;
 		if(f_doub > 0)
@@ -288,7 +294,7 @@ void CalculateNumbers()
 
                     if(nx < 0 || ny < 0 || nx >= GRID_W || ny >= GRID_H) continue;
 					
-					if (!board[nx][ny].active) continue;
+					if(!board[nx][ny].active) continue;
 					
                     if(board[nx][ny].doublemine)
 					{
@@ -320,7 +326,7 @@ void CalculateNumbers()
 
 int calculate_score()
 {
-	//if (Main.practice) return 0;
+	//if(Main.practice) return 0;
 	float anti_multiplier = 1.0f;
 	float double_multiplier = 1.0f;
 	float half_multiplier = 1.0f;
@@ -340,9 +346,9 @@ int calculate_score()
 	
 	if(enable_double)
 	{
-		if (doubles != 0 && MINES != 0)
+		if(doubles != 0 && MINES != 0)
 		{
-			if (doubles >= MINES - doubles) larger = doubles; else larger = MINES - doubles;
+			if(doubles >= MINES - doubles) larger = doubles; else larger = MINES - doubles;
 			double_multiplier = 1.0 + (larger / MINES);
 		}
 		//else double_multiplier = 1.0 + (0.5 - abs(0.5 - (float)(doubles / 100)));
@@ -350,9 +356,9 @@ int calculate_score()
 	
 	if(enable_half)
 	{
-		if (halfs != 0 && MINES != 0)
+		if(halfs != 0 && MINES != 0)
 		{
-			if (halfs >= MINES - halfs) larger = halfs; else larger = MINES - halfs;
+			if(halfs >= MINES - halfs) larger = halfs; else larger = MINES - halfs;
 			half_multiplier = 1 + (larger / MINES);
 		}
 		//else half_multiplier = 1.0 + (0.5 - abs(0.5 - (float)(halfs / 100)));
@@ -360,9 +366,9 @@ int calculate_score()
 	
 	if(enable_anti)
 	{
-		if (antis != 0 && MINES != 0)
+		if(antis != 0 && MINES != 0)
 		{
-			if (antis >= MINES - antis) larger = antis; else larger = MINES - antis;
+			if(antis >= MINES - antis) larger = antis; else larger = MINES - antis;
 			anti_multiplier = 1 + (larger / MINES);
 		}
 		//else anti_multiplier = 1.0 + (0.5 - abs(0.5 - (float)(antis / 100)));
@@ -389,14 +395,14 @@ int calculate_score()
 	if(LEVEL==10) score += 1111;
 	if(LEVEL==11) score += 1212;
 	if(LEVEL==12) score += 1500;
-	if (boss9_count > 0) score += 9;
-	if (boss10_count > 0) score += 10;
-	if (boss11_count > 0) score += 11;
-	if (boss12_count > 0) score += 12;
-	if (bossnan_count > 0) score += 15;
+	if(boss9_count > 0) score += 9;
+	if(boss10_count > 0) score += 10;
+	if(boss11_count > 0) score += 11;
+	if(boss12_count > 0) score += 12;
+	if(bossnan_count > 0) score += 15;
 	score += MINES;
 	score *= 1.5; // cuz we are practically ALWAYS in master LMAO
-	//if (Main.db["master"]): score \*= 1.5
+	//if(Main.db["master"]) score \*= 1.5
 	score *= double_multiplier;
 	score *= half_multiplier;
 	score *= anti_multiplier;
@@ -442,7 +448,7 @@ void WinCheck()
 		{
 			for (fy = 0; fy < GRID_H; fy++)
 			{
-				if (board[fx][fy].mine)
+				if(board[fx][fy].mine)
 				{
 					board[fx][fy].flagged = 2;
 					if(board[fx][fy].doublemine) board[fx][fy].flagged++;
@@ -526,7 +532,7 @@ void RevealIterative(int startx, int starty)
 void RevealRecursive(int x,int y)
 {
     if(x < 0 || y < 0 || x >= GRID_W || y >= GRID_H) return;
-	if (!board[x][y].active) return;
+	if(!board[x][y].active) return;
     if(board[x][y].revealed || board[x][y].flagged>0) return;
 
     board[x][y].revealed = 1;
@@ -628,7 +634,7 @@ void badAppleUpdate()
 		GoBackToTitle();
 	}
 
-	if (fabsf(error) > 10.0f) videoFrame = audioFrame; else videoFrame += error * 0.01f;
+	if(fabsf(error) > 10.0f) videoFrame = audioFrame; else videoFrame += error * 0.01f;
 	
 	int frame = (int)videoFrame;
 	
@@ -721,10 +727,177 @@ void MoveCursor(int dx, int dy)
     {
         nx += dx; ny += dy;
 
-        if (nx < 0 || ny < 0 || nx >= GRID_W || ny >= GRID_H) return;
+        if(nx < 0 || ny < 0 || nx >= GRID_W || ny >= GRID_H) return;
     }
     while (!board[nx][ny].active);
 
     cursorX = nx;
     cursorY = ny;
+}
+
+int calculate_rank(float time)
+{
+	int rank = 7;
+	
+	// RANKS GUIDE:
+	// 7 - Master
+	// 6 - Super
+	// 5 - Awesome
+	// 4 - Bold
+	// 3 - Cool
+	// 2 - Dull
+	// 1 - Embarasing
+	// 0 - Failure
+	
+	switch(EPISODE)
+	{
+		case 1:
+		{
+			if(DIFFICULTY == 0)
+			{
+				if(time > 180.0f) rank -= 1;
+				if(time > 360.0f) rank -= 1;
+				if(time > 540.0f) rank -= 1;
+				if(current_minecoins < 1000) rank -= 1;
+				if(current_minecoins < 1750) rank -= 1;
+				if(mistakes >= 1) rank -= 1;
+				if(mistakes >= 3) rank -= 1;
+				if(mistakes >= 5) rank -= 1;
+			}
+			else if(DIFFICULTY == 1)
+			{
+				if(time > 300.0f) rank -= 1;
+				if(time > 600.0f) rank -= 1;
+				if(time > 900.0f) rank -= 1;
+				if(current_minecoins < 1500) rank -= 1;
+				if(current_minecoins < 2500) rank -= 1;
+				if(mistakes >= 1) rank -= 1;
+				if(mistakes >= 4) rank -= 1;
+				if(mistakes >= 7) rank -= 1;
+			}
+			else if(DIFFICULTY == 2)
+			{
+				if(time > 540.0f) rank -= 1;
+				if(time > 1080.0f) rank -= 1;
+				if(time > 1620.0f) rank -= 1;
+				if(current_minecoins < 2000) rank -= 1;
+				if(current_minecoins < 3000) rank -= 1;
+				if(mistakes >= 2) rank -= 1;
+				if(mistakes >= 5) rank -= 1;
+				if(mistakes >= 8) rank -= 1;
+			}
+			else
+			{
+				if(time > 840.0f) rank -= 1;
+				if(time > 1680.0f) rank -= 1;
+				if(time > 2520.0f) rank -= 1;
+				if(current_minecoins < 3000) rank -= 1;
+				if(current_minecoins < 4000) rank -= 1;
+				if(mistakes >= 3) rank -= 1;
+				if(mistakes >= 6) rank -= 1;
+				if(mistakes >= 9) rank -= 1;
+			}
+			break;
+		}
+		case 2:
+		{
+			if(DIFFICULTY == 0)
+			{
+				if(time > 360.0f) rank -= 1;
+				if(time > 720.0f) rank -= 1;
+				if(time > 1080.0f) rank -= 1;
+				if(current_minecoins < 4000) rank -= 1;
+				if(current_minecoins < 2500) rank -= 1;
+				if(mistakes >= 1) rank -= 1;
+				if(mistakes >= 4) rank -= 1;
+				if(mistakes >= 7) rank -= 1;
+			}
+			if(DIFFICULTY == 1)
+			{
+				if(time > 660.0f) rank -= 1;
+				if(time > 1320.0f) rank -= 1;
+				if(time > 1980.0f) rank -= 1;
+				if(current_minecoins < 5500) rank -= 1;
+				if(current_minecoins < 3500) rank -= 1;
+				if(mistakes >= 3) rank -= 1;
+				if(mistakes >= 6) rank -= 1;
+				if(mistakes >= 9) rank -= 1;
+			}
+			else if(DIFFICULTY == 2)
+			{
+				if(time > 1080.0f) rank -= 1;
+				if(time > 2160.0f) rank -= 1;
+				if(time > 3240.0f) rank -= 1;
+				if(current_minecoins < 6500) rank -= 1;
+				if(current_minecoins < 4500) rank -= 1;
+				if(mistakes >= 4) rank -= 1;
+				if(mistakes >= 9) rank -= 1;
+				if(mistakes >= 14) rank -= 1;
+			}
+			else
+			{
+				if(time > 1620.0f) rank -= 1;
+				if(time > 3240.0f) rank -= 1;
+				if(time > 4860.0f) rank -= 1;
+				if(current_minecoins < 7500) rank -= 1;
+				if(current_minecoins < 5000) rank -= 1;
+				if(mistakes >= 5) rank -= 1;
+				if(mistakes >= 12) rank -= 1;
+				if(mistakes >= 19) rank -= 1;
+			}
+			break;
+		}
+		case 3:
+		{
+			if(DIFFICULTY == 0)
+			{
+				if(time > 660.0f) rank -= 1;
+				if(time > 1320.0f) rank -= 1;
+				if(time > 1980.0f) rank -= 1;
+				if(current_minecoins < 6000) rank -= 1;
+				if(current_minecoins < 4500) rank -= 1;
+				if(mistakes >= 2) rank -= 1;
+				if(mistakes >= 5) rank -= 1;
+				if(mistakes >= 8) rank -= 1;
+			}
+			else if(DIFFICULTY == 1)
+			{
+				if(time > 960.0f) rank -= 1;
+				if(time > 1920.0f) rank -= 1;
+				if(time > 2880.0f) rank -= 1;
+				if(current_minecoins < 7000) rank -= 1;
+				if(current_minecoins < 5500) rank -= 1;
+				if(mistakes >= 4) rank -= 1;
+				if(mistakes >= 7) rank -= 1;
+				if(mistakes >= 10) rank -= 1;
+			}
+			else if(DIFFICULTY == 2)
+			{
+				if(time > 1200.0f) rank -= 1;
+				if(time > 2400.0f) rank -= 1;
+				if(time > 3600.0f) rank -= 1;
+				if(current_minecoins < 8000) rank -= 1;
+				if(current_minecoins < 6000) rank -= 1;
+				if(mistakes >= 5) rank -= 1;
+				if(mistakes >= 9) rank -= 1;
+				if(mistakes >= 13) rank -= 1;
+			}
+			else
+			{
+				if(time > 1500.0f) rank -= 1;
+				if(time > 3000.0f) rank -= 1;
+				if(time > 4500.0f) rank -= 1;
+				if(current_minecoins < 9000) rank -= 1;
+				if(current_minecoins < 7000) rank -= 1;
+				if(mistakes >= 6) rank -= 1;
+				if(mistakes >= 11) rank -= 1;
+				if(mistakes >= 16) rank -= 1;
+			}
+			break;
+		}
+	}
+	
+    if(rank < 0) rank = 0;
+	
+	return rank;
 }

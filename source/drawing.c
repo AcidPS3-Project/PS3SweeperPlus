@@ -6,6 +6,15 @@
 
 #include "level_data.h"
 
+int end_time = 0;
+
+BossTriangle boss_triangles[3] =
+{
+    {0.0f, 80.0f, 0xFF3030FF},
+    {120.0f, -60.0f, 0x30FF30FF},
+    {240.0f, 100.0f, 0x3030FFFF}
+};
+
 #define FADE_NONE 0
 #define FADE_IN   1
 #define FADE_OUT  2
@@ -66,13 +75,73 @@ void DrawBackground2D(u32 rgba, float l)
     tiny3d_End();
 }
 
+void DrawRectangle2D(float x, float y, float w, float h, u32 rgba, float l)
+{
+    tiny3d_SetPolygon(TINY3D_QUADS);
+
+    tiny3d_VertexPos(x+40, y+22, l);
+    tiny3d_VertexColor(rgba);
+    tiny3d_VertexPos(x+w+40, y+22, l);
+    tiny3d_VertexPos(x+w+40, y+h+22, l);
+    tiny3d_VertexPos(x+40, y+h+22, l);
+    tiny3d_End();
+}
+
+void DrawRotatingTriangle(float x, float y, float size, float angle, u32 color)
+{
+    float rad = angle * 3.14159265f / 180.0f;
+
+    float a1 = rad - 3.14159265f / 2.0f;
+    float a2 = a1 + 2.0f * 3.14159265f / 3.0f;
+    float a3 = a1 + 4.0f * 3.14159265f / 3.0f;
+
+    float x1 = x + cosf(a1) * size;
+    float y1 = y + sinf(a1) * size;
+
+    float x2 = x + cosf(a2) * size;
+    float y2 = y + sinf(a2) * size;
+
+    float x3 = x + cosf(a3) * size;
+    float y3 = y + sinf(a3) * size;
+
+    tiny3d_SetPolygon(TINY3D_TRIANGLES);
+
+    tiny3d_VertexColor(color);
+
+    tiny3d_VertexPos(x1+40, y1+22, -1);
+    tiny3d_VertexPos(x2+40, y2+22, -1);
+    tiny3d_VertexPos(x3+40, y3+22, -1);
+
+    tiny3d_End();
+}
+
+void UpdateBossTriangles(float dt)
+{
+    int i;
+
+    for(i = 0; i < 3; i++)
+    {
+        boss_triangles[i].angle += boss_triangles[i].speed * dt;
+
+        if(boss_triangles[i].angle >= 360.0f) boss_triangles[i].angle -= 360.0f;
+        if(boss_triangles[i].angle < 0.0f) boss_triangles[i].angle += 360.0f;
+    }
+}
+
+void DrawBossTriangles(float x, float y, float size)
+{
+    int i;
+
+    for(i = 0; i < 3; i++)
+    {
+        DrawRotatingTriangle(x, y, size, boss_triangles[i].angle, boss_triangles[i].color);
+    }
+}
+
 void DrawInvertEffect()
 {
     tiny3d_SetPolygon(TINY3D_QUADS);
 
-    // White source color.
-    // With ONE_MINUS_DST_COLOR as the source factor:
-    // result = 1 - destination
     tiny3d_VertexColor(0xFFFFFFFF);
 
     tiny3d_VertexPos(-60, 22, -5);
@@ -692,6 +761,9 @@ int tile_map_num(int _t)
 	return tile;
 }
 
+int zez_y = -22;
+int zex_y = -22;
+
 void drawScene()
 {
 	u32 color = 0xffffffff;
@@ -895,8 +967,10 @@ void drawScene()
 				DrawFString(0, ze_x+ui_x, ze_y+zcs_y+64, 0xffffffff, 0, langStr[36]);
 				
 				DrawButton(ze_x+ui_x, ze_y+zcs_y+386, 8, 0);
+				DrawButton(ze_x+ui_x, ze_y+zcs_y+418, 9, 0);
 				
 				DrawFString(0, ze_x+ui_x+36, ze_y+zcs_y+386, 0xffffffff, 0, langStr[33]);
+				DrawFString(0, ze_x+ui_x+36, ze_y+zcs_y+418, 0xffffffff, 0, langStr[58]);
 
 				SetTexture(10);
 				DrawSprite2D(animc, ui_x+818, 4, 32, 32, 64, 64, 512, 64, 0, 0xffffffff);
@@ -925,6 +999,8 @@ void drawScene()
 				int max_lvl = episodes[EPISODE-1].level_count;
 				int name_test = 0;
 				
+				SetFontSize(28, 32);
+				
 				switch(EPISODE)
 				{
 					case 1:
@@ -935,11 +1011,11 @@ void drawScene()
 							if(LEVEL<_t)
 							{
 								int tile = tile_map_num(_t);
+								DrawSprite2D(tile_bg+anim+2, 120+(64*_t), -22+(32*11), 32, 32, 16, 16, 320, 320, 6, 0xffffffff);
 								DrawSprite2D(tile, 120+(64*_t), -22+(32*11), 32, 32, 16, 16, 320, 320, 5, 0xffffffff);
 							}
 							else
 							{
-								DrawSprite2D(tile_bg+anim+2, 120+(64*_t), -22+(32*11), 32, 32, 16, 16, 320, 320, 6, 0xffffffff);
 								DrawSprite2D(112+anim, 120+(64*_t), -22+(32*11), 32, 32, 16, 16, 320, 320, 5, 0xffffffff);
 							}
 							
@@ -954,11 +1030,11 @@ void drawScene()
 							if(LEVEL<_t)
 							{
 								int tile = tile_map_num(_t);
+								DrawSprite2D(tile_bg+anim+2, 88+(64*_t), -22+(32*11), 32, 32, 16, 16, 320, 320, 6, 0xffffffff);
 								DrawSprite2D(tile, 88+(64*_t), -22+(32*11), 32, 32, 16, 16, 320, 320, 5, 0xffffffff);
 							}
 							else
 							{
-								DrawSprite2D(tile_bg+anim+2, 88+(64*_t), -22+(32*11), 32, 32, 16, 16, 320, 320, 6, 0xffffffff);
 								DrawSprite2D(112+anim, 88+(64*_t), -22+(32*11), 32, 32, 16, 16, 320, 320, 5, 0xffffffff);
 							}
 							
@@ -972,7 +1048,7 @@ void drawScene()
 				DrawSprite2D(getShipRot(ship_r)+anim1, ship_x, ship_y, 32, 32, 16, 16, 320, 320, 5, 0xffffffff);
 				
 				SetFontSize(28, 32);
-				if(!ship_a) DrawTextAligned(0, 372, 756, -22+(32*4), 1, 0xffffffff, 0, 28, langStr[name_test+LEVEL]);
+				if(!ship_a) DrawTextAligned(0, 0, 876, -22+(32*4), 1, 0xffffffff, 0, 28, langStr[name_test+LEVEL]);
 				
 				break;
 			}
@@ -990,7 +1066,7 @@ void drawScene()
 				DrawSpriteUI(-20, -10, 0+(anim*264), 192, 264+(anim*264), 456, 1024, 1024, 94, 94, 1, color);
 				DrawSpriteUI(586, -10, 0+(anim*264), 456, 264+(anim*264), 720, 1024, 1024, 94, 94, 1, color);
 				
-				if((!free_play && LEVEL==8 )|| (free_play && fp_music == 9))
+				if((!free_play && LEVEL==8 )|| enable_9)
 				{
 					int random_mine = RandRange(-999, 999);
 					if(!boss9_cutscene) DrawFString(0, 94, -26, 0xff0000ff, 1, "???");
@@ -998,7 +1074,7 @@ void drawScene()
 				}
 				else DrawFString(0, 94, -26, 0xff0000ff, 1, "%03d", mines_count);
 				
-				if((!free_play && LEVEL==11) || (free_play && fp_music == 14))
+				if((!free_play && LEVEL==11) || enable_12)
 				{
 					int random_time = RandRange(-999, 999);
 					if(!boss12_cutscene) DrawFString(0, 714, -26, 0xff0000ff, 1, "000");
@@ -1172,6 +1248,30 @@ void drawScene()
 			}
 			case ENDING:
 			{
+				if(end_time>0)
+				{
+					if(end_time>1) zez_y = -22; else zez_y = 96;
+					zex_y = lerp(zex_y, zez_y, 0.05f);
+					
+					SetTexture(15+EPISODE);
+					DrawSprite2D(anim3, -40, -22, 916, 582, 1152, 960, 2304, 1920, 1, color);
+					
+					DrawRectangle2D(-40, -22, 916, zex_y, 0x000000ff, -2);
+					DrawRectangle2D(-40, 582-zex_y, 916, 582, 0x000000ff, -2);
+					
+					SetFontSize(28, 32);
+					DrawTextAligned(0, -40, 876, -84+zex_y, 1, 0xff0000ff, 0, 28, "PS3SWEEPER PLUS");
+					DrawTextAligned(0, -40, 876, 608-zex_y, 1, 0xff0000ff, 0, 28, "A GAME BY ACIDNT3.1");
+				}
+				else
+				{
+					zex_y = 96;
+					zez_y = 96;
+				}
+				
+				static int temp_t = 0;
+				temp_t++;
+				DrawFString(0, 0, 0, 0xffffffff, 0, "%d", temp_t);
 				break;
 			}
 			case GOTOSHOP:
@@ -1192,6 +1292,44 @@ void drawScene()
 			}
 			case SHOP:
 			{
+				break;
+			}
+			case CREDITS:
+			{
+				int th = 24;
+				if(specialthanks)
+				{
+					SetFontSize(28, 32);
+					DrawFString(0, ui_x, 4, 0xffffffff, 0, langStr[56]);
+					SetFontSize(20, 24);
+					
+					char crediter[2048];
+					sprintf(crediter, "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s",
+						credits[2], credits[3], credits[10], credits[11], credits[12], credits[13], credits[14],
+						credits[15], credits[16], credits[17], credits[18], credits[19], credits[20], credits[21],
+						credits[22], credits[23]
+					);
+					DrawFString(75, ui_x, 40, 0xffffffff, 0, crediter);
+				}
+				else
+				{
+					SetFontSize(28, 32);
+					DrawFString(0, ui_x, 4, 0xffffffff, 0, langStr[14]);
+					SetFontSize(20, 24);
+					DrawFString(0, ui_x, 40, 0xffffffff, 0, "%s - %s", langStr[52], credits[0]);
+					DrawFString(0, ui_x, 40+th, 0xffffffff, 0, "%s - %s", langStr[55], credits[1]);
+					DrawFString(0, ui_x, 40+(th*2), 0xffffffff, 0, "%s - %s", langStr[59], credits[4]);
+					DrawFString(0, ui_x, 40+(th*3), 0xffffffff, 0, "%s - %s", langStr[60], credits[5]);
+					DrawFString(0, ui_x, 40+(th*4), 0xffffffff, 0, "%s - %s", langStr[70], credits[6]);
+					DrawFString(0, ui_x, 40+(th*5), 0xffffffff, 0, "%s - %s", langStr[71], credits[7]);
+					DrawFString(0, ui_x, 40+(th*6), 0xffffffff, 0, "%s - %s", langStr[72], credits[8]);
+					DrawFString(0, ui_x, 40+(th*7), 0xffffffff, 0, "%s - %s", langStr[73], credits[9]);
+					//DrawFString(0, ui_x, 40+(th*8), 0xffffffff, 0, "%s - %s", langStr[74], credits[10]);
+				}
+				
+				DrawButton(ui_x, 484, 1, 0);
+				DrawFString(0, ui_x + 36, 484, 0xffffffff, 0, "%s         < - %s          > - %s", langStr[32], langStr[14], langStr[56]);
+				
 				break;
 			}
 			default: break;
@@ -1228,7 +1366,7 @@ void drawScene()
 	
 	DrawFade();
 	
-	if(((!free_play && LEVEL==11) || (free_play && fp_music == 14)) && !can_move_xd)
+	if(((!free_play && LEVEL==11) || enable_12) && !can_move_xd)
 	{
 		tiny3d_BlendFunc(1, TINY3D_BLEND_FUNC_SRC_RGB_ONE_MINUS_DST_COLOR | TINY3D_BLEND_FUNC_SRC_ALPHA_ONE,
 			TINY3D_BLEND_FUNC_DST_RGB_ZERO | TINY3D_BLEND_FUNC_DST_ALPHA_ZERO, TINY3D_BLEND_RGB_FUNC_ADD | TINY3D_BLEND_ALPHA_FUNC_ADD);
@@ -1303,7 +1441,7 @@ void DrawFString(int wrap, float x, float y, u32 textColor, int BW, const char *
 
 int GetFontWidth(const char *text, int fz)
 {
-    return strlen(text) * fz;
+    return (int)(strlen(text) * fz * 0.55f);
 }
 
 void DrawTextAligned(int wrap, float x1, float x2, float y, int align, u32 tc, int bw, int fsize, const char *text, ...)

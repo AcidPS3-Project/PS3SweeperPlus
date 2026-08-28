@@ -9,9 +9,16 @@ bool play_map_bgm = false;
 int start_menu = 0;
 int start_game_mus = 0;
 int startbgmgtsp = 0;
+int start_shop = 0;
+int start_end = 0;
+int start_credits = 0;
 
 int LEVEL_BKP = 0;
 int ready_to_click = 0;
+
+int rank_result = 0;
+
+bool HELL = false;
 
 void ResetGrid()
 {
@@ -37,7 +44,15 @@ void ResetGrid()
 	boss11_cutscene = 0;
 	boss12_cutscene = 0;
 	
-	if(LEVEL==8 || (free_play && desired_bgm == 9))
+	if(free_play && desired_bgm == 9) enable_9 = true;
+	if(free_play && desired_bgm == 10) enable_10 = true;
+	if(free_play && desired_bgm == 11) enable_11 = true;
+	if(free_play && desired_bgm == 14) enable_12 = true;
+	if(free_play && desired_bgm == 15) enable_nan = true;
+	
+	if(enable_9 && enable_10 && enable_11 && enable_12) HELL = true;
+	
+	if(LEVEL==8 || enable_9)
 	{
 		SetupBoss9Positions(boss9_count);
 		if(free_play)
@@ -50,7 +65,7 @@ void ResetGrid()
 			// "Clicking on a mine will make the time run out faster. To win, you must click SQUARE ONLY AFTER revealing all the tiles that don't contain mines.\n"
 			// "If the timer hits 0, or you click on the boss before revealing the entire grid, it's game over.", EmptyDialogCallback, NULL, NULL);
 	}
-	else if(LEVEL==9 || (free_play && desired_bgm == 10))
+	if(LEVEL==9 || enable_10)
 	{
 		SetupBoss10Positions(boss10_count);
 		if(free_play)
@@ -64,7 +79,7 @@ void ResetGrid()
 			// "The boss will move faster and faster every time you click. Clicking on a mine will cause the boss to count down more quickly.\n"
 			// "To win, reveal the entire grid before the boss is able to finish its countdown.", EmptyDialogCallback, NULL, NULL);
 	}
-	else if(LEVEL==10 || (free_play && desired_bgm == 11))
+	if(LEVEL==10 || enable_11)
 	{
 		SetupBoss11Positions(boss11_count);
 		if(free_play)
@@ -75,7 +90,7 @@ void ResetGrid()
 		// msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
 			// "ELEVEN TEMP DESCRIPTION", EmptyDialogCallback, NULL, NULL);
 	}
-	else if(LEVEL==11 || (free_play && desired_bgm == 14))
+	if(LEVEL==11 || enable_12)
 	{
 		SetupBoss12Position();
 		if(free_play)
@@ -86,7 +101,7 @@ void ResetGrid()
 		// msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
 			// "TWELVE TEMP DESCRIPTION", EmptyDialogCallback, NULL, NULL);
 	}
-	else if(LEVEL==12 || (free_play && desired_bgm == 15))
+	if(LEVEL==12 || enable_nan)
 	{
 		SetupBossNaNPositions(bossnan_count);
 		if(free_play)
@@ -118,6 +133,12 @@ void ResetGrid()
 void GoBackToTitle()
 {
 	current_minecoins = 0;
+	
+	enable_9 = false;
+	enable_10 = false;
+	enable_11 = false;
+	enable_12 = false;
+	enable_nan = false;
 	
 	if(free_play) LEVEL=LEVEL_BKP;
 	
@@ -163,7 +184,7 @@ char custom_win_path[256];
 int main(int argc, const char* argv[])
 {
 	padInfo padinfo;
-	int dick, ip;
+	int ip;
 	static padData oldpad;
 	padData paddata;
 	
@@ -285,22 +306,16 @@ int main(int argc, const char* argv[])
 								
 								if(paddata.BTN_TRIANGLE && !oldpad.BTN_TRIANGLE)
 								{
-									char ze_credits[512];
-									sprintf(ze_credits,"%s\n\n"
-										"%s %s\n"
-										"%s %s\n\n"
-										"%s\n\n"
-										"%s\n"
-										"%s\n",
-										langStr[14],
-										langStr[52], credits[0],
-										langStr[55], credits[1],
-										langStr[56],
-										credits[2], credits[3]
-									);
-									DebugLog(ze_credits);
-									msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
-										ze_credits, EmptyDialogCallback, NULL, NULL);
+									start_credits = 1;
+									ready_to_click = 0;
+									FadeInOut(&currentScreen, CREDITS);
+								}
+								
+								if(paddata.BTN_SELECT && !oldpad.BTN_SELECT)
+								{
+									start_end = 1;
+									ready_to_click = 0;
+									FadeInOut(&currentScreen, ENDING);
 								}
 							}
 							break;
@@ -342,7 +357,21 @@ int main(int argc, const char* argv[])
 											fp_height = 48;
 											fp_mines = 111;
 											LEVEL_BKP = LEVEL;
-											LEVEL = 0;
+											LoadFPLevel();
+											can_move_xd = 1;
+										}
+										if(paddata.BTN_R2 && !oldpad.BTN_R2)
+										{
+											ready_to_click = 0;
+											free_play = 1;
+											fp_width = 16;
+											fp_height = 16;
+											fp_mines = 40;
+											enable_9 = true;
+											enable_10 = true;
+											enable_11 = true;
+											enable_12 = true;
+											LEVEL_BKP = LEVEL;
 											LoadFPLevel();
 											can_move_xd = 1;
 										}
@@ -406,6 +435,7 @@ int main(int argc, const char* argv[])
 											}
 											
 											current_minecoins = 0;
+											mistakes = 0;
 											SetupTimeSettings();
 											StopAudio();
 											PlaySFX(&sfx_gamestart);
@@ -740,8 +770,10 @@ int main(int argc, const char* argv[])
 							{
 								play_map_bgm = false;
 								start_game_mus = 0;
+								if(HELL) desired_bgm = 194;
 								PlayBGM(desired_bgm, 1);
 								ready_to_click = 1;
+								fp_lifes = 3;
 							}
 							
 							if(ready_to_click)
@@ -797,9 +829,8 @@ int main(int argc, const char* argv[])
 
 											if(LEVEL >= max_lvl)
 											{
-												EPISODE++;
-												LEVEL=0;
-												GoBackToTitle();
+												start_end = 1;
+												FadeInOut(&currentScreen, ENDING);
 											}
 											else
 											{
@@ -886,6 +917,31 @@ int main(int argc, const char* argv[])
 													while(board[cursorX][cursorY].mine || board[cursorX][cursorY].neighbors!=0);
 												}
 												
+												if(HELL && FIRST_CLICK)
+												{
+													boss9_started = 1;
+													boss10_started = 1;
+													boss11_started = 1;
+													boss12_started = 1;
+													
+													int i, j, k;
+													for (i = 0; i < boss9_count; i++)
+													{
+														boss9_list[i].active = true;
+													}
+													for (j = 0; j < boss10_count; j++)
+													{
+														boss10_list[j].active = true;
+													}
+													for (k = 0; k < boss11_count; k++)
+													{
+														boss11_list[k].active = true;
+													}
+													
+													boss12.active = true;
+													PlayBGM(195, 1);
+												}
+												
 												FIRST_CLICK = 0;
 												
 												int bonked = 0;
@@ -917,8 +973,7 @@ int main(int argc, const char* argv[])
 														boss9_list[i].active = true;
 													}
 													
-													StopAudio();
-													PlayBGM(11, 1);
+													if(!HELL && !custom_music) PlayBGM(11, 1);
 													if(free_play) desired_bgm = 9;
 												}
 												else if((LEVEL==9 && !boss10_started) || (free_play && boss10_cutscene==2 && !boss10_started))
@@ -931,8 +986,7 @@ int main(int argc, const char* argv[])
 														boss10_list[i].active = true;
 													}
 													
-													StopAudio();
-													PlayBGM(13, 1);
+													if(!HELL && !custom_music) PlayBGM(13, 1);
 													if(free_play) desired_bgm = 10;
 												}
 												else if((LEVEL==10 && !boss11_started) || (free_play && boss11_cutscene==2 && !boss11_started))
@@ -946,16 +1000,16 @@ int main(int argc, const char* argv[])
 													}
 													
 													StopAudio();
-													PlayBGM(16, 1);
+													if(!HELL && !custom_music) PlayBGM(16, 1);
 													if(free_play) desired_bgm = 11;
 												}
 												else if((LEVEL==11 && !boss12_started) || (free_play && boss12_cutscene==2 && !boss12_started))
 												{
 													boss12_started = 1;
 													boss12.active = true;
-													StopAudio();
-													PlayBGM(20, 1);
-													if(free_play) desired_bgm = 12;
+													
+													if(!HELL && !custom_music) PlayBGM(20, 1);
+													if(free_play) desired_bgm = 96;
 												}
 												
 												if (bonked == 0)
@@ -1049,6 +1103,40 @@ int main(int argc, const char* argv[])
 						}
 						case ENDING:
 						{
+							if(start_end)
+							{
+								int max_lvl = episodes[EPISODE-1].level_count;
+								float time_total = 0.0f;
+								
+								for(int _t = 0; _t < max_lvl; _t++)
+								{
+									time_total += level_time[_t];
+								}
+								
+								rank_result = calculate_rank(time_total);
+								printf("RANK: %d\n", rank_result);
+								
+								LEVEL=0;
+								StartSave();
+								start_end = 0;
+								PlayBGM(193, 1);
+								ready_to_click = 1;
+								end_time = 0;
+							}
+							
+							static int temp_t = 0;
+							temp_t++;
+							
+							if(temp_t>100)
+							{
+								if(temp_t>384)
+								{
+									end_time = 2;
+								}
+								else end_time = 1;
+							}
+							
+							
 							break;
 						}
 						case GOTOSHOP:
@@ -1056,7 +1144,7 @@ int main(int argc, const char* argv[])
 							if(startbgmgtsp)
 							{
 								startbgmgtsp = 0;
-								PlayBGM(9, 1);
+								PlayBGM(9, 0);
 							}
 							
 							ship_r=0;
@@ -1065,6 +1153,7 @@ int main(int argc, const char* argv[])
 							{
 								if(ship_x <= -38.0f+(32*15))
 								{
+									start_shop = 1;
 									FadeInOut(&currentScreen, SHOP);
 									ship_x+=1.75f;
 								}
@@ -1073,6 +1162,41 @@ int main(int argc, const char* argv[])
 						}
 						case SHOP:
 						{
+							if(start_shop)
+							{
+								start_shop = 0;
+								PlayBGM(197, 1);
+								ready_to_click = 1;
+							}
+							
+							break;
+						}
+						case CREDITS:
+						{
+							if(start_credits)
+							{
+								specialthanks = false;
+								start_credits = 0;
+								PlayBGM(192, 1);
+								ready_to_click = 1;
+							}
+							
+							if(ready_to_click)
+							{
+								if(paddata.BTN_LEFT && !oldpad.BTN_LEFT) specialthanks = false;
+								if(paddata.BTN_RIGHT && !oldpad.BTN_RIGHT) specialthanks = true;
+								
+								if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE)
+								{
+									ready_to_click = 0;
+									splash = splashes_random[rand() % SplashesCount()];
+									StopAudio();
+									start_music = 1;
+									FadeInOut(&currentScreen, TITLE);
+									PlaySFX(&sfx_gamestart);
+								}
+							}
+							
 							break;
 						}
 						default: break;
@@ -1110,18 +1234,21 @@ int main(int argc, const char* argv[])
 		
 		if(timer_running && !paused) timer_seconds += 0.018f;
 		
-		if(boss10_started && !disable_control)
+		if(boss10_started)
 		{
 			int i;
 
 			for (i = 0; i < boss10_count; i++)
 			{
-				boss10_list[i].timer += boss10_list[i].speed;
-				if(boss10_list[i].timer > 1.0f)
+				if(!disable_control)
 				{
-					boss10_list[i].timer = 0.0f;
-					boss10_list[i].time--;
-					if(boss10_list[i].time<=0) game_lost();
+					boss10_list[i].timer += boss10_list[i].speed;
+					if(boss10_list[i].timer > 1.0f)
+					{
+						boss10_list[i].timer = 0.0f;
+						boss10_list[i].time--;
+						if(boss10_list[i].time<=0) game_lost();
+					}
 				}
 				
 				boss10_update(i);
@@ -1137,7 +1264,7 @@ int main(int argc, const char* argv[])
 			}
 		}
 		
-		if(boss12_started && !disable_control) boss12_update();
+		if(boss12_started) boss12_update(disable_control);
 		
 		if(disable_control && !gamelose && !gamewin)
 		{
@@ -1148,7 +1275,11 @@ int main(int argc, const char* argv[])
 				disable_control = 0;
 				
 				if(free_play && fp_music<9) fp_lifes--;
-				else if(LEVEL<8) LIFES--;
+				else
+				{
+					mistakes++;
+					if(LEVEL<8) LIFES--;
+				}
 				
 				SpawnProjectile(offset_x+(cursorX*RENDER_SIZE), offset_y+(cursorY*RENDER_SIZE), 0, 0, 0, 1.0f);
 				if((fp_lifes < 1 && free_play) || (LIFES < 1))
@@ -1174,10 +1305,7 @@ int main(int argc, const char* argv[])
 					ioPadGetData(ip, &paddata);
 					if(paddata.BTN_CROSS && !oldpad.BTN_CROSS)
 					{
-						for (dick = 0; dick < RandRange(20, 666); dick++)
-						{
-							splash = splashes_random[RandRange(20, SplashesCount())];
-						}
+						splash = splashes_random[RandRange(0, SplashesCount())];
 						
 						DebugLog("LOGOSHOW");
 						

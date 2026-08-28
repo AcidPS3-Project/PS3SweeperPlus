@@ -13,7 +13,12 @@ void SetupBoss9Positions(int count)
 
     memset(boss9_list, 0, sizeof(boss9_list));
 
-    switch (count)
+	if(free_play) for (int i = 0; i < count; i++)
+    {
+		boss9_list[i].x = RandRange(pad, GRID_W - 1 - pad);
+		boss9_list[i].y = RandRange(pad, GRID_H - 1 - pad);
+	}
+    else switch(count)
     {
         case 1:
             boss9_list[0].x = cx;

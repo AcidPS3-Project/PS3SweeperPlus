@@ -37,14 +37,28 @@ typedef enum GameScreen
 	GAME,
 	ENDING,
 	GOTOSHOP,
-	SHOP
+	SHOP,
+	CREDITS
 }
 GameScreen;
 
 extern GameScreen currentScreen;
 extern int vdec_picout_pending;
 
+typedef struct
+{
+    float angle;
+    float speed;
+    u32 color;
+} BossTriangle;
+
+BossTriangle boss_triangles[3];
+
+extern int end_time;
+
 extern u32 *texture_pointer;
+
+void DrawRectangle2D(float x, float y, float w, float h, u32 rgba, float l);
 
 int getCaptainState(int anim_z, int anim1_z, int anim2_z);
 int getHatState(int hat, int anim_z);

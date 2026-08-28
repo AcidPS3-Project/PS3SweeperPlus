@@ -23,8 +23,22 @@ void SetupBoss10Positions(int count)
 	boss10_count = count;
 
     memset(boss10_list, 0, sizeof(boss10_list));
+	
+	if(free_play) for (int i = 0; i < count; i++)
+    {
+		float TMP_SIZ = 3.0f * RENDERING_PIXELS;
+		float boss_half = (TMP_SIZ * 3.0f * 1.1f) * 0.5f;
+		float boundary = 384.0f / 4;
+		
+		float leftz   = boss_half - boundary;
+		float rightz  = (screen_w*2) - boss_half + boundary - TMP_SIZ;
+		float topz    = boss_half - boundary;
+		float bottomz = (screen_h*2) - boss_half + boundary - TMP_SIZ;
 
-    switch (count)
+		boss10_list[i].x = RandRange(leftz, rightz);
+		boss10_list[i].y = RandRange(topz, bottomz);
+	}
+	else switch(count)
     {
         case 1:
             boss10_list[0].x = cx;
