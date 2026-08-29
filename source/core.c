@@ -459,12 +459,10 @@ void WinCheck()
 		}
 		
 		level_minecoins = calculate_score();
-		if(!free_play)
-		{
-			level_time[LEVEL] = timer_seconds;
-			current_minecoins += level_minecoins;
-		}
-		global_minecoins += current_minecoins;
+		current_minecoins += level_minecoins;
+		
+		if(!free_play) level_time[LEVEL] = timer_seconds;
+		else global_minecoins += current_minecoins;
 	}
 	else if(LEVEL==8) game_lost();
 }
@@ -738,16 +736,6 @@ void MoveCursor(int dx, int dy)
 int calculate_rank(float time)
 {
 	int rank = 7;
-	
-	// RANKS GUIDE:
-	// 7 - Master
-	// 6 - Super
-	// 5 - Awesome
-	// 4 - Bold
-	// 3 - Cool
-	// 2 - Dull
-	// 1 - Embarasing
-	// 0 - Failure
 	
 	switch(EPISODE)
 	{

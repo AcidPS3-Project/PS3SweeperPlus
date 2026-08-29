@@ -11,6 +11,12 @@ int ship_y = -22;
 int ship_r = 0;
 bool ship_a = false;
 
+bool show_shit = false;
+
+int rank_result = 0;
+
+bool easter_egg = false;
+
 bool button_x_hold = false;
 bool button_start_hold = false;
 bool paused = false;
@@ -19,6 +25,8 @@ int global_minecoins = 0;
 int current_minecoins = 0;
 int level_minecoins = 0;
 float RENDER_SIZE;
+
+float time_total = 0.0f;
 
 int RENDERING_PIXELS = 16;
 float RENDERING_SIZE = 2.0f;
@@ -483,13 +491,18 @@ void SplashesInit()
 	splashes_random[splash_count++] = "JACK BEATED THE OG GAME WITH EVERY M RANK";
 	splashes_random[splash_count++] = "I dare anyone complete Expert 10 without dying";
 	splashes_random[splash_count++] = "Sweepers gonna sweep";
-	splashes_random[splash_count++] = "3.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.";
 	splashes_random[splash_count++] = "Don't forget to feed me with a spoon!";
 	//splashes_random[splash_count++] = "Hi, Xbox Original :)";
 	//splashes_random[splash_count++] = "I wonder what I can do for Mac OS 9 tho...";
 	splashes_random[splash_count++] = "Cutscenes?";
 	splashes_random[splash_count++] = "v0.4 is here. Prepare thyself!!!";
 	splashes_random[splash_count++] = "BUGS. I HATE BUGS!!!!";
+	splashes_random[splash_count++] = "Hate Lesbian Space Princess. Love PS3Sweeper+.";
+	splashes_random[splash_count++] = "Ay, mate! Don't get snowgraved, heh!";
+	splashes_random[splash_count++] = "Frozen Nine is not related to Deltarune.";
+	splashes_random[splash_count++] = "He's gonna take you back to the past.";
+	splashes_random[splash_count++] = "Does not contain too much if else stuff!";
+	splashes_random[splash_count++] = "Waiting for TPOT 25...";
 	
 	FILE *za = fopen("/dev_hdd0/game/ACIDSTORE/ICON0.PNG", "rb");
 	if(za!=NULL)
@@ -710,6 +723,9 @@ void init_bgm()
 	bgm[162]=lsrs_ogg_bin;bgm_size[162]=lsrs_ogg_bin_size;
 	bgm[163]=lss3m_ogg_bin;bgm_size[163]=lss3m_ogg_bin_size;
 	bgm[164]=ls12_ogg_bin;bgm_size[164]=ls12_ogg_bin_size;
+	
+	bgm[191] = untitled_ogg_bin;
+	bgm_size[191] = untitled_ogg_bin_size;
 	
 	bgm[192] = credits_ogg_bin;
 	bgm_size[192] = credits_ogg_bin_size;

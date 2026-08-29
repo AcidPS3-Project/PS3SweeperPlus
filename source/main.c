@@ -16,8 +16,6 @@ int start_credits = 0;
 int LEVEL_BKP = 0;
 int ready_to_click = 0;
 
-int rank_result = 0;
-
 bool HELL = false;
 
 void ResetGrid()
@@ -266,6 +264,7 @@ int main(int argc, const char* argv[])
 								playing_bgm = true;
 								PlayBGM(0, 1);
 								ready_to_click = 1;
+								easter_egg = false;
 							}
 							
 							if(settings_select)
@@ -740,7 +739,7 @@ int main(int argc, const char* argv[])
 									case 2:
 									{
 										ship_r = 0;
-										ship_y = -22+(32*9);
+										ship_y = -22+(32*6);
 										if(ship_x < 120.0f+(64*(LEVEL+1)))
 										{
 											ship_x+=0.75f;
@@ -788,7 +787,6 @@ int main(int argc, const char* argv[])
 									}
 									if(!paddata.BTN_START && oldpad.BTN_START)
 									{
-										ready_to_click = 0;
 										paused = false;
 										SND_Pause(0);
 									}
@@ -1103,10 +1101,11 @@ int main(int argc, const char* argv[])
 						}
 						case ENDING:
 						{
+							int max_lvl = episodes[EPISODE-1].level_count;
 							if(start_end)
 							{
-								int max_lvl = episodes[EPISODE-1].level_count;
-								float time_total = 0.0f;
+								show_shit = false;
+								time_total = 0.0f;
 								
 								for(int _t = 0; _t < max_lvl; _t++)
 								{
@@ -1119,7 +1118,7 @@ int main(int argc, const char* argv[])
 								LEVEL=0;
 								StartSave();
 								start_end = 0;
-								PlayBGM(193, 1);
+								PlayBGM(193, 0);
 								ready_to_click = 1;
 								end_time = 0;
 							}
@@ -1131,11 +1130,44 @@ int main(int argc, const char* argv[])
 							{
 								if(temp_t>384)
 								{
-									end_time = 2;
+									if(temp_t>484)
+									{
+										if(temp_t>916)
+										{
+											if(temp_t>964)
+											{
+												if(temp_t>1012)
+												{
+													if(temp_t>1152) show_shit = true;
+													end_time = 6 + max_lvl;
+												}
+												else end_time = 5 + max_lvl;
+											}
+											else end_time = 4 + max_lvl;
+										}
+										else
+										{
+											int s = (temp_t-460) / 24;
+											if(s>=max_lvl) s = max_lvl;
+											end_time = 3+s;
+										}
+									}
+									else end_time = 2;
 								}
 								else end_time = 1;
 							}
 							
+							if(show_shit && ready_to_click)
+							{
+								if(paddata.BTN_START && !oldpad.BTN_START)
+								{
+									ready_to_click = 0;
+									splash = splashes_random[rand() % SplashesCount()];
+									start_music = 1;
+									FadeInOut(&currentScreen, TITLE);
+									PlaySFX(&sfx_gamestart);
+								}
+							}
 							
 							break;
 						}
@@ -1177,7 +1209,14 @@ int main(int argc, const char* argv[])
 							{
 								specialthanks = false;
 								start_credits = 0;
-								PlayBGM(192, 1);
+								
+								if(RandRange(0, 10) == 3)
+								{
+									PlayBGM(191, 1);
+									easter_egg = true;
+								}
+								else PlayBGM(192, 1);
+								
 								ready_to_click = 1;
 							}
 							
@@ -1247,7 +1286,11 @@ int main(int argc, const char* argv[])
 					{
 						boss10_list[i].timer = 0.0f;
 						boss10_list[i].time--;
-						if(boss10_list[i].time<=0) game_lost();
+						if(boss10_list[i].time<=0)
+						{
+							if(free_play) fp_lifes=1; else LIFES=1;
+							game_lost();
+						}
 					}
 				}
 				

@@ -1030,15 +1030,15 @@ void drawScene()
 							if(LEVEL<_t)
 							{
 								int tile = tile_map_num(_t);
-								DrawSprite2D(tile_bg+anim+2, 88+(64*_t), -22+(32*11), 32, 32, 16, 16, 320, 320, 6, 0xffffffff);
-								DrawSprite2D(tile, 88+(64*_t), -22+(32*11), 32, 32, 16, 16, 320, 320, 5, 0xffffffff);
+								DrawSprite2D(tile_bg+anim+2, 88+(64*_t), -22+(32*8), 32, 32, 16, 16, 320, 320, 6, 0xffffffff);
+								DrawSprite2D(tile, 88+(64*_t), -22+(32*8), 32, 32, 16, 16, 320, 320, 5, 0xffffffff);
 							}
 							else
 							{
-								DrawSprite2D(112+anim, 88+(64*_t), -22+(32*11), 32, 32, 16, 16, 320, 320, 5, 0xffffffff);
+								DrawSprite2D(112+anim, 88+(64*_t), -22+(32*8), 32, 32, 16, 16, 320, 320, 5, 0xffffffff);
 							}
 							
-							DrawSprite2D(241 + grid_bg, 120+(64*_t), -22+(32*11), 32, 32, 16, 16, 320, 320, 4, 0xffffffff);
+							DrawSprite2D(241 + grid_bg, 120+(64*_t), -22+(32*8), 32, 32, 16, 16, 320, 320, 4, 0xffffffff);
 						}
 						break;
 					}
@@ -1257,11 +1257,69 @@ void drawScene()
 					DrawSprite2D(anim3, -40, -22, 916, 582, 1152, 960, 2304, 1920, 1, color);
 					
 					DrawRectangle2D(-40, -22, 916, zex_y, 0x000000ff, -2);
-					DrawRectangle2D(-40, 582-zex_y, 916, 582, 0x000000ff, -2);
+					DrawRectangle2D(-40, 562-zex_y, 916, 582, 0x000000ff, -2);
 					
 					SetFontSize(28, 32);
-					DrawTextAligned(0, -40, 876, -84+zex_y, 1, 0xff0000ff, 0, 28, "PS3SWEEPER PLUS");
-					DrawTextAligned(0, -40, 876, 608-zex_y, 1, 0xff0000ff, 0, 28, "A GAME BY ACIDNT3.1");
+					if(end_time<3)
+					{
+						DrawTextAligned(0, -40, 876, -84+zex_y, 1, 0xff0000ff, 1, 28, "PS3SWEEPER+");
+						DrawTextAligned(0, -40, 876, 588-zex_y, 1, 0xff0000ff, 1, 28, "INSPIRED BY MINESWEEPER PLUS");
+					}
+					else
+					{
+						int c = end_time - 3;
+						int zs_x = 20;
+						int max_lvl = episodes[EPISODE-1].level_count;
+						int name_test = 0;
+						static int test_x = 1000;
+						
+						if(EPISODE==1) name_test = 60;
+						
+						for(int d = 0; d < c; d++)
+						{
+							int b = c-d;
+							int a = b-max_lvl;
+							
+							int icon = tile_map_num(b);
+							
+							if(a==1) icon = 35; else if(a==2) icon = 133; else if(a==3) icon = 114;
+							
+							SetTexture(1);
+							DrawSprite2D(icon, zs_x - 32, 512-(32*d)+4, 32, 32, 16, 16, 320, 320, 0, 0xffffffff);
+							
+							if(b>max_lvl)
+							{
+								if(a == 1) DrawFString(0, zs_x, 512-(32*d), 0xffffffff, 0, "Total Time: %.2f", time_total);
+								if(a == 2) DrawFString(0, zs_x, 512-(32*d), 0xffffffff, 0, "Coins Earned: %d", current_minecoins);
+								if(a == 3) DrawFString(0, zs_x, 512-(32*d), 0xffffffff, 0, "Mistakes Made: %d", mistakes);
+							}
+							else DrawFString(0, zs_x, 512-(32*d), 0xffffffff, 0, "%s: %.2f", langStr[name_test+b], level_time[b-1]);
+						}
+						
+						if(show_shit)
+						{
+							DrawTextAligned(0, -40, 876, 32, 1, 0xff0000ff, 0, 28, "FINAL RANK:");
+							int rank_letter = 0;
+							test_x = lerp(test_x, 484, 0.05f);
+							
+							switch(rank_result)
+							{
+								case 0: rank_letter = 307; break; // Failure
+								case 1: rank_letter = 306; break; // Embarasing
+								case 2: rank_letter = 287; break; // Dull
+								case 3: rank_letter = 286; break; // Cool
+								case 4: rank_letter = 267; break; // Bold
+								case 5: rank_letter = 266; break; // Awesome
+								case 6: rank_letter = 247; break; // Super
+								case 7: rank_letter = 246; break; // Master
+							}
+							
+							SetTexture(1);
+							DrawSprite2D(rank_letter, 512, 20, 64, 64, 16, 16, 320, 320, 0, 0xffffffff);
+							
+							DrawFString(0, test_x, 448, 0xffffffff, 0, "Press Start");
+						}
+					}
 				}
 				else
 				{
@@ -1269,9 +1327,6 @@ void drawScene()
 					zez_y = 96;
 				}
 				
-				static int temp_t = 0;
-				temp_t++;
-				DrawFString(0, 0, 0, 0xffffffff, 0, "%d", temp_t);
 				break;
 			}
 			case GOTOSHOP:
@@ -1330,6 +1385,11 @@ void drawScene()
 				DrawButton(ui_x, 484, 1, 0);
 				DrawFString(0, ui_x + 36, 484, 0xffffffff, 0, "%s         < - %s          > - %s", langStr[32], langStr[14], langStr[56]);
 				
+				if(easter_egg)
+				{
+					SetTexture(15);
+					DrawSprite2D(8+anim3, 684, 432, 78*2, 49*2, 78, 49, 312, 147, 5, 0xffffffff);
+				}
 				break;
 			}
 			default: break;

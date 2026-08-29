@@ -123,6 +123,7 @@ const char *credits[256];
 #include "ending_ogg_bin.h"
 #include "shop_ogg_bin.h"
 #include "credits_ogg_bin.h"
+#include "untitled_ogg_bin.h"
 
 #include "fourofakind_intro_ogg_bin.h"
 #include "fourofakind_ogg_bin.h"
@@ -152,6 +153,13 @@ extern float ship_x;
 extern int ship_y;
 extern int ship_r;
 extern bool ship_a;
+
+extern float time_total;
+
+extern bool show_shit;
+extern int rank_result;
+
+extern bool easter_egg;
 
 extern int global_minecoins;
 extern int current_minecoins;
