@@ -10,7 +10,7 @@ typedef struct
     bool active;
     float x, y;
     float hsp, vsp;
-	float tspeed;
+	float tspeed, beep_timer;
     int time;
 	float speed, timer, pulse;
 } Boss10;

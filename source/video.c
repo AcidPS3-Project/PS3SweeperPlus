@@ -117,7 +117,7 @@ int PS3Video_Init(PS3Video *video, u32 width, u32 height)
     config.ppu_thread_prio = 500;
     config.ppu_thread_stack_size = 0x10000;
     config.spu_thread_prio = 250;
-    config.num_spus = 1;
+    config.num_spus = 2;
 
     memset(&closure, 0, sizeof(closure));
 

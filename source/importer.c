@@ -7,7 +7,7 @@ int current_bgm = 1;
 int desired_bgm = 1;
 
 float ship_x = -40.0f;
-int ship_y = -22;
+float ship_y = -22.0f;
 int ship_r = 0;
 bool ship_a = false;
 
@@ -175,9 +175,9 @@ void LangInit()
 			langStr[6] = "Please, do NOT turn off your PlayStation 3 system while the \"Saving...\"";
 			langStr[7] = "text is on-screen.";
 			langStr[8] = "I understand.";
-			langStr[9] = "This game is in early development stage.";
-			langStr[10] = "Please join my discord server to not miss out new updates!";
-			langStr[11] = "LINK: https://discord.gg/7XuQDYjyzt";
+			langStr[9] = "FINAL RANK";
+			langStr[10] = "Thanks for Playing!";
+			langStr[11] = "Press Start";
 			langStr[12] = "There is nothing to load.";
 			langStr[13] = "Start the Game.";
 			langStr[14] = "Credits";
@@ -206,7 +206,7 @@ void LangInit()
 			langStr[37] = "GAME OVER";
 			langStr[38] = "LEVEL CLEAR!";
 			langStr[39] = "Minecoins";
-			langStr[40] = "seconds";
+			langStr[40] = "s";
 			langStr[41] = "Next Level";
 			langStr[42] = "Save and Quit";
 			langStr[43] = "Reset game";
@@ -218,10 +218,10 @@ void LangInit()
 			langStr[49] = "Error! Image's width or height are WAY above 2048 pixels.";
 			langStr[50] = "Error!\nFile not found in:\n\"/dev_usb000/SWEEPING/bgm.mp3\" (or bgm.ogg)!";
 			langStr[51] = "Warning!\nFile not found in:\n\"/dev_usb000/SWEEPING/win.mp3\" (or win.ogg)!\nIt is not necessary, but winning music won't play.";
-			langStr[52] = "Original Minesweeper Plus game made by";
+			langStr[52] = "Original Minesweeper Plus game";
 			langStr[53] = "Error! Image's width and height don't match!!";
 			langStr[54] = "Use Custom Sweeper";
-			langStr[55] = "Half-Mine Related Sprites by";
+			langStr[55] = "Half-Mine Related Sprites";
 			langStr[56] = "Special Thanks";
 			langStr[57] = "Paused";
 			langStr[58] = "Four of a Kind";
@@ -240,7 +240,22 @@ void LangInit()
 			langStr[71] = "Touhou Stuff";
 			langStr[72] = "Alien Captain's Hat";
 			langStr[73] = "Frozen Captain Sprite";
-			langStr[74] = "";
+			langStr[74] = "THE FREEZING CIRCLE";
+			langStr[75] = "THE NUCLEAR WASTE";
+			langStr[76] = "THE GENOCIDE GARDEN";
+			langStr[77] = "Total Time";
+			langStr[78] = "Coins Earned";
+			langStr[79] = "Mistakes Made";
+			langStr[80] = "The Shallow End";
+			langStr[81] = "Fountain Flows";
+			langStr[82] = "Silent Marsh";
+			langStr[83] = "Murky Swamp";
+			langStr[84] = "Crazy Cove";
+			langStr[85] = "Raging Rapids";
+			langStr[86] = "Gulf of Misery";
+			langStr[87] = "Black Water";
+			langStr[88] = "The Deep End";
+			langStr[89] = "THE DEVIL'S PASSAGE";
 			break;
 		}
 		case 1: // Русский Язык
@@ -263,9 +278,9 @@ void LangInit()
 			langStr[6] = "Пожалуйста, не выключайте ваш PlayStation 3 когда текст";
 			langStr[7] = "\"Сохраняю...\" находится на экране.";
 			langStr[8] = "Хорошо.";
-			langStr[9] = "Эта игра находится в раннем этапе разработки.";
-			langStr[10] = "Пожалуйста, присоединяйтесь к моему дискорд серверу, чтобы не";
-			langStr[11] = "пропустить обновления! ССЫЛКА: https://discord.gg/7XuQDYjyzt";
+			langStr[9] = "ФИНАЛЬНАЯ ОЦЕНКА";
+			langStr[10] = "Спасибо за Игру!";
+			langStr[11] = "Нажмите Start";
 			langStr[12] = "Здесь нечего загружать.";
 			langStr[13] = "Начать игру";
 			langStr[14] = "Благодарность";
@@ -294,7 +309,7 @@ void LangInit()
 			langStr[37] = "ИГРА ОКОНЧЕНА";
 			langStr[38] = "ПРОЙДЕНО!";
 			langStr[39] = "Бомба-коины";
-			langStr[40] = "секунд";
+			langStr[40] = "сек";
 			langStr[41] = "Следующий уровень";
 			langStr[42] = "Сохранить и выйти";
 			langStr[43] = "Сбросить игру";
@@ -306,15 +321,15 @@ void LangInit()
 			langStr[49] = "Ошибка! Ширина или длина изображения превышают 2048 пикселей.";
 			langStr[50] = "Ошибка!\nФайл не найден:\n\"/dev_usb000/SWEEPING/bgm.mp3\" (или bgm.ogg)!";
 			langStr[51] = "Предупреждение!\nФайл не найден:\n\"/dev_usb000/SWEEPING/win.mp3\" (или win.ogg)!\nЭто не особо важно, но возможно звук победы не заиграет.";
-			langStr[52] = "Оригинальная игра Сапер Плюс от";
+			langStr[52] = "Оригинальная игра Сапер Плюс";
 			langStr[53] = "Ошибка! Ширина и длина изображения не совпадают!!";
 			langStr[54] = "Использовать своего сапера";
-			langStr[55] = "Спрайты связанные с полу-минами от";
+			langStr[55] = "Спрайты связанные с полу-минами";
 			langStr[56] = "СПЕЦИАЛЬНАЯ БЛАГОДАРНОСТЬ";
 			langStr[57] = "Пауза";
-			langStr[58] = "";
-			langStr[59] = "";
-			langStr[60] = "";
+			langStr[58] = "Квартет Смерти";
+			langStr[59] = "Механики Ледяной Девятки";
+			langStr[60] = "Идея Радиактивной Десятки";
 			langStr[61] = "Детский Бассейн";
 			langStr[62] = "Дождевая Лужа";
 			langStr[63] = "Малый Пруд";
@@ -324,6 +339,26 @@ void LangInit()
 			langStr[67] = "Открытый Океан";
 			langStr[68] = "Море Мертвеца";
 			langStr[69] = "ДЬЯВОЛЬСКИЙ ТРЕУГОЛЬНИК";
+			langStr[70] = "Оригинальная Музыка Девятки";
+			langStr[71] = "Все связанное с Touhou";
+			langStr[72] = "Шляпа Инопланетного Капитана";
+			langStr[73] = "Спрайт Замороженного Капитана";
+			langStr[74] = "ОБМЕРЗШИЙ КРУГ";
+			langStr[75] = "ЯДЕРНЫЕ ОТХОДЫ";
+			langStr[76] = "САД ГЕНОЦИДА";
+			langStr[77] = "Всего времени прошло";
+			langStr[78] = "Заработано Бомба-коинов";
+			langStr[79] = "Сделано Ошибок";
+			langStr[80] = "Мелководья";
+			langStr[81] = "Парящий Фонтан";
+			langStr[82] = "Тихий Марш";
+			langStr[83] = "Скользкое Болото";
+			langStr[84] = "Безумные Подмостья";
+			langStr[85] = "Быстрая Агрессия";
+			langStr[86] = "Дно Страданий";
+			langStr[87] = "Черная вода";
+			langStr[88] = "Глубочайший Конец";
+			langStr[89] = "ДЬЯВОЛЬСКАЯ ПРОПАСТЬ";
 			break;
 		}
 		case 2: // Қазақ Тілі
@@ -349,9 +384,9 @@ void LangInit()
 			langStr[6] = "Пожалуйста, не выключайте ваш PlayStation 3 когда текст";
 			langStr[7] = "\"Сақтамың...\" находится на экране.";
 			langStr[8] = "Жарайды.";
-			langStr[9] = "Эта игра находится в раннем этапе разработки.";
-			langStr[10] = "Пожалуйста, присоединяйтесь к моему дискорд серверу, чтобы не";
-			langStr[11] = "пропустить обновления! ССЫЛКА: https://discord.gg/7XuQDYjyzt";
+			langStr[9] = "ФИНАЛЬНАЯ ОЦЕНКА";
+			langStr[10] = "Спасибо за Игру!";
+			langStr[11] = "Нажмите Start";
 			langStr[12] = "Здесь нечего загружать.";
 			langStr[13] = "Бастау";
 			langStr[14] = "Алғыс";
@@ -380,7 +415,7 @@ void LangInit()
 			langStr[37] = "ОЙНА БОЛДЫ";
 			langStr[38] = "КЕРЕМЕТ!";
 			langStr[39] = "Бомба-коинлер";
-			langStr[40] = "секунд";
+			langStr[40] = "сек";
 			langStr[41] = "Келесі ?????";
 			langStr[42] = "Сақтау және Шығу";
 			langStr[43] = "Сбросить игру";
@@ -392,15 +427,15 @@ void LangInit()
 			langStr[49] = "Ошибка! Ширина или длина изображения превышают 2048 пикселей.";
 			langStr[50] = "Ошибка!\nФайл не найден:\n\"/dev_usb000/SWEEPING/bgm.mp3\" (или bgm.ogg)!";
 			langStr[51] = "Предупреждение!\nФайл не найден:\n\"/dev_usb000/SWEEPING/win.mp3\" (или win.ogg)!\nЭто не особо важно, но возможно звук победы не заиграет.";
-			langStr[52] = "Оригинальная игра Сапер Плюс от";
+			langStr[52] = "Оригинальная игра Сапер Плюс";
 			langStr[53] = "Ошибка! Ширина и длина изображения не совпадают!!";
 			langStr[54] = "Использовать своего сапера";
-			langStr[55] = "Спрайты связанные с полу-минами от";
+			langStr[55] = "Спрайты связанные с полу-минами";
 			langStr[56] = "ҮЛКЕН РАХМЕТ";
 			langStr[57] = "Пауза";
-			langStr[58] = "";
-			langStr[59] = "";
-			langStr[60] = "";
+			langStr[58] = "Квартет Смерти";
+			langStr[59] = "Механики Ледяной Девятки";
+			langStr[60] = "Идея Радиактивной Десятки";
 			langStr[61] = "Балаларың Бассейн";
 			langStr[62] = "Дождевая Лужа";
 			langStr[63] = "Малый Пруд";
@@ -410,6 +445,26 @@ void LangInit()
 			langStr[67] = "Открытый Океан";
 			langStr[68] = "Море Мертвеца";
 			langStr[69] = "ДЬЯВОЛЬСКИЙ ТРЕУГОЛЬНИК";
+			langStr[70] = "Оригинальная Музыка Девятки";
+			langStr[71] = "Все связанное с Touhou";
+			langStr[72] = "Шляпа Инопланетного Капитана";
+			langStr[73] = "Спрайт Замороженного Капитана";
+			langStr[74] = "ОБМЕРЗШИЙ КРУГ";
+			langStr[75] = "ЯДЕРНЫЕ ОТХОДЫ";
+			langStr[76] = "САД ГЕНОЦИДА";
+			langStr[77] = "Всего времени прошло";
+			langStr[78] = "Заработано Бомба-коинов";
+			langStr[79] = "Сделано Ошибок";
+			langStr[80] = "Мелководья";
+			langStr[81] = "Парящий Фонтан";
+			langStr[82] = "Тихий Марш";
+			langStr[83] = "Скользкое Болото";
+			langStr[84] = "Безумные Подмостья";
+			langStr[85] = "Быстрая Агрессия";
+			langStr[86] = "Дно Страданий";
+			langStr[87] = "Қара су";
+			langStr[88] = "Глубочайший Конец";
+			langStr[89] = "ДЬЯВОЛЬСКАЯ ПРОПАСТЬ";
 			break;
 		}
 	}
@@ -502,7 +557,8 @@ void SplashesInit()
 	splashes_random[splash_count++] = "Frozen Nine is not related to Deltarune.";
 	splashes_random[splash_count++] = "He's gonna take you back to the past.";
 	splashes_random[splash_count++] = "Does not contain too much if else stuff!";
-	splashes_random[splash_count++] = "Waiting for TPOT 25...";
+	splashes_random[splash_count++] = "One of the First PS3 games that support Kazakh Language!";
+	splashes_random[splash_count++] = "";
 	
 	FILE *za = fopen("/dev_hdd0/game/ACIDSTORE/ICON0.PNG", "rb");
 	if(za!=NULL)
@@ -781,6 +837,7 @@ void init_sfx()
 	LoadSFX(&sfx_level, level_start_ogg_bin, level_start_ogg_bin_size);
 	LoadSFX(&sfx_level2, level_start2_mp3_bin, level_start2_mp3_bin_size);
 	LoadSFX(&sfx_gamestart, game_start_mp3_bin, game_start_mp3_bin_size);
+	LoadSFX(&sfx_beep, beep_ogg_bin, beep_ogg_bin_size);
 }
 
 int RandRange(int min, int max)

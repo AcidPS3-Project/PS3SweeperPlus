@@ -141,6 +141,7 @@ const char *credits[256];
 #include "eleven_bonk_ogg_bin.h"
 #include "logo_mp3_bin.h"
 #include "cash_register_mp3_bin.h"
+#include "beep_ogg_bin.h"
 
 #include "level_start_ogg_bin.h"
 #include "level_start2_mp3_bin.h"
@@ -150,7 +151,7 @@ extern int current_bgm;
 extern int desired_bgm;
 
 extern float ship_x;
-extern int ship_y;
+extern float ship_y;
 extern int ship_r;
 extern bool ship_a;
 
@@ -260,6 +261,7 @@ SoundEffect sfx_buy;
 SoundEffect sfx_gamestart;
 SoundEffect sfx_level;
 SoundEffect sfx_level2;
+SoundEffect sfx_beep;
 
 #define BGM_LIST 200
 

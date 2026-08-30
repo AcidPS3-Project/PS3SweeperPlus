@@ -48,9 +48,15 @@ void ResetGrid()
 	if(free_play && desired_bgm == 14) enable_12 = true;
 	if(free_play && desired_bgm == 15) enable_nan = true;
 	
+	if(LEVEL==8) enable_9 = true;
+	if(LEVEL==9) enable_10 = true;
+	if(LEVEL==10) enable_11 = true;
+	if(LEVEL==11) enable_12 = true;
+	if(LEVEL==12) enable_nan = true;
+	
 	if(enable_9 && enable_10 && enable_11 && enable_12) HELL = true;
 	
-	if(LEVEL==8 || enable_9)
+	if(enable_9)
 	{
 		SetupBoss9Positions(boss9_count);
 		if(free_play)
@@ -63,7 +69,7 @@ void ResetGrid()
 			// "Clicking on a mine will make the time run out faster. To win, you must click SQUARE ONLY AFTER revealing all the tiles that don't contain mines.\n"
 			// "If the timer hits 0, or you click on the boss before revealing the entire grid, it's game over.", EmptyDialogCallback, NULL, NULL);
 	}
-	if(LEVEL==9 || enable_10)
+	if(enable_10)
 	{
 		SetupBoss10Positions(boss10_count);
 		if(free_play)
@@ -77,7 +83,7 @@ void ResetGrid()
 			// "The boss will move faster and faster every time you click. Clicking on a mine will cause the boss to count down more quickly.\n"
 			// "To win, reveal the entire grid before the boss is able to finish its countdown.", EmptyDialogCallback, NULL, NULL);
 	}
-	if(LEVEL==10 || enable_11)
+	if(enable_11)
 	{
 		SetupBoss11Positions(boss11_count);
 		if(free_play)
@@ -88,7 +94,7 @@ void ResetGrid()
 		// msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
 			// "ELEVEN TEMP DESCRIPTION", EmptyDialogCallback, NULL, NULL);
 	}
-	if(LEVEL==11 || enable_12)
+	if(enable_12)
 	{
 		SetupBoss12Position();
 		if(free_play)
@@ -99,7 +105,7 @@ void ResetGrid()
 		// msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
 			// "TWELVE TEMP DESCRIPTION", EmptyDialogCallback, NULL, NULL);
 	}
-	if(LEVEL==12 || enable_nan)
+	if(enable_nan)
 	{
 		SetupBossNaNPositions(bossnan_count);
 		if(free_play)
@@ -187,7 +193,7 @@ int main(int argc, const char* argv[])
 	padData paddata;
 	
 	srand(time(NULL));
-	tiny3d_Init(1024*1024);
+	tiny3d_Init(4*1024*1024);
 	tiny3d_UserViewport(1, 0, 0, (float)(Video_Resolution.width / 916.0f), (float)(Video_Resolution.height / 582.0f),
 		(float)(Video_Resolution.width / 1920.0f), (float)(Video_Resolution.height / 1080.0f));
 	
@@ -310,12 +316,7 @@ int main(int argc, const char* argv[])
 									FadeInOut(&currentScreen, CREDITS);
 								}
 								
-								if(paddata.BTN_SELECT && !oldpad.BTN_SELECT)
-								{
-									start_end = 1;
-									ready_to_click = 0;
-									FadeInOut(&currentScreen, ENDING);
-								}
+								if(paddata.BTN_SELECT && !oldpad.BTN_SELECT) LEVEL=8;
 							}
 							break;
 						}
@@ -689,6 +690,8 @@ int main(int argc, const char* argv[])
 								{
 									case 1:
 									{
+										ship_r = 0;
+										ship_y = -22.0f+(32*9);
 										if(LEVEL==0) lvl_slct_bgm = 151;
 										else if(LEVEL==1) lvl_slct_bgm = 151;
 										else if(LEVEL==2) lvl_slct_bgm = 152;
@@ -701,15 +704,21 @@ int main(int argc, const char* argv[])
 									}
 									case 2:
 									{
-										if(LEVEL==0) lvl_slct_bgm = 155;
-										else if(LEVEL==1) lvl_slct_bgm = 155;
-										else if(LEVEL==2) lvl_slct_bgm = 156;
-										else if(LEVEL==3) lvl_slct_bgm = 156;
-										else if(LEVEL==4) lvl_slct_bgm = 157;
-										else if(LEVEL==5) lvl_slct_bgm = 157;
-										else if(LEVEL==6) lvl_slct_bgm = 158;
-										else if(LEVEL==7) lvl_slct_bgm = 158;
-										else if(LEVEL==8) lvl_slct_bgm = 159;
+										ship_r = 0;
+										ship_y = -22.0f+(32*7);
+										
+										switch(LEVEL)
+										{
+											case 0: lvl_slct_bgm = 155; ship_x = -80.0f; ship_y = -22.0f+(32*7); break;
+											case 1: lvl_slct_bgm = 155; ship_x = 88.0f+(64*4); ship_y = -22.0f+(32*7); break;
+											case 2: lvl_slct_bgm = 156; ship_x = 88.0f+(64*5); ship_y = -22.0f+(32*7); break;
+											case 3: lvl_slct_bgm = 156; ship_x = 88.0f+(64*6); ship_y = -22.0f+(32*7); break;
+											case 4: lvl_slct_bgm = 157; ship_x = 88.0f+(64*6)+32; ship_y = -22.0f+(32*10); break;
+											case 5: lvl_slct_bgm = 157; ship_x = 88.0f+(64*6)+32; ship_y = -22.0f+(32*12); break;
+											case 6: lvl_slct_bgm = 158; ship_x = 88.0f+(64*5); ship_y = -22.0f+(32*13); break;
+											case 7: lvl_slct_bgm = 158; ship_x = 88.0f+(64*4); ship_y = -22.0f+(32*13); break;
+											case 8: lvl_slct_bgm = 159; ship_x = 88.0f+(64*3)+32; ship_y = -22.0f+(32*10); break;
+										}
 										break;
 									}
 									default: break;
@@ -720,29 +729,91 @@ int main(int argc, const char* argv[])
 								ready_to_click = 1;
 							}
 							
-							ship_r=0;
 							if(ship_a)
 							{
 								switch(EPISODE)
 								{
 									case 1:
 									{
-										ship_r = 0;
-										ship_y = -22+(32*9);
-										if(ship_x < 120.0f+(64*(LEVEL+1)))
+										if(LEVEL<8)
 										{
-											ship_x+=0.75f;
+											if(ship_x < 120.0f+(64*(LEVEL+1))) ship_x+=0.75f;
+											else ship_a = false;
 										}
-										else ship_a = false;
+										else
+										{
+											if(ship_x < 1314.0f) ship_x+=0.75f;
+											else ship_a = false;
+										}
+										
+										if(ship_x > 876.0f && ship_x < 877.0f) PlayBGM(159, 1);
+										
 										break;
 									}
 									case 2:
 									{
-										ship_r = 0;
-										ship_y = -22+(32*6);
-										if(ship_x < 120.0f+(64*(LEVEL+1)))
+										if(LEVEL == 0 && (ship_x < 88.0f+(64*4))) ship_x+=0.75f;
+										else if(LEVEL == 1 && (ship_x < 88.0f+(64*5))) ship_x+=0.75f;
+										else if(LEVEL == 2 && (ship_x < 88.0f+(64*6))) ship_x+=0.75f;
+										else if(LEVEL == 3)
 										{
-											ship_x+=0.75f;
+											if(ship_x < 88.0f+(64*6)+32) ship_x+=0.75f;
+											else
+											{
+												ship_r = 1;
+												if(ship_y < -22.0f+(32*10)) ship_y+=0.75f;
+												else ship_a = false;
+											}
+										}
+										else if(LEVEL == 4)
+										{
+											ship_r = 1;
+											if(ship_y < -22.0f+(32*12)) ship_y+=0.75f;
+											else ship_a = false;
+										}
+										else if(LEVEL == 5)
+										{
+											if(ship_y < -22.0f+(32*13))
+											{
+												ship_r = 1;
+												ship_y+=0.75f;
+											}
+											else
+											{
+												ship_r = 2;
+												if(ship_x > 88.0f+(64*5)) ship_x-=0.75f;
+												else ship_a = false;
+											}
+										}
+										else if(LEVEL == 6)
+										{
+											ship_r = 2;
+											if(ship_x > 88.0f+(64*4)) ship_x-=0.75f;
+											else ship_a = false;
+										}
+										else if(LEVEL == 7)
+										{
+											if(ship_x > 88.0f+(64*3)+32) ship_x-=0.75f;
+											else
+											{
+												ship_r = 1;
+												if(ship_y > -22.0f+(32*10)) ship_y-=0.75f;
+												else ship_a = false;
+											}
+										}
+										else if(LEVEL == 8)
+										{
+											if(ship_y > -22.0f+(32*9))
+											{
+												ship_r = 1;
+												ship_y-=0.75f;
+											}
+											else
+											{
+												ship_r = 2;
+												if(ship_x > 88.0f+(64*5)) ship_x+=0.75f;
+												else ship_a = false;
+											}
 										}
 										else ship_a = false;
 										break;
@@ -757,7 +828,10 @@ int main(int argc, const char* argv[])
 									ready_to_click = 0;
 									StopAudio();
 									LoadLevel(LEVEL);
-									PlaySFX(&sfx_level);
+									
+									if(LEVEL>=8) PlaySFX(&sfx_level2);
+									else PlaySFX(&sfx_level);
+									
 									can_move_xd = 1;
 								}
 							}
@@ -1115,6 +1189,8 @@ int main(int argc, const char* argv[])
 								rank_result = calculate_rank(time_total);
 								printf("RANK: %d\n", rank_result);
 								
+								global_minecoins += current_minecoins;
+								
 								LEVEL=0;
 								StartSave();
 								start_end = 0;
@@ -1245,7 +1321,7 @@ int main(int argc, const char* argv[])
 			}
 		}
 
-		if(boss9_started && !disable_control)
+		if(boss9_started && !disable_control && enable_9)
 		{
 			int i;
 			for (i = 0; i < boss9_count; i++)
@@ -1273,15 +1349,35 @@ int main(int argc, const char* argv[])
 		
 		if(timer_running && !paused) timer_seconds += 0.018f;
 		
-		if(boss10_started)
+		if(boss10_started && enable_10)
 		{
 			int i;
 
 			for (i = 0; i < boss10_count; i++)
 			{
-				if(!disable_control)
+				if(!gamelose)
 				{
 					boss10_list[i].timer += boss10_list[i].speed;
+					
+					if(boss10_list[i].time <= 5 && boss10_list[i].time > 0)
+					{
+						boss10_list[i].beep_timer -= boss10_list[i].speed;
+						
+						if(boss10_list[i].beep_timer <= 0.0f)
+						{
+							PlaySFX(&sfx_beep);
+							float t = 60.0f * 0.018f;
+							switch(boss10_list[i].time)
+							{
+								case 5: boss10_list[i].beep_timer = t / 1.5f; break;
+								case 4: boss10_list[i].beep_timer = t / 2.0f; break;
+								case 3: boss10_list[i].beep_timer = t / 4.0f; break;
+								case 2: boss10_list[i].beep_timer = t / 10.0f; break;
+								case 1: boss10_list[i].beep_timer = t / 15.0f; break;
+							}
+						}
+					}
+					
 					if(boss10_list[i].timer > 1.0f)
 					{
 						boss10_list[i].timer = 0.0f;
@@ -1298,7 +1394,7 @@ int main(int argc, const char* argv[])
 			}
 		}
 		
-		if(boss11_started && !disable_control)
+		if(boss11_started && !disable_control && enable_11)
 		{
 			int i;
 			for (i = 0; i < boss11_count; i++)
@@ -1307,7 +1403,7 @@ int main(int argc, const char* argv[])
 			}
 		}
 		
-		if(boss12_started) boss12_update(disable_control);
+		if(boss12_started && enable_12) boss12_update(disable_control);
 		
 		if(disable_control && !gamelose && !gamewin)
 		{
@@ -1324,8 +1420,9 @@ int main(int argc, const char* argv[])
 					if(LEVEL<8) LIFES--;
 				}
 				
+				CalculateNumbers();
 				SpawnProjectile(offset_x+(cursorX*RENDER_SIZE), offset_y+(cursorY*RENDER_SIZE), 0, 0, 0, 1.0f);
-				if((fp_lifes < 1 && free_play) || (LIFES < 1))
+				if((fp_lifes < 1 && free_play) || (!free_play && LIFES < 1))
 				{
 					disable_control = 1;
 					gamelose = 1;

@@ -296,25 +296,28 @@ void CalculateNumbers()
 					
 					if(!board[nx][ny].active) continue;
 					
-                    if(board[nx][ny].doublemine)
+					if(!board[nx][ny].revealed)
 					{
-						count += 4;
-						hasMine = true;
-					}
-					else if(board[nx][ny].halfmine)
-					{
-						count++;
-						hasMine = true;
-					}
-					else if(board[nx][ny].antimine)
-					{
-						count -= 2;
-						hasMine = true;
-					}
-                    else if(board[nx][ny].mine)
-					{
-						count += 2;
-						hasMine = true;
+						if(board[nx][ny].doublemine)
+						{
+							count += 4;
+							hasMine = true;
+						}
+						else if(board[nx][ny].halfmine)
+						{
+							count++;
+							hasMine = true;
+						}
+						else if(board[nx][ny].antimine)
+						{
+							count -= 2;
+							hasMine = true;
+						}
+						else if(board[nx][ny].mine)
+						{
+							count += 2;
+							hasMine = true;
+						}
 					}
                 }
             }
@@ -560,6 +563,7 @@ void Chord(int x, int y)
 {
     if(x < 0 || y < 0 || x >= GRID_W || y >= GRID_H) return;
     if(!board[x][y].revealed) return;
+    if(board[x][y].mine) return;
 	if(board[x][y].neighbors == 0 && !board[x][y].hasNeighborMines) return;
 	
     int required = board[x][y].neighbors;
@@ -589,8 +593,9 @@ void Chord(int x, int y)
 					if(!board[nx][ny].active) continue;
                     if(board[nx][ny].flagged==0)
                     {
-                        if(board[nx][ny].mine)
+                        if(board[nx][ny].mine && !board[nx][ny].revealed)
                         {
+							board[nx][ny].revealed = 1;
                             game_lost();
                             return;
                         }

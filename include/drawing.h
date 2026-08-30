@@ -54,6 +54,14 @@ typedef struct
 
 BossTriangle boss_triangles[3];
 
+typedef struct
+{
+    int x;
+    int y;
+} LevelSelectPos;
+
+static const LevelSelectPos level_positions[9];
+
 extern int end_time;
 
 extern u32 *texture_pointer;
