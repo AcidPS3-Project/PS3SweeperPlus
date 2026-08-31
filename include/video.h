@@ -1,8 +1,6 @@
 #ifndef VIDEO_H
 #define VIDEO_H
 
-#include "importer.h"
-
 typedef struct
 {
     u32 vdec_handle;

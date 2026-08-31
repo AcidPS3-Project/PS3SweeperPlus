@@ -1,8 +1,14 @@
-#include "video.h"
 #include <codec/vdec.h>
 #include <ppu-asm.h>
 #include <rsx/rsx.h>
 #include <rsx/gcm_sys.h>
+#include <ppu-types.h>
+#include <sys/process.h>
+#include <sys/memory.h>
+#include <tiny3d.h>
+
+#include "libraries.h"
+#include "video.h"
 
 int vdec_picout_pending = 0;
 

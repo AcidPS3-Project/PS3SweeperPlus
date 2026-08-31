@@ -1,6 +1,15 @@
+#include <sysmodule/sysmodule.h>
+#include <ppu-types.h>
+#include <sys/process.h>
+#include <sys/memory.h>
+#include <sys/thread.h>
+
+#include "libraries.h"
 #include "save.h"
 #include "importer.h"
 #include "core.h"
+
+#include "icon0_bin.h"
 
 SaveData gSave;
 sysSaveBufferSettings buffer;
@@ -122,9 +131,9 @@ void save_file_cb(sysSaveCallbackResult *result, sysSaveFileIn *in, sysSaveFileO
 		{
             out->fileOperation = SYS_SAVE_FILE_OPERATION_WRITE;
             out->fileType      = SYS_SAVE_FILETYPE_CONTENT_ICON0;
-            out->buffer     = (void *)icon0_png_bin;
-            out->bufferSize = icon0_png_bin_size;
-            out->size       = icon0_png_bin_size;
+            out->buffer     = (void *)icon0_bin;
+            out->bufferSize = icon0_bin_size;
+            out->size       = icon0_bin_size;
 
             result->result = SYS_SAVE_CALLBACK_RESULT_CONTINUE;
 			result->incrementProgress = 10;

@@ -1,6 +1,7 @@
 #ifndef CORE_H
 #define CORE_H
 
+#include "soundlib/audioplayer.h"
 #include "libraries.h"
 #include "importer.h"
 

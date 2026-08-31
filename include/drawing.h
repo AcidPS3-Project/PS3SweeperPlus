@@ -61,6 +61,7 @@ typedef struct
 } LevelSelectPos;
 
 static const LevelSelectPos level_positions[9];
+static const LevelSelectPos level_positions2[10];
 
 extern int end_time;
 

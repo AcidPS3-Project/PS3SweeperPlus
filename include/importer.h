@@ -1,151 +1,14 @@
 #ifndef IMPORTER_H
 #define IMPORTER_H
 
-#include "libraries.h"
+#include <pngdec/pngdec.h>
+#include <sysutil/msg.h>
 
 extern char global_name[];
 extern char global_version[];
 
 const char *langStr[1024];
 const char *credits[256];
-
-#include "asimov_ttf_bin.h"
-
-#include "soundlib/spu_soundlib.h"
-#include "soundlib/audioplayer.h"
-#include "spu_soundmodule.bin.h"
-
-// IMPORT IMAGES
-#include "captain_sheet_png_bin.h"
-#include "hats_sheet_png_bin.h"
-#include "tiles_sheet_png_bin.h"
-#include "ui_sheet_png_bin.h"
-
-#include "boss_sheet_png_bin.h"
-#include "boss1_sheet_png_bin.h"
-#include "dualboss_sheet_png_bin.h"
-#include "cursed_sheet_png_bin.h"
-
-#include "background_sheet_png_bin.h"
-#include "end1_png_bin.h"
-#include "end2_png_bin.h"
-#include "end3_png_bin.h"
-
-#include "menu_sheet_png_bin.h"
-#include "coin_png_bin.h"
-#include "buttons_png_bin.h"
-#include "explosion_png_bin.h"
-#include "explosion_anti_png_bin.h"
-#include "shopkeeper_sheet_png_bin.h"
-
-#include "icon0_png_bin.h"
-
-//IMPORT MUSIC
-#include "title_mp3_bin.h"
-
-#include "bgm1_mp3_bin.h"
-#include "bgm2_mp3_bin.h"
-#include "bgm3_mp3_bin.h"
-#include "bgm4_mp3_bin.h"
-#include "bgm5_mp3_bin.h"
-#include "bgm6_mp3_bin.h"
-#include "bgm7_mp3_bin.h"
-#include "bgm8_mp3_bin.h"
-
-#include "bgmrs_mp3_bin.h"
-#include "bgms3m_ogg_bin.h"
-
-#include "win1_mp3_bin.h"
-#include "win2_mp3_bin.h"
-#include "win3_mp3_bin.h"
-#include "win4_mp3_bin.h"
-#include "win5_ogg_bin.h"
-#include "win6_ogg_bin.h"
-#include "win7_ogg_bin.h"
-#include "win8_ogg_bin.h"
-
-#include "winrs_ogg_bin.h"
-#include "wins3m_ogg_bin.h"
-
-#include "ls1_mp3_bin.h"
-#include "ls2_mp3_bin.h"
-#include "ls3_mp3_bin.h"
-#include "ls4_mp3_bin.h"
-#include "ls5_mp3_bin.h"
-#include "ls6_mp3_bin.h"
-#include "ls7_mp3_bin.h"
-#include "ls8_mp3_bin.h"
-
-#include "ls9_mp3_bin.h"
-#include "ls10_mp3_bin.h"
-#include "ls11_mp3_bin.h"
-#include "ls12_ogg_bin.h"
-#include "lsNaN_ogg_bin.h"
-
-#include "lsrs_ogg_bin.h"
-#include "lss3m_ogg_bin.h"
-
-#include "ocean_mp3_bin.h"
-
-#include "boss9_intro_mp3_bin.h"
-#include "boss9_mp3_bin.h"
-#include "boss9_win_ogg_bin.h"
-#include "boss10_intro_mp3_bin.h"
-#include "boss10_mp3_bin.h"
-#include "boss10_win_ogg_bin.h"
-#include "boss11_intro_mp3_bin.h"
-#include "boss11_mp3_bin.h"
-#include "boss11_2_mp3_bin.h"
-#include "boss11_win_ogg_bin.h"
-#include "boss12_intro_ogg_bin.h"
-#include "boss12_ogg_bin.h"
-#include "boss12_2_ogg_bin.h"
-#include "boss12_win_ogg_bin.h"
-
-#include "Ags1_mp3_bin.h"
-#include "Ags2_mp3_bin.h"
-#include "Ags3_mp3_bin.h"
-#include "Ags4_mp3_bin.h"
-#include "Ags5_mp3_bin.h"
-#include "Ags6_mp3_bin.h"
-#include "Ags7_mp3_bin.h"
-#include "Ags8_mp3_bin.h"
-
-#include "Ags9_mp3_bin.h"
-#include "Ags10_mp3_bin.h"
-#include "Ags11_mp3_bin.h"
-#include "Ags12_ogg_bin.h"
-#include "AgsNaN_ogg_bin.h"
-
-#include "Agsrs_mp3_bin.h"
-#include "Agss3m_ogg_bin.h"
-
-#include "ending_ogg_bin.h"
-#include "shop_ogg_bin.h"
-#include "credits_ogg_bin.h"
-#include "untitled_ogg_bin.h"
-
-#include "fourofakind_intro_ogg_bin.h"
-#include "fourofakind_ogg_bin.h"
-
-//IMPORT SFX
-#include "flag_ogg_bin.h"
-#include "unflag_mp3_bin.h"
-#include "nine_move_ogg_bin.h"
-#include "nine_stop_ogg_bin.h"
-#include "ten_bump_ogg_bin.h"
-#include "ten_reset_ogg_bin.h"
-#include "game_mine_ogg_bin.h"
-#include "game_explosion_ogg_bin.h"
-#include "eleven_open_ogg_bin.h"
-#include "eleven_bonk_ogg_bin.h"
-#include "logo_mp3_bin.h"
-#include "cash_register_mp3_bin.h"
-#include "beep_ogg_bin.h"
-
-#include "level_start_ogg_bin.h"
-#include "level_start2_mp3_bin.h"
-#include "game_start_mp3_bin.h"
 
 extern int current_bgm;
 extern int desired_bgm;
@@ -156,6 +19,7 @@ extern int ship_r;
 extern bool ship_a;
 
 extern float time_total;
+extern int ten_arena;
 
 extern bool show_shit;
 extern int rank_result;
@@ -213,7 +77,6 @@ extern int LIFES;
 
 extern int the_bg;
 
-extern int ttf_inited;
 extern int game_loaded;
 extern int free_play;
 extern int draw_grid_outlines;
@@ -262,6 +125,7 @@ SoundEffect sfx_gamestart;
 SoundEffect sfx_level;
 SoundEffect sfx_level2;
 SoundEffect sfx_beep;
+SoundEffect sfx_blackout;
 
 #define BGM_LIST 200
 

@@ -3,6 +3,7 @@
 #include "text.h"
 #include "save.h"
 #include "video.h"
+#include "asimov_ttf_bin.h"
 
 #include "level_data.h"
 
@@ -30,6 +31,20 @@ static const LevelSelectPos level_positions[9] =
     { 88 + (64 * 4), -22 + (32 * 12) }, // 7
     { 88 + (64 * 4), -22 + (32 * 10) }, // 8
     { 88 + (64 * 5), -22 + (32 * 10) }  // 9
+};
+
+static const LevelSelectPos level_positions2[10] = 
+{
+    { 120 + (64 * 4), -22 + (32 * 14)  }, // 1
+    { 120 + (64 * 3), -22 + (32 * 12)  }, // 2
+    { 120 + (64 * 3), -22 + (32 * 10)  }, // 3
+    { 120 + (64 * 4), -22 + (32 * 8) }, // 4
+    { 120 + (64 * 5), -22 + (32 * 8) }, // 5
+    { 120 + (64 * 6), -22 + (32 * 10) }, // 6
+    { 120 + (64 * 6), -22 + (32 * 12) }, // 7
+    { 120 + (64 * 5), -22 + (32 * 14) }, // 8
+    { 120 + (64 * 4), -22 + (32 * 12) },  // 9
+    { 120 + (64 * 5), -22 + (32 * 10) }  // 10
 };
 
 static int fade_mode = FADE_NONE;
@@ -1030,7 +1045,19 @@ void drawScene()
 			{
 				SetTexture(1);
 				DifficultyData *lvl = &episodes[EPISODE-1].levels[LEVEL].difficulties[DIFFICULTY];
+				int max_lvl = episodes[EPISODE-1].level_count;
+				
 				int bg_map = lvl->back;
+				if(LEVEL!=(max_lvl-1))
+				{
+					switch(LEVEL)
+					{
+						case 8: bg_map = 4; break;
+						case 9: bg_map = 9; break;
+						default: break;
+					}
+				}
+					
 				int zp = bg_map/5;
 				int mp = bg_map%5;
 				
@@ -1039,70 +1066,99 @@ void drawScene()
 				
 				static int ep1_x = 0;
 				
-				for(int x0 = -40; x0 < (screen_w * 2) + 99; x0 += 32)
-				{
-					for(int y0 = -22; y0 < (screen_h * 2) + 99; y0 += 32)
-					{
-						DrawSprite2D(tile_bg+anim, x0, y0, 32, 32, 16, 16, 320, 320, 8, 0xffffffff);
-					}
-				}
-				
-				if(EPISODE==1)
-				{
-					DrawRectangle2D(876+ep1_x, -22, 2763, 1000, 0x000000ff, 7);
-					if(ship_x > 876.0f)
-					{
-						ep1_x = lerp(ep1_x, -956, 0.025f);
-						
-						DrawBossTriangles((876/2)+ep1_x+876+12, 560/2, 200);
-						UpdateBossTriangles();
-					}
-				}
-				
 				SetTexture(1);
-				int max_lvl = episodes[EPISODE-1].level_count;
 				int name_test = 0;
 				
 				SetFontSize(28, 32);
 				
-				switch(EPISODE)
+				if(ten_arena<=160)
 				{
-					case 1:
+					for(int x0 = -40; x0 < (screen_w * 2) + 99; x0 += 32)
 					{
-						name_test = 61;
-						for(int _t = 1; _t < max_lvl; _t++)
+						for(int y0 = -22; y0 < (screen_h * 2) + 99; y0 += 32)
 						{
-							if(LEVEL<_t)
+							DrawSprite2D(tile_bg+anim, x0, y0, 32, 32, 16, 16, 320, 320, 8, 0xffffffff);
+						}
+					}
+					switch(EPISODE)
+					{
+						case 1:
+						{
+							name_test = 61;
+							
+							DrawRectangle2D(876+ep1_x, -22, 2763, 1000, 0x000000ff, 7);
+							if(ship_x > 876.0f)
 							{
-								int tile = tile_map_num(_t);
-								DrawSprite2D(tile_bg+anim+2, 120+(64*_t)+ep1_x, -22+(32*11), 32, 32, 16, 16, 320, 320, 6, 0xffffffff);
-								DrawSprite2D(tile, 120+(64*_t), -22+(32*11)+ep1_x, 32, 32, 16, 16, 320, 320, 5, 0xffffffff);
-							}
-							else
-							{
-								DrawSprite2D(112+anim, 120+(64*_t)+ep1_x, -22+(32*11), 32, 32, 16, 16, 320, 320, 5, 0xffffffff);
+								ep1_x = lerp(ep1_x, -956, 0.025f);
+								
+								DrawBossTriangles((876/2)+ep1_x+876+12, 560/2, 200);
+								UpdateBossTriangles();
 							}
 							
-							DrawSprite2D(241 + grid_bg, 120+(64*_t)+ep1_x, -22+(32*11), 32, 32, 16, 16, 320, 320, 4, 0xffffffff);
+							for(int _t = 1; _t < max_lvl; _t++)
+							{
+								if(LEVEL<_t)
+								{
+									int tile = tile_map_num(_t);
+									DrawSprite2D(tile_bg+anim+2, 120+(64*_t)+ep1_x, -22+(32*11), 32, 32, 16, 16, 320, 320, 6, 0xffffffff);
+									DrawSprite2D(tile, 120+(64*_t), -22+(32*11)+ep1_x, 32, 32, 16, 16, 320, 320, 5, 0xffffffff);
+								}
+								else
+								{
+									DrawSprite2D(112+anim, 120+(64*_t)+ep1_x, -22+(32*11), 32, 32, 16, 16, 320, 320, 5, 0xffffffff);
+								}
+								
+								DrawSprite2D(241 + grid_bg, 120+(64*_t)+ep1_x, -22+(32*11), 32, 32, 16, 16, 320, 320, 4, 0xffffffff);
+							}
+							break;
 						}
-						break;
-					}
-					case 2:
-					{
-						name_test = 80;
-						
-						for(int b = 0; b < 9; b++)
+						case 2:
 						{
-							DrawLevelIcon(b + 1, level_positions[b].x, level_positions[b].y, anim, tile_bg);
+							name_test = 80;
 							
-							int b1 = b % 3;
-							int b2 = b / 3;
-							DrawSprite2D(241 + grid_bg, 88+(64*(4+b2)), -22+(64*(4+b1)), 32, 32, 16, 16, 320, 320, 4, 0xffffffff);
+							for(int b = 0; b < 9; b++)
+							{
+								DrawLevelIcon(b + 1, level_positions[b].x, level_positions[b].y, anim, tile_bg);
+								
+								int b1 = b % 3;
+								int b2 = b / 3;
+								DrawSprite2D(241 + grid_bg, 88+(64*(4+b2)), -22+(64*(4+b1)), 32, 32, 16, 16, 320, 320, 4, 0xffffffff);
+							}
+							
+							break;
 						}
-						
-						break;
+						case 3:
+						{
+							name_test = 80;
+							
+							for(int b = 0; b < 10; b++)
+							{
+								DrawLevelIcon(b + 1, level_positions2[b].x, level_positions2[b].y, anim, tile_bg);
+								
+								int b1 = 0;
+								int b2 = 0;
+								
+								switch(b)
+								{
+									case 0: b1 = 0; b2 = 1; break;
+									case 1: b1 = 0; b2 = 2; break;
+									case 2: b1 = 1; b2 = 0; break;
+									case 3: b1 = 1; b2 = 2; break;
+									case 4: b1 = 1; b2 = 3; break;
+									case 5: b1 = 2; b2 = 0; break;
+									case 6: b1 = 2; b2 = 1; break;
+									case 7: b1 = 2; b2 = 3; break;
+									case 8: b1 = 3; b2 = 1; break;
+									case 9: b1 = 3; b2 = 2; break;
+								}
+								
+								DrawSprite2D(241 + grid_bg, 120+(64*(3+b2)), -22+(64*(4+b1)), 32, 32, 16, 16, 320, 320, 4, 0xffffffff);
+							}
+							
+							break;
+						}
+						default: break;
 					}
-					default: break;
 				}
 				
 				DrawSprite2D(getShipRot(ship_r)+anim1, ship_x+ep1_x, ship_y, 32, 32, 16, 16, 320, 320, 0, 0xffffffff);
@@ -1335,6 +1391,7 @@ void drawScene()
 						static int test_x = 1000;
 						
 						if(EPISODE==1) name_test = 60;
+						else if(EPISODE==2) name_test = 79;
 						
 						for(int d = 0; d < c; d++)
 						{

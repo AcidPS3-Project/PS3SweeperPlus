@@ -1,7 +1,10 @@
 #ifndef TEXT_H
 #define TEXT_H
 
-#include "libraries.h"
+#include <libfont.h>
+#include <ft2build.h>
+#include <freetype/freetype.h> 
+#include <freetype/ftglyph.h>
 
 FT_Library freetype;
 FT_Face face;

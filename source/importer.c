@@ -1,4 +1,9 @@
 #include "importer.h"
+#include "assets.h"
+#include "libraries.h"
+#include "soundlib/spu_soundlib.h"
+#include "soundlib/audioplayer.h"
+#include "spu_soundmodule.bin.h"
 
 char global_name[] = "PS3Sweeper+";
 char global_version[] = "v0.4";
@@ -14,6 +19,7 @@ bool ship_a = false;
 bool show_shit = false;
 
 int rank_result = 0;
+int ten_arena = 0;
 
 bool easter_egg = false;
 
@@ -79,7 +85,6 @@ int LIFES = 3;
 
 int the_bg = 0;
 
-int ttf_inited = 0;
 int game_loaded = 0;
 int free_play = 0;
 int draw_grid_outlines = 0;
@@ -614,108 +619,108 @@ void init_bgm()
 		bgm_end[z] = sex;
 	}
 	
-	bgm[0] = title_mp3_bin;
-	bgm_size[0] = title_mp3_bin_size;
+	bgm[0] = title_bin;
+	bgm_size[0] = title_bin_size;
 	
-	bgm[1] = bgm1_mp3_bin;
-	bgm_size[1] = bgm1_mp3_bin_size;
+	bgm[1] = bgm1_bin;
+	bgm_size[1] = bgm1_bin_size;
 	bgm_start[1] = 499;
 	bgm_end[1] = 45281;
 	
-	bgm[2] = bgm2_mp3_bin;
-	bgm_size[2] = bgm2_mp3_bin_size;
+	bgm[2] = bgm2_bin;
+	bgm_size[2] = bgm2_bin_size;
 	bgm_start[2] = 7801;
 	bgm_end[2] = 54617;
 	
-	bgm[3] = bgm3_mp3_bin;
-	bgm_size[3] = bgm3_mp3_bin_size;
+	bgm[3] = bgm3_bin;
+	bgm_size[3] = bgm3_bin_size;
 	bgm_start[3] = 0;
 	bgm_end[3] = sex;
 	
-	bgm[4] = bgm4_mp3_bin;
-	bgm_size[4] = bgm4_mp3_bin_size;
+	bgm[4] = bgm4_bin;
+	bgm_size[4] = bgm4_bin_size;
 	bgm_start[4] = 1782;
 	bgm_end[4] = 137481;
 	
-	bgm[5] = bgm5_mp3_bin;
-	bgm_size[5] = bgm5_mp3_bin_size;
+	bgm[5] = bgm5_bin;
+	bgm_size[5] = bgm5_bin_size;
 	
-	bgm[6] = bgm6_mp3_bin;
-	bgm_size[6] = bgm6_mp3_bin_size;
+	bgm[6] = bgm6_bin;
+	bgm_size[6] = bgm6_bin_size;
 	bgm_start[6] = 13439;
 	bgm_end[6] = 69080;
 	
-	bgm[7] = bgm7_mp3_bin;
-	bgm_size[7] = bgm7_mp3_bin_size;
+	bgm[7] = bgm7_bin;
+	bgm_size[7] = bgm7_bin_size;
 	
-	bgm[8] = bgm8_mp3_bin;
-	bgm_size[8] = bgm8_mp3_bin_size;
+	bgm[8] = bgm8_bin;
+	bgm_size[8] = bgm8_bin_size;
 	bgm_start[8] = 6548;
 	bgm_end[8] = 104708-10;
 	
-	bgm[9] = ocean_mp3_bin;
-	bgm_size[9] = ocean_mp3_bin_size;
+	bgm[9] = ocean_bin;
+	bgm_size[9] = ocean_bin_size;
 	
-	bgm[10] = boss9_intro_mp3_bin;
-	bgm_size[10] = boss9_intro_mp3_bin_size;
+	bgm[10] = boss9_intro_bin;
+	bgm_size[10] = boss9_intro_bin_size;
 	bgm_start[10] = 29632;
 	bgm_end[10] = 33763;
 	
-	bgm[11] = boss9_mp3_bin;
-	bgm_size[11] = boss9_mp3_bin_size;
+	bgm[11] = boss9_bin;
+	bgm_size[11] = boss9_bin_size;
 	bgm_start[11] = 10995;
 	bgm_end[11] = 100527;
 	
-	bgm[12] = boss10_intro_mp3_bin;
-	bgm_size[12] = boss10_intro_mp3_bin_size;
+	bgm[12] = boss10_intro_bin;
+	bgm_size[12] = boss10_intro_bin_size;
 	bgm_start[12] = 23725;
 	bgm_end[12] = 26893;
 	
-	bgm[13] = boss10_mp3_bin;
-	bgm_size[13] = boss10_mp3_bin_size;
+	bgm[13] = boss10_bin;
+	bgm_size[13] = boss10_bin_size;
 	
-	bgm[15] = boss11_intro_mp3_bin;
-	bgm_size[15] = boss11_intro_mp3_bin_size;
+	bgm[15] = boss11_intro_bin;
+	bgm_size[15] = boss11_intro_bin_size;
 	bgm_start[15] = 42881;
 	bgm_end[15] = 70250-10;
 	
-	bgm[16] = boss11_mp3_bin;
-	bgm_size[16] = boss11_mp3_bin_size;
+	bgm[16] = boss11_bin;
+	bgm_size[16] = boss11_bin_size;
 	bgm_start[16] = 3438;
 	bgm_end[16] = 127540-10;
 	
-	bgm[17] = bgmrs_mp3_bin;
-	bgm_size[17] = bgmrs_mp3_bin_size;
+	bgm[17] = bgmrs_bin;
+	bgm_size[17] = bgmrs_bin_size;
 	bgm_start[17] = 44300;
 	bgm_end[17] = 103380;
 	
-	bgm[18] = bgms3m_ogg_bin;
-	bgm_size[18] = bgms3m_ogg_bin_size;
+	bgm[18] = bgms3m_bin;
+	bgm_size[18] = bgms3m_bin_size;
 	bgm_start[18] = 44300;
 	bgm_end[18] = 103380;
 	
-	bgm[19] = boss12_intro_ogg_bin;
-	bgm_size[19] = boss12_intro_ogg_bin_size;
+	bgm[19] = boss12_intro_bin;
+	bgm_size[19] = boss12_intro_bin_size;
 	bgm_start[19] = 23283;
 	bgm_end[19] = 35027-10;
 	
-	bgm[20] = boss12_ogg_bin;
-	bgm_size[20] = boss12_ogg_bin_size;
+	bgm[20] = boss12_bin;
+	bgm_size[20] = boss12_bin_size;
 	
-	bgm[51]=Ags1_mp3_bin;bgm_size[51]=Ags1_mp3_bin_size;
-	bgm[52]=Ags2_mp3_bin;bgm_size[52]=Ags2_mp3_bin_size;
-	bgm[53]=Ags3_mp3_bin;bgm_size[53]=Ags3_mp3_bin_size;
-	bgm[54]=Ags4_mp3_bin;bgm_size[54]=Ags4_mp3_bin_size;
-	bgm[55]=Ags5_mp3_bin;bgm_size[55]=Ags5_mp3_bin_size;
-	bgm[56]=Ags6_mp3_bin;bgm_size[56]=Ags6_mp3_bin_size;
-	bgm[57]=Ags7_mp3_bin;bgm_size[57]=Ags7_mp3_bin_size;
-	bgm[58]=Ags8_mp3_bin;bgm_size[58]=Ags8_mp3_bin_size;
-	bgm[59]=Ags9_mp3_bin;bgm_size[59]=Ags9_mp3_bin_size;
-	bgm[60]=Ags10_mp3_bin;bgm_size[60]=Ags10_mp3_bin_size;
-	bgm[61]=Ags11_mp3_bin;bgm_size[61]=Ags11_mp3_bin_size;
-	bgm[62]=Agsrs_mp3_bin;bgm_size[62]=Agsrs_mp3_bin_size;
-	bgm[63]=Agss3m_ogg_bin;bgm_size[63]=Agss3m_ogg_bin_size;
-	bgm[64]=Ags12_ogg_bin;bgm_size[64]=Ags12_ogg_bin_size;
+	bgm[51]=Ags1_bin;bgm_size[51]=Ags1_bin_size;
+	bgm[52]=Ags2_bin;bgm_size[52]=Ags2_bin_size;
+	bgm[53]=Ags3_bin;bgm_size[53]=Ags3_bin_size;
+	bgm[54]=Ags4_bin;bgm_size[54]=Ags4_bin_size;
+	bgm[55]=Ags5_bin;bgm_size[55]=Ags5_bin_size;
+	bgm[56]=Ags6_bin;bgm_size[56]=Ags6_bin_size;
+	bgm[57]=Ags7_bin;bgm_size[57]=Ags7_bin_size;
+	bgm[58]=Ags8_bin;bgm_size[58]=Ags8_bin_size;
+	bgm[59]=Ags9_bin;bgm_size[59]=Ags9_bin_size;
+	bgm[60]=Ags10_bin;bgm_size[60]=Ags10_bin_size;
+	bgm[61]=Ags11_bin;bgm_size[61]=Ags11_bin_size;
+	bgm[62]=Agsrs_bin;bgm_size[62]=Agsrs_bin_size;
+	bgm[63]=Agss3m_bin;bgm_size[63]=Agss3m_bin_size;
+	bgm[64]=Ags12_bin;bgm_size[64]=Ags12_bin_size;
 	
 	bgm[99] = (unsigned char *)""; // custom music
 	bgm_size[99] = 0;
@@ -723,83 +728,83 @@ void init_bgm()
 	bgm[100] = (unsigned char *)""; // bad apple!!
 	bgm_size[100] = 0;
 	
-	bgm[101] = win1_mp3_bin;
-	bgm_size[101] = win1_mp3_bin_size;
+	bgm[101] = win1_bin;
+	bgm_size[101] = win1_bin_size;
 	
-	bgm[102] = win2_mp3_bin;
-	bgm_size[102] = win2_mp3_bin_size;
+	bgm[102] = win2_bin;
+	bgm_size[102] = win2_bin_size;
 	
-	bgm[103] = win3_mp3_bin;
-	bgm_size[103] = win3_mp3_bin_size;
+	bgm[103] = win3_bin;
+	bgm_size[103] = win3_bin_size;
 	
-	bgm[104] = win4_mp3_bin;
-	bgm_size[104] = win4_mp3_bin_size;
+	bgm[104] = win4_bin;
+	bgm_size[104] = win4_bin_size;
 	
-	bgm[105] = win5_ogg_bin;
-	bgm_size[105] = win5_ogg_bin_size;
+	bgm[105] = win5_bin;
+	bgm_size[105] = win5_bin_size;
 	
-	bgm[106] = win6_ogg_bin;
-	bgm_size[106] = win6_ogg_bin_size;
+	bgm[106] = win6_bin;
+	bgm_size[106] = win6_bin_size;
 	
-	bgm[107] = win7_ogg_bin;
-	bgm_size[107] = win7_ogg_bin_size;
+	bgm[107] = win7_bin;
+	bgm_size[107] = win7_bin_size;
 	
-	bgm[108] = win8_ogg_bin;
-	bgm_size[108] = win8_ogg_bin_size;
+	bgm[108] = win8_bin;
+	bgm_size[108] = win8_bin_size;
 	
-	bgm[109] = boss9_win_ogg_bin;
-	bgm_size[109] = boss9_win_ogg_bin_size;
+	bgm[109] = boss9_win_bin;
+	bgm_size[109] = boss9_win_bin_size;
 	
-	bgm[110] = boss10_win_ogg_bin;
-	bgm_size[110] = boss10_win_ogg_bin_size;
+	bgm[110] = boss10_win_bin;
+	bgm_size[110] = boss10_win_bin_size;
 	
-	bgm[111] = boss11_win_ogg_bin;
-	bgm_size[111] = boss11_win_ogg_bin_size;
+	bgm[111] = boss11_win_bin;
+	bgm_size[111] = boss11_win_bin_size;
 	
-	bgm[112] = boss12_win_ogg_bin;
-	bgm_size[112] = boss12_win_ogg_bin_size;
+	bgm[112] = boss12_win_bin;
+	bgm_size[112] = boss12_win_bin_size;
 	
-	bgm[117] = winrs_ogg_bin;
-	bgm_size[117] = winrs_ogg_bin_size;
+	bgm[117] = winrs_bin;
+	bgm_size[117] = winrs_bin_size;
 	
-	bgm[118] = wins3m_ogg_bin;
-	bgm_size[118] = wins3m_ogg_bin_size;
+	bgm[118] = wins3m_bin;
+	bgm_size[118] = wins3m_bin_size;
 	
-	bgm[151]=ls1_mp3_bin;bgm_size[151]=ls1_mp3_bin_size;
-	bgm[152]=ls2_mp3_bin;bgm_size[152]=ls2_mp3_bin_size;
-	bgm[153]=ls3_mp3_bin;bgm_size[153]=ls3_mp3_bin_size;
-	bgm[154]=ls4_mp3_bin;bgm_size[154]=ls4_mp3_bin_size;
-	bgm[155]=ls5_mp3_bin;bgm_size[155]=ls5_mp3_bin_size;
-	bgm[156]=ls6_mp3_bin;bgm_size[156]=ls6_mp3_bin_size;
-	bgm[157]=ls7_mp3_bin;bgm_size[157]=ls7_mp3_bin_size;
-	bgm[158]=ls8_mp3_bin;bgm_size[158]=ls8_mp3_bin_size;
-	bgm[159]=ls9_mp3_bin;bgm_size[159]=ls9_mp3_bin_size;
-	bgm[160]=ls10_mp3_bin;bgm_size[160]=ls10_mp3_bin_size;
-	bgm[161]=ls11_mp3_bin;bgm_size[161]=ls11_mp3_bin_size;
-	bgm[162]=lsrs_ogg_bin;bgm_size[162]=lsrs_ogg_bin_size;
-	bgm[163]=lss3m_ogg_bin;bgm_size[163]=lss3m_ogg_bin_size;
-	bgm[164]=ls12_ogg_bin;bgm_size[164]=ls12_ogg_bin_size;
+	bgm[151]=ls1_bin;bgm_size[151]=ls1_bin_size;
+	bgm[152]=ls2_bin;bgm_size[152]=ls2_bin_size;
+	bgm[153]=ls3_bin;bgm_size[153]=ls3_bin_size;
+	bgm[154]=ls4_bin;bgm_size[154]=ls4_bin_size;
+	bgm[155]=ls5_bin;bgm_size[155]=ls5_bin_size;
+	bgm[156]=ls6_bin;bgm_size[156]=ls6_bin_size;
+	bgm[157]=ls7_bin;bgm_size[157]=ls7_bin_size;
+	bgm[158]=ls8_bin;bgm_size[158]=ls8_bin_size;
+	bgm[159]=ls9_bin;bgm_size[159]=ls9_bin_size;
+	bgm[160]=ls10_bin;bgm_size[160]=ls10_bin_size;
+	bgm[161]=ls11_bin;bgm_size[161]=ls11_bin_size;
+	bgm[162]=lsrs_bin;bgm_size[162]=lsrs_bin_size;
+	bgm[163]=lss3m_bin;bgm_size[163]=lss3m_bin_size;
+	bgm[164]=ls12_bin;bgm_size[164]=ls12_bin_size;
 	
-	bgm[191] = untitled_ogg_bin;
-	bgm_size[191] = untitled_ogg_bin_size;
+	bgm[191] = untitled_bin;
+	bgm_size[191] = untitled_bin_size;
 	
-	bgm[192] = credits_ogg_bin;
-	bgm_size[192] = credits_ogg_bin_size;
+	bgm[192] = credits_bin;
+	bgm_size[192] = credits_bin_size;
 	
-	bgm[193] = ending_ogg_bin;
-	bgm_size[193] = ending_ogg_bin_size;
+	bgm[193] = ending_bin;
+	bgm_size[193] = ending_bin_size;
 	
-	bgm[194] = fourofakind_intro_ogg_bin;
-	bgm_size[194] = fourofakind_intro_ogg_bin_size;
+	bgm[194] = fourofakind_intro_bin;
+	bgm_size[194] = fourofakind_intro_bin_size;
 	
-	bgm[195] = fourofakind_ogg_bin;
-	bgm_size[195] = fourofakind_ogg_bin_size;
+	bgm[195] = fourofakind_bin;
+	bgm_size[195] = fourofakind_bin_size;
 	
-	bgm[197] = shop_ogg_bin;
-	bgm_size[197] = shop_ogg_bin_size;
+	bgm[197] = shop_bin;
+	bgm_size[197] = shop_bin_size;
 	
-	bgm[198] = logo_mp3_bin;
-	bgm_size[198] = logo_mp3_bin_size;
+	bgm[198] = logo_bin;
+	bgm_size[198] = logo_bin_size;
 	
 	bgm[199] = (unsigned char *)""; // custom win music
 	bgm_size[199] = 0;
@@ -823,21 +828,22 @@ int LoadSFX(SoundEffect *sfx, const void *data, int size)
 
 void init_sfx()
 {
-	LoadSFX(&sfx_flag, flag_ogg_bin, flag_ogg_bin_size);
-	LoadSFX(&sfx_unflag, unflag_mp3_bin, unflag_mp3_bin_size);
-	LoadSFX(&sfx_9move, nine_move_ogg_bin, nine_move_ogg_bin_size);
-	LoadSFX(&sfx_9stop, nine_stop_ogg_bin, nine_stop_ogg_bin_size);
-	LoadSFX(&sfx_10bump, ten_bump_ogg_bin, ten_bump_ogg_bin_size);
-	LoadSFX(&sfx_10reset, ten_reset_ogg_bin, ten_reset_ogg_bin_size);
-	LoadSFX(&sfx_mine, game_mine_ogg_bin, game_mine_ogg_bin_size);
-	LoadSFX(&sfx_explosion, game_explosion_ogg_bin, game_explosion_ogg_bin_size);
-	LoadSFX(&sfx_11open, eleven_open_ogg_bin, eleven_open_ogg_bin_size);
-	LoadSFX(&sfx_11bonk, eleven_bonk_ogg_bin, eleven_bonk_ogg_bin_size);
-	LoadSFX(&sfx_buy, cash_register_mp3_bin, cash_register_mp3_bin_size);
-	LoadSFX(&sfx_level, level_start_ogg_bin, level_start_ogg_bin_size);
-	LoadSFX(&sfx_level2, level_start2_mp3_bin, level_start2_mp3_bin_size);
-	LoadSFX(&sfx_gamestart, game_start_mp3_bin, game_start_mp3_bin_size);
-	LoadSFX(&sfx_beep, beep_ogg_bin, beep_ogg_bin_size);
+	LoadSFX(&sfx_flag, flag_bin, flag_bin_size);
+	LoadSFX(&sfx_unflag, unflag_bin, unflag_bin_size);
+	LoadSFX(&sfx_9move, nine_move_bin, nine_move_bin_size);
+	LoadSFX(&sfx_9stop, nine_stop_bin, nine_stop_bin_size);
+	LoadSFX(&sfx_10bump, ten_bump_bin, ten_bump_bin_size);
+	LoadSFX(&sfx_10reset, ten_reset_bin, ten_reset_bin_size);
+	LoadSFX(&sfx_mine, game_mine_bin, game_mine_bin_size);
+	LoadSFX(&sfx_explosion, game_explosion_bin, game_explosion_bin_size);
+	LoadSFX(&sfx_11open, eleven_open_bin, eleven_open_bin_size);
+	LoadSFX(&sfx_11bonk, eleven_bonk_bin, eleven_bonk_bin_size);
+	LoadSFX(&sfx_buy, cash_register_bin, cash_register_bin_size);
+	LoadSFX(&sfx_level, level_start_bin, level_start_bin_size);
+	LoadSFX(&sfx_level2, level_start2_bin, level_start2_bin_size);
+	LoadSFX(&sfx_gamestart, game_start_bin, game_start_bin_size);
+	LoadSFX(&sfx_beep, beep_bin, beep_bin_size);
+	LoadSFX(&sfx_blackout, blackout_bin, blackout_bin_size);
 }
 
 int RandRange(int min, int max)
@@ -894,25 +900,25 @@ void StopSFX(SoundEffect *sfx)
 
 void Load_PNG()
 {
-	pngLoadFromBuffer(captain_sheet_png_bin, captain_sheet_png_bin_size, &spritesheet[0]);
-	pngLoadFromBuffer(tiles_sheet_png_bin, tiles_sheet_png_bin_size, &spritesheet[1]);
-	pngLoadFromBuffer(ui_sheet_png_bin, ui_sheet_png_bin_size, &spritesheet[2]);
-	pngLoadFromBuffer(boss_sheet_png_bin, boss_sheet_png_bin_size, &spritesheet[3]);
-	pngLoadFromBuffer(boss1_sheet_png_bin, boss1_sheet_png_bin_size, &spritesheet[4]);
-	pngLoadFromBuffer(dualboss_sheet_png_bin, dualboss_sheet_png_bin_size, &spritesheet[5]);
-	//pngLoadFromBuffer(cursed_sheet_png_bin, cursed_sheet_png_bin_size, &spritesheet[6]); unused
-	pngLoadFromBuffer(background_sheet_png_bin, background_sheet_png_bin_size, &spritesheet[7]);
-	pngLoadFromBuffer(explosion_png_bin, explosion_png_bin_size, &spritesheet[8]);
-	pngLoadFromBuffer(menu_sheet_png_bin, menu_sheet_png_bin_size, &spritesheet[9]);
-	pngLoadFromBuffer(coin_png_bin, coin_png_bin_size, &spritesheet[10]);
-	pngLoadFromBuffer(buttons_png_bin, buttons_png_bin_size, &spritesheet[11]);
-	pngLoadFromBuffer(hats_sheet_png_bin, hats_sheet_png_bin_size, &spritesheet[12]);
+	pngLoadFromBuffer(captain_sheet_bin, captain_sheet_bin_size, &spritesheet[0]);
+	pngLoadFromBuffer(tiles_sheet_bin, tiles_sheet_bin_size, &spritesheet[1]);
+	pngLoadFromBuffer(ui_sheet_bin, ui_sheet_bin_size, &spritesheet[2]);
+	pngLoadFromBuffer(boss_sheet_bin, boss_sheet_bin_size, &spritesheet[3]);
+	pngLoadFromBuffer(boss1_sheet_bin, boss1_sheet_bin_size, &spritesheet[4]);
+	pngLoadFromBuffer(dualboss_sheet_bin, dualboss_sheet_bin_size, &spritesheet[5]);
+	//pngLoadFromBuffer(cursed_sheet_bin, cursed_sheet_bin_size, &spritesheet[6]); unused
+	pngLoadFromBuffer(background_sheet_bin, background_sheet_bin_size, &spritesheet[7]);
+	pngLoadFromBuffer(explosion_bin, explosion_bin_size, &spritesheet[8]);
+	pngLoadFromBuffer(menu_sheet_bin, menu_sheet_bin_size, &spritesheet[9]);
+	pngLoadFromBuffer(coin_bin, coin_bin_size, &spritesheet[10]);
+	pngLoadFromBuffer(buttons_bin, buttons_bin_size, &spritesheet[11]);
+	pngLoadFromBuffer(hats_sheet_bin, hats_sheet_bin_size, &spritesheet[12]);
 	// WE ARE SKIPPING 13 cuz its reserved for custom captain spritesheet.
-	pngLoadFromBuffer(explosion_anti_png_bin, explosion_anti_png_bin_size, &spritesheet[14]);
-	pngLoadFromBuffer(shopkeeper_sheet_png_bin, shopkeeper_sheet_png_bin_size, &spritesheet[15]);
-	pngLoadFromBuffer(end1_png_bin, end1_png_bin_size, &spritesheet[16]);
-	pngLoadFromBuffer(end2_png_bin, end2_png_bin_size, &spritesheet[17]);
-	pngLoadFromBuffer(end3_png_bin, end3_png_bin_size, &spritesheet[18]);
+	pngLoadFromBuffer(explosion_anti_bin, explosion_anti_bin_size, &spritesheet[14]);
+	pngLoadFromBuffer(shopkeeper_sheet_bin, shopkeeper_sheet_bin_size, &spritesheet[15]);
+	pngLoadFromBuffer(end1_bin, end1_bin_size, &spritesheet[16]);
+	pngLoadFromBuffer(end2_bin, end2_bin_size, &spritesheet[17]);
+	pngLoadFromBuffer(end3_bin, end3_bin_size, &spritesheet[18]);
 }
 
 void ReplaceBGM(int music)

@@ -1,5 +1,7 @@
 #include "text.h"
-#include "importer.h"
+#include "asimov_ttf_bin.h"
+
+int ttf_inited = 0;
 
 int TTFLoadFont(char * path, void * from_memory, int size_from_memory)
 {

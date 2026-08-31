@@ -1,8 +1,8 @@
 from PIL import Image
 
-INPUT_IMAGE = "shape.png"
+INPUT_IMAGE = "board.png"
 
-SHAPE_OUTPUT = "shape_output.txt"
+SHAPE_OUTPUT = "board.txt"
 
 THRESHOLD = 128
 INVERT = False

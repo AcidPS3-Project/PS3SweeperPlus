@@ -1,3 +1,8 @@
+#include <tiny3d.h>
+
+#include "soundlib/spu_soundlib.h"
+#include "soundlib/audioplayer.h"
+
 #include "bosses.h"
 #include "level_data.h"
 #include "save.h"
@@ -315,8 +320,14 @@ int main(int argc, const char* argv[])
 									ready_to_click = 0;
 									FadeInOut(&currentScreen, CREDITS);
 								}
+								if(paddata.BTN_SELECT && !oldpad.BTN_SELECT)
+								{
+									start_end = 1;
+									ready_to_click = 0;
+									FadeInOut(&currentScreen, ENDING);
+								}
 								
-								if(paddata.BTN_SELECT && !oldpad.BTN_SELECT) LEVEL=8;
+								if(paddata.BTN_CROSS && !oldpad.BTN_CROSS) LEVEL=8;
 							}
 							break;
 						}
@@ -700,12 +711,13 @@ int main(int argc, const char* argv[])
 										else if(LEVEL==5) lvl_slct_bgm = 153;
 										else if(LEVEL==6) lvl_slct_bgm = 154;
 										else if(LEVEL==7) lvl_slct_bgm = 154;
+										else StopAudio();
 										break;
 									}
 									case 2:
 									{
 										ship_r = 0;
-										ship_y = -22.0f+(32*7);
+										ten_arena = 0;
 										
 										switch(LEVEL)
 										{
@@ -713,11 +725,32 @@ int main(int argc, const char* argv[])
 											case 1: lvl_slct_bgm = 155; ship_x = 88.0f+(64*4); ship_y = -22.0f+(32*7); break;
 											case 2: lvl_slct_bgm = 156; ship_x = 88.0f+(64*5); ship_y = -22.0f+(32*7); break;
 											case 3: lvl_slct_bgm = 156; ship_x = 88.0f+(64*6); ship_y = -22.0f+(32*7); break;
-											case 4: lvl_slct_bgm = 157; ship_x = 88.0f+(64*6)+32; ship_y = -22.0f+(32*10); break;
-											case 5: lvl_slct_bgm = 157; ship_x = 88.0f+(64*6)+32; ship_y = -22.0f+(32*12); break;
+											case 4: lvl_slct_bgm = 157; ship_x = 120.0f+(64*6); ship_y = -22.0f+(32*10); break;
+											case 5: lvl_slct_bgm = 157; ship_x = 120.0f+(64*6); ship_y = -22.0f+(32*12); break;
 											case 6: lvl_slct_bgm = 158; ship_x = 88.0f+(64*5); ship_y = -22.0f+(32*13); break;
 											case 7: lvl_slct_bgm = 158; ship_x = 88.0f+(64*4); ship_y = -22.0f+(32*13); break;
-											case 8: lvl_slct_bgm = 159; ship_x = 88.0f+(64*3)+32; ship_y = -22.0f+(32*10); break;
+											case 8: lvl_slct_bgm = 159; ship_x = 120.0f+(64*3); ship_y = -22.0f+(32*10); break;
+											case 9: ship_x = 88.0f+(64*5); ship_y = -22.0f+(32*9); StopAudio(); break;
+										}
+										break;
+									}
+									case 3:
+									{
+										ship_r = 3;
+										
+										switch(LEVEL)
+										{
+											case 0: lvl_slct_bgm = 151; ship_x = 88.0f+(64*4); ship_y = 592.0f; break;
+											case 1: lvl_slct_bgm = 155; ship_x = 88.0f+(64*4); ship_y = -22.0f+(32*14); break;
+											case 2: lvl_slct_bgm = 152; ship_x = 88.0f+(64*4); ship_y = -22.0f+(32*12); break;
+											case 3: lvl_slct_bgm = 156; ship_x = 88.0f+(64*4); ship_y = -22.0f+(32*10); break;
+											case 4: lvl_slct_bgm = 153; ship_x = 120.0f+(64*4); ship_y = -22.0f+(32*9); break;
+											case 5: lvl_slct_bgm = 157; ship_x = 120.0f+(64*5); ship_y = -22.0f+(32*9); break;
+											case 6: lvl_slct_bgm = 154; ship_x = 88.0f+(64*6); ship_y = -22.0f+(32*10); break;
+											case 7: lvl_slct_bgm = 158; ship_x = 88.0f+(64*6); ship_y = -22.0f+(32*12); break;
+											case 8: lvl_slct_bgm = 159; ship_x = 120.0f+(64*5); ship_y = -22.0f+(32*15); break;
+											case 9: lvl_slct_bgm = 160; ship_x = 88.0f+(64*5); ship_y = -22.0f+(32*12); break;
+											case 10: StopAudio(); break;
 										}
 										break;
 									}
@@ -793,10 +826,14 @@ int main(int argc, const char* argv[])
 										}
 										else if(LEVEL == 7)
 										{
-											if(ship_x > 88.0f+(64*3)+32) ship_x-=0.75f;
+											if(ship_x > 88.0f+(64*3)+32)												
+											{
+												ship_r = 2;
+												ship_x-=0.75f;
+											}
 											else
 											{
-												ship_r = 1;
+												ship_r = 3;
 												if(ship_y > -22.0f+(32*10)) ship_y-=0.75f;
 												else ship_a = false;
 											}
@@ -805,15 +842,108 @@ int main(int argc, const char* argv[])
 										{
 											if(ship_y > -22.0f+(32*9))
 											{
-												ship_r = 1;
+												ship_r = 3;
 												ship_y-=0.75f;
 											}
 											else
 											{
-												ship_r = 2;
-												if(ship_x > 88.0f+(64*5)) ship_x+=0.75f;
+												ship_r = 0;
+												if(ship_x < 88.0f+(64*5)) ship_x+=0.75f;
 												else ship_a = false;
 											}
+										}
+										else if(LEVEL == 9)
+										{
+											ten_arena++;
+											if(ten_arena==160) PlaySFX(&sfx_blackout);
+											else if(ten_arena==300) PlayBGM(160, 1);
+											else if(ten_arena>300) ship_a = false;
+										}
+										else ship_a = false;
+										break;
+									}
+									case 3:
+									{
+										if(LEVEL == 0 && (ship_y > -22.0f+(32*14))) ship_y-=0.75f;
+										else if(LEVEL == 1 && (ship_y > -22.0f+(32*12))) ship_y-=0.75f;
+										else if(LEVEL == 2 && (ship_y > -22.0f+(32*10))) ship_y-=0.75f;
+										else if(LEVEL == 3)
+										{
+											if(ship_y > -22.0f+(32*9))
+											{
+												ship_r = 3;
+												ship_y-=0.75f;
+											}
+											else
+											{
+												ship_r = 0;
+												if(ship_x < 120.0f+(64*4)) ship_x+=0.75f;
+												else ship_a = false;
+											}
+										}
+										else if(LEVEL == 4)
+										{
+											ship_r = 0;
+											if(ship_x < 120.0f+(64*5)) ship_x+=0.75f;
+											else ship_a = false;
+										}
+										else if(LEVEL == 5)
+										{
+											if(ship_x < 88.0f+(64*6))
+											{
+												ship_r = 0;
+												ship_x+=0.75f;
+											}
+											else
+											{
+												ship_r = 1;
+												if(ship_y < -22.0f+(32*10)) ship_y+=0.75f;
+												else ship_a = false;
+											}
+										}
+										else if(LEVEL == 6)
+										{
+											ship_r = 1;
+											if(ship_y < -22.0f+(32*12)) ship_y+=0.75f;
+											else ship_a = false;
+										}
+										else if(LEVEL == 7)
+										{
+											if(ship_y < -22.0f+(32*15))
+											{
+												ship_r = 1;
+												ship_y+=0.75f;
+											}
+											else
+											{
+												ship_r = 2;
+												if(ship_x > 120.0f+(64*5)) ship_x-=0.75f;
+												else ship_a = false;
+											}
+										}
+										else if(LEVEL == 8)
+										{
+											if(ship_x > 88.0f+(64*5))												
+											{
+												ship_r = 2;
+												ship_x-=0.75f;
+											}
+											else
+											{
+												ship_r = 3;
+												if(ship_y > -22.0f+(32*12)) ship_y-=0.75f;
+												else ship_a = false;
+											}
+										}
+										else if(LEVEL == 9)
+										{
+											ship_r = 3;
+											if(ship_y > -22.0f+(32*10)) ship_y-=0.75f;
+											else ship_a = false;
+										}
+										else if(LEVEL == 10)
+										{
+											
 										}
 										else ship_a = false;
 										break;
@@ -1381,12 +1511,12 @@ int main(int argc, const char* argv[])
 					if(boss10_list[i].timer > 1.0f)
 					{
 						boss10_list[i].timer = 0.0f;
-						boss10_list[i].time--;
 						if(boss10_list[i].time<=0)
 						{
-							if(free_play) fp_lifes=1; else LIFES=1;
+							if(free_play) fp_lifes=0; else LIFES=0;
 							game_lost();
 						}
+						else boss10_list[i].time--;
 					}
 				}
 				
