@@ -98,6 +98,13 @@ extern float ze_y;
 const char *splashes_random[1024];
 const char *splash;
 
+extern bool shop_unlock_0;
+extern bool shop_unlock_1;
+extern bool shop_unlock_2;
+extern bool shop_unlock_3;
+extern bool shop_unlock_4;
+extern bool shop_unlock_5;
+
 void SplashesInit();
 int SplashesCount();
 

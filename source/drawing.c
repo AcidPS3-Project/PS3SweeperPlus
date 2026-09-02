@@ -1403,7 +1403,7 @@ void drawScene()
 							if(a==1) icon = 35; else if(a==2) icon = 133; else if(a==3) icon = 114;
 							
 							SetTexture(1);
-							DrawSprite2D(icon, zs_x - 32, 512-(32*d)+4, 32, 32, 16, 16, 320, 320, 0, 0xffffffff);
+							DrawSprite2D(icon, zs_x - 32, 512-(32*d)+4, 32, 32, 16, 16, 320, 320, 0, color);
 							
 							if(b>max_lvl)
 							{
@@ -1433,7 +1433,7 @@ void drawScene()
 							}
 							
 							SetTexture(1);
-							DrawSprite2D(rank_letter, 512+64, 20, 64, 64, 16, 16, 320, 320, 0, 0xffffffff);
+							DrawSprite2D(rank_letter, 512+64, 20, 64, 64, 16, 16, 320, 320, 0, color);
 							
 							DrawFString(0, test_x, 448, 0xff0000ff, 1, langStr[10]);
 							DrawFString(0, test_x, 480, 0xff0000ff, 1, langStr[11]);
@@ -1455,12 +1455,12 @@ void drawScene()
 				{
 					for(int y0 = -22; y0 < (screen_h * 2) + 99; y0 += 32)
 					{
-						DrawSprite2D(anim, x0, y0, 32, 32, 16, 16, 320, 320, 5, 0xffffffff);
+						DrawSprite2D(anim, x0, y0, 32, 32, 16, 16, 320, 320, 5, color);
 					}
 				}
-				DrawSprite2D(192+anim2, -40+(32*16), -22+(32*6), 32, 32, 16, 16, 320, 320, 5, 0xffffffff);
+				DrawSprite2D(192+anim2, -40+(32*16), -22+(32*6), 32, 32, 16, 16, 320, 320, 5, color);
 				
-				DrawSprite2D(getShipRot(ship_r)+anim1, ship_x, ship_y, 32, 32, 16, 16, 320, 320, 5, 0xffffffff);
+				DrawSprite2D(getShipRot(ship_r)+anim1, ship_x, ship_y, 32, 32, 16, 16, 320, 320, 5, color);
 				
 				break;
 			}
@@ -1469,8 +1469,16 @@ void drawScene()
 				static int randomizer = 0;
 				if((rand() % 240) == 67) randomizer = 4; else randomizer = 0;
 				
+				SetTexture(12);
+				for(int p = 0; p < 5; p++)
+				{
+					DrawSprite2D(0*24, 112+(p*112), 64, 80, 80, 40, 40, 960, 360, 0, color);
+				}
+				
 				SetTexture(15);
-				DrawSprite2D(0+randomizer, 684, 432, 78*2, 49*2, 78, 49, 312, 147, 2, 0xffffffff);
+				DrawSprite2D(0+randomizer, 684, 432, 78*2, 49*2, 78, 49, 312, 147, 2, color);
+				
+				DrawFString(52, 32, 420, 0xffffffff, 0, "Welcome to \"\"");
 				break;
 			}
 			case CREDITS:

@@ -108,6 +108,13 @@ int menu_pos = 0;
 float ze_x = 0.0f;
 float ze_y = 0.0f;
 
+bool shop_unlock_0 = false;
+bool shop_unlock_1 = false;
+bool shop_unlock_2 = false;
+bool shop_unlock_3 = false;
+bool shop_unlock_4 = false;
+bool shop_unlock_5 = false;
+
 bool specialthanks = false;
 
 float lerp(int x, int y, float amount)

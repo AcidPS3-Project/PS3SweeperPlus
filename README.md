@@ -4,13 +4,13 @@ Isn't it the most awesome minesweeper game to play on YOUR PS3? Well, I hope so!
 
 Don't like the adventure? You can always count on free play! Customize your most finest game of minesweeper. It may be relaxing, it may be HARDCORE. Free choice, Free play!
 
-Please be aware, that on RPCS3 or aPS3e, the game is not optimized well and may halt any second! On aPS3e it may halt almost immediately. RPCS3 can handle the game, but freeze may occur (rarely). The game was optimized to work with actual PS3 consoles, and there is nothing I can do about it.
+Please be aware, that on RPCS3 or aPS3e, the game is not optimized well and may halt any second! On aPS3e it halts almost immediately. RPCS3 can handle the game, but freeze may occur (rarely). The game was optimized to work with actual PS3 consoles, and there is nothing I can do about it.
 
 NOTE: The Source code should be available RIGHT AFTER 1 month after the INITIAL release has been made. Thanks for understanding.
 
 # How to compile?
 
-You need a machine running Linux. WSL is supported. (in fact I'm using WSL).
+You need a machine running Linux. WSL is supported.
 
 1. Get [PS3DEV](https://github.com/ps3dev/ps3dev) and it's dependencies.
 2. Compile the game using `make pkg` command.

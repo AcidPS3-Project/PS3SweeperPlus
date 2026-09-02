@@ -56,6 +56,14 @@ void SetSaveDefaults()
 		gSave.save_level_time[_t] = 99999.9f;
 	}
 	
+	gSave.save_mistakes = 0;
+	
+	gSave.save_shop_unlock_0 = false;
+	gSave.save_shop_unlock_1 = false;
+	gSave.save_shop_unlock_2 = false;
+	gSave.save_shop_unlock_3 = false;
+	gSave.save_shop_unlock_4 = false;
+	gSave.save_shop_unlock_5 = false;
 }
 
 void savestate_init()
@@ -265,6 +273,13 @@ int StartSave(void)
 	
 	gSave.save_mistakes = mistakes;
 	
+	gSave.save_shop_unlock_0 = shop_unlock_0;
+	gSave.save_shop_unlock_1 = shop_unlock_1;
+	gSave.save_shop_unlock_2 = shop_unlock_2;
+	gSave.save_shop_unlock_3 = shop_unlock_3;
+	gSave.save_shop_unlock_4 = shop_unlock_4;
+	gSave.save_shop_unlock_5 = shop_unlock_5;
+	
 	char debug[256];
 
 	sprintf(debug,"SAVING VALUES: level=%d current=%d global=%d route=%d", gSave.save_level,
@@ -338,6 +353,13 @@ static void LoadThread(void *arg)
 	}
 	
 	mistakes = gSave.save_mistakes;
+	
+	shop_unlock_0 = gSave.save_shop_unlock_0;
+	shop_unlock_1 = gSave.save_shop_unlock_1;
+	shop_unlock_2 = gSave.save_shop_unlock_2;
+	shop_unlock_3 = gSave.save_shop_unlock_3;
+	shop_unlock_4 = gSave.save_shop_unlock_4;
+	shop_unlock_5 = gSave.save_shop_unlock_5;
 	
 	DebugLog("loaded!");
 	

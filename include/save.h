@@ -36,6 +36,13 @@ typedef struct
 	int save_lifes;
 	float save_level_time[MAXLVLTEST];
 	int save_mistakes;
+	
+	bool save_shop_unlock_0; // navy's hat
+	bool save_shop_unlock_1; // military hat
+	bool save_shop_unlock_2; // golden hat
+	bool save_shop_unlock_3; // bald
+	bool save_shop_unlock_4; // koishi's hat
+	bool save_shop_unlock_5; // alien captain's hat
 } SaveData;
 
 extern SaveData gSave;
