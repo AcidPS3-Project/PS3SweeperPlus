@@ -195,7 +195,7 @@ void GenerateBoard()
         }
     }
 	
-	if(EPISODE>=2 && !free_play)
+	if(EPISODE>=2 || free_play)
 	{
 		if(GRID_ID!=999)
 		{
@@ -215,14 +215,14 @@ void GenerateBoard()
 		}
 	}
 	
-	if(EPISODE>=3 && !free_play)
-	{
-		if(GRID_ID!=999)
-		{
-			int grd_id = FindEpisode3ShapeIndex(GRID_ID);
-			LoadBoardWalls(grd_id);
-		}
-	}
+	// if(EPISODE>=3 && !free_play)
+	// {
+		// if(GRID_ID!=999)
+		// {
+			// int grd_id = FindEpisode3ShapeIndex(GRID_ID);
+			// LoadBoardWalls(grd_id);
+		// }
+	// }
 	
     int placed = 0;
     int f_half = fp_halfes;
@@ -467,7 +467,11 @@ void WinCheck()
 		if(!free_play) level_time[LEVEL] = timer_seconds;
 		else global_minecoins += current_minecoins;
 	}
-	else if(LEVEL==8) game_lost();
+	else if(LEVEL==8)
+	{
+		if(free_play) fp_lifes=0; else LIFES=0;
+		game_lost();
+	}
 }
 
 void RevealIterative(int startx, int starty)
@@ -498,6 +502,7 @@ void RevealIterative(int startx, int starty)
         if(board[x][y].mine)
         {
             game_lost();
+			mines_count--;
             return;
         }
 
@@ -541,6 +546,7 @@ void RevealRecursive(int x,int y)
     if(board[x][y].mine)
 	{
 		game_lost();
+		mines_count--;
 		return;
 	}
 
@@ -597,6 +603,7 @@ void Chord(int x, int y)
                         {
 							board[nx][ny].revealed = 1;
                             game_lost();
+							mines_count--;
                             return;
                         }
 
@@ -716,7 +723,6 @@ void LoadFPLevel()
 	if(desired_bgm==13) desired_bgm = 18;
 	
 	the_bg = fp_back;
-	GRID_ID = 0;
 	
 	ResetGrid();
 }

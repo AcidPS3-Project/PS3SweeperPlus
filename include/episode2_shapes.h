@@ -1213,7 +1213,6 @@ const char *shape_3_11_3[] =
     "0000000XXXXXXXXXXX0000000"
 };
 
-
 const char *shape_empty[] = {"0"};
 
 typedef struct {

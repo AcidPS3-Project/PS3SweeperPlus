@@ -239,6 +239,7 @@ void LangInit()
 			langStr[58] = "Four of a Kind";
 			langStr[59] = "Frozen Nine mechanics";
 			langStr[60] = "Nuclear Ten Idea";
+			
 			langStr[61] = "Kiddie Pool";
 			langStr[62] = "Rainy Puddle";
 			langStr[63] = "Small Pond";
@@ -248,16 +249,20 @@ void LangInit()
 			langStr[67] = "Open Ocean";
 			langStr[68] = "Dead Sea";
 			langStr[69] = "THE DEVIL'S TRIANGLE";
+			
 			langStr[70] = "Original 9 Boss Music";
 			langStr[71] = "Touhou Stuff";
 			langStr[72] = "Alien Captain's Hat";
 			langStr[73] = "Frozen Captain Sprite";
+			
 			langStr[74] = "THE FREEZING CIRCLE";
 			langStr[75] = "THE NUCLEAR WASTE";
 			langStr[76] = "THE GENOCIDE GARDEN";
+			
 			langStr[77] = "Total Time";
 			langStr[78] = "Coins Earned";
 			langStr[79] = "Mistakes Made";
+			
 			langStr[80] = "The Shallow End";
 			langStr[81] = "Fountain Flows";
 			langStr[82] = "Silent Marsh";
@@ -268,6 +273,20 @@ void LangInit()
 			langStr[87] = "Black Water";
 			langStr[88] = "The Deep End";
 			langStr[89] = "THE DEVIL'S PASSAGE";
+			
+			langStr[90] = "Welcome to \"Acid's Solid Shop\"!";
+			langStr[91] = "My shop is not solid at all, I just wanted to make a funny abbreviature, heh.";
+			langStr[92] = "Yes, the dev being in the game is cliche, I know. At least I don't alter the game's lore.";
+			langStr[93] = "So much weird numbers. I'm not ready for them yet.";
+			langStr[94] = "This is my second shop I ever had, heh! I don't actually remember why.";
+			langStr[95] = "Hey, if you like this game, make sure you leave a good rating in my online store! Wait does it have ratings yet?..";
+			langStr[96] = "Who will you be tonight? That's the question.";
+			langStr[97] = "Why do I feel tired every time?";
+			langStr[98] = "I am basically alone here, finally someone cared to pay me a visit.";
+			langStr[99] = "In some free time I like to listen to some TLoZ music. My favorite one is definitely Gerudo Valley from OoT.";
+			langStr[100] = "There is some crazy stuff going on. I heard some noises when I was sleeping, some random beeps and explosions. I hope those sounds won't go close to me...";
+			langStr[101] = "See you soon!";
+			
 			break;
 		}
 		case 1: // Русский Язык
@@ -371,6 +390,20 @@ void LangInit()
 			langStr[87] = "Черная вода";
 			langStr[88] = "Глубочайший Конец";
 			langStr[89] = "ДЬЯВОЛЬСКАЯ ПРОПАСТЬ";
+			
+			langStr[90] = "Добро пожаловать в \"Acid's Solid Shop\"!";
+			langStr[91] = "Эта аббревиатура явно что-то значит, только вот я до сих пор не пойму что.";
+			langStr[92] = "Да да да, разработчик в игре - клише. Хотя-бы я никак не влияю на сюжет.";
+			langStr[93] = "Очень много странных чисел и цифр... Я к ним еще не готов.";
+			langStr[94] = "Это мой второй магазинчик. Не пойму, для чего.";
+			langStr[95] = "Хей, если тебе нравится игра, то почему бы не оставить отзыв? Стой, разве такое возможно?";
+			langStr[96] = "Кем ты будешь сегодня? Кароче перевод провалился увы. Это главная тема Гадкий Я 4.";
+			langStr[97] = "Чего-то я часто бываю уставшим.";
+			langStr[98] = "По сути здесь я один, хотя-бы не помру сейчас от скуки.";
+			langStr[99] = "В свободное время предпочитаю слушать ОСТ Зельды, особенно Gerudo Valley с Окарины Времени.";
+			langStr[100] = "Здесь кароче какие-то странности происходят. Я слышал непонятные пики и взрывы. Надеюсь эти звуки не настигнут меня...";
+			langStr[101] = "Еще увидимся!";
+			
 			break;
 		}
 		case 2: // Қазақ Тілі
@@ -477,6 +510,20 @@ void LangInit()
 			langStr[87] = "Қара су";
 			langStr[88] = "Глубочайший Конец";
 			langStr[89] = "ДЬЯВОЛЬСКАЯ ПРОПАСТЬ";
+			
+			langStr[90] = "\"Acid's Solid Shop\" қош келдіңіз!";
+			langStr[91] = "Эта аббревиатура явно что-то значит, только вот я до сих пор не пойму что.";
+			langStr[92] = "Да да да, разработчик в игре - клише. Хотя-бы я никак не влияю на сюжет.";
+			langStr[93] = "Очень много странных чисел и цифр... Я к ним еще не готов.";
+			langStr[94] = "Это мой второй магазинчик. Не пойму, для чего.";
+			langStr[95] = "Хей, если тебе нравится игра, то почему бы не оставить отзыв? Стой, разве такое возможно?";
+			langStr[96] = "Кем ты будешь сегодня? Кароче перевод провалился увы. Это главная тема Гадкий Я 4.";
+			langStr[97] = "Чего-то я часто бываю уставшим.";
+			langStr[98] = "По сути здесь я один, хотя-бы не помру сейчас от скуки.";
+			langStr[99] = "В свободное время предпочитаю слушать ОСТ Зельды, особенно Gerudo Valley с Окарины Времени.";
+			langStr[100] = "Здесь кароче какие-то странности происходят. Я слышал непонятные пики и взрывы. Надеюсь эти звуки не настигнут меня...";
+			langStr[101] = "Сау бол!";
+			
 			break;
 		}
 	}
@@ -570,7 +617,7 @@ void SplashesInit()
 	splashes_random[splash_count++] = "He's gonna take you back to the past.";
 	splashes_random[splash_count++] = "Does not contain too much if else stuff!";
 	splashes_random[splash_count++] = "One of the First PS3 games that support Kazakh Language!";
-	splashes_random[splash_count++] = "";
+	splashes_random[splash_count++] = "Watch no one play this x2.";
 	
 	FILE *za = fopen("/dev_hdd0/game/ACIDSTORE/ICON0.PNG", "rb");
 	if(za!=NULL)
@@ -926,6 +973,7 @@ void Load_PNG()
 	pngLoadFromBuffer(end1_bin, end1_bin_size, &spritesheet[16]);
 	pngLoadFromBuffer(end2_bin, end2_bin_size, &spritesheet[17]);
 	pngLoadFromBuffer(end3_bin, end3_bin_size, &spritesheet[18]);
+	pngLoadFromBuffer(shopbg_bin, shopbg_bin_size, &spritesheet[19]);
 }
 
 void ReplaceBGM(int music)

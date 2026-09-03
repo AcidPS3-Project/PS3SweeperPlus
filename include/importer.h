@@ -136,7 +136,7 @@ SoundEffect sfx_blackout;
 
 #define BGM_LIST 200
 
-#define TOTAL_SHEETS 20
+#define TOTAL_SHEETS 25
 pngData spritesheet[TOTAL_SHEETS];
 u32 sprite_off[TOTAL_SHEETS];
 

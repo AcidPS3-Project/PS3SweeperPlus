@@ -10,7 +10,7 @@
 #include "libraries.h"
 #include "video.h"
 
-int vdec_picout_pending = 0;
+volatile int vdec_picout_pending = 0;
 
 static u32 PS3Video_Callback(u32 handle, u32 msgtype, u32 msgdata, u32 arg)
 {
@@ -18,7 +18,8 @@ static u32 PS3Video_Callback(u32 handle, u32 msgtype, u32 msgdata, u32 arg)
 	{
 		case VDEC_CALLBACK_AUDONE: break;
 		case VDEC_CALLBACK_PICOUT:
-			vdec_picout_pending = 1;
+			vdec_picout_pending++;
+			printf("[VDEC] PICOUT pending=%d\n", vdec_picout_pending);
 			break;
 		case VDEC_CALLBACK_SEQDONE:
 			printf("[VDEC] SEQDONE msgdata=%08X\n", msgdata);
@@ -150,34 +151,57 @@ int PS3Video_Init(PS3Video *video, u32 width, u32 height)
     }
 
     printf("[VDEC] vdecOpen OK, handle=%u\n", video->vdec_handle);
-
-    u32 map_size;
+	
+	u32 map_size;
+	int i;
 
 	video->framebuffer_size = width * height * 4;
+
 	map_size = (video->framebuffer_size + 0xFFFFF) & ~0xFFFFF;
-	video->framebuffer = memalign(1024 * 1024, map_size);
 
-	if (!video->framebuffer)
+	for (i = 0; i < 2; i++)
 	{
-		printf("[VDEC] Could not allocate framebuffer\n");
-		return -5;
+		video->framebuffer[i] = memalign(1024 * 1024, map_size);
+
+		if (!video->framebuffer[i])
+		{
+			printf("[VDEC] Could not allocate framebuffer %d\n", i);
+
+			if(i > 0) free(video->framebuffer[0]);
+
+			video->framebuffer[0] = NULL;
+			video->framebuffer[1] = NULL;
+
+			return -5;
+		}
+
+		memset(video->framebuffer[i], 0, map_size);
+
+		ret = gcmMapMainMemory(video->framebuffer[i], map_size, &video->framebuffer_rsx_offset[i]);
+
+		if (ret != 0)
+		{
+			printf("[VDEC] gcmMapMainMemory failed for framebuffer %d: %08X\n", i, ret);
+
+			free(video->framebuffer[i]);
+			video->framebuffer[i] = NULL;
+
+			if (i > 0)
+			{
+				free(video->framebuffer[0]);
+				video->framebuffer[0] = NULL;
+			}
+
+			video->framebuffer[1] = NULL;
+
+			return -6;
+		}
+
+		printf("[VDEC] framebuffer[%d] mapped: %08X\n", i, video->framebuffer_rsx_offset[i]);
 	}
 
-	memset(video->framebuffer, 0, map_size);
-
-	ret = gcmMapMainMemory(video->framebuffer, map_size, &video->framebuffer_rsx_offset);
-
-	if (ret != 0)
-	{
-		printf("[VDEC] gcmMapMainMemory failed: %08X\n", ret);
-
-		free(video->framebuffer);
-		video->framebuffer = NULL;
-
-		return -6;
-	}
-
-	printf("[VDEC] framebuffer mapped: %08X\n", video->framebuffer_rsx_offset);
+	video->framebuffer_display = 0;
+	video->framebuffer_decode = 1;
 	
     printf("[VDEC] Initialized successfully\n");
 
@@ -197,6 +221,9 @@ int PS3Video_Start(PS3Video *video)
     video->error = 0;
     video->frame_number = 0;
     video->eof = 0;
+	
+    video->framebuffer_display = 0;
+    video->framebuffer_decode = 1;
 
     return 0;
 }
@@ -276,7 +303,7 @@ int PS3Video_Update(PS3Video *video)
     if (!video->file_open) return -2;
     if (video->eof) return 0;
 
-    if (video->picture_ready) return 0;
+    //if (video->picture_ready) return 0;
 
     start = FindStartCode(video->file_data, video->file_size, video->file_pos);
 
@@ -369,12 +396,15 @@ int PS3Video_HasFrame(PS3Video *video)
     return video->picture_ready;
 }
 
-int PS3Video_GetFrame(PS3Video *video, void *dst)
+int PS3Video_GetFrame(PS3Video *video)
 {
     vdecPictureFormat fmt;
     s32 ret;
+    int decode;
 
-    if (!video || !dst) return -1;
+    if (!video) return -1;
+    decode = video->framebuffer_decode;
+    if (!video->framebuffer[decode]) return -2;
 
     memset(&fmt, 0, sizeof(fmt));
 
@@ -382,14 +412,13 @@ int PS3Video_GetFrame(PS3Video *video, void *dst)
     fmt.color_matrix = VDEC_COLOR_MATRIX_BT709;
     fmt.alpha = 255;
 
-    ret = vdecGetPicture(video->vdec_handle, &fmt, dst);
-    if (ret == 0)
-    {
-        u32 pic_addr = 0;
-		vdecGetPicItem(video->vdec_handle, &pic_addr);
-    }
+    ret = vdecGetPicture(video->vdec_handle, &fmt, video->framebuffer[decode]);
 
-    return ret;
+    if (ret != 0) return ret;
+    video->framebuffer_display = decode;
+    video->framebuffer_decode ^= 1;
+
+    return 0;
 }
 
 void PS3Video_Draw(PS3Video *video, int layer)
@@ -398,7 +427,7 @@ void PS3Video_Draw(PS3Video *video, int layer)
     gcmTexture tex;
 
     if (!video) return;
-    if (!video->framebuffer) return;
+    if (!video->framebuffer[video->framebuffer_display]) return;
 
     ctx = (gcmContextData *)tiny3d_Get_GCM_Context();
     if (!ctx) return;
@@ -417,7 +446,7 @@ void PS3Video_Draw(PS3Video *video, int layer)
 	
     tex.location = GCM_LOCATION_CELL;
     tex.pitch = video->width * 4;
-    tex.offset = video->framebuffer_rsx_offset;
+    tex.offset = video->framebuffer_rsx_offset[video->framebuffer_display];
 	
     tex.remap = (2 << 14) | (2 << 12) | (2 << 10) | (2 << 8) | (3 << 6) | (2 << 4) | (1 << 2) |(0 << 0);
 
@@ -472,11 +501,17 @@ void PS3Video_Destroy(PS3Video *video)
 		video->decoder_memory = NULL;
 	}
 	
-    if (video->framebuffer)
-    {
-        free(video->framebuffer);
-        video->framebuffer = NULL;
-    }
+    if (video->framebuffer[0])
+	{
+		free(video->framebuffer[0]);
+		video->framebuffer[0] = NULL;
+	}
+
+	if (video->framebuffer[1])
+	{
+		free(video->framebuffer[1]);
+		video->framebuffer[1] = NULL;
+	}
 	
 	if (video->file_data)
 	{

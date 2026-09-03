@@ -43,7 +43,7 @@ typedef enum GameScreen
 GameScreen;
 
 extern GameScreen currentScreen;
-extern int vdec_picout_pending;
+extern volatile int vdec_picout_pending;
 
 typedef struct
 {

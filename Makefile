@@ -38,8 +38,10 @@ INCLUDES	:=	include
 #---------------------------------------------------------------------------------
 # any extra libraries we wish to link with the project
 #---------------------------------------------------------------------------------
-LIBS		:=	-lfont3d -lfreetype -ltiny3d -lsimdmath -lvdec -lrsx -lgcm_sys -lio -lsysutil \
-			-lrt -llv2 -lsysmodule -laudioplayer -lmpg123 -logg -lspu_sound -laudio -lm -lz -lpngdec
+LIBS		:=	-lfont3d -lfreetype -Wl,--start-group -ltiny3d -lrsx -lgcm_sys \
+		-Wl,--end-group -lsimdmath -lvdec -lio -lsysutil -lrt -llv2 -lsysmodule -laudioplayer \
+		-lmpg123 -logg -lspu_sound -laudio -lm -lz -lpngdec
+
 
 
 #---------------------------------------------------------------------------------

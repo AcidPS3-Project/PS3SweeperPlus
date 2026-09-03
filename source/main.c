@@ -198,7 +198,7 @@ int main(int argc, const char* argv[])
 	padData paddata;
 	
 	srand(time(NULL));
-	tiny3d_Init(4*1024*1024);
+	tiny3d_Init(6*1024*1024);
 	tiny3d_UserViewport(1, 0, 0, (float)(Video_Resolution.width / 916.0f), (float)(Video_Resolution.height / 582.0f),
 		(float)(Video_Resolution.width / 1920.0f), (float)(Video_Resolution.height / 1080.0f));
 	
@@ -363,6 +363,7 @@ int main(int argc, const char* argv[])
 										if(paddata.BTN_L2 && !oldpad.BTN_L2)
 										{
 											ready_to_click = 0;
+											GRID_ID = 999;
 											free_play = 1;
 											fp_width = 72;
 											fp_height = 48;
@@ -374,6 +375,7 @@ int main(int argc, const char* argv[])
 										if(paddata.BTN_R2 && !oldpad.BTN_R2)
 										{
 											ready_to_click = 0;
+											GRID_ID = 999;
 											free_play = 1;
 											fp_width = 16;
 											fp_height = 16;
@@ -425,11 +427,14 @@ int main(int argc, const char* argv[])
 												FadeInOut(&currentScreen, GOTOSHOP);
 											}
 										}
+										if(paddata.BTN_L2 && !oldpad.BTN_L2) if(the_hat>-1) the_hat--;
+										if(paddata.BTN_R2 && !oldpad.BTN_R2) if(the_hat<8) the_hat++;
 									}
 									else if(adventure_select)
 									{
 										if(paddata.BTN_CROSS && !oldpad.BTN_CROSS)
 										{
+											GRID_ID = 999;
 											ready_to_click = 0;
 											ship_x = -80;
 											ship_y = -44;
@@ -493,6 +498,7 @@ int main(int argc, const char* argv[])
 										}
 										if(paddata.BTN_TRIANGLE && !oldpad.BTN_TRIANGLE && LEVEL>0)
 										{
+											GRID_ID = 999;
 											ready_to_click = 0;
 											free_play = 0;
 											ship_x = 120.0f+(64*LEVEL);
@@ -528,6 +534,7 @@ int main(int argc, const char* argv[])
 								{
 									if(paddata.BTN_START && !oldpad.BTN_START)
 									{
+										GRID_ID = 999;
 										ready_to_click = 0;
 										LEVEL_BKP = LEVEL;
 										PlaySFX(&sfx_gamestart);
@@ -750,7 +757,7 @@ int main(int argc, const char* argv[])
 											case 7: lvl_slct_bgm = 158; ship_x = 88.0f+(64*6); ship_y = -22.0f+(32*12); break;
 											case 8: lvl_slct_bgm = 159; ship_x = 120.0f+(64*5); ship_y = -22.0f+(32*15); break;
 											case 9: lvl_slct_bgm = 160; ship_x = 88.0f+(64*5); ship_y = -22.0f+(32*12); break;
-											case 10: StopAudio(); break;
+											case 10: ship_x = 88.0f+(64*5); ship_y = -22.0f+(32*14); StopAudio(); break;
 										}
 										break;
 									}
@@ -1295,9 +1302,6 @@ int main(int argc, const char* argv[])
 										// zoom check
 										if(paddata.BTN_R1 && !oldpad.BTN_R1) zoomCheck(1);
 										if(paddata.BTN_L1 && !oldpad.BTN_L1) zoomCheck(0);
-										
-										if(paddata.BTN_L2 && !oldpad.BTN_L2) if(the_hat>-1) the_hat--;
-										if(paddata.BTN_R2 && !oldpad.BTN_R2) if(the_hat<8) the_hat++;
 									}
 								}
 							}
@@ -1405,6 +1409,16 @@ int main(int argc, const char* argv[])
 								start_shop = 0;
 								PlayBGM(197, 1);
 								ready_to_click = 1;
+							}
+							
+							if(ready_to_click)
+							{
+								if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE)
+								{
+									ready_to_click = 0;
+									start_menu = 1;
+									FadeInOut(&currentScreen, MENU);
+								}
 							}
 							
 							break;

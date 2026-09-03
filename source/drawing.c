@@ -862,12 +862,11 @@ void drawScene()
 				static int video_frame = 0;
 				PS3Video_Update(&the_video);
 				
-				if (vdec_picout_pending)
+				if(vdec_picout_pending>0)
 				{
-					fflush(stdout);
-					vdec_picout_pending = 0;
-					PS3Video_GetFrame(&the_video, the_video.framebuffer);
-					fflush(stdout);
+					vdec_picout_pending--;
+					int ret = PS3Video_GetFrame(&the_video);
+					printf("[VDEC] GetFrame ret=%d pending=%d\n", ret, vdec_picout_pending);
 				}
 				video_frame++;
 				
@@ -1030,11 +1029,15 @@ void drawScene()
 				DrawFString(0, ze_x+ui_x, ze_y+zcs_y+4, 0xffffffff, 0, langStr[35]);
 				DrawFString(0, ze_x+ui_x, ze_y+zcs_y+64, 0xffffffff, 0, langStr[36]);
 				
-				DrawButton(ze_x+ui_x, ze_y+zcs_y+386, 8, 0);
-				DrawButton(ze_x+ui_x, ze_y+zcs_y+418, 9, 0);
+				// DrawButton(ze_x+ui_x, ze_y+zcs_y+386, 6, 0);
+				// DrawButton(ze_x+ui_x, ze_y+zcs_y+418, 7, 0);
+				DrawButton(ze_x+ui_x, ze_y+zcs_y+450, 8, 0);
+				DrawButton(ze_x+ui_x, ze_y+zcs_y+482, 9, 0);
 				
-				DrawFString(0, ze_x+ui_x+36, ze_y+zcs_y+386, 0xffffffff, 0, langStr[33]);
-				DrawFString(0, ze_x+ui_x+36, ze_y+zcs_y+418, 0xffffffff, 0, langStr[58]);
+				// DrawFString(0, ze_x+ui_x+36, ze_y+zcs_y+386, 0xffffffff, 0, "Bomb Bay HD");
+				// DrawFString(0, ze_x+ui_x+36, ze_y+zcs_y+418, 0xffffffff, 0, "Undetermined Challenge");
+				DrawFString(0, ze_x+ui_x+36, ze_y+zcs_y+450, 0xffffffff, 0, langStr[33]);
+				DrawFString(0, ze_x+ui_x+36, ze_y+zcs_y+482, 0xffffffff, 0, langStr[58]);
 
 				SetTexture(10);
 				DrawSprite2D(animc, ui_x+818, 4, 32, 32, 64, 64, 512, 64, 0, 0xffffffff);
@@ -1467,18 +1470,56 @@ void drawScene()
 			case SHOP:
 			{
 				static int randomizer = 0;
-				if((rand() % 240) == 67) randomizer = 4; else randomizer = 0;
+				static int randomizer1 = 0;
+				static int randomizer2 = 0;
+				static int shopkeeper_updater = 0;
+				static int shopkeeper_updater2 = 600;
+				static int shopkeeper_quote = 90;
+				
+				if(fade_mode != FADE_OUT)
+				{
+					shopkeeper_updater++;
+					if(shopkeeper_updater>=shopkeeper_updater2)
+					{
+						shopkeeper_updater2 = RandRange(500, 700);
+						shopkeeper_updater = 0;
+						int test = rand() % 10;
+						shopkeeper_quote = 90+test;
+					}
+					
+					if((rand() % 333) == 67 && randomizer != 4) randomizer = 4;
+					
+					if(randomizer==4 && randomizer1 == 0)
+					{
+						randomizer1 = 1;
+						randomizer2 = RandRange(21, 43);
+					}
+					
+					if(randomizer1>0)
+					{
+						randomizer1++;
+						if(randomizer1>randomizer2)
+						{
+							randomizer1 = 0;
+							randomizer = 0;
+						}
+					}
+				}
+				else shopkeeper_quote = 101;
+				
+				SetTexture(19);
+				DrawSprite2D(0, -40, -22, 916, 582, 640, 360, 640, 360, 2, color);
 				
 				SetTexture(12);
-				for(int p = 0; p < 5; p++)
+				for(int p = 0; p < 7; p++)
 				{
-					DrawSprite2D(0*24, 112+(p*112), 64, 80, 80, 40, 40, 960, 360, 0, color);
+					DrawSprite2D(p*24, 32+(p*112), 64, 80, 80, 40, 40, 960, 360, 0, color);
 				}
 				
 				SetTexture(15);
-				DrawSprite2D(0+randomizer, 684, 432, 78*2, 49*2, 78, 49, 312, 147, 2, color);
+				DrawSprite2D(0+randomizer, 684, 432, 78*2, 49*2, 78, 49, 312, 147, 1, color);
 				
-				DrawFString(52, 32, 420, 0xffffffff, 0, "Welcome to \"\"");
+				DrawFString(52, 32, 420, 0xffffffff, 0, langStr[shopkeeper_quote]);
 				break;
 			}
 			case CREDITS:
