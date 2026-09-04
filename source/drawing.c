@@ -239,7 +239,8 @@ int getCaptainState(int anim_z, int anim1_z, int anim2_z)
 	int the_state = 0;
 	if(use_custom_sweeper)
 	{
-		if(gamewin) the_state = 0+anim_z;
+		if(currentScreen != GAME) the_state = 4;
+		else if(gamewin) the_state = 0+anim_z;
 		else if(gamelose) the_state = 14;
 		else if(paused)
 		{
@@ -248,7 +249,7 @@ int getCaptainState(int anim_z, int anim1_z, int anim2_z)
 		}
 		else
 		{
-			if(LEVEL!=11 && !can_move_xd) the_state = 12+anim_z;
+			if(!can_move_xd) the_state = 12+anim_z;
 			else if(disable_control)
 			{
 				if(cursor<left) the_state = 3;
@@ -257,20 +258,21 @@ int getCaptainState(int anim_z, int anim1_z, int anim2_z)
 			}
 			else
 			{
-				if(cursor<left) the_state = 7;
-				else if(cursor>right) the_state = 5;
+				if(cursor<left) the_state = 5;
+				else if(cursor>right) the_state = 7;
 				else the_state = 6;
 				
 				if(button_x_hold) the_state+=4;
-				if(button_start_hold) the_state=8;
+				else if(button_start_hold) the_state=8;
 			}
 		}
 	}
-	else switch(LEVEL)
+	else switch(smiley_face)
 	{
-		case 0: case 1:
+		case 0:
 		{
-			if(gamewin) the_state = 0+anim_z;
+			if(currentScreen != GAME) the_state = 24;
+			else if(gamewin) the_state = 0+anim_z;
 			else if(gamelose) the_state = 74;
 			else if(paused)
 			{
@@ -279,7 +281,7 @@ int getCaptainState(int anim_z, int anim1_z, int anim2_z)
 			}
 			else
 			{
-				if(LEVEL!=11 && !can_move_xd) the_state = 72+anim_z;
+				if(!can_move_xd) the_state = 72+anim_z;
 				else if(disable_control)
 				{
 					if(cursor<left) the_state = 3;
@@ -293,14 +295,15 @@ int getCaptainState(int anim_z, int anim1_z, int anim2_z)
 					else the_state = 26;
 					
 					if(button_x_hold) the_state+=24;
-					if(button_start_hold) the_state=48;
+					else if(button_start_hold) the_state=48;
 				}
 			}
 			break;
 		}
-		case 2: case 3:
+		case 1:
 		{
-			if(gamewin) the_state = 4+anim_z;
+			if(currentScreen != GAME) the_state = 28;
+			else if(gamewin) the_state = 4+anim_z;
 			else if(gamelose) the_state = 78;
 			else if(paused)
 			{
@@ -309,7 +312,7 @@ int getCaptainState(int anim_z, int anim1_z, int anim2_z)
 			}
 			else
 			{
-				if(LEVEL!=11 && !can_move_xd) the_state = 76+anim_z;
+				if(!can_move_xd) the_state = 76+anim_z;
 				else if(disable_control)
 				{
 					if(cursor<left) the_state = 7;
@@ -323,14 +326,15 @@ int getCaptainState(int anim_z, int anim1_z, int anim2_z)
 					else the_state = 30;
 					
 					if(button_x_hold) the_state+=24;
-					if(button_start_hold) the_state=52;
+					else if(button_start_hold) the_state=52;
 				}
 			}
 			break;
 		}
-		case 4: case 5:
+		case 2:
 		{
-			if(gamewin) the_state = 8+anim_z;
+			if(currentScreen != GAME) the_state = 32+anim_z;
+			else if(gamewin) the_state = 8+anim_z;
 			else if(gamelose) the_state = 82+anim_z;
 			else if(paused)
 			{
@@ -339,7 +343,7 @@ int getCaptainState(int anim_z, int anim1_z, int anim2_z)
 			}
 			else
 			{
-				if(LEVEL!=11 && !can_move_xd) the_state = 80+anim_z;
+				if(!can_move_xd) the_state = 80+anim_z;
 				else if(disable_control)
 				{
 					if(cursor<left) the_state = 14+anim_z;
@@ -353,14 +357,15 @@ int getCaptainState(int anim_z, int anim1_z, int anim2_z)
 					else the_state = 36+anim_z;
 					
 					if(button_x_hold) the_state+=24;
-					if(button_start_hold) the_state=56+anim_z;
+					else if(button_start_hold) the_state=56+anim_z;
 				}
 			}
 			break;
 		}
-		case 6: case 7:
+		case 3:
 		{
-			if(gamewin) the_state = 16+anim_z;
+			if(currentScreen != GAME) the_state = 40;
+			else if(gamewin) the_state = 16+anim_z;
 			else if(gamelose) the_state = 90;
 			else if(paused)
 			{
@@ -369,7 +374,7 @@ int getCaptainState(int anim_z, int anim1_z, int anim2_z)
 			}
 			else
 			{
-				if(LEVEL!=11 && !can_move_xd) the_state = 88+anim_z;
+				if(!can_move_xd) the_state = 88+anim_z;
 				else if(disable_control)
 				{
 					if(cursor<left) the_state = 19;
@@ -383,20 +388,45 @@ int getCaptainState(int anim_z, int anim1_z, int anim2_z)
 					else the_state = 42;
 					
 					if(button_x_hold) the_state+=24;
-					if(button_start_hold) the_state=64;
+					else if(button_start_hold) the_state=64;
 				}
 			}
 			break;
 		}
-		case 8:
+		case 4:
 		{
-			if(!boss9_cutscene) the_state = 240;
+			if(currentScreen != GAME) the_state = 120+anim1_z;
+			else if(enable_9 && boss9_cutscene==0) the_state = 240;
 			else
 			{
 				if(gamewin) the_state = 96+anim_z;
 				else if(gamelose) the_state = 218;
-				else if(disable_control && !can_move_xd) the_state = 216+anim_z;
-				else the_state = 241;
+				else if(paused)
+				{
+					if(button_start_hold) the_state=168+anim1_z;
+					else the_state = 120+anim1_z;
+				}
+				else
+				{
+					if(!can_move_xd) the_state = 216+anim_z;
+					else if(disable_control)
+					{
+						if(cursor<left) the_state = 147+anim1_z;
+						else if(cursor>right) the_state = 123+anim1_z;
+						else the_state = 144+anim1_z;
+						
+						the_state+=48;
+					}
+					else
+					{
+						if(cursor<left) the_state = 147+anim1_z;
+						else if(cursor>right) the_state = 123+anim1_z;
+						else the_state = 144+anim1_z;
+						
+						if(button_x_hold) the_state+=48;
+						else if(button_start_hold) the_state=168+anim1_z;
+					}
+				}
 				//else the_state = 120+anim1_z;
 			}
 			break;
@@ -425,31 +455,77 @@ int getCaptainState(int anim_z, int anim1_z, int anim2_z)
 			break;
 			*/
 		}
-		case 9:
+		case 5:
 		{
-			if(!boss10_cutscene) the_state = 224;
+			if(currentScreen != GAME) the_state = 126;
+			else if(enable_10 && boss10_cutscene==0) the_state = 224;
 			else
 			{
 				if(gamewin) the_state = 102+anim_z;
 				else if(gamelose) the_state = 176;
-				else if(disable_control && !can_move_xd) the_state = 174+anim_z;
-				else the_state = 126;
+				else if(paused)
+				{
+					if(button_start_hold) the_state=150;
+					else the_state = 126;
+				}
+				else
+				{
+					if(!can_move_xd) the_state = 174+anim_z;
+					else if(disable_control)
+					{
+						if(cursor<left) the_state = 104;
+						else if(cursor>right) the_state = 105;
+						else the_state = 177;
+					}
+					else
+					{
+						if(cursor<left) the_state = 127;
+						else if(cursor>right) the_state = 129;
+						else the_state = 128;
+						
+						if(button_x_hold) the_state+=24;
+						else if(button_start_hold) the_state=150;
+					}
+				}
 			}
 			break;
 		}
-		case 10:
+		case 6:
 		{
-			if(!boss11_cutscene) the_state = 110;
+			if(currentScreen != GAME) the_state = 130;
+			else if(enable_11 && boss11_cutscene==0) the_state = 110;
 			else
 			{
 				if(gamewin) the_state = 106+anim_z;
 				else if(gamelose) the_state = 180;
-				else if(disable_control && !can_move_xd)
+				else if(paused)
 				{
-					if(anim2_z<2) the_state = 216+anim2_z;
-					else the_state = 238+anim2_z;
+					if(button_start_hold) the_state=154;
+					else the_state = 130;
 				}
-				else the_state = 130;
+				else
+				{
+					if(!can_move_xd)
+					{
+						if(anim2_z<2) the_state = 178+anim2_z;
+						else the_state = 178+24+anim2_z;
+					}
+					else if(disable_control)
+					{
+						if(cursor<left) the_state = 108;
+						else if(cursor>right) the_state = 109;
+						else the_state = 181;
+					}
+					else
+					{
+						if(cursor<left) the_state = 131;
+						else if(cursor>right) the_state = 133;
+						else the_state = 132;
+						
+						if(button_x_hold) the_state+=24;
+						else if(button_start_hold) the_state=154;
+					}
+				}
 			}
 			break;
 		}
@@ -464,13 +540,14 @@ int getHatState(int hat, int anim_z)
 	int right = 518;
 	int cursor = offset_x+(cursorX*RENDER_SIZE);
 	
-	if(gamewin) the_state = 0+anim_z;
+	if(currentScreen != GAME) the_state = 0;
+	else if(gamewin) the_state = 0+anim_z;
 	else if(gamelose) the_state = 5;
 	else if(paused) the_state = 0;
 	else
 	{
 		if(LEVEL==8) the_state=0;
-		else if(LEVEL!=11 && !can_move_xd) the_state = 5+anim_z;
+		else if(!can_move_xd) the_state = 5+anim_z;
 		else
 		{
 			if(cursor<left) the_state = 4;
@@ -1038,6 +1115,33 @@ void drawScene()
 				// DrawFString(0, ze_x+ui_x+36, ze_y+zcs_y+418, 0xffffffff, 0, "Undetermined Challenge");
 				DrawFString(0, ze_x+ui_x+36, ze_y+zcs_y+450, 0xffffffff, 0, langStr[33]);
 				DrawFString(0, ze_x+ui_x+36, ze_y+zcs_y+482, 0xffffffff, 0, langStr[58]);
+				
+				SetTexture(2);
+				DrawSpriteUI(262, -22+ze_y-zcs_y+256, 384, 0, 768, 192, 1024, 1024, 314, 112, 4, color);
+				
+				SetTexture(0);
+				int capt_state = getCaptainState(anim1, anim2, anim3);
+				int capt_y = -9; if(the_hat==-1) capt_y = -14;
+				
+				int capt_w = 960; int capt_h = 560; int capt_p = 40;
+				
+				if(use_custom_sweeper)
+				{
+					capt_y = -14;
+					capt_w = spritesheet[13].width;
+					capt_h = spritesheet[13].height;
+					capt_p = capt_w / 4;
+					SetTexture(13);
+				}
+				
+				DrawSprite2D(capt_state, 372, capt_y+ze_y-zcs_y+256, 94, 94, capt_p, capt_p, capt_w, capt_h, 3, color);
+				
+				if(the_hat!=-1)
+				{
+					SetTexture(12);
+					int hat_state = getHatState(the_hat, anim1);
+					DrawSprite2D(hat_state, 372, -14+ze_y-zcs_y+256, 94, 94, 40, 40, 960, 360, 2, color);
+				}
 
 				SetTexture(10);
 				DrawSprite2D(animc, ui_x+818, 4, 32, 32, 64, 64, 512, 64, 0, 0xffffffff);
@@ -1074,7 +1178,10 @@ void drawScene()
 				
 				SetFontSize(28, 32);
 				
-				if(ten_arena<=160)
+				if(EPISODE==1) name_test = 61;
+				else if(EPISODE==2) name_test = 80;
+				
+				if(ten_arena<=160*4)
 				{
 					for(int x0 = -40; x0 < (screen_w * 2) + 99; x0 += 32)
 					{
@@ -1087,8 +1194,6 @@ void drawScene()
 					{
 						case 1:
 						{
-							name_test = 61;
-							
 							DrawRectangle2D(876+ep1_x, -22, 2763, 1000, 0x000000ff, 7);
 							if(ship_x > 876.0f)
 							{
@@ -1117,8 +1222,6 @@ void drawScene()
 						}
 						case 2:
 						{
-							name_test = 80;
-							
 							for(int b = 0; b < 9; b++)
 							{
 								DrawLevelIcon(b + 1, level_positions[b].x, level_positions[b].y, anim, tile_bg);
@@ -1132,8 +1235,6 @@ void drawScene()
 						}
 						case 3:
 						{
-							name_test = 80;
-							
 							for(int b = 0; b < 10; b++)
 							{
 								DrawLevelIcon(b + 1, level_positions2[b].x, level_positions2[b].y, anim, tile_bg);
@@ -1189,7 +1290,7 @@ void drawScene()
 				DrawSpriteUI(-20, -10, 0+(anim*264), 192, 264+(anim*264), 456, 1024, 1024, 94, 94, 1, color);
 				DrawSpriteUI(586, -10, 0+(anim*264), 456, 264+(anim*264), 720, 1024, 1024, 94, 94, 1, color);
 				
-				if((!free_play && LEVEL==8) || enable_9)
+				if(enable_9 || enable_12)
 				{
 					int random_mine = RandRange(-999, 999);
 					if(!boss9_cutscene) DrawFString(0, 94, -26, 0xff0000ff, 1, "???");
@@ -1197,7 +1298,13 @@ void drawScene()
 				}
 				else DrawFString(0, 94, -26, 0xff0000ff, 1, "%03d", mines_count);
 				
-				if((!free_play && LEVEL==11) || enable_12)
+				int livez = 0;
+				if(free_play) livez = fp_lifes; else livez = LIFES;
+				bool enable_bosses = enable_9 || enable_10 || enable_11 || enable_12;
+				if(enable_bosses) livez = RandRange(-9, 9);
+				DrawFString(0, 498, -26, 0xff0000ff, 1, "%d", livez);
+				
+				if(enable_12)
 				{
 					int random_time = RandRange(-999, 999);
 					if(!boss12_cutscene) DrawFString(0, 714, -26, 0xff0000ff, 1, "000");
@@ -1565,6 +1672,13 @@ void drawScene()
 				}
 				break;
 			}
+			case ERROR_SCREEN:
+			{
+				SetFontSize(28, 32);
+				DrawFString(0, 0, 0, 0xffffffff, 0, "HALT! HALT! STOP EVERYTHING!!!!");
+				DrawFString(52, 0, 156, 0xffffffff, 0, "Report this error to AcidNT3.1 Productions at \"acidgunner@hotmail.com\" or \"acidnt31@hotmail.com\". Please, return to XMB if possible, or restart your PlayStation 3 system.");
+				break;
+			}
 			default: break;
 		}
 	}
@@ -1583,23 +1697,12 @@ void drawScene()
 		else DrawFString(0, 0,0,0xffffffff,0,langStr[0]);
 	}
 	
-	if(save_running)
-	{
-		SetFontSize(28, 32);
-		DrawTextAligned(0, 550, 848, 512, 2, 0xffffffff, 0, 14, langStr[1]);
-	}
+	SetFontSize(28, 32);
+	if(save_running) DrawTextAligned(0, 550, 848, 512, 2, 0xffffffff, 0, 14, langStr[1]);
 	
 	DrawProjectiles();
 	
 	DrawFade();
-	
-	if(((!free_play && LEVEL==11) || enable_12) && !can_move_xd)
-	{
-		tiny3d_BlendFunc(1, TINY3D_BLEND_FUNC_SRC_RGB_ONE_MINUS_DST_COLOR | TINY3D_BLEND_FUNC_SRC_ALPHA_ONE,
-			TINY3D_BLEND_FUNC_DST_RGB_ZERO | TINY3D_BLEND_FUNC_DST_ALPHA_ZERO, TINY3D_BLEND_RGB_FUNC_ADD | TINY3D_BLEND_ALPHA_FUNC_ADD);
-		
-		DrawBackground2D(0xffffffff, -6);
-	}
 }
 
 u32 *texture_pointer = NULL;

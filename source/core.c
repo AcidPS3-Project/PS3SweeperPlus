@@ -675,7 +675,7 @@ bool bad_apple_init()
 		fp_mines = 1;
 		temp_fp_music = fp_music;
 		fp_music = 100;
-		bgm[100] = (unsigned char *)bad_apple_path;
+		bgm[100] = bad_apple_path;
 		LEVEL = 0;
 		in_game = 1;
 		bad_apple = 1;

@@ -15,6 +15,7 @@ APPID		:=	MINESWEEP
 CONTENTID	:=	HP0031-$(APPID)_00-0000000000000000
 
 ICON0       :=  param/ICON0.PNG
+PKGFILES	:=	files
 
 include $(PSL1GHT)/ppu_rules
 
@@ -40,7 +41,7 @@ INCLUDES	:=	include
 #---------------------------------------------------------------------------------
 LIBS		:=	-lfont3d -lfreetype -Wl,--start-group -ltiny3d -lrsx -lgcm_sys \
 		-Wl,--end-group -lsimdmath -lvdec -lio -lsysutil -lrt -llv2 -lsysmodule -laudioplayer \
-		-lmpg123 -logg -lspu_sound -laudio -lm -lz -lpngdec
+		-lmpg123 -logg -lspu_sound -laudio -lm -lz -lpngdec -llv2dbg
 
 
 

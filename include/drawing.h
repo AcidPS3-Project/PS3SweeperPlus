@@ -38,7 +38,8 @@ typedef enum GameScreen
 	ENDING,
 	GOTOSHOP,
 	SHOP,
-	CREDITS
+	CREDITS,
+	ERROR_SCREEN
 }
 GameScreen;
 
@@ -68,6 +69,7 @@ extern int end_time;
 extern u32 *texture_pointer;
 
 void DrawRectangle2D(float x, float y, float w, float h, u32 rgba, float l);
+void DrawBackground2D(u32 rgba, float l);
 
 int getCaptainState(int anim_z, int anim1_z, int anim2_z);
 int getHatState(int hat, int anim_z);

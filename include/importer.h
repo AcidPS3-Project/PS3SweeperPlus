@@ -13,6 +13,8 @@ const char *credits[256];
 extern int current_bgm;
 extern int desired_bgm;
 
+extern int smiley_face;
+
 extern float ship_x;
 extern float ship_y;
 extern int ship_r;
@@ -140,8 +142,7 @@ SoundEffect sfx_blackout;
 pngData spritesheet[TOTAL_SHEETS];
 u32 sprite_off[TOTAL_SHEETS];
 
-const unsigned char *bgm[BGM_LIST];
-int bgm_size[BGM_LIST];
+const char *bgm[BGM_LIST];
 int bgm_start[BGM_LIST];
 int bgm_end[BGM_LIST];
 

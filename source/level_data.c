@@ -201,9 +201,9 @@ LevelData lvl_ep4[] =
 EpisodeData episodes[] =
 {
     {"Episode 1", lvl_ep1, sizeof(lvl_ep1) / sizeof(LevelData)},
-    {"Episode 2", lvl_ep2, sizeof(lvl_ep2) / sizeof(LevelData)},
-    {"Episode 3", lvl_ep3, sizeof(lvl_ep3) / sizeof(LevelData)},
-    {"Episode 4", lvl_ep4, sizeof(lvl_ep4) / sizeof(LevelData)}
+    {"Episode 2", lvl_ep2, sizeof(lvl_ep2) / sizeof(LevelData)}
+    // {"Episode 3", lvl_ep3, sizeof(lvl_ep3) / sizeof(LevelData)},
+    // {"Episode 4", lvl_ep4, sizeof(lvl_ep4) / sizeof(LevelData)}
 };
 
 const int episode_count = sizeof(episodes) / sizeof(EpisodeData);

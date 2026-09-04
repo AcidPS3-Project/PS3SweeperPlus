@@ -18,6 +18,8 @@ int start_shop = 0;
 int start_end = 0;
 int start_credits = 0;
 
+float ship_speed = 0.75f / 2;
+
 int LEVEL_BKP = 0;
 int ready_to_click = 0;
 
@@ -26,6 +28,7 @@ bool HELL = false;
 void ResetGrid()
 {
 	start_game_mus = 1;
+	ten_arena = 0;
 	FadeInOut(&currentScreen, GAME);
 	
     mines_count = MINES;
@@ -400,35 +403,40 @@ int main(int argc, const char* argv[])
 										{
 											loadout_select = 0;
 										}
-										if(paddata.BTN_TRIANGLE && !oldpad.BTN_TRIANGLE)
-										{
-											startbgmgtsp = 1;
-											ship_x = -80;
-											ship_y = -22+(32*6);
-											if(!shop_unlocked)
-											{
-												if(global_minecoins > 250)
-												{
-													ready_to_click = 0;
-													shop_first = true;
-													shop_unlocked = true;
-													global_minecoins -= 250;
-													StopAudio();
-													PlaySFX(&sfx_buy);
-													StartSave();
-													FadeInOut(&currentScreen, GOTOSHOP);
-												}
-											}
-											else
-											{
-												ready_to_click = 0;
-												shop_first = false;
-												StopAudio();
-												FadeInOut(&currentScreen, GOTOSHOP);
-											}
-										}
+										
+										if(paddata.BTN_L1 && !oldpad.BTN_L1) if(smiley_face>0) smiley_face--;
+										if(paddata.BTN_R1 && !oldpad.BTN_R1) if(smiley_face<6) smiley_face++;
+										
 										if(paddata.BTN_L2 && !oldpad.BTN_L2) if(the_hat>-1) the_hat--;
 										if(paddata.BTN_R2 && !oldpad.BTN_R2) if(the_hat<8) the_hat++;
+										
+										// if(paddata.BTN_TRIANGLE && !oldpad.BTN_TRIANGLE)
+										// {
+											// startbgmgtsp = 1;
+											// ship_x = -80;
+											// ship_y = -22+(32*6);
+											// if(!shop_unlocked)
+											// {
+												// if(global_minecoins > 250)
+												// {
+													// ready_to_click = 0;
+													// shop_first = true;
+													// shop_unlocked = true;
+													// global_minecoins -= 250;
+													// StopAudio();
+													// PlaySFX(&sfx_buy);
+													// StartSave();
+													// FadeInOut(&currentScreen, GOTOSHOP);
+												// }
+											// }
+											// else
+											// {
+												// ready_to_click = 0;
+												// shop_first = false;
+												// StopAudio();
+												// FadeInOut(&currentScreen, GOTOSHOP);
+											// }
+										// }
 									}
 									else if(adventure_select)
 									{
@@ -677,7 +685,7 @@ int main(int argc, const char* argv[])
 												continue;
 											}
 											
-											bgm[99] = (unsigned char *)custom_main_path;
+											bgm[99] = custom_main_path;
 											fp_music = 99;
 
 											if(!has_custom_win)
@@ -686,7 +694,7 @@ int main(int argc, const char* argv[])
 													langStr[51], EmptyDialogCallback, NULL, NULL);
 												continue;
 											}
-											bgm[199] = (unsigned char *)custom_win_path;
+											bgm[199] = custom_win_path;
 											custom_music = true;
 										}
 										else
@@ -777,12 +785,12 @@ int main(int argc, const char* argv[])
 									{
 										if(LEVEL<8)
 										{
-											if(ship_x < 120.0f+(64*(LEVEL+1))) ship_x+=0.75f;
+											if(ship_x < 120.0f+(64*(LEVEL+1))) ship_x+=ship_speed;
 											else ship_a = false;
 										}
 										else
 										{
-											if(ship_x < 1314.0f) ship_x+=0.75f;
+											if(ship_x < 1314.0f) ship_x+=ship_speed;
 											else ship_a = false;
 										}
 										
@@ -792,23 +800,23 @@ int main(int argc, const char* argv[])
 									}
 									case 2:
 									{
-										if(LEVEL == 0 && (ship_x < 88.0f+(64*4))) ship_x+=0.75f;
-										else if(LEVEL == 1 && (ship_x < 88.0f+(64*5))) ship_x+=0.75f;
-										else if(LEVEL == 2 && (ship_x < 88.0f+(64*6))) ship_x+=0.75f;
+										if(LEVEL == 0 && (ship_x < 88.0f+(64*4))) ship_x+=ship_speed;
+										else if(LEVEL == 1 && (ship_x < 88.0f+(64*5))) ship_x+=ship_speed;
+										else if(LEVEL == 2 && (ship_x < 88.0f+(64*6))) ship_x+=ship_speed;
 										else if(LEVEL == 3)
 										{
-											if(ship_x < 88.0f+(64*6)+32) ship_x+=0.75f;
+											if(ship_x < 88.0f+(64*6)+32) ship_x+=ship_speed;
 											else
 											{
 												ship_r = 1;
-												if(ship_y < -22.0f+(32*10)) ship_y+=0.75f;
+												if(ship_y < -22.0f+(32*10)) ship_y+=ship_speed;
 												else ship_a = false;
 											}
 										}
 										else if(LEVEL == 4)
 										{
 											ship_r = 1;
-											if(ship_y < -22.0f+(32*12)) ship_y+=0.75f;
+											if(ship_y < -22.0f+(32*12)) ship_y+=ship_speed;
 											else ship_a = false;
 										}
 										else if(LEVEL == 5)
@@ -816,19 +824,19 @@ int main(int argc, const char* argv[])
 											if(ship_y < -22.0f+(32*13))
 											{
 												ship_r = 1;
-												ship_y+=0.75f;
+												ship_y+=ship_speed;
 											}
 											else
 											{
 												ship_r = 2;
-												if(ship_x > 88.0f+(64*5)) ship_x-=0.75f;
+												if(ship_x > 88.0f+(64*5)) ship_x-=ship_speed;
 												else ship_a = false;
 											}
 										}
 										else if(LEVEL == 6)
 										{
 											ship_r = 2;
-											if(ship_x > 88.0f+(64*4)) ship_x-=0.75f;
+											if(ship_x > 88.0f+(64*4)) ship_x-=ship_speed;
 											else ship_a = false;
 										}
 										else if(LEVEL == 7)
@@ -836,12 +844,12 @@ int main(int argc, const char* argv[])
 											if(ship_x > 88.0f+(64*3)+32)												
 											{
 												ship_r = 2;
-												ship_x-=0.75f;
+												ship_x-=ship_speed;
 											}
 											else
 											{
 												ship_r = 3;
-												if(ship_y > -22.0f+(32*10)) ship_y-=0.75f;
+												if(ship_y > -22.0f+(32*10)) ship_y-=ship_speed;
 												else ship_a = false;
 											}
 										}
@@ -850,48 +858,49 @@ int main(int argc, const char* argv[])
 											if(ship_y > -22.0f+(32*9))
 											{
 												ship_r = 3;
-												ship_y-=0.75f;
+												ship_y-=ship_speed;
 											}
 											else
 											{
 												ship_r = 0;
-												if(ship_x < 88.0f+(64*5)) ship_x+=0.75f;
+												if(ship_x < 88.0f+(64*5)) ship_x+=ship_speed;
 												else ship_a = false;
 											}
 										}
 										else if(LEVEL == 9)
 										{
 											ten_arena++;
-											if(ten_arena==160) PlaySFX(&sfx_blackout);
-											else if(ten_arena==300) PlayBGM(160, 1);
-											else if(ten_arena>300) ship_a = false;
+											int ten_arena2 = ten_arena / 4;
+											if(ten_arena2==160) PlaySFX(&sfx_blackout);
+											else if(ten_arena2==300) PlayBGM(160, 1);
+											else if(ten_arena2>300) ship_a = false;
 										}
 										else ship_a = false;
 										break;
 									}
 									case 3:
 									{
-										if(LEVEL == 0 && (ship_y > -22.0f+(32*14))) ship_y-=0.75f;
-										else if(LEVEL == 1 && (ship_y > -22.0f+(32*12))) ship_y-=0.75f;
-										else if(LEVEL == 2 && (ship_y > -22.0f+(32*10))) ship_y-=0.75f;
+										if(LEVEL == 0 && (ship_y > -22.0f+(32*14))) ship_y-=ship_speed;
+										else if(LEVEL == 1 && (ship_y > -22.0f+(32*12))) ship_y-=ship_speed;
+										else if(LEVEL == 2 && (ship_y > -22.0f+(32*10))) ship_y-=ship_speed;
 										else if(LEVEL == 3)
 										{
 											if(ship_y > -22.0f+(32*9))
 											{
 												ship_r = 3;
-												ship_y-=0.75f;
+												ship_y-=ship_speed;
 											}
 											else
 											{
 												ship_r = 0;
-												if(ship_x < 120.0f+(64*4)) ship_x+=0.75f;
+												if(ship_x < 120.0f+(64*4)) ship_x+=ship_speed;
 												else ship_a = false;
 											}
 										}
 										else if(LEVEL == 4)
 										{
 											ship_r = 0;
-											if(ship_x < 120.0f+(64*5)) ship_x+=0.75f;
+											if(ship_x < 120.0f+(64*5)) ship_x+=ship_speed;
 											else ship_a = false;
 										}
 										else if(LEVEL == 5)
@@ -899,19 +908,19 @@ int main(int argc, const char* argv[])
 											if(ship_x < 88.0f+(64*6))
 											{
 												ship_r = 0;
-												ship_x+=0.75f;
+												ship_x+=ship_speed;
 											}
 											else
 											{
 												ship_r = 1;
-												if(ship_y < -22.0f+(32*10)) ship_y+=0.75f;
+												if(ship_y < -22.0f+(32*10)) ship_y+=ship_speed;
 												else ship_a = false;
 											}
 										}
 										else if(LEVEL == 6)
 										{
 											ship_r = 1;
-											if(ship_y < -22.0f+(32*12)) ship_y+=0.75f;
+											if(ship_y < -22.0f+(32*12)) ship_y+=ship_speed;
 											else ship_a = false;
 										}
 										else if(LEVEL == 7)
@@ -919,12 +928,12 @@ int main(int argc, const char* argv[])
 											if(ship_y < -22.0f+(32*15))
 											{
 												ship_r = 1;
-												ship_y+=0.75f;
+												ship_y+=ship_speed;
 											}
 											else
 											{
 												ship_r = 2;
-												if(ship_x > 120.0f+(64*5)) ship_x-=0.75f;
+												if(ship_x > 120.0f+(64*5)) ship_x-=ship_speed;
 												else ship_a = false;
 											}
 										}
@@ -933,19 +942,19 @@ int main(int argc, const char* argv[])
 											if(ship_x > 88.0f+(64*5))												
 											{
 												ship_r = 2;
-												ship_x-=0.75f;
+												ship_x-=ship_speed;
 											}
 											else
 											{
 												ship_r = 3;
-												if(ship_y > -22.0f+(32*12)) ship_y-=0.75f;
+												if(ship_y > -22.0f+(32*12)) ship_y-=ship_speed;
 												else ship_a = false;
 											}
 										}
 										else if(LEVEL == 9)
 										{
 											ship_r = 3;
-											if(ship_y > -22.0f+(32*10)) ship_y-=0.75f;
+											if(ship_y > -22.0f+(32*10)) ship_y-=ship_speed;
 											else ship_a = false;
 										}
 										else if(LEVEL == 10)
@@ -962,6 +971,18 @@ int main(int argc, const char* argv[])
 							{
 								if(paddata.BTN_CROSS && !oldpad.BTN_CROSS)
 								{
+									switch(LEVEL)
+									{
+										case 0: case 1: smiley_face = 0; break;
+										case 2: case 3: smiley_face = 1; break;
+										case 4: case 5: smiley_face = 2; break;
+										case 6: case 7: smiley_face = 3; break;
+										case 8: smiley_face = 4; break;
+										case 9: smiley_face = 5; break;
+										case 10: smiley_face = 6; break;
+										default: smiley_face = 0; break;
+									}
+									
 									ready_to_click = 0;
 									StopAudio();
 									LoadLevel(LEVEL);
@@ -988,7 +1009,12 @@ int main(int argc, const char* argv[])
 							
 							if(ready_to_click)
 							{
-								if(gamelose && paddata.BTN_START && !oldpad.BTN_START) GoBackToTitle();
+								if(gamelose && paddata.BTN_START && !oldpad.BTN_START)
+								{
+									ready_to_click = 0;
+									LEVEL=0;
+									GoBackToTitle();
+								}
 								else if(paused)
 								{
 									if(paddata.BTN_SELECT && !oldpad.BTN_SELECT)
@@ -1058,7 +1084,8 @@ int main(int argc, const char* argv[])
 										// pausing shit
 										if(!paddata.BTN_START && oldpad.BTN_START)
 										{
-											if((!free_play && LEVEL<8) || (free_play && fp_music<9))
+											bool enable_bosses = enable_9 || enable_10 || enable_11 || enable_12;
+											if(!enable_bosses)
 											{
 												paused = true;
 												SND_Pause(1);
@@ -1183,7 +1210,7 @@ int main(int argc, const char* argv[])
 													}
 													
 													if(!HELL && !custom_music) PlayBGM(11, 1);
-													if(free_play) desired_bgm = 9;
+													desired_bgm = 9;
 												}
 												else if((LEVEL==9 && !boss10_started) || (free_play && boss10_cutscene==2 && !boss10_started))
 												{
@@ -1196,7 +1223,7 @@ int main(int argc, const char* argv[])
 													}
 													
 													if(!HELL && !custom_music) PlayBGM(13, 1);
-													if(free_play) desired_bgm = 10;
+													desired_bgm = 10;
 												}
 												else if((LEVEL==10 && !boss11_started) || (free_play && boss11_cutscene==2 && !boss11_started))
 												{
@@ -1210,7 +1237,7 @@ int main(int argc, const char* argv[])
 													
 													StopAudio();
 													if(!HELL && !custom_music) PlayBGM(16, 1);
-													if(free_play) desired_bgm = 11;
+													desired_bgm = 11;
 												}
 												else if((LEVEL==11 && !boss12_started) || (free_play && boss12_cutscene==2 && !boss12_started))
 												{
@@ -1218,7 +1245,7 @@ int main(int argc, const char* argv[])
 													boss12.active = true;
 													
 													if(!HELL && !custom_music) PlayBGM(20, 1);
-													if(free_play) desired_bgm = 96;
+													desired_bgm = 12;
 												}
 												
 												if (bonked == 0)
@@ -1333,8 +1360,10 @@ int main(int argc, const char* argv[])
 								end_time = 0;
 							}
 							
+							static int temp_tz = 0;
 							static int temp_t = 0;
-							temp_t++;
+							temp_tz++;
+							temp_t = temp_tz / 4;
 							
 							if(temp_t>100)
 							{
@@ -1390,14 +1419,14 @@ int main(int argc, const char* argv[])
 							}
 							
 							ship_r=0;
-							if(ship_x<-40.0f+(32*15)) ship_x+=1.75f;
+							if(ship_x<-40.0f+(32*15)) ship_x+=ship_speed*2;
 							else
 							{
 								if(ship_x <= -38.0f+(32*15))
 								{
 									start_shop = 1;
 									FadeInOut(&currentScreen, SHOP);
-									ship_x+=1.75f;
+									ship_x+=ship_speed*2;
 								}
 							}
 							break;
@@ -1557,11 +1586,13 @@ int main(int argc, const char* argv[])
 				can_move_xd = 0;
 				disable_control = 0;
 				
-				if(free_play && fp_music<9) fp_lifes--;
+				bool enable_bosses = enable_9 || enable_10 || enable_11 || enable_12;
+				
+				if(free_play && !enable_bosses) fp_lifes--;
 				else
 				{
 					mistakes++;
-					if(LEVEL<8) LIFES--;
+					if(!enable_bosses) LIFES--;
 				}
 				
 				CalculateNumbers();
@@ -1601,6 +1632,14 @@ int main(int argc, const char* argv[])
 					oldpad = paddata;
 				}
 			}
+		}
+		
+		if(enable_12 && !can_move_xd)
+		{
+			tiny3d_BlendFunc(1, TINY3D_BLEND_FUNC_SRC_RGB_ONE_MINUS_DST_COLOR | TINY3D_BLEND_FUNC_SRC_ALPHA_ONE,
+				TINY3D_BLEND_FUNC_DST_RGB_ZERO | TINY3D_BLEND_FUNC_DST_ALPHA_ZERO, TINY3D_BLEND_RGB_FUNC_ADD | TINY3D_BLEND_ALPHA_FUNC_ADD);
+			
+			DrawBackground2D(0xffffffff, -6);
 		}
 		
 		if(playing_bgm) UpdateBGM();

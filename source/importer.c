@@ -6,10 +6,14 @@
 #include "spu_soundmodule.bin.h"
 
 char global_name[] = "PS3Sweeper+";
-char global_version[] = "v0.4";
+char global_version[] = "v0.3.5";
+
+#define MUS_DIR "/dev_hdd0/game/MINESWEEP/USRDIR/music/"
 
 int current_bgm = 1;
 int desired_bgm = 1;
+
+int smiley_face = 0;
 
 float ship_x = -40.0f;
 float ship_y = -22.0f;
@@ -576,13 +580,13 @@ void SplashesInit()
 	splashes_random[splash_count++] = "May work with RPCS3, but freezes rarely happen. Be careful!";
 	splashes_random[splash_count++] = "Watch no one play this";
 	splashes_random[splash_count++] = "The definition of Insanity.";
-	splashes_random[splash_count++] = "up up down down left right left right circle cross start.\n   oh wait, it doesnt work";
+	splashes_random[splash_count++] = "up up down down left right left right circle cross start.\n     oh wait, it doesnt work";
 	splashes_random[splash_count++] = "why do i stay all night for this";
 	splashes_random[splash_count++] = "I wanna try making MS+ for PS1 sometime soon. Wait a second...";
 	splashes_random[splash_count++] = "What R2 do? BEEP BEEP BEEP";
 	splashes_random[splash_count++] = "48x36 boards DO NOT GIVE YOU FRAMEDROPS!!!!!!!";
 	splashes_random[splash_count++] = "Now with Full Episode 2!";
-	splashes_random[splash_count++] = "12 is coming...";
+	splashes_random[splash_count++] = "12 is coming...?";
 	splashes_random[splash_count++] = "Minesweeper Plus on Java phones? Heh. Don't make me laugh.";
 	splashes_random[splash_count++] = "DoodleBob plays his game on PS3. Neat.";
 	splashes_random[splash_count++] = "The great fraction of time definition is... i forgor";
@@ -609,7 +613,7 @@ void SplashesInit()
 	//splashes_random[splash_count++] = "Hi, Xbox Original :)";
 	//splashes_random[splash_count++] = "I wonder what I can do for Mac OS 9 tho...";
 	splashes_random[splash_count++] = "Cutscenes?";
-	splashes_random[splash_count++] = "v0.4 is here. Prepare thyself!!!";
+	// splashes_random[splash_count++] = "v0.4 is here. Prepare thyself!!!";
 	splashes_random[splash_count++] = "BUGS. I HATE BUGS!!!!";
 	splashes_random[splash_count++] = "Hate Lesbian Space Princess. Love PS3Sweeper+.";
 	splashes_random[splash_count++] = "Ay, mate! Don't get snowgraved, heh!";
@@ -618,6 +622,9 @@ void SplashesInit()
 	splashes_random[splash_count++] = "Does not contain too much if else stuff!";
 	splashes_random[splash_count++] = "One of the First PS3 games that support Kazakh Language!";
 	splashes_random[splash_count++] = "Watch no one play this x2.";
+	splashes_random[splash_count++] = "v0.3.5? When v0.4???";
+	splashes_random[splash_count++] = "NaN is coming...";
+	splashes_random[splash_count++] = "Somebody once told me the world is gonna roll me.";
 	
 	FILE *za = fopen("/dev_hdd0/game/ACIDSTORE/ICON0.PNG", "rb");
 	if(za!=NULL)
@@ -669,199 +676,138 @@ void init_bgm()
 {
 	for(int z = 0; z < BGM_LIST; z++)
 	{
+		bgm[z] = "";
 		bgm_start[z] = 0;
 		bgm_end[z] = sex;
 	}
 	
-	bgm[0] = title_bin;
-	bgm_size[0] = title_bin_size;
+	bgm[0] = MUS_DIR "title.mp3";
 	
-	bgm[1] = bgm1_bin;
-	bgm_size[1] = bgm1_bin_size;
+	bgm[1] = MUS_DIR "bgm1.mp3";
 	bgm_start[1] = 499;
 	bgm_end[1] = 45281;
 	
-	bgm[2] = bgm2_bin;
-	bgm_size[2] = bgm2_bin_size;
+	bgm[2] = MUS_DIR "bgm2.mp3";
 	bgm_start[2] = 7801;
 	bgm_end[2] = 54617;
 	
-	bgm[3] = bgm3_bin;
-	bgm_size[3] = bgm3_bin_size;
+	bgm[3] = MUS_DIR "bgm3.mp3";
 	bgm_start[3] = 0;
 	bgm_end[3] = sex;
 	
-	bgm[4] = bgm4_bin;
-	bgm_size[4] = bgm4_bin_size;
+	bgm[4] = MUS_DIR "bgm4.mp3";
 	bgm_start[4] = 1782;
 	bgm_end[4] = 137481;
 	
-	bgm[5] = bgm5_bin;
-	bgm_size[5] = bgm5_bin_size;
+	bgm[5] = MUS_DIR "bgm5.mp3";
 	
-	bgm[6] = bgm6_bin;
-	bgm_size[6] = bgm6_bin_size;
+	bgm[6] = MUS_DIR "bgm6.mp3";
 	bgm_start[6] = 13439;
 	bgm_end[6] = 69080;
 	
-	bgm[7] = bgm7_bin;
-	bgm_size[7] = bgm7_bin_size;
+	bgm[7] = MUS_DIR "bgm7.mp3";
 	
-	bgm[8] = bgm8_bin;
-	bgm_size[8] = bgm8_bin_size;
+	bgm[8] = MUS_DIR "bgm8.mp3";
 	bgm_start[8] = 6548;
 	bgm_end[8] = 104708-10;
 	
-	bgm[9] = ocean_bin;
-	bgm_size[9] = ocean_bin_size;
+	bgm[9] = MUS_DIR "ocean.mp3";
 	
-	bgm[10] = boss9_intro_bin;
-	bgm_size[10] = boss9_intro_bin_size;
+	bgm[10] = MUS_DIR "boss9_intro.mp3";
 	bgm_start[10] = 29632;
 	bgm_end[10] = 33763;
 	
-	bgm[11] = boss9_bin;
-	bgm_size[11] = boss9_bin_size;
+	bgm[11] = MUS_DIR "boss9.mp3";
 	bgm_start[11] = 10995;
 	bgm_end[11] = 100527;
 	
-	bgm[12] = boss10_intro_bin;
-	bgm_size[12] = boss10_intro_bin_size;
+	bgm[12] = MUS_DIR "boss10_intro.mp3";
 	bgm_start[12] = 23725;
 	bgm_end[12] = 26893;
 	
-	bgm[13] = boss10_bin;
-	bgm_size[13] = boss10_bin_size;
+	bgm[13] = MUS_DIR "boss10.mp3";
 	
-	bgm[15] = boss11_intro_bin;
-	bgm_size[15] = boss11_intro_bin_size;
+	bgm[14] = MUS_DIR "boss11_2.mp3";
+	
+	bgm[15] = MUS_DIR "boss11_intro.mp3";
 	bgm_start[15] = 42881;
 	bgm_end[15] = 70250-10;
 	
-	bgm[16] = boss11_bin;
-	bgm_size[16] = boss11_bin_size;
+	bgm[16] = MUS_DIR "boss11.mp3";
 	bgm_start[16] = 3438;
 	bgm_end[16] = 127540-10;
 	
-	bgm[17] = bgmrs_bin;
-	bgm_size[17] = bgmrs_bin_size;
+	bgm[17] = MUS_DIR "bgmrs.ogg";
 	bgm_start[17] = 44300;
 	bgm_end[17] = 103380;
 	
-	bgm[18] = bgms3m_bin;
-	bgm_size[18] = bgms3m_bin_size;
+	bgm[18] = MUS_DIR "bgms3m.ogg";
 	bgm_start[18] = 44300;
 	bgm_end[18] = 103380;
 	
-	bgm[19] = boss12_intro_bin;
-	bgm_size[19] = boss12_intro_bin_size;
+	bgm[19] = MUS_DIR "boss12_intro.ogg";
 	bgm_start[19] = 23283;
 	bgm_end[19] = 35027-10;
 	
-	bgm[20] = boss12_bin;
-	bgm_size[20] = boss12_bin_size;
+	bgm[20] = MUS_DIR "boss12.ogg";
+	bgm[21] = MUS_DIR "boss12_2.ogg";
 	
-	bgm[51]=Ags1_bin;bgm_size[51]=Ags1_bin_size;
-	bgm[52]=Ags2_bin;bgm_size[52]=Ags2_bin_size;
-	bgm[53]=Ags3_bin;bgm_size[53]=Ags3_bin_size;
-	bgm[54]=Ags4_bin;bgm_size[54]=Ags4_bin_size;
-	bgm[55]=Ags5_bin;bgm_size[55]=Ags5_bin_size;
-	bgm[56]=Ags6_bin;bgm_size[56]=Ags6_bin_size;
-	bgm[57]=Ags7_bin;bgm_size[57]=Ags7_bin_size;
-	bgm[58]=Ags8_bin;bgm_size[58]=Ags8_bin_size;
-	bgm[59]=Ags9_bin;bgm_size[59]=Ags9_bin_size;
-	bgm[60]=Ags10_bin;bgm_size[60]=Ags10_bin_size;
-	bgm[61]=Ags11_bin;bgm_size[61]=Ags11_bin_size;
-	bgm[62]=Agsrs_bin;bgm_size[62]=Agsrs_bin_size;
-	bgm[63]=Agss3m_bin;bgm_size[63]=Agss3m_bin_size;
-	bgm[64]=Ags12_bin;bgm_size[64]=Ags12_bin_size;
+	bgm[51] = MUS_DIR "Ags1.mp3";
+	bgm[52] = MUS_DIR "Ags2.mp3";
+	bgm[53] = MUS_DIR "Ags3.mp3";
+	bgm[54] = MUS_DIR "Ags4.mp3";
+	bgm[55] = MUS_DIR "Ags5.mp3";
+	bgm[56] = MUS_DIR "Ags6.mp3";
+	bgm[57] = MUS_DIR "Ags7.mp3";
+	bgm[58] = MUS_DIR "Ags8.mp3";
+	bgm[59] = MUS_DIR "Ags9.mp3";
+	bgm[60] = MUS_DIR "Ags10.mp3";
+	bgm[61] = MUS_DIR "Ags11.mp3";
+	bgm[62] = MUS_DIR "Agsrs.ogg";
+	bgm[63] = MUS_DIR "Agss3m.ogg";
+	bgm[64] = MUS_DIR "Ags12.ogg";
 	
-	bgm[99] = (unsigned char *)""; // custom music
-	bgm_size[99] = 0;
+	// 99 - custom music
+	// 100 - bad apple!!
 	
-	bgm[100] = (unsigned char *)""; // bad apple!!
-	bgm_size[100] = 0;
+	bgm[101] = MUS_DIR "win1.mp3";
+	bgm[102] = MUS_DIR "win2.mp3";
+	bgm[103] = MUS_DIR "win3.mp3";
+	bgm[104] = MUS_DIR "win4.mp3";
+	bgm[105] = MUS_DIR "win5.ogg";
+	bgm[106] = MUS_DIR "win6.ogg";
+	bgm[107] = MUS_DIR "win7.ogg";
+	bgm[108] = MUS_DIR "win8.ogg";
+	bgm[109] = MUS_DIR "boss9_win.ogg";
+	bgm[110] = MUS_DIR "boss10_win.ogg";
+	bgm[111] = MUS_DIR "boss11_win.ogg";
+	bgm[112] = MUS_DIR "boss12_win.ogg";
+	bgm[117] = MUS_DIR "winrs.ogg";
+	bgm[118] = MUS_DIR "wins3m.ogg";
 	
-	bgm[101] = win1_bin;
-	bgm_size[101] = win1_bin_size;
+	bgm[151] = MUS_DIR "ls1.mp3";
+	bgm[152] = MUS_DIR "ls2.mp3";
+	bgm[153] = MUS_DIR "ls3.mp3";
+	bgm[154] = MUS_DIR "ls4.mp3";
+	bgm[155] = MUS_DIR "ls5.mp3";
+	bgm[156] = MUS_DIR "ls6.mp3";
+	bgm[157] = MUS_DIR "ls7.mp3";
+	bgm[158] = MUS_DIR "ls8.mp3";
+	bgm[159] = MUS_DIR "ls9.mp3";
+	bgm[160] = MUS_DIR "ls10.mp3";
+	bgm[161] = MUS_DIR "ls11.mp3";
+	bgm[162] = MUS_DIR "lsrs.ogg";
+	bgm[163] = MUS_DIR "lss3m.ogg";
+	bgm[164] = MUS_DIR "ls12.ogg";
 	
-	bgm[102] = win2_bin;
-	bgm_size[102] = win2_bin_size;
-	
-	bgm[103] = win3_bin;
-	bgm_size[103] = win3_bin_size;
-	
-	bgm[104] = win4_bin;
-	bgm_size[104] = win4_bin_size;
-	
-	bgm[105] = win5_bin;
-	bgm_size[105] = win5_bin_size;
-	
-	bgm[106] = win6_bin;
-	bgm_size[106] = win6_bin_size;
-	
-	bgm[107] = win7_bin;
-	bgm_size[107] = win7_bin_size;
-	
-	bgm[108] = win8_bin;
-	bgm_size[108] = win8_bin_size;
-	
-	bgm[109] = boss9_win_bin;
-	bgm_size[109] = boss9_win_bin_size;
-	
-	bgm[110] = boss10_win_bin;
-	bgm_size[110] = boss10_win_bin_size;
-	
-	bgm[111] = boss11_win_bin;
-	bgm_size[111] = boss11_win_bin_size;
-	
-	bgm[112] = boss12_win_bin;
-	bgm_size[112] = boss12_win_bin_size;
-	
-	bgm[117] = winrs_bin;
-	bgm_size[117] = winrs_bin_size;
-	
-	bgm[118] = wins3m_bin;
-	bgm_size[118] = wins3m_bin_size;
-	
-	bgm[151]=ls1_bin;bgm_size[151]=ls1_bin_size;
-	bgm[152]=ls2_bin;bgm_size[152]=ls2_bin_size;
-	bgm[153]=ls3_bin;bgm_size[153]=ls3_bin_size;
-	bgm[154]=ls4_bin;bgm_size[154]=ls4_bin_size;
-	bgm[155]=ls5_bin;bgm_size[155]=ls5_bin_size;
-	bgm[156]=ls6_bin;bgm_size[156]=ls6_bin_size;
-	bgm[157]=ls7_bin;bgm_size[157]=ls7_bin_size;
-	bgm[158]=ls8_bin;bgm_size[158]=ls8_bin_size;
-	bgm[159]=ls9_bin;bgm_size[159]=ls9_bin_size;
-	bgm[160]=ls10_bin;bgm_size[160]=ls10_bin_size;
-	bgm[161]=ls11_bin;bgm_size[161]=ls11_bin_size;
-	bgm[162]=lsrs_bin;bgm_size[162]=lsrs_bin_size;
-	bgm[163]=lss3m_bin;bgm_size[163]=lss3m_bin_size;
-	bgm[164]=ls12_bin;bgm_size[164]=ls12_bin_size;
-	
-	bgm[191] = untitled_bin;
-	bgm_size[191] = untitled_bin_size;
-	
-	bgm[192] = credits_bin;
-	bgm_size[192] = credits_bin_size;
-	
-	bgm[193] = ending_bin;
-	bgm_size[193] = ending_bin_size;
-	
-	bgm[194] = fourofakind_intro_bin;
-	bgm_size[194] = fourofakind_intro_bin_size;
-	
-	bgm[195] = fourofakind_bin;
-	bgm_size[195] = fourofakind_bin_size;
-	
-	bgm[197] = shop_bin;
-	bgm_size[197] = shop_bin_size;
-	
-	bgm[198] = logo_bin;
-	bgm_size[198] = logo_bin_size;
-	
-	bgm[199] = (unsigned char *)""; // custom win music
-	bgm_size[199] = 0;
+	bgm[191] = MUS_DIR "untitled.ogg";
+	bgm[192] = MUS_DIR "credits.ogg";
+	bgm[193] = MUS_DIR "ending.ogg";
+	bgm[194] = MUS_DIR "fourofakind_intro.ogg";
+	bgm[195] = MUS_DIR "fourofakind.ogg";
+	bgm[197] = MUS_DIR "shop.ogg";
+	bgm[198] = MUS_DIR "logo.mp3";
+	// 199 - custom win music
 }
 
 int LoadSFX(SoundEffect *sfx, const void *data, int size)
@@ -918,9 +864,14 @@ int max(int min, int max)
 void PlayBGM(int id, int inf)
 {
 	StopAudio();
-	FILE *fp;
-	if(id==99 || id==199 || id==100) fp = fopen((char *)bgm[id], "rb");
-    else fp = (FILE *)mem_open((char *)bgm[id], bgm_size[id]);
+	FILE *fp = fopen(bgm[id], "rb");
+	
+	if(!fp)
+    {
+        printf("Error! No music found.\n");
+        return;
+    }
+	
     PlayAudiofd(fp, 0, inf ? AUDIO_INFINITE_TIME : AUDIO_ONE_TIME);
     current_bgm = id;
 }
