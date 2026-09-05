@@ -2,7 +2,6 @@
 #include "bosses.h"
 #include "text.h"
 #include "save.h"
-#include "video.h"
 #include "asimov_ttf_bin.h"
 
 #include "level_data.h"
@@ -936,25 +935,6 @@ void drawScene()
 		{
 			case LOGO:
 			{
-				static int video_frame = 0;
-				PS3Video_Update(&the_video);
-				
-				if(vdec_picout_pending>0)
-				{
-					vdec_picout_pending--;
-					int ret = PS3Video_GetFrame(&the_video);
-					printf("[VDEC] GetFrame ret=%d pending=%d\n", ret, vdec_picout_pending);
-				}
-				video_frame++;
-				
-				if(video_frame<150) PS3Video_Draw(&the_video, 0);
-				else
-				{
-					PS3Video_Stop(&the_video);
-					currentScreen = TITLE;
-					start_music = 1;
-				}
-				usleep(30000);
 				break;
 			}
 			case TITLE:

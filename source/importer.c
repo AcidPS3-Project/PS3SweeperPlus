@@ -6,7 +6,7 @@
 #include "spu_soundmodule.bin.h"
 
 char global_name[] = "PS3Sweeper+";
-char global_version[] = "v0.3.5";
+char global_version[] = "v0.4";
 
 #define MUS_DIR "/dev_hdd0/game/MINESWEEP/USRDIR/music/"
 
@@ -958,6 +958,7 @@ void DemoCompleteCallback(msgButton button, void *usrData)
 {
     sysProcessExit(0);
 }
+
 void EmptyDialogCallback(msgButton button, void *usrData)
 {
     // ehhehe fuck this shit

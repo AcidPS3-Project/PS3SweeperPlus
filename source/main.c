@@ -152,6 +152,8 @@ void GoBackToTitle()
 	enable_12 = false;
 	enable_nan = false;
 	
+	HELL = false;
+	
 	if(free_play) LEVEL=LEVEL_BKP;
 	
 	bad_apple = 0;
@@ -192,6 +194,11 @@ void UnloadCustomSweeper()
 
 char custom_main_path[256];
 char custom_win_path[256];
+
+bool old_control_left = false;
+bool old_control_right = false;
+bool old_control_up = false;
+bool old_control_down = false;
 
 int main(int argc, const char* argv[])
 {
@@ -258,6 +265,12 @@ int main(int argc, const char* argv[])
 				{
 					ioPadGetData(ip, &paddata);
 					
+					bool control_left = paddata.BTN_LEFT || paddata.ANA_L_H < 80;
+					bool control_right = paddata.BTN_RIGHT || paddata.ANA_L_H > 176;
+
+					bool control_up = paddata.BTN_UP || paddata.ANA_L_V < 80;
+					bool control_down = paddata.BTN_DOWN || paddata.ANA_L_V > 176;
+					
 					if(paddata.BTN_CROSS || paddata.BTN_CIRCLE) button_x_hold = true;
 					else button_x_hold = false;
 					
@@ -268,6 +281,25 @@ int main(int argc, const char* argv[])
 					{
 						case LOGO:
 						{
+							static int video_frame = 0;
+							PS3Video_Update(&the_video);
+							
+							if(vdec_picout_pending>0)
+							{
+								vdec_picout_pending--;
+								int ret = PS3Video_GetFrame(&the_video);
+								printf("[VDEC] GetFrame ret=%d pending=%d\n", ret, vdec_picout_pending);
+							}
+							video_frame++;
+							
+							if(video_frame<150) PS3Video_Draw(&the_video, 0);
+							else
+							{
+								PS3Video_Stop(&the_video);
+								currentScreen = TITLE;
+								start_music = 1;
+							}
+							usleep(30000);
 							break;
 						}
 						case TITLE:
@@ -330,7 +362,7 @@ int main(int argc, const char* argv[])
 									FadeInOut(&currentScreen, ENDING);
 								}
 								
-								if(paddata.BTN_CROSS && !oldpad.BTN_CROSS) LEVEL=8;
+								// if(paddata.BTN_CROSS && !oldpad.BTN_CROSS) LEVEL=8;
 							}
 							break;
 						}
@@ -466,22 +498,22 @@ int main(int argc, const char* argv[])
 											FadeInOut(&currentScreen, MAP);
 											ship_a = true;
 										}
-										if(paddata.BTN_UP && !oldpad.BTN_UP)
+										if(control_up && !old_control_up)
 										{
 											DIFFICULTYs--;
 											if (DIFFICULTYs<0) DIFFICULTYs = 0;
 										}
-										if(paddata.BTN_DOWN && !oldpad.BTN_DOWN)
+										if(control_down && !old_control_down)
 										{
 											DIFFICULTYs++;
 											if (DIFFICULTYs>3) DIFFICULTYs = 3;
 										}
-										if(paddata.BTN_LEFT && !oldpad.BTN_LEFT)
+										if(control_left && !old_control_left)
 										{
 											EPISODEs--;
 											if (EPISODEs<1) EPISODEs = 1;
 										}
-										if(paddata.BTN_RIGHT && !oldpad.BTN_RIGHT)
+										if(control_right && !old_control_right)
 										{
 											EPISODEs++;
 											if (EPISODEs>episode_count) EPISODEs = episode_count;
@@ -516,12 +548,12 @@ int main(int argc, const char* argv[])
 											ship_a = true;
 										}
 										
-										if(paddata.BTN_LEFT && !oldpad.BTN_LEFT)
+										if(control_left && !old_control_left)
 										{
 											menu_pos--;
 											if (menu_pos<0) menu_pos = 0;
 										}
-										if(paddata.BTN_RIGHT && !oldpad.BTN_RIGHT)
+										if(control_right && !old_control_right)
 										{
 											menu_pos++;
 											if (menu_pos>3) menu_pos = 3;
@@ -598,12 +630,12 @@ int main(int argc, const char* argv[])
 										else UnloadCustomSweeper();
 									}
 									
-									if(paddata.BTN_UP && !oldpad.BTN_UP)
+									if(control_up && !old_control_up)
 									{
 										fp_menu--;
 										if (fp_menu<0) fp_menu = 0;
 									}
-									if(paddata.BTN_DOWN && !oldpad.BTN_DOWN)
+									if(control_down && !old_control_down)
 									{
 										fp_menu++;
 										if (fp_menu>7) fp_menu = 7;
@@ -611,7 +643,7 @@ int main(int argc, const char* argv[])
 									
 									int max_mus = 14;
 									
-									if(paddata.BTN_LEFT && !oldpad.BTN_LEFT)
+									if(control_left && !old_control_left)
 									{
 										switch(fp_menu)
 										{
@@ -635,7 +667,7 @@ int main(int argc, const char* argv[])
 										
 										if(fp_mines>(fp_width*fp_height)-1) fp_mines=(fp_width*fp_height)-1;
 									}
-									if(paddata.BTN_RIGHT && !oldpad.BTN_RIGHT)
+									if(control_right && !old_control_right)
 									{
 										switch(fp_menu)
 										{
@@ -1321,10 +1353,10 @@ int main(int argc, const char* argv[])
 										if(paddata.BTN_TRIANGLE && !oldpad.BTN_TRIANGLE && boss9_started) WinCheck();
 										
 										// movement
-										if(paddata.BTN_LEFT && !oldpad.BTN_LEFT) MoveCursor(-1, 0);
-										if(paddata.BTN_RIGHT && !oldpad.BTN_RIGHT) MoveCursor(1, 0);
-										if(paddata.BTN_UP && !oldpad.BTN_UP) MoveCursor(0, -1);
-										if(paddata.BTN_DOWN && !oldpad.BTN_DOWN) MoveCursor(0, 1);
+										if(control_left && !old_control_left) MoveCursor(-1, 0);
+										if(control_right && !old_control_right) MoveCursor(1, 0);
+										if(control_up && !old_control_up) MoveCursor(0, -1);
+										if(control_down && !old_control_down) MoveCursor(0, 1);
 										
 										// zoom check
 										if(paddata.BTN_R1 && !oldpad.BTN_R1) zoomCheck(1);
@@ -1363,7 +1395,7 @@ int main(int argc, const char* argv[])
 							static int temp_tz = 0;
 							static int temp_t = 0;
 							temp_tz++;
-							temp_t = temp_tz / 4;
+							temp_t = temp_tz / 2;
 							
 							if(temp_t>100)
 							{
@@ -1471,8 +1503,8 @@ int main(int argc, const char* argv[])
 							
 							if(ready_to_click)
 							{
-								if(paddata.BTN_LEFT && !oldpad.BTN_LEFT) specialthanks = false;
-								if(paddata.BTN_RIGHT && !oldpad.BTN_RIGHT) specialthanks = true;
+								if(control_left && !old_control_left) specialthanks = false;
+								if(control_right && !old_control_right) specialthanks = true;
 								
 								if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE)
 								{
@@ -1489,6 +1521,11 @@ int main(int argc, const char* argv[])
 						}
 						default: break;
 					}
+					
+					old_control_left = control_left;
+					old_control_right = control_right;
+					old_control_up = control_up;
+					old_control_down = control_down;
 					oldpad = paddata;
 				}
 			}

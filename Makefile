@@ -40,8 +40,8 @@ INCLUDES	:=	include
 # any extra libraries we wish to link with the project
 #---------------------------------------------------------------------------------
 LIBS		:=	-lfont3d -lfreetype -Wl,--start-group -ltiny3d -lrsx -lgcm_sys \
-		-Wl,--end-group -lsimdmath -lvdec -lio -lsysutil -lrt -llv2 -lsysmodule -laudioplayer \
-		-lmpg123 -logg -lspu_sound -laudio -lm -lz -lpngdec -llv2dbg
+			-Wl,--end-group -lsimdmath -lvdec -lio -lsysutil -lrt -llv2 -lsysmodule -laudioplayer \
+			-lmpg123 -logg -lspu_sound -laudio -lpngdec -lz -lm -llv2dbg
 
 
 
@@ -59,7 +59,7 @@ LDFLAGS		=	$(MACHDEP) -Wl,-Map,$(notdir $@).map
 # list of directories containing libraries, this must be the top level containing
 # include and lib
 #---------------------------------------------------------------------------------
-LIBDIRS	:=
+LIBDIRS		:=	$(CURDIR)
 
 #---------------------------------------------------------------------------------
 # no real need to edit anything past this point unless you need to add additional
@@ -124,13 +124,11 @@ export LIBPATHS	:=	$(foreach dir,$(LIBDIRS),-L$(dir)/lib) \
 export OUTPUT	:=	$(CURDIR)/$(TARGET)
 .PHONY: $(BUILD) clean
 
-
 #---------------------------------------------------------------------------------
 $(BUILD):
 	@[ -d $@ ] || mkdir -p $@
 	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
 
-#---------------------------------------------------------------------------------
 clean:
 	@echo clean ...
 	@rm -fr $(BUILD) $(OUTPUT).elf $(OUTPUT).self $(OUTPUT).fake.self $(OUTPUT).pkg $(OUTPUT).gnpdrm.pkg EBOOT.BIN
