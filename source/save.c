@@ -64,6 +64,16 @@ void SetSaveDefaults()
 	gSave.save_shop_unlock_3 = false;
 	gSave.save_shop_unlock_4 = false;
 	gSave.save_shop_unlock_5 = false;
+	
+	for(int i = 0; i < 8; i++)
+	{
+		gSave.ranks_ep_1[i] = -1;
+		gSave.ranks_ep_2[i] = -1;
+		gSave.ranks_ep_3[i] = -1;
+		gSave.ranks_ep_4[i] = -1;
+	}
+	
+	gSave.route_touhou_unlocked = false;
 }
 
 void savestate_init()
@@ -280,6 +290,13 @@ int StartSave(void)
 	gSave.save_shop_unlock_4 = shop_unlock_4;
 	gSave.save_shop_unlock_5 = shop_unlock_5;
 	
+	memcpy(gSave.ranks_ep_1, ranks_ep_1, sizeof(ranks_ep_1));
+	memcpy(gSave.ranks_ep_2, ranks_ep_2, sizeof(ranks_ep_2));
+	memcpy(gSave.ranks_ep_3, ranks_ep_3, sizeof(ranks_ep_3));
+	memcpy(gSave.ranks_ep_4, ranks_ep_4, sizeof(ranks_ep_4));
+	
+	gSave.route_touhou_unlocked = route_touhou_unlocked;
+	
 	char debug[256];
 
 	sprintf(debug,"SAVING VALUES: level=%d current=%d global=%d route=%d", gSave.save_level,
@@ -361,7 +378,17 @@ static void LoadThread(void *arg)
 	shop_unlock_4 = gSave.save_shop_unlock_4;
 	shop_unlock_5 = gSave.save_shop_unlock_5;
 	
-	DebugLog("loaded!");
+	memcpy(ranks_ep_1, gSave.ranks_ep_1, sizeof(ranks_ep_1));
+	memcpy(ranks_ep_2, gSave.ranks_ep_2, sizeof(ranks_ep_2));
+	memcpy(ranks_ep_3, gSave.ranks_ep_3, sizeof(ranks_ep_3));
+	memcpy(ranks_ep_4, gSave.ranks_ep_4, sizeof(ranks_ep_4));
+	
+	route_touhou_unlocked = gSave.route_touhou_unlocked;
+	
+	char debug[256];
+	sprintf(debug, "LOAD VALUES: level=%d current=%d global=%d route=%d episode=%d", gSave.save_level,
+		gSave.save_current_minecoins, gSave.save_global_minecoins, gSave.save_global_route, gSave.save_episode);
+	DebugLog(debug);
 	
 	if(EPISODE<1) EPISODE=1;
 	if(fp_width<1) fp_width=9;
@@ -370,11 +397,6 @@ static void LoadThread(void *arg)
 	if(fp_music<1) fp_music=1;
 	game_init = 1;
 	
-	char debug[256];
-	sprintf(debug, "LOAD VALUES: level=%d current=%d global=%d route=%d episode=%d", gSave.save_level,
-		gSave.save_current_minecoins, gSave.save_global_minecoins, gSave.save_global_route, gSave.save_episode);
-	DebugLog(debug);
-
     sysThreadExit(0);
 }
 

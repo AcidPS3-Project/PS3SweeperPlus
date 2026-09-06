@@ -8,8 +8,6 @@
 char global_name[] = "PS3Sweeper+";
 char global_version[] = "v0.4";
 
-#define MUS_DIR "/dev_hdd0/game/MINESWEEP/USRDIR/music/"
-
 int current_bgm = 1;
 int desired_bgm = 1;
 
@@ -120,6 +118,8 @@ bool shop_unlock_4 = false;
 bool shop_unlock_5 = false;
 
 bool specialthanks = false;
+
+bool route_touhou_unlocked = false;
 
 float lerp(int x, int y, float amount)
 {
@@ -682,7 +682,6 @@ void init_bgm()
 	}
 	
 	bgm[0] = MUS_DIR "title.mp3";
-	
 	bgm[1] = MUS_DIR "bgm1.mp3";
 	bgm_start[1] = 499;
 	bgm_end[1] = 45281;
@@ -692,27 +691,21 @@ void init_bgm()
 	bgm_end[2] = 54617;
 	
 	bgm[3] = MUS_DIR "bgm3.mp3";
-	bgm_start[3] = 0;
-	bgm_end[3] = sex;
-	
 	bgm[4] = MUS_DIR "bgm4.mp3";
 	bgm_start[4] = 1782;
 	bgm_end[4] = 137481;
 	
 	bgm[5] = MUS_DIR "bgm5.mp3";
-	
 	bgm[6] = MUS_DIR "bgm6.mp3";
 	bgm_start[6] = 13439;
 	bgm_end[6] = 69080;
 	
 	bgm[7] = MUS_DIR "bgm7.mp3";
-	
 	bgm[8] = MUS_DIR "bgm8.mp3";
 	bgm_start[8] = 6548;
 	bgm_end[8] = 104708-10;
 	
 	bgm[9] = MUS_DIR "ocean.mp3";
-	
 	bgm[10] = MUS_DIR "boss9_intro.mp3";
 	bgm_start[10] = 29632;
 	bgm_end[10] = 33763;
@@ -726,9 +719,7 @@ void init_bgm()
 	bgm_end[12] = 26893;
 	
 	bgm[13] = MUS_DIR "boss10.mp3";
-	
 	bgm[14] = MUS_DIR "boss11_2.mp3";
-	
 	bgm[15] = MUS_DIR "boss11_intro.mp3";
 	bgm_start[15] = 42881;
 	bgm_end[15] = 70250-10;
@@ -808,6 +799,31 @@ void init_bgm()
 	bgm[197] = MUS_DIR "shop.ogg";
 	bgm[198] = MUS_DIR "logo.mp3";
 	// 199 - custom win music
+	
+	// Touhou route shit
+	
+	bgm[201] = MUS_DIR "touhou/bgm1.ogg";
+	bgm[202] = MUS_DIR "touhou/bgm2.ogg";
+	// bgm[203] = MUS_DIR "touhou/bgm3.ogg";
+	bgm[204] = MUS_DIR "touhou/bgm4.ogg";
+	// bgm[205] = MUS_DIR "touhou/bgm5.ogg";
+	// bgm[206] = MUS_DIR "touhou/bgm6.ogg";
+	// bgm[207] = MUS_DIR "touhou/bgm7.ogg";
+	// bgm[208] = MUS_DIR "touhou/bgm8.ogg";
+	
+	bgm[209] = MUS_DIR "touhou/boss9_intro.ogg";
+	bgm_start[209] = 29632;
+	bgm_end[209] = 33763;
+	
+	bgm[210] = MUS_DIR "touhou/boss9.ogg";
+	bgm_start[210] = 10995;
+	bgm_end[210] = 100527;
+	
+	bgm[211] = MUS_DIR "touhou/boss9_2.ogg";
+	bgm_start[211] = 23337;
+	bgm_end[211] = 68479;
+	
+	// coming soon 0_0
 }
 
 int LoadSFX(SoundEffect *sfx, const void *data, int size)
@@ -974,6 +990,14 @@ void Initialize()
 	sysSpuImageImport(&spu_image, spu_soundmodule_bin, 0);
 	sysSpuRawImageLoad(spu, &spu_image);
 	SND_Init(spu);
+	
+	for(int i = 0; i < 8; i++)
+	{
+		ranks_ep_1[i] = -1;
+		ranks_ep_2[i] = -1;
+		ranks_ep_3[i] = -1;
+		ranks_ep_4[i] = -1;
+	}
 }
 
 void HolyShit()

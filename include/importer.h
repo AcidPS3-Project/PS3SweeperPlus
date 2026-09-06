@@ -107,6 +107,13 @@ extern bool shop_unlock_3;
 extern bool shop_unlock_4;
 extern bool shop_unlock_5;
 
+extern int ranks_ep_1[8];
+extern int ranks_ep_2[8];
+extern int ranks_ep_3[8];
+extern int ranks_ep_4[8];
+
+extern bool route_touhou_unlocked;
+
 void SplashesInit();
 int SplashesCount();
 
@@ -136,7 +143,8 @@ SoundEffect sfx_level2;
 SoundEffect sfx_beep;
 SoundEffect sfx_blackout;
 
-#define BGM_LIST 200
+#define BGM_LIST 400
+#define MUS_DIR "/dev_hdd0/game/MINESWEEP/USRDIR/music/"
 
 #define TOTAL_SHEETS 25
 pngData spritesheet[TOTAL_SHEETS];
