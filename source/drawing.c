@@ -655,6 +655,7 @@ void DrawSprite2DR(int id, float x, float y, int wid2, int hei2, int wid1, int h
 
 void SetTexture(int id)
 {
+	if(id==1 && global_route==1) id = 21;
 	tiny3d_SetTexture(0, sprite_off[id], spritesheet[id].width, spritesheet[id].height,
 		spritesheet[id].pitch, TINY3D_TEX_FORMAT_A8R8G8B8, TEXTURE_NEAREST);
 }

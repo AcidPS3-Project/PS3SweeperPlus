@@ -5,6 +5,7 @@
 #include "captain_sheet_bin.h"
 #include "hats_sheet_bin.h"
 #include "tiles_sheet_bin.h"
+#include "tiles_sheet2_bin.h"
 #include "ui_sheet_bin.h"
 
 #include "boss_sheet_bin.h"

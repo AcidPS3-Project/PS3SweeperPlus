@@ -19,7 +19,7 @@ static u32 PS3Video_Callback(u32 handle, u32 msgtype, u32 msgdata, u32 arg)
 		case VDEC_CALLBACK_AUDONE: break;
 		case VDEC_CALLBACK_PICOUT:
 			vdec_picout_pending++;
-			printf("[VDEC] PICOUT pending=%d\n", vdec_picout_pending);
+			// printf("[VDEC] PICOUT pending=%d\n", vdec_picout_pending);
 			break;
 		case VDEC_CALLBACK_SEQDONE:
 			printf("[VDEC] SEQDONE msgdata=%08X\n", msgdata);

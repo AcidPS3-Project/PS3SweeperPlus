@@ -19,6 +19,12 @@ int ship_r = 0;
 bool ship_a = false;
 
 bool show_shit = false;
+int global_route = 0;
+
+int ranks_ep_1[8];
+int ranks_ep_2[8];
+int ranks_ep_3[8];
+int ranks_ep_4[8];
 
 int rank_result = 0;
 int ten_arena = 0;
@@ -291,6 +297,8 @@ void LangInit()
 			langStr[100] = "There is some crazy stuff going on. I heard some noises when I was sleeping, some random beeps and explosions. I hope those sounds won't go close to me...";
 			langStr[101] = "See you soon!";
 			
+			langStr[102] = "Something has been unlocked.";
+			
 			break;
 		}
 		case 1: // Русский Язык
@@ -407,6 +415,8 @@ void LangInit()
 			langStr[99] = "В свободное время предпочитаю слушать ОСТ Зельды, особенно Gerudo Valley с Окарины Времени.";
 			langStr[100] = "Здесь кароче какие-то странности происходят. Я слышал непонятные пики и взрывы. Надеюсь эти звуки не настигнут меня...";
 			langStr[101] = "Еще увидимся!";
+			
+			langStr[102] = "Что-то разблокировалось.";
 			
 			break;
 		}
@@ -527,6 +537,8 @@ void LangInit()
 			langStr[99] = "В свободное время предпочитаю слушать ОСТ Зельды, особенно Gerudo Valley с Окарины Времени.";
 			langStr[100] = "Здесь кароче какие-то странности происходят. Я слышал непонятные пики и взрывы. Надеюсь эти звуки не настигнут меня...";
 			langStr[101] = "Сау бол!";
+			
+			langStr[102] = "Что-то разблокировалось.";
 			
 			break;
 		}
@@ -803,25 +815,58 @@ void init_bgm()
 	// Touhou route shit
 	
 	bgm[201] = MUS_DIR "touhou/bgm1.ogg";
+	bgm_start[201] = 18849;
+	bgm_end[201] = 87395;
+	
 	bgm[202] = MUS_DIR "touhou/bgm2.ogg";
-	// bgm[203] = MUS_DIR "touhou/bgm3.ogg";
+	bgm_start[202] = 414;
+	bgm_end[202] = 139373;
+	
+	bgm[203] = MUS_DIR "touhou/bgm3.ogg";
+	bgm_start[203] = 775;
+	bgm_end[203] = 75084;
+	
 	bgm[204] = MUS_DIR "touhou/bgm4.ogg";
+	bgm_start[204] = 25600;
+	bgm_end[204] = 115160;
+	
 	// bgm[205] = MUS_DIR "touhou/bgm5.ogg";
 	// bgm[206] = MUS_DIR "touhou/bgm6.ogg";
 	// bgm[207] = MUS_DIR "touhou/bgm7.ogg";
 	// bgm[208] = MUS_DIR "touhou/bgm8.ogg";
 	
-	bgm[209] = MUS_DIR "touhou/boss9_intro.ogg";
-	bgm_start[209] = 29632;
-	bgm_end[209] = 33763;
+	bgm[210] = MUS_DIR "touhou/boss9_intro.ogg";
+	bgm_start[210] = 29632;
+	bgm_end[210] = 33763;
 	
-	bgm[210] = MUS_DIR "touhou/boss9.ogg";
-	bgm_start[210] = 10995;
-	bgm_end[210] = 100527;
+	bgm[211] = MUS_DIR "touhou/boss9.ogg";
+	bgm_start[211] = 14172;
+	bgm_end[211] = 129339;
 	
-	bgm[211] = MUS_DIR "touhou/boss9_2.ogg";
-	bgm_start[211] = 23337;
-	bgm_end[211] = 68479;
+	// what the fuck
+	// bgm[211] = MUS_DIR "touhou/boss9_2.ogg";
+	// bgm_start[211] = 23337;
+	// bgm_end[211] = 68479;
+	
+	bgm[251] = MUS_DIR "touhou/Ags1.ogg";
+	bgm[252] = MUS_DIR "touhou/Ags2.ogg";
+	bgm[253] = MUS_DIR "touhou/Ags3.ogg";
+	bgm[254] = MUS_DIR "touhou/Ags4.ogg";
+	// bgm[255] = MUS_DIR "touhou/Ags5.ogg";
+	// bgm[256] = MUS_DIR "touhou/Ags6.ogg";
+	// bgm[257] = MUS_DIR "touhou/Ags7.ogg";
+	// bgm[258] = MUS_DIR "touhou/Ags8.ogg";
+	bgm[259] = MUS_DIR "touhou/Ags9.ogg";
+	
+	bgm[351] = MUS_DIR "touhou/ls1.ogg";
+	bgm[352] = MUS_DIR "touhou/ls2.ogg";
+	bgm[353] = MUS_DIR "touhou/ls3.ogg";
+	bgm[354] = MUS_DIR "touhou/ls4.ogg";
+	// bgm[355] = MUS_DIR "touhou/ls5.ogg";
+	// bgm[356] = MUS_DIR "touhou/ls6.ogg";
+	// bgm[357] = MUS_DIR "touhou/ls7.ogg";
+	// bgm[358] = MUS_DIR "touhou/ls8.ogg";
+	bgm[359] = MUS_DIR "touhou/ls9.ogg";
 	
 	// coming soon 0_0
 }
@@ -880,7 +925,13 @@ int max(int min, int max)
 void PlayBGM(int id, int inf)
 {
 	StopAudio();
-	FILE *fp = fopen(bgm[id], "rb");
+	
+	int temp = 0;
+	if(global_route == 1) temp = 200;
+	
+	if(id>190 || id==99 || id==100 || id==9 || id==0) temp = 0;
+	
+	FILE *fp = fopen(bgm[temp+id], "rb");
 	
 	if(!fp)
     {
@@ -941,6 +992,8 @@ void Load_PNG()
 	pngLoadFromBuffer(end2_bin, end2_bin_size, &spritesheet[17]);
 	pngLoadFromBuffer(end3_bin, end3_bin_size, &spritesheet[18]);
 	pngLoadFromBuffer(shopbg_bin, shopbg_bin_size, &spritesheet[19]);
+	// something for 20?
+	pngLoadFromBuffer(tiles_sheet2_bin, tiles_sheet2_bin_size, &spritesheet[21]);
 }
 
 void ReplaceBGM(int music)

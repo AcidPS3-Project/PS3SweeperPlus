@@ -287,8 +287,9 @@ int main(int argc, const char* argv[])
 							if(vdec_picout_pending>0)
 							{
 								vdec_picout_pending--;
-								int ret = PS3Video_GetFrame(&the_video);
-								printf("[VDEC] GetFrame ret=%d pending=%d\n", ret, vdec_picout_pending);
+								PS3Video_GetFrame(&the_video);
+								// int ret = PS3Video_GetFrame(&the_video);
+								// printf("[VDEC] GetFrame ret=%d pending=%d\n", ret, vdec_picout_pending);
 							}
 							video_frame++;
 							
@@ -311,6 +312,8 @@ int main(int argc, const char* argv[])
 								PlayBGM(0, 1);
 								ready_to_click = 1;
 								easter_egg = false;
+								
+								if(!route_touhou_unlocked && global_route==1) global_route=0;
 							}
 							
 							if(settings_select)
@@ -362,7 +365,7 @@ int main(int argc, const char* argv[])
 									FadeInOut(&currentScreen, ENDING);
 								}
 								
-								// if(paddata.BTN_CROSS && !oldpad.BTN_CROSS) LEVEL=8;
+								if(paddata.BTN_CROSS && !oldpad.BTN_CROSS) LEVEL=8;
 							}
 							break;
 						}
@@ -442,33 +445,33 @@ int main(int argc, const char* argv[])
 										if(paddata.BTN_L2 && !oldpad.BTN_L2) if(the_hat>-1) the_hat--;
 										if(paddata.BTN_R2 && !oldpad.BTN_R2) if(the_hat<8) the_hat++;
 										
-										// if(paddata.BTN_TRIANGLE && !oldpad.BTN_TRIANGLE)
-										// {
-											// startbgmgtsp = 1;
-											// ship_x = -80;
-											// ship_y = -22+(32*6);
-											// if(!shop_unlocked)
-											// {
-												// if(global_minecoins > 250)
-												// {
-													// ready_to_click = 0;
-													// shop_first = true;
-													// shop_unlocked = true;
-													// global_minecoins -= 250;
-													// StopAudio();
-													// PlaySFX(&sfx_buy);
-													// StartSave();
-													// FadeInOut(&currentScreen, GOTOSHOP);
-												// }
-											// }
-											// else
-											// {
-												// ready_to_click = 0;
-												// shop_first = false;
-												// StopAudio();
-												// FadeInOut(&currentScreen, GOTOSHOP);
-											// }
-										// }
+										if(paddata.BTN_TRIANGLE && !oldpad.BTN_TRIANGLE)
+										{
+											startbgmgtsp = 1;
+											ship_x = -80;
+											ship_y = -22+(32*6);
+											if(!shop_unlocked)
+											{
+												if(global_minecoins > 250)
+												{
+													ready_to_click = 0;
+													shop_first = true;
+													shop_unlocked = true;
+													global_minecoins -= 250;
+													StopAudio();
+													PlaySFX(&sfx_buy);
+													StartSave();
+													FadeInOut(&currentScreen, GOTOSHOP);
+												}
+											}
+											else
+											{
+												ready_to_click = 0;
+												shop_first = false;
+												StopAudio();
+												FadeInOut(&currentScreen, GOTOSHOP);
+											}
+										}
 									}
 									else if(adventure_select)
 									{
@@ -521,6 +524,14 @@ int main(int argc, const char* argv[])
 										if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE)
 										{
 											adventure_select = 0;
+										}
+										if(paddata.BTN_TRIANGLE && !oldpad.BTN_TRIANGLE)
+										{
+											if(route_touhou_unlocked)
+											{
+												if(global_route == 0) global_route = 1; else global_route = 0;
+												ReplaceBGM(fp_music);
+											}
 										}
 									}
 									else
@@ -1432,6 +1443,15 @@ int main(int argc, const char* argv[])
 							{
 								if(paddata.BTN_START && !oldpad.BTN_START)
 								{
+									if(mistakes == 0 && EPISODE == 1 && DIFFICULTY>0 && !route_touhou_unlocked)
+									{
+										route_touhou_unlocked = true;
+										printf("Touhou Route Unlocked!\n");
+										StartSave();
+										msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
+											langStr[102], EmptyDialogCallback, NULL, NULL);
+									}
+									
 									ready_to_click = 0;
 									splash = splashes_random[rand() % SplashesCount()];
 									start_music = 1;

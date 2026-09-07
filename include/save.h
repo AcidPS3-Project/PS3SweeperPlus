@@ -44,10 +44,10 @@ typedef struct
 	bool save_shop_unlock_4; // koishi's hat
 	bool save_shop_unlock_5; // alien captain's hat
 	
-    int ranks_ep_1[8];
-    int ranks_ep_2[8];
-    int ranks_ep_3[8];
-    int ranks_ep_4[8];
+    int sranks_ep_1[8];
+    int sranks_ep_2[8];
+    int sranks_ep_3[8];
+    int sranks_ep_4[8];
 	
 	bool route_touhou_unlocked;
 } SaveData;

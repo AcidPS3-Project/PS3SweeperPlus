@@ -67,10 +67,10 @@ void SetSaveDefaults()
 	
 	for(int i = 0; i < 8; i++)
 	{
-		gSave.ranks_ep_1[i] = -1;
-		gSave.ranks_ep_2[i] = -1;
-		gSave.ranks_ep_3[i] = -1;
-		gSave.ranks_ep_4[i] = -1;
+		gSave.sranks_ep_1[i] = -1;
+		gSave.sranks_ep_2[i] = -1;
+		gSave.sranks_ep_3[i] = -1;
+		gSave.sranks_ep_4[i] = -1;
 	}
 	
 	gSave.route_touhou_unlocked = false;
@@ -290,10 +290,10 @@ int StartSave(void)
 	gSave.save_shop_unlock_4 = shop_unlock_4;
 	gSave.save_shop_unlock_5 = shop_unlock_5;
 	
-	memcpy(gSave.ranks_ep_1, ranks_ep_1, sizeof(ranks_ep_1));
-	memcpy(gSave.ranks_ep_2, ranks_ep_2, sizeof(ranks_ep_2));
-	memcpy(gSave.ranks_ep_3, ranks_ep_3, sizeof(ranks_ep_3));
-	memcpy(gSave.ranks_ep_4, ranks_ep_4, sizeof(ranks_ep_4));
+	memcpy(gSave.sranks_ep_1, ranks_ep_1, sizeof(ranks_ep_1));
+	memcpy(gSave.sranks_ep_2, ranks_ep_2, sizeof(ranks_ep_2));
+	memcpy(gSave.sranks_ep_3, ranks_ep_3, sizeof(ranks_ep_3));
+	memcpy(gSave.sranks_ep_4, ranks_ep_4, sizeof(ranks_ep_4));
 	
 	gSave.route_touhou_unlocked = route_touhou_unlocked;
 	
@@ -378,10 +378,10 @@ static void LoadThread(void *arg)
 	shop_unlock_4 = gSave.save_shop_unlock_4;
 	shop_unlock_5 = gSave.save_shop_unlock_5;
 	
-	memcpy(ranks_ep_1, gSave.ranks_ep_1, sizeof(ranks_ep_1));
-	memcpy(ranks_ep_2, gSave.ranks_ep_2, sizeof(ranks_ep_2));
-	memcpy(ranks_ep_3, gSave.ranks_ep_3, sizeof(ranks_ep_3));
-	memcpy(ranks_ep_4, gSave.ranks_ep_4, sizeof(ranks_ep_4));
+	memcpy(ranks_ep_1, gSave.sranks_ep_1, sizeof(ranks_ep_1));
+	memcpy(ranks_ep_2, gSave.sranks_ep_2, sizeof(ranks_ep_2));
+	memcpy(ranks_ep_3, gSave.sranks_ep_3, sizeof(ranks_ep_3));
+	memcpy(ranks_ep_4, gSave.sranks_ep_4, sizeof(ranks_ep_4));
 	
 	route_touhou_unlocked = gSave.route_touhou_unlocked;
 	

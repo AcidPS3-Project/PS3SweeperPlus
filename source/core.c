@@ -13,7 +13,6 @@ int GRID_H = 16;
 int MINES  = 40;
 int GRID_ID = 00;
 int mines_count = 0;
-int global_route = 0;
 
 int the_hat = 0;
 

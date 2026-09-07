@@ -45,7 +45,6 @@ extern int GRID_H;
 extern int MINES;
 extern int GRID_ID;
 extern int mines_count;
-extern int global_route;
 
 extern int enable_half;
 extern int enable_double;

@@ -23,6 +23,7 @@ extern bool ship_a;
 extern float time_total;
 extern int ten_arena;
 
+extern int global_route;
 extern bool show_shit;
 extern int rank_result;
 
@@ -146,7 +147,7 @@ SoundEffect sfx_blackout;
 #define BGM_LIST 400
 #define MUS_DIR "/dev_hdd0/game/MINESWEEP/USRDIR/music/"
 
-#define TOTAL_SHEETS 25
+#define TOTAL_SHEETS 30
 pngData spritesheet[TOTAL_SHEETS];
 u32 sprite_off[TOTAL_SHEETS];
 
