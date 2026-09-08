@@ -8,6 +8,7 @@
 #include "save.h"
 #include "importer.h"
 #include "core.h"
+#include "lang.h"
 
 #include "icon0_bin.h"
 
@@ -74,6 +75,16 @@ void SetSaveDefaults()
 	}
 	
 	gSave.route_touhou_unlocked = false;
+	
+	gSave.save_seen_nine = false;
+	gSave.save_seen_fnine = false;
+	gSave.save_seen_ten = false;
+	gSave.save_seen_nten = false;
+	gSave.save_seen_eleven = false;
+	gSave.save_seen_meleven = false;
+	gSave.save_seen_twelve = false;
+	gSave.save_seen_nan = false;
+
 }
 
 void savestate_init()
@@ -297,6 +308,15 @@ int StartSave(void)
 	
 	gSave.route_touhou_unlocked = route_touhou_unlocked;
 	
+	gSave.save_seen_nine = seen_nine;
+	gSave.save_seen_fnine = seen_fnine;
+	gSave.save_seen_ten = seen_ten;
+	gSave.save_seen_nten = seen_nten;
+	gSave.save_seen_eleven = seen_eleven;
+	gSave.save_seen_meleven = seen_meleven;
+	gSave.save_seen_twelve = seen_twelve;
+	gSave.save_seen_nan = seen_nan;
+	
 	char debug[256];
 
 	sprintf(debug,"SAVING VALUES: level=%d current=%d global=%d route=%d", gSave.save_level,
@@ -384,6 +404,15 @@ static void LoadThread(void *arg)
 	memcpy(ranks_ep_4, gSave.sranks_ep_4, sizeof(ranks_ep_4));
 	
 	route_touhou_unlocked = gSave.route_touhou_unlocked;
+	
+	seen_nine = gSave.save_seen_nine;
+	seen_fnine = gSave.save_seen_fnine;
+	seen_ten = gSave.save_seen_ten;
+	seen_nten = gSave.save_seen_nten;
+	seen_eleven = gSave.save_seen_eleven;
+	seen_meleven = gSave.save_seen_meleven;
+	seen_twelve = gSave.save_seen_twelve;
+	seen_nan = gSave.save_seen_nan;
 	
 	char debug[256];
 	sprintf(debug, "LOAD VALUES: level=%d current=%d global=%d route=%d episode=%d", gSave.save_level,

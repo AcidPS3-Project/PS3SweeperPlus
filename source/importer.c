@@ -76,6 +76,18 @@ bool custom_music = false;
 bool has_custom_main = false;
 bool has_custom_win  = false;
 
+bool seen_nine = false;
+bool seen_fnine = false;
+bool seen_ten = false;
+bool seen_nten = false;
+bool seen_eleven = false;
+bool seen_meleven = false;
+bool seen_twelve = false;
+// bool seen_touhoutwelve = false;
+bool seen_nan = false;
+
+bool show_warning = false;
+
 void SetupTimeSettings()
 {
 	for(int _t = 0; _t < MAXLVLTEST; _t++)
@@ -171,378 +183,6 @@ void creditsInit()
 	credits[21] = "SilverClockBFDI";
 	credits[22] = "1tsLek";
 	credits[23] = "Creeper7925";
-}
-
-void LangInit()
-{
-	switch(language)
-	{
-		default:
-		{
-			menu_title[0] = "Minesweeper Adventure";
-			menu_desc[0] = "Test your minesweeping skills in a sequence of progressively difficult Minesweeper stages.";
-			menu_title[1] = "Free Play";
-			menu_desc[1] = "Create your own custom Minesweeper stages and sweep mines to your heart's content!";
-			menu_title[2] = "Bonus Games";
-			menu_desc[2] = "Enjoy a selection of bonus game modes that will test your minesweeping limits.";
-			menu_title[3] = "LoadOut";
-			menu_desc[3] = "Customize the captain and stock up on supplies.";
-			
-			langStr[0] = "Loading...";
-			langStr[1] = "Saving...";
-			langStr[2] = "Safe Tile Guarantee";
-			langStr[3] = "3x3 Guarantee";
-			langStr[4] = "Warning! This game uses auto-save feature.";
-			langStr[5] = "When you see the \"Saving...\" text, it saves your data.";
-			langStr[6] = "Please, do NOT turn off your PlayStation 3 system while the \"Saving...\"";
-			langStr[7] = "text is on-screen.";
-			langStr[8] = "I understand.";
-			langStr[9] = "FINAL RANK";
-			langStr[10] = "Thanks for Playing!";
-			langStr[11] = "Press Start";
-			langStr[12] = "There is nothing to load.";
-			langStr[13] = "Start the Game.";
-			langStr[14] = "Credits";
-			langStr[15] = "Continue";
-			langStr[16] = "Main Menu";
-			langStr[17] = "Adventure Menu";
-			langStr[18] = "Width";
-			langStr[19] = "Height";
-			langStr[20] = "Mines count";
-			langStr[21] = "Doubles count";
-			langStr[22] = "Halves count";
-			langStr[23] = "Antis count";
-			langStr[24] = "EPISODE";
-			langStr[25] = "Music Type";
-			langStr[26] = "CUSTOM";
-			langStr[27] = "Freeplay Menu";
-			langStr[28] = "Disable Custom Music";
-			langStr[29] = "Enable Custom Music";
-			langStr[30] = "Background Type";
-			langStr[31] = "Start your game";
-			langStr[32] = "Go Back";
-			langStr[33] = "The Big One";
-			langStr[34] = "Bad Apple!! (Requires DLC)";
-			langStr[35] = "Challenges Menu";
-			langStr[36] = "This menu is currently in works :)";
-			langStr[37] = "GAME OVER";
-			langStr[38] = "LEVEL CLEAR!";
-			langStr[39] = "Minecoins";
-			langStr[40] = "s";
-			langStr[41] = "Next Level";
-			langStr[42] = "Save and Quit";
-			langStr[43] = "Reset game";
-			langStr[44] = "Settings";
-			langStr[45] = "1x1 Guarantee";
-			langStr[46] = "No Guarantee";
-			langStr[47] = "Episode 4 is currently in works.";
-			langStr[48] = "Error!\nFile not found in:\n/\"dev_usb000/SWEEPING/captain.png\"!";
-			langStr[49] = "Error! Image's width or height are WAY above 2048 pixels.";
-			langStr[50] = "Error!\nFile not found in:\n\"/dev_usb000/SWEEPING/bgm.mp3\" (or bgm.ogg)!";
-			langStr[51] = "Warning!\nFile not found in:\n\"/dev_usb000/SWEEPING/win.mp3\" (or win.ogg)!\nIt is not necessary, but winning music won't play.";
-			langStr[52] = "Original Minesweeper Plus game";
-			langStr[53] = "Error! Image's width and height don't match!!";
-			langStr[54] = "Use Custom Sweeper";
-			langStr[55] = "Half-Mine Related Sprites";
-			langStr[56] = "Special Thanks";
-			langStr[57] = "Paused";
-			langStr[58] = "Four of a Kind";
-			langStr[59] = "Frozen Nine mechanics";
-			langStr[60] = "Nuclear Ten Idea";
-			
-			langStr[61] = "Kiddie Pool";
-			langStr[62] = "Rainy Puddle";
-			langStr[63] = "Small Pond";
-			langStr[64] = "Blue Lagoon";
-			langStr[65] = "Lazy River";
-			langStr[66] = "Great Lake";
-			langStr[67] = "Open Ocean";
-			langStr[68] = "Dead Sea";
-			langStr[69] = "THE DEVIL'S TRIANGLE";
-			
-			langStr[70] = "Original 9 Boss Music";
-			langStr[71] = "Touhou Stuff";
-			langStr[72] = "Alien Captain's Hat";
-			langStr[73] = "Frozen Captain Sprite";
-			
-			langStr[74] = "THE FREEZING CIRCLE";
-			langStr[75] = "THE NUCLEAR WASTE";
-			langStr[76] = "THE GENOCIDE GARDEN";
-			
-			langStr[77] = "Total Time";
-			langStr[78] = "Coins Earned";
-			langStr[79] = "Mistakes Made";
-			
-			langStr[80] = "The Shallow End";
-			langStr[81] = "Fountain Flows";
-			langStr[82] = "Silent Marsh";
-			langStr[83] = "Murky Swamp";
-			langStr[84] = "Crazy Cove";
-			langStr[85] = "Raging Rapids";
-			langStr[86] = "Gulf of Misery";
-			langStr[87] = "Black Water";
-			langStr[88] = "The Deep End";
-			langStr[89] = "THE DEVIL'S PASSAGE";
-			
-			langStr[90] = "Welcome to \"Acid's Solid Shop\"!";
-			langStr[91] = "My shop is not solid at all, I just wanted to make a funny abbreviature, heh.";
-			langStr[92] = "Yes, the dev being in the game is cliche, I know. At least I don't alter the game's lore.";
-			langStr[93] = "So much weird numbers. I'm not ready for them yet.";
-			langStr[94] = "This is my second shop I ever had, heh! I don't actually remember why.";
-			langStr[95] = "Hey, if you like this game, make sure you leave a good rating in my online store! Wait does it have ratings yet?..";
-			langStr[96] = "Who will you be tonight? That's the question.";
-			langStr[97] = "Why do I feel tired every time?";
-			langStr[98] = "I am basically alone here, finally someone cared to pay me a visit.";
-			langStr[99] = "In some free time I like to listen to some TLoZ music. My favorite one is definitely Gerudo Valley from OoT.";
-			langStr[100] = "There is some crazy stuff going on. I heard some noises when I was sleeping, some random beeps and explosions. I hope those sounds won't go close to me...";
-			langStr[101] = "See you soon!";
-			
-			langStr[102] = "Something has been unlocked.";
-			
-			break;
-		}
-		case 1: // Русский Язык
-		{
-			menu_title[0] = "Приключения Сапера";
-			menu_desc[0] = "Проверь свои навыки сапера в усложняющей последовательности уровней сапера.";
-			menu_title[1] = "Своя игра";
-			menu_desc[1] = "Создавайте свой уровень сапера и разминируйте мины как душе угодно!";
-			menu_title[2] = "Испытания";
-			menu_desc[2] = "Насладитесь выбором испытаний которые проверят ваши знания сапера.";
-			menu_title[3] = "Гардероб";
-			menu_desc[3] = "Измените вид капитана и пополните запасы.";
-			
-			langStr[0] = "Загружаю...";
-			langStr[1] = "Сохраняю...";
-			langStr[2] = "Гарантия на безопасную клетку";
-			langStr[3] = "3x3 Гарантия";
-			langStr[4] = "Внимание! У этой игры есть функция авто-сохранения.";
-			langStr[5] = "Когда вы видите текст \"Сохраняю...\", оно сохраняет игру.";
-			langStr[6] = "Пожалуйста, не выключайте ваш PlayStation 3 когда текст";
-			langStr[7] = "\"Сохраняю...\" находится на экране.";
-			langStr[8] = "Хорошо.";
-			langStr[9] = "ФИНАЛЬНАЯ ОЦЕНКА";
-			langStr[10] = "Спасибо за Игру!";
-			langStr[11] = "Нажмите Start";
-			langStr[12] = "Здесь нечего загружать.";
-			langStr[13] = "Начать игру";
-			langStr[14] = "Благодарность";
-			langStr[15] = "Продолжить";
-			langStr[16] = "Главное меню";
-			langStr[17] = "Меню приключений";
-			langStr[18] = "Ширина";
-			langStr[19] = "Высота";
-			langStr[20] = "Кол-во мин";
-			langStr[21] = "Кол-во двойных мин";
-			langStr[22] = "Кол-во полу-мин";
-			langStr[23] = "Кол-во анти-мин";
-			langStr[24] = "ЭПИЗОД";
-			langStr[25] = "Стиль музыки";
-			langStr[26] = "СВОЯ";
-			langStr[27] = "Меню своей игры";
-			langStr[28] = "Выключить свою музыку";
-			langStr[29] = "Включить свою музыку";
-			langStr[30] = "Стиль фона";
-			langStr[31] = "Начать свою игру";
-			langStr[32] = "Назад";
-			langStr[33] = "Большевик";
-			langStr[34] = "Плохое Яблоко!! (Потребуется Адд-он)";
-			langStr[35] = "Меню испытаний";
-			langStr[36] = "Это меню находится в разработке :)";
-			langStr[37] = "ИГРА ОКОНЧЕНА";
-			langStr[38] = "ПРОЙДЕНО!";
-			langStr[39] = "Бомба-коины";
-			langStr[40] = "сек";
-			langStr[41] = "Следующий уровень";
-			langStr[42] = "Сохранить и выйти";
-			langStr[43] = "Сбросить игру";
-			langStr[44] = "Настройки";
-			langStr[45] = "1x1 Гарантия";
-			langStr[46] = "Без Гарантий";
-			langStr[47] = "Четвертый эпизод находится в разработке.";
-			langStr[48] = "Ошибка!\nФайл не найден:\n/\"dev_usb000/SWEEPING/captain.png\"!";
-			langStr[49] = "Ошибка! Ширина или длина изображения превышают 2048 пикселей.";
-			langStr[50] = "Ошибка!\nФайл не найден:\n\"/dev_usb000/SWEEPING/bgm.mp3\" (или bgm.ogg)!";
-			langStr[51] = "Предупреждение!\nФайл не найден:\n\"/dev_usb000/SWEEPING/win.mp3\" (или win.ogg)!\nЭто не особо важно, но возможно звук победы не заиграет.";
-			langStr[52] = "Оригинальная игра Сапер Плюс";
-			langStr[53] = "Ошибка! Ширина и длина изображения не совпадают!!";
-			langStr[54] = "Использовать своего сапера";
-			langStr[55] = "Спрайты связанные с полу-минами";
-			langStr[56] = "СПЕЦИАЛЬНАЯ БЛАГОДАРНОСТЬ";
-			langStr[57] = "Пауза";
-			langStr[58] = "Квартет Смерти";
-			langStr[59] = "Механики Ледяной Девятки";
-			langStr[60] = "Идея Радиактивной Десятки";
-			langStr[61] = "Детский Бассейн";
-			langStr[62] = "Дождевая Лужа";
-			langStr[63] = "Малый Пруд";
-			langStr[64] = "Синее Море";
-			langStr[65] = "Ленивая Река";
-			langStr[66] = "Большое Озеро";
-			langStr[67] = "Открытый Океан";
-			langStr[68] = "Море Мертвеца";
-			langStr[69] = "ДЬЯВОЛЬСКИЙ ТРЕУГОЛЬНИК";
-			langStr[70] = "Оригинальная Музыка Девятки";
-			langStr[71] = "Все связанное с Touhou";
-			langStr[72] = "Шляпа Инопланетного Капитана";
-			langStr[73] = "Спрайт Замороженного Капитана";
-			langStr[74] = "ОБМЕРЗШИЙ КРУГ";
-			langStr[75] = "ЯДЕРНЫЕ ОТХОДЫ";
-			langStr[76] = "САД ГЕНОЦИДА";
-			langStr[77] = "Всего времени прошло";
-			langStr[78] = "Заработано Бомба-коинов";
-			langStr[79] = "Сделано Ошибок";
-			langStr[80] = "Мелководья";
-			langStr[81] = "Парящий Фонтан";
-			langStr[82] = "Тихий Марш";
-			langStr[83] = "Скользкое Болото";
-			langStr[84] = "Безумные Подмостья";
-			langStr[85] = "Быстрая Агрессия";
-			langStr[86] = "Дно Страданий";
-			langStr[87] = "Черная вода";
-			langStr[88] = "Глубочайший Конец";
-			langStr[89] = "ДЬЯВОЛЬСКАЯ ПРОПАСТЬ";
-			
-			langStr[90] = "Добро пожаловать в \"Acid's Solid Shop\"!";
-			langStr[91] = "Эта аббревиатура явно что-то значит, только вот я до сих пор не пойму что.";
-			langStr[92] = "Да да да, разработчик в игре - клише. Хотя-бы я никак не влияю на сюжет.";
-			langStr[93] = "Очень много странных чисел и цифр... Я к ним еще не готов.";
-			langStr[94] = "Это мой второй магазинчик. Не пойму, для чего.";
-			langStr[95] = "Хей, если тебе нравится игра, то почему бы не оставить отзыв? Стой, разве такое возможно?";
-			langStr[96] = "Кем ты будешь сегодня? Кароче перевод провалился увы. Это главная тема Гадкий Я 4.";
-			langStr[97] = "Чего-то я часто бываю уставшим.";
-			langStr[98] = "По сути здесь я один, хотя-бы не помру сейчас от скуки.";
-			langStr[99] = "В свободное время предпочитаю слушать ОСТ Зельды, особенно Gerudo Valley с Окарины Времени.";
-			langStr[100] = "Здесь кароче какие-то странности происходят. Я слышал непонятные пики и взрывы. Надеюсь эти звуки не настигнут меня...";
-			langStr[101] = "Еще увидимся!";
-			
-			langStr[102] = "Что-то разблокировалось.";
-			
-			break;
-		}
-		case 2: // Қазақ Тілі
-		{
-			// Cheat-sheet! heheh
-			// ӘәҒғІіҚқҢңӨөҰұҮүҺһ
-			
-			menu_title[0] = "Приключения Сапера";
-			menu_desc[0] = "Проверь свои навыки сапера в усложняющей последовательности уровней сапера.";
-			menu_title[1] = "Сенің ойнасы";
-			menu_desc[1] = "Создавайте свой уровень сапера и разминируйте мины как душе угодно!";
-			menu_title[2] = "Испытания";
-			menu_desc[2] = "Насладитесь выбором испытаний которые проверят ваши знания сапера.";
-			menu_title[3] = "Гардероб";
-			menu_desc[3] = "Измените вид капитана и пополните запасы.";
-			
-			langStr[0] = "...";
-			langStr[1] = "Сақтамың...";
-			langStr[2] = "Гарантия на безопасную клетку";
-			langStr[3] = "3x3 Гарантия";
-			langStr[4] = "Назар аударыңыз! У этой игры есть функция авто-сохранения.";
-			langStr[5] = "Когда вы видите текст \"Сақтамың...\", оно сохраняет игру.";
-			langStr[6] = "Пожалуйста, не выключайте ваш PlayStation 3 когда текст";
-			langStr[7] = "\"Сақтамың...\" находится на экране.";
-			langStr[8] = "Жарайды.";
-			langStr[9] = "ФИНАЛЬНАЯ ОЦЕНКА";
-			langStr[10] = "Спасибо за Игру!";
-			langStr[11] = "Нажмите Start";
-			langStr[12] = "Здесь нечего загружать.";
-			langStr[13] = "Бастау";
-			langStr[14] = "Алғыс";
-			langStr[15] = "Продолжить";
-			langStr[16] = "Басты меню";
-			langStr[17] = "Меню приключений";
-			langStr[18] = "Ширина";
-			langStr[19] = "Высота";
-			langStr[20] = "Кол-во мин";
-			langStr[21] = "Кол-во двойных мин";
-			langStr[22] = "Кол-во полу-мин";
-			langStr[23] = "Кол-во анти-мин";
-			langStr[24] = "ЭПИЗОД";
-			langStr[25] = "Музыка стильді";
-			langStr[26] = "СЕНІКІ";
-			langStr[27] = "Сенің ойнасы меню";
-			langStr[28] = "Сенің музыкасы аяқтау";
-			langStr[29] = "Сенің музыкасы бастау";
-			langStr[30] = "Өң стильді";
-			langStr[31] = "Сенің ойнасы бастау";
-			langStr[32] = "Артқа";
-			langStr[33] = "Үлкені";
-			langStr[34] = "Жаман Алма!! (Потребуется Адд-он)";
-			langStr[35] = "Меню испытаний";
-			langStr[36] = "Это меню находится в разработке :)";
-			langStr[37] = "ОЙНА БОЛДЫ";
-			langStr[38] = "КЕРЕМЕТ!";
-			langStr[39] = "Бомба-коинлер";
-			langStr[40] = "сек";
-			langStr[41] = "Келесі ?????";
-			langStr[42] = "Сақтау және Шығу";
-			langStr[43] = "Сбросить игру";
-			langStr[44] = "Параметрлер";
-			langStr[45] = "1x1 Гарантия";
-			langStr[46] = "Гарантия Жоқ";
-			langStr[47] = "Четвертый эпизод находится в разработке.";
-			langStr[48] = "Ошибка!\nФайл не найден:\n/\"dev_usb000/SWEEPING/captain.png\"!";
-			langStr[49] = "Ошибка! Ширина или длина изображения превышают 2048 пикселей.";
-			langStr[50] = "Ошибка!\nФайл не найден:\n\"/dev_usb000/SWEEPING/bgm.mp3\" (или bgm.ogg)!";
-			langStr[51] = "Предупреждение!\nФайл не найден:\n\"/dev_usb000/SWEEPING/win.mp3\" (или win.ogg)!\nЭто не особо важно, но возможно звук победы не заиграет.";
-			langStr[52] = "Оригинальная игра Сапер Плюс";
-			langStr[53] = "Ошибка! Ширина и длина изображения не совпадают!!";
-			langStr[54] = "Использовать своего сапера";
-			langStr[55] = "Спрайты связанные с полу-минами";
-			langStr[56] = "ҮЛКЕН РАХМЕТ";
-			langStr[57] = "Пауза";
-			langStr[58] = "Квартет Смерти";
-			langStr[59] = "Механики Ледяной Девятки";
-			langStr[60] = "Идея Радиактивной Десятки";
-			langStr[61] = "Балаларың Бассейн";
-			langStr[62] = "Дождевая Лужа";
-			langStr[63] = "Малый Пруд";
-			langStr[64] = "Көктің Лагуна";
-			langStr[65] = "Ерінші Өзен";
-			langStr[66] = "Үлкен Қөл";
-			langStr[67] = "Открытый Океан";
-			langStr[68] = "Море Мертвеца";
-			langStr[69] = "ДЬЯВОЛЬСКИЙ ТРЕУГОЛЬНИК";
-			langStr[70] = "Оригинальная Музыка Девятки";
-			langStr[71] = "Все связанное с Touhou";
-			langStr[72] = "Шляпа Инопланетного Капитана";
-			langStr[73] = "Спрайт Замороженного Капитана";
-			langStr[74] = "ОБМЕРЗШИЙ КРУГ";
-			langStr[75] = "ЯДЕРНЫЕ ОТХОДЫ";
-			langStr[76] = "САД ГЕНОЦИДА";
-			langStr[77] = "Всего времени прошло";
-			langStr[78] = "Заработано Бомба-коинов";
-			langStr[79] = "Сделано Ошибок";
-			langStr[80] = "Мелководья";
-			langStr[81] = "Парящий Фонтан";
-			langStr[82] = "Тихий Марш";
-			langStr[83] = "Скользкое Болото";
-			langStr[84] = "Безумные Подмостья";
-			langStr[85] = "Быстрая Агрессия";
-			langStr[86] = "Дно Страданий";
-			langStr[87] = "Қара су";
-			langStr[88] = "Глубочайший Конец";
-			langStr[89] = "ДЬЯВОЛЬСКАЯ ПРОПАСТЬ";
-			
-			langStr[90] = "\"Acid's Solid Shop\" қош келдіңіз!";
-			langStr[91] = "Эта аббревиатура явно что-то значит, только вот я до сих пор не пойму что.";
-			langStr[92] = "Да да да, разработчик в игре - клише. Хотя-бы я никак не влияю на сюжет.";
-			langStr[93] = "Очень много странных чисел и цифр... Я к ним еще не готов.";
-			langStr[94] = "Это мой второй магазинчик. Не пойму, для чего.";
-			langStr[95] = "Хей, если тебе нравится игра, то почему бы не оставить отзыв? Стой, разве такое возможно?";
-			langStr[96] = "Кем ты будешь сегодня? Кароче перевод провалился увы. Это главная тема Гадкий Я 4.";
-			langStr[97] = "Чего-то я часто бываю уставшим.";
-			langStr[98] = "По сути здесь я один, хотя-бы не помру сейчас от скуки.";
-			langStr[99] = "В свободное время предпочитаю слушать ОСТ Зельды, особенно Gerudo Valley с Окарины Времени.";
-			langStr[100] = "Здесь кароче какие-то странности происходят. Я слышал непонятные пики и взрывы. Надеюсь эти звуки не настигнут меня...";
-			langStr[101] = "Сау бол!";
-			
-			langStr[102] = "Что-то разблокировалось.";
-			
-			break;
-		}
-	}
 }
 
 void SplashesInit()
@@ -830,10 +470,18 @@ void init_bgm()
 	bgm_start[204] = 25600;
 	bgm_end[204] = 115160;
 	
-	// bgm[205] = MUS_DIR "touhou/bgm5.ogg";
+	bgm[205] = MUS_DIR "touhou/bgm5.ogg";
+	bgm_start[205] = 17504;
+	bgm_end[205] = 88304;
+	
 	// bgm[206] = MUS_DIR "touhou/bgm6.ogg";
 	// bgm[207] = MUS_DIR "touhou/bgm7.ogg";
 	// bgm[208] = MUS_DIR "touhou/bgm8.ogg";
+	
+	// what the fuck
+	// bgm[209] = MUS_DIR "touhou/boss9_2.ogg";
+	// bgm_start[209] = 23337;
+	// bgm_end[209] = 68479;
 	
 	bgm[210] = MUS_DIR "touhou/boss9_intro.ogg";
 	bgm_start[210] = 29632;
@@ -843,30 +491,47 @@ void init_bgm()
 	bgm_start[211] = 14172;
 	bgm_end[211] = 129339;
 	
-	// what the fuck
-	// bgm[211] = MUS_DIR "touhou/boss9_2.ogg";
-	// bgm_start[211] = 23337;
-	// bgm_end[211] = 68479;
+	bgm[212] = MUS_DIR "touhou/boss10_intro.ogg";
+	bgm_start[212] = 23725;
+	bgm_end[212] = 26893;
+	
+	bgm[213] = MUS_DIR "touhou/boss10.ogg";
+	bgm[214] = MUS_DIR "touhou/boss11_2.ogg";
+	bgm[215] = MUS_DIR "touhou/boss11_intro.ogg";
+	bgm_start[215] = 42881;
+	bgm_end[215] = 70250-10;
+	
+	bgm[216] = MUS_DIR "touhou/boss11.ogg";
+	bgm_start[216] = 3438;
+	bgm_end[216] = 145504;
 	
 	bgm[251] = MUS_DIR "touhou/Ags1.ogg";
 	bgm[252] = MUS_DIR "touhou/Ags2.ogg";
 	bgm[253] = MUS_DIR "touhou/Ags3.ogg";
 	bgm[254] = MUS_DIR "touhou/Ags4.ogg";
-	// bgm[255] = MUS_DIR "touhou/Ags5.ogg";
+	bgm[255] = MUS_DIR "touhou/Ags5.ogg";
 	// bgm[256] = MUS_DIR "touhou/Ags6.ogg";
 	// bgm[257] = MUS_DIR "touhou/Ags7.ogg";
 	// bgm[258] = MUS_DIR "touhou/Ags8.ogg";
 	bgm[259] = MUS_DIR "touhou/Ags9.ogg";
+	bgm[260] = MUS_DIR "touhou/Ags10.ogg";
+	bgm[261] = MUS_DIR "touhou/Ags11.ogg";
+	
+	bgm[309] = MUS_DIR "touhou/boss9_win.ogg";
+	bgm[310] = MUS_DIR "touhou/boss10_win.ogg";
+	bgm[311] = MUS_DIR "touhou/boss11_win.ogg";
 	
 	bgm[351] = MUS_DIR "touhou/ls1.ogg";
 	bgm[352] = MUS_DIR "touhou/ls2.ogg";
 	bgm[353] = MUS_DIR "touhou/ls3.ogg";
 	bgm[354] = MUS_DIR "touhou/ls4.ogg";
-	// bgm[355] = MUS_DIR "touhou/ls5.ogg";
+	bgm[355] = MUS_DIR "touhou/ls5.ogg";
 	// bgm[356] = MUS_DIR "touhou/ls6.ogg";
 	// bgm[357] = MUS_DIR "touhou/ls7.ogg";
 	// bgm[358] = MUS_DIR "touhou/ls8.ogg";
 	bgm[359] = MUS_DIR "touhou/ls9.ogg";
+	bgm[360] = MUS_DIR "touhou/ls10.ogg";
+	bgm[361] = MUS_DIR "touhou/ls11.ogg";
 	
 	// coming soon 0_0
 }

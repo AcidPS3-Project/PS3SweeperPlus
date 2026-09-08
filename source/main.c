@@ -8,6 +8,7 @@
 #include "save.h"
 #include "drawing.h"
 #include "video.h"
+#include "lang.h"
 
 bool play_map_bgm = false;
 
@@ -27,6 +28,7 @@ bool HELL = false;
 
 void ResetGrid()
 {
+	show_warning = false;
 	start_game_mus = 1;
 	ten_arena = 0;
 	FadeInOut(&currentScreen, GAME);
@@ -56,11 +58,11 @@ void ResetGrid()
 	if(free_play && desired_bgm == 14) enable_12 = true;
 	if(free_play && desired_bgm == 15) enable_nan = true;
 	
-	if(LEVEL==8) enable_9 = true;
-	if(LEVEL==9) enable_10 = true;
-	if(LEVEL==10) enable_11 = true;
-	if(LEVEL==11) enable_12 = true;
-	if(LEVEL==12) enable_nan = true;
+	if(!free_play && LEVEL==8) enable_9 = true;
+	if(!free_play && LEVEL==9) enable_10 = true;
+	if(!free_play && LEVEL==10) enable_11 = true;
+	if(!free_play && LEVEL==11) enable_12 = true;
+	if(!free_play && LEVEL==12) enable_nan = true;
 	
 	if(enable_9 && enable_10 && enable_11 && enable_12) HELL = true;
 	
@@ -72,10 +74,7 @@ void ResetGrid()
 			desired_bgm = 10;
 			boss9_cutscene = 2;
 		}
-		// msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON, "There is a boss battle in this game. The battle works the same as normal Minesweeper, but with some key distinctions:\n"
-			// "you won't know the number of mines hidden on the grid, you have limited time to complete the level, and you won't be able to use the sonar or pause the game.\n"
-			// "Clicking on a mine will make the time run out faster. To win, you must click SQUARE ONLY AFTER revealing all the tiles that don't contain mines.\n"
-			// "If the timer hits 0, or you click on the boss before revealing the entire grid, it's game over.", EmptyDialogCallback, NULL, NULL);
+		show_warning = true;
 	}
 	if(enable_10)
 	{
@@ -85,11 +84,7 @@ void ResetGrid()
 			desired_bgm = 12;
 			boss10_cutscene = 2;
 		}
-		// msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
-			// "There is another boss battle in this game. As soon as the game starts, this boss will start counting down from 10.\n"
-			// "If it counts all the way down to 0, it's game over. Click SQUARE to reset the countdown back to 10, but be careful.\n"
-			// "The boss will move faster and faster every time you click. Clicking on a mine will cause the boss to count down more quickly.\n"
-			// "To win, reveal the entire grid before the boss is able to finish its countdown.", EmptyDialogCallback, NULL, NULL);
+		show_warning = true;
 	}
 	if(enable_11)
 	{
@@ -99,8 +94,7 @@ void ResetGrid()
 			desired_bgm = 15;
 			boss11_cutscene = 2;
 		}
-		// msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
-			// "ELEVEN TEMP DESCRIPTION", EmptyDialogCallback, NULL, NULL);
+		show_warning = true;
 	}
 	if(enable_12)
 	{
@@ -110,8 +104,7 @@ void ResetGrid()
 			desired_bgm = 19;
 			boss12_cutscene = 2;
 		}
-		// msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
-			// "TWELVE TEMP DESCRIPTION", EmptyDialogCallback, NULL, NULL);
+		show_warning = true;
 	}
 	if(enable_nan)
 	{
@@ -121,8 +114,7 @@ void ResetGrid()
 			desired_bgm = 19;
 			bossnan_cutscene = 2;
 		}
-		// msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
-			// "NAN TEMP DESCRIPTION", EmptyDialogCallback, NULL, NULL);
+		show_warning = true;
 	}
 	
 	int j;
@@ -144,6 +136,7 @@ void ResetGrid()
 
 void GoBackToTitle()
 {
+	show_warning = false;
 	current_minecoins = 0;
 	
 	enable_9 = false;
@@ -833,11 +826,20 @@ int main(int argc, const char* argv[])
 										}
 										else
 										{
-											if(ship_x < 1314.0f) ship_x+=ship_speed;
-											else ship_a = false;
+											if(global_route==1)
+											{
+												if(ship_x > 1314.0f - (876*2) - 256) ship_x-=ship_speed*2;
+												else ship_a = false;
+											}
+											else
+											{
+												if(ship_x < 1314.0f) ship_x+=ship_speed;
+												else ship_a = false;
+											}
 										}
 										
 										if(ship_x > 876.0f && ship_x < 877.0f) PlayBGM(159, 1);
+										if(ship_x > -80.0f && ship_x < -79.0f && LEVEL>0) PlayBGM(159, 1);
 										
 										break;
 									}
@@ -1122,7 +1124,22 @@ int main(int argc, const char* argv[])
 								}
 								else
 								{
-									if (!disable_control && can_move_xd && !bad_apple)
+									if(show_warning)
+									{
+										if(!paddata.BTN_START && oldpad.BTN_START) show_warning = false;
+										if(!paddata.BTN_TRIANGLE && oldpad.BTN_TRIANGLE)
+										{
+											if(enable_9 && !seen_nine) seen_nine = true;
+											else if(enable_9 && global_route==1 && !seen_fnine) seen_fnine = true;
+											else if(enable_10 && !seen_ten) seen_ten = true;
+											else if(enable_10 && global_route==1 && !seen_nten) seen_nten = true;
+											else if(enable_11 && !seen_eleven) seen_eleven = true;
+											else if(enable_11 && global_route==1 && !seen_meleven) seen_meleven = true;
+											else if(enable_12 && !seen_twelve) seen_twelve = true;
+											else if(enable_nan && !seen_nan) seen_nan = true;
+										}
+									}
+									else if (!disable_control && can_move_xd && !bad_apple)
 									{
 										// pausing shit
 										if(!paddata.BTN_START && oldpad.BTN_START)
@@ -1138,7 +1155,7 @@ int main(int argc, const char* argv[])
 										// basic crap
 										if(paddata.BTN_CROSS && !oldpad.BTN_CROSS)
 										{
-											if(LEVEL==8 && boss9_cutscene==0)
+											if(!free_play && LEVEL==8 && boss9_cutscene==0)
 											{
 												if(cursorX==GRID_W/2 && cursorY==GRID_H/2)
 												{
@@ -1147,7 +1164,7 @@ int main(int argc, const char* argv[])
 													PlayBGM(10, 1);
 												}
 											}
-											else if(LEVEL==9 && boss10_cutscene==0)
+											else if(!free_play && LEVEL==9 && boss10_cutscene==0)
 											{
 												if(cursorX==GRID_W/2 && cursorY==GRID_H/2)
 												{
@@ -1156,7 +1173,7 @@ int main(int argc, const char* argv[])
 													PlayBGM(12, 1);
 												}
 											}
-											else if(LEVEL==10 && boss11_cutscene==0)
+											else if(!free_play && LEVEL==10 && boss11_cutscene==0)
 											{
 												if(cursorX==GRID_W/2 && cursorY==GRID_H/2)
 												{
@@ -1165,7 +1182,7 @@ int main(int argc, const char* argv[])
 													PlayBGM(15, 1);
 												}
 											}
-											else if(LEVEL==11 && boss12_cutscene==0)
+											else if(!free_play && LEVEL==11 && boss12_cutscene==0)
 											{
 												if(cursorX==GRID_W/2 && cursorY==GRID_H/2)
 												{
@@ -1242,7 +1259,7 @@ int main(int argc, const char* argv[])
 													}
 												}
 												
-												if((LEVEL==8 && !boss9_started) || (free_play && boss9_cutscene==2 && !boss9_started))
+												if(enable_9 && boss9_cutscene==2 && !boss9_started)
 												{
 													boss9_started = 1;
 													
@@ -1255,7 +1272,7 @@ int main(int argc, const char* argv[])
 													if(!HELL && !custom_music) PlayBGM(11, 1);
 													desired_bgm = 9;
 												}
-												else if((LEVEL==9 && !boss10_started) || (free_play && boss10_cutscene==2 && !boss10_started))
+												else if(enable_10 && boss10_cutscene==2 && !boss10_started)
 												{
 													boss10_started = 1;
 													
@@ -1268,7 +1285,7 @@ int main(int argc, const char* argv[])
 													if(!HELL && !custom_music) PlayBGM(13, 1);
 													desired_bgm = 10;
 												}
-												else if((LEVEL==10 && !boss11_started) || (free_play && boss11_cutscene==2 && !boss11_started))
+												else if(enable_11 && boss11_cutscene==2 && !boss11_started)
 												{
 													boss11_started = 1;
 													
@@ -1282,7 +1299,7 @@ int main(int argc, const char* argv[])
 													if(!HELL && !custom_music) PlayBGM(16, 1);
 													desired_bgm = 11;
 												}
-												else if((LEVEL==11 && !boss12_started) || (free_play && boss12_cutscene==2 && !boss12_started))
+												else if(enable_12 && boss12_cutscene==2 && !boss12_started)
 												{
 													boss12_started = 1;
 													boss12.active = true;
@@ -1446,7 +1463,7 @@ int main(int argc, const char* argv[])
 									if(mistakes == 0 && EPISODE == 1 && DIFFICULTY>0 && !route_touhou_unlocked)
 									{
 										route_touhou_unlocked = true;
-										printf("Touhou Route Unlocked!\n");
+										DebugLog("Touhou Route Unlocked!");
 										StartSave();
 										msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
 											langStr[102], EmptyDialogCallback, NULL, NULL);
@@ -1563,6 +1580,8 @@ int main(int argc, const char* argv[])
 					boss9_list[i].timer = 6;
 					UpdateBoss9(i);
 				}
+				
+				if(global_route == 1) UpdateFrozenNine(i);
 			}
 		}
 		

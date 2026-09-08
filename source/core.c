@@ -429,7 +429,7 @@ void WinCheck()
 		}
 	}
 	
-	if(LEVEL==8) revealed_total+=9;
+	if(enable_9) revealed_total+=9;
 	
 	if(revealed_total >= valid_total)
 	{
@@ -442,7 +442,7 @@ void WinCheck()
 		StopAudio();
 		
 		DeactivateBosses();
-		if(LEVEL<8) PlayBGM(100+desired_bgm, 0);
+		if(!enable_9 && !enable_10 && !enable_11 && !enable_12 && !enable_nan) PlayBGM(100+desired_bgm, 0);
 		
 		int fx, fy;
 		
@@ -466,7 +466,7 @@ void WinCheck()
 		if(!free_play) level_time[LEVEL] = timer_seconds;
 		else global_minecoins += current_minecoins;
 	}
-	else if(LEVEL==8)
+	else if(enable_9)
 	{
 		if(free_play) fp_lifes=0; else LIFES=0;
 		game_lost();
@@ -480,6 +480,7 @@ void RevealIterative(int startx, int starty)
 
     if(startx < 0 || starty < 0 || startx >= GRID_W || starty >= GRID_H) return;
     if(!board[startx][starty].active) return;
+    if(board[startx][starty].ice_block) return;
     board[startx][starty].processed = 1;
 
     reveal_queue[tail].x = startx;
@@ -538,6 +539,7 @@ void RevealRecursive(int x,int y)
 {
     if(x < 0 || y < 0 || x >= GRID_W || y >= GRID_H) return;
 	if(!board[x][y].active) return;
+	if(board[x][y].ice_block) return;
     if(board[x][y].revealed || board[x][y].flagged>0) return;
 
     board[x][y].revealed = 1;
@@ -569,6 +571,7 @@ void Chord(int x, int y)
     if(x < 0 || y < 0 || x >= GRID_W || y >= GRID_H) return;
     if(!board[x][y].revealed) return;
     if(board[x][y].mine) return;
+    if(board[x][y].ice_block) return;
 	if(board[x][y].neighbors == 0 && !board[x][y].hasNeighborMines) return;
 	
     int required = board[x][y].neighbors;
@@ -596,6 +599,7 @@ void Chord(int x, int y)
                 if(nx >= 0 && ny >= 0 && nx < GRID_W && ny < GRID_H)
                 {
 					if(!board[nx][ny].active) continue;
+					if(board[nx][ny].ice_block) continue;
                     if(board[nx][ny].flagged==0)
                     {
                         if(board[nx][ny].mine && !board[nx][ny].revealed)

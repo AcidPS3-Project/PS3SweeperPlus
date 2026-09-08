@@ -31,6 +31,9 @@ typedef struct
     u8 wall_down;
     u8 wall_left;
     u8 wall_right;
+	
+	bool ice_block;
+	bool ice_center;
 } Cell; //heh, funny
 
 extern RevealNode reveal_queue[MAX_W * MAX_H];

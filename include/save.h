@@ -50,6 +50,15 @@ typedef struct
     int sranks_ep_4[8];
 	
 	bool route_touhou_unlocked;
+	
+	bool save_seen_nine;
+	bool save_seen_fnine;
+	bool save_seen_ten;
+	bool save_seen_nten;
+	bool save_seen_eleven;
+	bool save_seen_meleven;
+	bool save_seen_twelve;
+	bool save_seen_nan;
 } SaveData;
 
 extern SaveData gSave;

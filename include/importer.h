@@ -7,7 +7,6 @@
 extern char global_name[];
 extern char global_version[];
 
-const char *langStr[1024];
 const char *credits[256];
 
 extern int current_bgm;
@@ -39,7 +38,18 @@ extern float RENDERING_SIZE;
 extern int FIRST_CLICK;
 
 extern int i_10;
-extern int language;
+
+extern bool seen_nine;
+extern bool seen_fnine;
+extern bool seen_ten;
+extern bool seen_nten;
+extern bool seen_eleven;
+extern bool seen_meleven;
+extern bool seen_twelve;
+// extern bool seen_touhoutwelve;
+extern bool seen_nan;
+
+extern bool show_warning;
 
 extern bool specialthanks;
 
@@ -158,7 +168,6 @@ int bgm_end[BGM_LIST];
 int LoadSFX();
 void init_sfx();
 void init_bgm();
-void LangInit();
 
 int RandRange(int min, int max);
 int max(int min, int max);
@@ -192,8 +201,5 @@ float lerp(int x, int y, float amount);
 void DebugLog(const char *text);
 
 int LoadImageA(const char *path, pngData *texture);
-
-const char *menu_title[10];
-const char *menu_desc[10];
 
 #endif

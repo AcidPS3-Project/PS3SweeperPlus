@@ -1,7 +1,4 @@
 build
-
-source/credentials.c
-
 *.bat
 *.self
 *.elf

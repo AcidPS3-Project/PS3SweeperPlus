@@ -272,6 +272,7 @@ void Boss9PickDirection(int i)
 
     boss9_list[i].isMoving = true;
 }
+
 void UpdateBoss9(int i)
 {
     if(!boss9_list[i].active) return;
@@ -311,4 +312,41 @@ void Deactivate9()
 {
 	int i;
 	for (i = 0; i < boss9_count; i++) boss9_list[i].active = false;
+}
+
+void UpdateFrozenNine(int i)
+{
+	static int timer = 0;
+	
+	if(timer == 0)
+	{
+		for(int xx = 0; xx < GRID_W; xx++)
+		{
+			for(int yy = 0; yy < GRID_H; yy++)
+			{
+				board[xx][yy].ice_block = false;
+				board[xx][yy].ice_center = false;
+			}
+		}
+		
+		int zx, zy;
+		
+		zx = RandRange(1, GRID_W - 3);
+		zy = RandRange(1, GRID_H - 2);
+		
+		board[zx][zy].ice_center = true;
+		
+		board[zx-1][zy-1].ice_block = true;
+		board[zx-1][zy].ice_block = true;
+		board[zx-1][zy+1].ice_block = true;
+		board[zx][zy-1].ice_block = true;
+		board[zx][zy].ice_block = true;
+		board[zx][zy+1].ice_block = true;
+		board[zx+1][zy-1].ice_block = true;
+		board[zx+1][zy].ice_block = true;
+		board[zx+1][zy+1].ice_block = true;
+		
+		timer = 600;
+	}
+	else timer--;
 }

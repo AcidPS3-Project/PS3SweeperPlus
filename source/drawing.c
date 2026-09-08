@@ -2,6 +2,7 @@
 #include "bosses.h"
 #include "text.h"
 #include "save.h"
+#include "lang.h"
 #include "asimov_ttf_bin.h"
 
 #include "level_data.h"
@@ -609,7 +610,47 @@ void DrawSpriteUI(float x, float y, int wid1, int hei1, int wid2, int hei2, int 
     tiny3d_End();
 }
 
-void DrawSprite2DR(int id, float x, float y, int wid2, int hei2, int wid1, int hei1, int wid0, int hei0, float angle, float layer,  u32 color)
+void DrawSpriteUIR(float x, float y, int wid1, int hei1, int wid2, int hei2, int wid0, int hei0, int wid3, int hei3, float layer, float angle, u32 color)
+{
+    float u0 = (float)wid1 / (float)wid0;
+    float v0 = (float)hei1 / (float)hei0;
+    float u1 = (float)wid2 / (float)wid0;
+    float v1 = (float)hei2 / (float)hei0;
+	
+    float cx = x + wid3 * 0.5f;
+    float cy = y + hei3 * 0.5f;
+    float hw = wid3 * 0.5f;
+    float hh = hei3 * 0.5f;
+
+    float rad = angle * (M_PI / 180.0f);
+    float c = cosf(rad);
+    float s = sinf(rad);
+
+    float x0 = (-hw * c) - (-hh * s);
+    float y0 = (-hw * s) + (-hh * c);
+    float x1 = ( hw * c) - (-hh * s);
+    float y1 = ( hw * s) + (-hh * c);
+    float x2 = ( hw * c) - ( hh * s);
+    float y2 = ( hw * s) + ( hh * c);
+    float x3 = (-hw * c) - ( hh * s);
+    float y3 = (-hw * s) + ( hh * c);
+
+    tiny3d_SetPolygon(TINY3D_QUADS);
+
+    tiny3d_VertexPos(cx + x0 + 40, cy + y0 + 22, layer);
+    tiny3d_VertexColor(color);
+    tiny3d_VertexTexture(u0, v0);
+    tiny3d_VertexPos(cx + x1 + 40, cy + y1 + 22, layer);
+    tiny3d_VertexTexture(u1, v0);
+    tiny3d_VertexPos(cx + x2 + 40, cy + y2 + 22, layer);
+    tiny3d_VertexTexture(u1, v1);
+    tiny3d_VertexPos(cx + x3 + 40, cy + y3 + 22, layer);
+    tiny3d_VertexTexture(u0, v1);
+	
+    tiny3d_End();
+}
+
+void DrawSprite2DR(int id, float x, float y, int wid2, int hei2, int wid1, int hei1, int wid0, int hei0, float angle, float layer, u32 color)
 {
     int cols = wid0 / wid1;
     int col = id % cols;
@@ -703,6 +744,16 @@ void draw_game()
 	{
 		for(y1=0;y1<GRID_H;y1++)
 		{
+			if(board[x1][y1].ice_center)
+			{
+				SetTexture(2);
+				int tz = 858;
+				if(anim==1) tz = 858+54;
+				DrawSpriteUI(offset_x+(x1*RENDER_SIZE)-RENDER_SIZE, offset_y+(y1*RENDER_SIZE)-RENDER_SIZE,
+					tz, 0, tz+54, 54, 1024, 1024, RENDER_SIZE*3, RENDER_SIZE*3, 1, color);
+				SetTexture(1);
+			}
+			
 			if (!board[x1][y1].active) continue;
 			
 			int tile = 0;
@@ -1157,10 +1208,20 @@ void drawScene()
 				SetTexture(1);
 				int name_test = 0;
 				
+				u32 c_t = 0xff0000ff;
+				
 				SetFontSize(28, 32);
 				
-				if(EPISODE==1) name_test = 61;
-				else if(EPISODE==2) name_test = 80;
+				if(EPISODE==1)
+				{
+					if(global_route==1) name_test = 61;
+					else name_test = 111;
+				}
+				else if(EPISODE==2)
+				{
+					if(global_route==1) name_test = 80;
+					else name_test = 120;
+				}
 				
 				if(ten_arena<=160*4)
 				{
@@ -1175,13 +1236,24 @@ void drawScene()
 					{
 						case 1:
 						{
-							DrawRectangle2D(876+ep1_x, -22, 2763, 1000, 0x000000ff, 7);
 							if(ship_x > 876.0f)
 							{
+								c_t = 0xff0000ff;
 								ep1_x = lerp(ep1_x, -956, 0.025f);
-								
+								DrawRectangle2D(876+ep1_x, -22, 2763, 1000, 0x000000ff, 7);
 								DrawBossTriangles((876/2)+ep1_x+876+12, 560/2, 200);
 								UpdateBossTriangles();
+							}
+							else if(ship_x < -80.0f && LEVEL>0)
+							{
+								c_t = 0x0000ffff;
+								ep1_x = lerp(ep1_x, 1132, 0.025f);
+								DrawRectangle2D(-40, -22, ep1_x, 1000, 0x000000ff, 7);
+								static float ang = 0.0f;
+								ang += 1.8f;
+								SetTexture(2);
+								DrawSpriteUIR(-1388+ep1_x+(876/2), (560/2) - 256, 768, 90, 768+208, 298, 1024, 1024, 512, 512, 1, ang, 0xffffff67);
+								SetTexture(1);
 							}
 							
 							for(int _t = 1; _t < max_lvl; _t++)
@@ -1251,7 +1323,7 @@ void drawScene()
 				SetFontSize(28, 32);
 				if(!ship_a)
 				{
-					if(EPISODE==1 && LEVEL==8) DrawTextAligned(0, 0, 876, -22+(32*4), 1, 0xff0000ff, 1, 28, langStr[name_test+LEVEL]);
+					if(EPISODE==1 && LEVEL==8) DrawTextAligned(0, 0, 876, -22+(32*4), 1, c_t, 1, 28, langStr[name_test+LEVEL]);
 					else DrawTextAligned(0, 0, 876, -22+(32*4), 1, 0xffffffff, 0, 28, langStr[name_test+LEVEL]);
 				}
 				
@@ -1450,6 +1522,29 @@ void drawScene()
 					DrawButton(-20, 224, 5, -1);
 					DrawFString(0, -20+36,192, 0xffffffff, 0, langStr[15]);
 					DrawFString(0, -20+36,224, 0xffffffff, 0, langStr[42]);
+				}
+				
+				if(show_warning)
+				{
+					bool something = false;
+					DrawRectangle2D(-40+100, -22+100, 876-100, 560-100, 0xaaaaaaff, -5);
+					DrawTextAligned(60, -40, 876, 241, 1, 0x000000ff, 1, 28, "TEST");
+					DrawTextAligned(0, -40, 876, 504, 1, 0x000000ff, 1, 28, "Press START to continue.");
+					
+					if(enable_9 && !seen_nine) something = true;
+					else if(enable_9 && global_route==1 && !seen_fnine) something = true;
+					else if(enable_10 && !seen_ten) something = true;
+					else if(enable_10 && global_route==1 && !seen_nten) something = true;
+					else if(enable_11 && !seen_eleven) something = true;
+					else if(enable_11 && global_route==1 && !seen_meleven) something = true;
+					else if(enable_12 && !seen_twelve) something = true;
+					else if(enable_nan && !seen_nan) something = true;
+					else something = false;
+					
+					if(something)
+					{
+						DrawTextAligned(0, -40, 876, 476, 1, 0x000000ff, 1, 28, "Press TRIANGLE to not show it again.");
+					}
 				}
 				
 				break;
