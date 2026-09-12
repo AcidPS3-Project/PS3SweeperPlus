@@ -546,8 +546,9 @@ int getHatState(int hat, int anim_z)
 	else if(paused) the_state = 0;
 	else
 	{
-		if(LEVEL==8) the_state=0;
-		else if(!can_move_xd) the_state = 5+anim_z;
+		// if(LEVEL==8) the_state=0;
+		// else
+		if(!can_move_xd) the_state = 5+anim_z;
 		else
 		{
 			if(cursor<left) the_state = 4;

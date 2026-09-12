@@ -26,6 +26,6 @@ void SetupBoss9Positions(int count);
 void UpdateBoss9(int i);
 void Deactivate9();
 
-void UpdateFrozenNine(int i);
+void UpdateFrozenNine();
 
 #endif

@@ -153,6 +153,8 @@ SoundEffect sfx_level;
 SoundEffect sfx_level2;
 SoundEffect sfx_beep;
 SoundEffect sfx_blackout;
+SoundEffect sfx_f9ice;
+SoundEffect sfx_siren;
 
 #define BGM_LIST 400
 #define MUS_DIR "/dev_hdd0/game/MINESWEEP/USRDIR/music/"
@@ -175,6 +177,7 @@ int max(int min, int max);
 void PlayBGM(int id, int inf);
 void UpdateBGM(void);
 void PlaySFX(SoundEffect *sfx);
+void StopSFX(SoundEffect *sfx);
 
 void Load_PNG();
 

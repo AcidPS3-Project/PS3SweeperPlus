@@ -1,3 +1,14 @@
+/*
+
+Welcome to PS3Sweeper+ Source code!
+If you are reading this, then congrats! The 1 month after v1.0 release has passsed!
+
+Thanks for visiting this amazing project of mine.
+
+- AcidNT3.1
+
+*/
+
 #include <tiny3d.h>
 
 #include "soundlib/spu_soundlib.h"
@@ -18,6 +29,7 @@ int startbgmgtsp = 0;
 int start_shop = 0;
 int start_end = 0;
 int start_credits = 0;
+float tnt_alpha = 0.0f;
 
 float ship_speed = 0.75f / 2;
 
@@ -34,6 +46,7 @@ void ResetGrid()
 	FadeInOut(&currentScreen, GAME);
 	
     mines_count = MINES;
+	tnt_alpha = 0.0f;
 
     cursorX = GRID_W/2;
     cursorY = GRID_H/2;
@@ -52,11 +65,11 @@ void ResetGrid()
 	boss11_cutscene = 0;
 	boss12_cutscene = 0;
 	
-	if(free_play && desired_bgm == 9) enable_9 = true;
-	if(free_play && desired_bgm == 10) enable_10 = true;
-	if(free_play && desired_bgm == 11) enable_11 = true;
-	if(free_play && desired_bgm == 14) enable_12 = true;
-	if(free_play && desired_bgm == 15) enable_nan = true;
+	// if(free_play && desired_bgm == 9) enable_9 = true;
+	// if(free_play && desired_bgm == 10) enable_10 = true;
+	// if(free_play && desired_bgm == 11) enable_11 = true;
+	// if(free_play && desired_bgm == 14) enable_12 = true;
+	// if(free_play && desired_bgm == 15) enable_nan = true;
 	
 	if(!free_play && LEVEL==8) enable_9 = true;
 	if(!free_play && LEVEL==9) enable_10 = true;
@@ -74,7 +87,6 @@ void ResetGrid()
 			desired_bgm = 10;
 			boss9_cutscene = 2;
 		}
-		show_warning = true;
 	}
 	if(enable_10)
 	{
@@ -84,7 +96,6 @@ void ResetGrid()
 			desired_bgm = 12;
 			boss10_cutscene = 2;
 		}
-		show_warning = true;
 	}
 	if(enable_11)
 	{
@@ -94,7 +105,6 @@ void ResetGrid()
 			desired_bgm = 15;
 			boss11_cutscene = 2;
 		}
-		show_warning = true;
 	}
 	if(enable_12)
 	{
@@ -104,7 +114,6 @@ void ResetGrid()
 			desired_bgm = 19;
 			boss12_cutscene = 2;
 		}
-		show_warning = true;
 	}
 	if(enable_nan)
 	{
@@ -114,7 +123,6 @@ void ResetGrid()
 			desired_bgm = 19;
 			bossnan_cutscene = 2;
 		}
-		show_warning = true;
 	}
 	
 	int j;
@@ -762,7 +770,15 @@ int main(int argc, const char* argv[])
 										else if(LEVEL==5) lvl_slct_bgm = 153;
 										else if(LEVEL==6) lvl_slct_bgm = 154;
 										else if(LEVEL==7) lvl_slct_bgm = 154;
-										else StopAudio();
+										else
+										{
+											StopAudio();
+											if(global_route==1)
+											{
+												PlayBGM(190, 1);
+												PlaySFX(&sfx_siren);
+											}
+										}
 										break;
 									}
 									case 2:
@@ -839,7 +855,11 @@ int main(int argc, const char* argv[])
 										}
 										
 										if(ship_x > 876.0f && ship_x < 877.0f) PlayBGM(159, 1);
-										if(ship_x > -80.0f && ship_x < -79.0f && LEVEL>0) PlayBGM(159, 1);
+										if(ship_x > -80.0f && ship_x < -79.0f && LEVEL>0)
+										{
+											StopSFX(&sfx_siren);
+											PlayBGM(159, 1);
+										}
 										
 										break;
 									}
@@ -1162,6 +1182,7 @@ int main(int argc, const char* argv[])
 													boss9_cutscene = 1;
 													the_bg = 4;
 													PlayBGM(10, 1);
+													show_warning = true;
 												}
 											}
 											else if(!free_play && LEVEL==9 && boss10_cutscene==0)
@@ -1171,6 +1192,7 @@ int main(int argc, const char* argv[])
 													boss10_cutscene = 1;
 													the_bg = 9;
 													PlayBGM(12, 1);
+													show_warning = true;
 												}
 											}
 											else if(!free_play && LEVEL==10 && boss11_cutscene==0)
@@ -1180,6 +1202,7 @@ int main(int argc, const char* argv[])
 													boss11_cutscene = 1;
 													the_bg = 14;
 													PlayBGM(15, 1);
+													show_warning = true;
 												}
 											}
 											else if(!free_play && LEVEL==11 && boss12_cutscene==0)
@@ -1188,6 +1211,7 @@ int main(int argc, const char* argv[])
 												{
 													boss12_cutscene = 1;
 													PlayBGM(19, 1);
+													show_warning = true;
 												}
 											}
 											else
@@ -1364,6 +1388,7 @@ int main(int argc, const char* argv[])
 											{
 												boss10_list[i_10].time=10;
 												boss10_list[i_10].tspeed+=(0.0155f*(1+DIFFICULTY));
+												tnt_alpha += 5.1f;
 												float min_speed = boss10_list[i_10].tspeed;
 												
 												boss10_list[i_10].hsp = min_speed + (((float)rand() / (float)RAND_MAX) * boss10_list[i_10].tspeed);
@@ -1581,7 +1606,7 @@ int main(int argc, const char* argv[])
 					UpdateBoss9(i);
 				}
 				
-				if(global_route == 1) UpdateFrozenNine(i);
+				if(global_route == 1) UpdateFrozenNine();
 			}
 		}
 		
@@ -1630,12 +1655,23 @@ int main(int argc, const char* argv[])
 					if(boss10_list[i].timer > 1.0f)
 					{
 						boss10_list[i].timer = 0.0f;
-						if(boss10_list[i].time<=0)
+						if(boss10_list[i].time<=1 && boss10_list[i].speed!=0)
 						{
+							boss10_list[i].time = 0;
+							boss10_list[i].speed = 0;
+							boss10_list[i].vsp = 0;
+							boss10_list[i].hsp = 0;
 							if(free_play) fp_lifes=0; else LIFES=0;
 							game_lost();
 						}
 						else boss10_list[i].time--;
+					}
+					
+					if(global_route==1 && tnt_alpha >= 249.0f && tnt_alpha < 255.0f)
+					{
+						tnt_alpha = 255.0f;
+						if(free_play) fp_lifes=0; else LIFES=0;
+						game_lost();
 					}
 				}
 				
@@ -1677,6 +1713,7 @@ int main(int argc, const char* argv[])
 				{
 					disable_control = 1;
 					gamelose = 1;
+					tnt_alpha = 240.0f;
 					DeactivateBosses();
 					timer_running = 0;
 					playing_bgm = false;
@@ -1710,18 +1747,24 @@ int main(int argc, const char* argv[])
 			}
 		}
 		
+		drawScene();
+		
+		if(enable_10 && global_route==1)
+		{
+			DrawBackground2D(0x00ff0000 | (int)(tnt_alpha), -7);
+		}
+		
 		if(enable_12 && !can_move_xd)
 		{
 			tiny3d_BlendFunc(1, TINY3D_BLEND_FUNC_SRC_RGB_ONE_MINUS_DST_COLOR | TINY3D_BLEND_FUNC_SRC_ALPHA_ONE,
 				TINY3D_BLEND_FUNC_DST_RGB_ZERO | TINY3D_BLEND_FUNC_DST_ALPHA_ZERO, TINY3D_BLEND_RGB_FUNC_ADD | TINY3D_BLEND_ALPHA_FUNC_ADD);
 			
-			DrawBackground2D(0xffffffff, -6);
+			DrawBackground2D(0xffffffff, -7);
 		}
 		
 		if(playing_bgm) UpdateBGM();
 		if(bad_apple) badAppleUpdate();
 		
-		drawScene();
 		tiny3d_Flip();
 		usleep(3666);
     }

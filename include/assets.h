@@ -40,6 +40,8 @@
 #include "cash_register_bin.h"
 #include "beep_bin.h"
 #include "blackout_bin.h"
+#include "fnine_ice_bin.h"
+#include "siren_bin.h"
 
 #include "level_start_bin.h"
 #include "level_start2_bin.h"

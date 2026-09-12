@@ -443,6 +443,7 @@ void init_bgm()
 	bgm[163] = MUS_DIR "lss3m.ogg";
 	bgm[164] = MUS_DIR "ls12.ogg";
 	
+	bgm[190] = MUS_DIR "wind.ogg";
 	bgm[191] = MUS_DIR "untitled.ogg";
 	bgm[192] = MUS_DIR "credits.ogg";
 	bgm[193] = MUS_DIR "ending.ogg";
@@ -570,6 +571,8 @@ void init_sfx()
 	LoadSFX(&sfx_gamestart, game_start_bin, game_start_bin_size);
 	LoadSFX(&sfx_beep, beep_bin, beep_bin_size);
 	LoadSFX(&sfx_blackout, blackout_bin, blackout_bin_size);
+	LoadSFX(&sfx_f9ice, fnine_ice_bin, fnine_ice_bin_size);
+	LoadSFX(&sfx_siren, siren_bin, siren_bin_size);
 }
 
 int RandRange(int min, int max)
@@ -594,7 +597,7 @@ void PlayBGM(int id, int inf)
 	int temp = 0;
 	if(global_route == 1) temp = 200;
 	
-	if(id>190 || id==99 || id==100 || id==9 || id==0) temp = 0;
+	if(id>=190 || id==99 || id==100 || id==9 || id==0) temp = 0;
 	
 	FILE *fp = fopen(bgm[temp+id], "rb");
 	
@@ -628,7 +631,7 @@ void PlaySFX(SoundEffect *sfx)
 
 void StopSFX(SoundEffect *sfx)
 {
-    if (sfx->voice >= 1)
+    if(sfx->voice >= 1)
     {
         SND_StopVoice(sfx->voice);
         sfx->voice = -1;

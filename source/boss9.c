@@ -2,8 +2,11 @@
 
 Boss9 boss9_list[MAX_BOSS9];
 
+int timer = 0;
+
 void SetupBoss9Positions(int count)
 {
+	timer = 0;
     int pad = 1;
     int cx = GRID_W / 2;
     int cy = GRID_H / 2;
@@ -314,11 +317,9 @@ void Deactivate9()
 	for (i = 0; i < boss9_count; i++) boss9_list[i].active = false;
 }
 
-void UpdateFrozenNine(int i)
+void UpdateFrozenNine()
 {
-	static int timer = 0;
-	
-	if(timer == 0)
+	if(timer <= 0)
 	{
 		for(int xx = 0; xx < GRID_W; xx++)
 		{
@@ -345,6 +346,8 @@ void UpdateFrozenNine(int i)
 		board[zx+1][zy-1].ice_block = true;
 		board[zx+1][zy].ice_block = true;
 		board[zx+1][zy+1].ice_block = true;
+		
+		PlaySFX(&sfx_f9ice);
 		
 		timer = 600;
 	}

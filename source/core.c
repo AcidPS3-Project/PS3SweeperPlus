@@ -480,7 +480,6 @@ void RevealIterative(int startx, int starty)
 
     if(startx < 0 || starty < 0 || startx >= GRID_W || starty >= GRID_H) return;
     if(!board[startx][starty].active) return;
-    if(board[startx][starty].ice_block) return;
     board[startx][starty].processed = 1;
 
     reveal_queue[tail].x = startx;
@@ -523,6 +522,7 @@ void RevealIterative(int startx, int starty)
                 if(!board[nx][ny].active) continue;
                 if(board[nx][ny].revealed) continue;
                 if(board[nx][ny].flagged>0) continue;
+				if(board[nx][ny].ice_block) continue;
                 if(board[nx][ny].processed) continue;
 
                 board[nx][ny].processed = 1;
