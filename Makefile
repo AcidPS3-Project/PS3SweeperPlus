@@ -14,6 +14,7 @@ TITLE		:=	PS3Sweeper+
 APPID		:=	MINESWEEP
 CONTENTID	:=	HP0031-$(APPID)_00-0000000000000000
 
+SFOXML		:=	param/sfo.xml
 ICON0       :=  param/ICON0.PNG
 PKGFILES	:=	files
 
@@ -143,7 +144,7 @@ pkg:	$(BUILD) $(OUTPUT).pkg
 #---------------------------------------------------------------------------------
 
 npdrm: $(BUILD)
-	@$(SELF_NPDRM) $(SCETOOL_FLAGS) --np-content-id=$(CONTENTID) --encrypt $(BUILDDIR)/$(basename $(notdir $(OUTPUT))).elf $(BUILDDIR)/../EBOOT.BIN
+	@$(SELF_NPDRM) $(SCETOOL_FLAGS) $(BUILDDIR)/$(basename $(notdir $(OUTPUT))).elf $(BUILDDIR)/../EBOOT.BIN  --np-content-id=$(CONTENTID) 
 
 #---------------------------------------------------------------------------------
 

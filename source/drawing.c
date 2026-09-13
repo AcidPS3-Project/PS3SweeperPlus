@@ -1124,15 +1124,16 @@ void drawScene()
 				DrawButton(ze_x+ui_x-zfp_x, ze_y+418, 1, 0);
 				DrawButton(ze_x+ui_x-zfp_x, ze_y+450, 0, 0);
 				DrawButton(ze_x+ui_x-zfp_x, ze_y+482, 6, 0);
+				DrawButton(ze_x+ui_x-zfp_x, ze_y+514, 3, 0);
 				
 				DrawFString(0, ze_x+ui_x-zfp_x+36, ze_y+386, 0xffffffff, 0, langStr[31]);
 				DrawFString(0, ze_x+ui_x-zfp_x+36, ze_y+418, 0xffffffff, 0, langStr[32]);
 				DrawFString(0, ze_x+ui_x-zfp_x+36, ze_y+450, 0xffffffff, 0, langStr[34]);
 				
-				if(use_custom_sweeper)
-					DrawFString(0, ze_x+ui_x-zfp_x+36, ze_y+482, 0xffffffff, 0, "%s: V", langStr[54]);
-				else
-					DrawFString(0, ze_x+ui_x-zfp_x+36, ze_y+482, 0xffffffff, 0, "%s: X", langStr[54]);
+				if(use_custom_sweeper) DrawFString(0, ze_x+ui_x-zfp_x+36, ze_y+482, 0xffffffff, 0, "%s: V", langStr[54]);
+				else DrawFString(0, ze_x+ui_x-zfp_x+36, ze_y+482, 0xffffffff, 0, "%s: X", langStr[54]);
+				
+				DrawFString(0, ze_x+ui_x-zfp_x+36, ze_y+514, 0xffffffff, 0, "Boss Options");
 				
 				DrawFString(0, ze_x+ui_x-zfp_x+300, ze_y+64+(fp_menu*32), 0xffffffff, 0, "<");
 				

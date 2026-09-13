@@ -86,15 +86,6 @@ void SetupBoss10Positions(int count)
         boss10_list[i].active = false;
         boss10_list[i].pulse = 0.0f;
         boss10_list[i].time = 10;
-
-        // give each one different movement so they don't mirror perfectly
-        // switch (i)
-        // {
-            // case 0: boss10_list[i].hsp =  2.0f; boss10_list[i].vsp =  1.5f; break;
-            // case 1: boss10_list[i].hsp = -2.0f; boss10_list[i].vsp = -1.5f; break;
-            // case 2: boss10_list[i].hsp =  1.6f; boss10_list[i].vsp = -2.0f; break;
-            // case 3: boss10_list[i].hsp = -1.6f; boss10_list[i].vsp =  2.0f; break;
-        // }
     }
 }
 void boss10_update(int i)

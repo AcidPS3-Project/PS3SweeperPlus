@@ -124,6 +124,7 @@ extern int ranks_ep_3[8];
 extern int ranks_ep_4[8];
 
 extern bool route_touhou_unlocked;
+extern bool boss_options;
 
 void SplashesInit();
 int SplashesCount();

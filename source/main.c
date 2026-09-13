@@ -416,9 +416,9 @@ int main(int argc, const char* argv[])
 											ready_to_click = 0;
 											GRID_ID = 999;
 											free_play = 1;
-											fp_width = 16;
-											fp_height = 16;
-											fp_mines = 40;
+											fp_width = 20;
+											fp_height = 20;
+											fp_mines = 60;
 											enable_9 = true;
 											enable_10 = true;
 											enable_11 = true;
@@ -478,6 +478,13 @@ int main(int argc, const char* argv[])
 									{
 										if(paddata.BTN_CROSS && !oldpad.BTN_CROSS)
 										{
+											if(EPISODEs>2)
+											{
+												msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
+													"This episode is W.I.P., please wait! ^_^", EmptyDialogCallback, NULL, NULL);
+												continue;
+											}
+											
 											GRID_ID = 999;
 											ready_to_click = 0;
 											ship_x = -80;
@@ -520,7 +527,7 @@ int main(int argc, const char* argv[])
 										if(control_right && !old_control_right)
 										{
 											EPISODEs++;
-											if (EPISODEs>episode_count) EPISODEs = episode_count;
+											if (EPISODEs>7) EPISODEs = 7;
 										}
 										if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE)
 										{
@@ -1175,6 +1182,9 @@ int main(int argc, const char* argv[])
 										// basic crap
 										if(paddata.BTN_CROSS && !oldpad.BTN_CROSS)
 										{
+											if(!board[cursorX][cursorY].active) continue;
+											if(board[cursorX][cursorY].ice_block) continue;
+											
 											if(!free_play && LEVEL==8 && boss9_cutscene==0)
 											{
 												if(cursorX==GRID_W/2 && cursorY==GRID_H/2)

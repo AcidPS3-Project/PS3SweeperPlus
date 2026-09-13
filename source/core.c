@@ -429,7 +429,7 @@ void WinCheck()
 		}
 	}
 	
-	if(enable_9) revealed_total+=9;
+	// if(enable_9) revealed_total+=9;
 	
 	if(revealed_total >= valid_total)
 	{
@@ -443,6 +443,7 @@ void WinCheck()
 		
 		DeactivateBosses();
 		if(!enable_9 && !enable_10 && !enable_11 && !enable_12 && !enable_nan) PlayBGM(100+desired_bgm, 0);
+		if(enable_9 && enable_10 && enable_11 && enable_12) PlayBGM(196, 0);
 		
 		int fx, fy;
 		
@@ -697,6 +698,7 @@ void LoadLevel(int levelz)
 {
 	fp_doubles = 0;
 	fp_halfes = 0;
+	fp_antis = 0;
 	
 	DifficultyData *lvl = &episodes[EPISODE-1].levels[levelz].difficulties[DIFFICULTY];
 	
@@ -708,6 +710,14 @@ void LoadLevel(int levelz)
 	the_bg = lvl->back;
 	
 	if(levelz==8) MINES-=8;
+	
+	if(EPISODE>=3) fp_doubles = MINES / 2;
+	
+	if(EPISODE>=6)
+	{
+		fp_doubles = MINES / 3;
+		fp_halfes = MINES / 3;
+	}
 	
 	ResetGrid();
 }
@@ -724,6 +734,8 @@ void LoadFPLevel()
 	
 	if(desired_bgm==12) desired_bgm = 17;
 	if(desired_bgm==13) desired_bgm = 18;
+	
+	if(enable_9) MINES-=8;
 	
 	the_bg = fp_back;
 	

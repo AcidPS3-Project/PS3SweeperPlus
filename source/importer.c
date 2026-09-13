@@ -136,6 +136,7 @@ bool shop_unlock_4 = false;
 bool shop_unlock_5 = false;
 
 bool specialthanks = false;
+bool boss_options = false;
 
 bool route_touhou_unlocked = false;
 
@@ -448,7 +449,13 @@ void init_bgm()
 	bgm[192] = MUS_DIR "credits.ogg";
 	bgm[193] = MUS_DIR "ending.ogg";
 	bgm[194] = MUS_DIR "fourofakind_intro.ogg";
+	
 	bgm[195] = MUS_DIR "fourofakind.ogg";
+	bgm_start[195] = 7997;
+	bgm_end[195] = 88000;
+	
+	bgm[196] = MUS_DIR "fourofakind_win.ogg";
+	
 	bgm[197] = MUS_DIR "shop.ogg";
 	bgm[198] = MUS_DIR "logo.mp3";
 	// 199 - custom win music
@@ -595,8 +602,8 @@ void PlayBGM(int id, int inf)
 	StopAudio();
 	
 	int temp = 0;
-	if(global_route == 1) temp = 200;
 	
+	if(global_route == 1) temp = 200;
 	if(id>=190 || id==99 || id==100 || id==9 || id==0) temp = 0;
 	
 	FILE *fp = fopen(bgm[temp+id], "rb");
@@ -608,7 +615,11 @@ void PlayBGM(int id, int inf)
     }
 	
     PlayAudiofd(fp, 0, inf ? AUDIO_INFINITE_TIME : AUDIO_ONE_TIME);
-    current_bgm = id;
+    current_bgm = temp+id;
+	
+	printf("FILE: %s\n", bgm[temp+id]);
+	printf("START: %d\n", bgm_start[temp+id]);
+	printf("END: %d\n", bgm_end[temp+id]);
 }
 
 void UpdateBGM(void)

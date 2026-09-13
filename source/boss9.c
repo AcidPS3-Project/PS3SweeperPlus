@@ -97,10 +97,7 @@ bool Boss9Collides(int self, int nx, int ny)
         if(!boss9_list[i].active) continue;
 
         // 3x3 squares overlap?
-        if(abs(nx - boss9_list[i].x) <= 2 && abs(ny - boss9_list[i].y) <= 2)
-        {
-            return true;
-        }
+        if(abs(nx - boss9_list[i].x) <= 2 && abs(ny - boss9_list[i].y) <= 2) return true;
     }
     return false;
 }
