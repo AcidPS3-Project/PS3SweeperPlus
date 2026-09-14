@@ -31,6 +31,8 @@ int fp_back = 0;
 int fp_menu = 0;
 int fp_lifes = 3;
 
+int boss_menu = 0;
+
 int cursorX = 0;
 int cursorY = 0;
 int gamewin = 0;

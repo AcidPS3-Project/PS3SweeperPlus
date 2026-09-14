@@ -4,6 +4,10 @@ Welcome to PS3Sweeper+ Source code!
 If you are reading this, then congrats! The 1 month after v1.0 release has passsed!
 
 Thanks for visiting this amazing project of mine.
+Here is something you should know:
+1. If using my source code, please credit!
+2. Yes, the game code is AI-Assisted, but NOT generated.
+3. Please do ANY significant changes. Ports are fine as long as it's not for PS3 (well.. guess?)
 
 - AcidNT3.1
 
@@ -65,12 +69,6 @@ void ResetGrid()
 	boss11_cutscene = 0;
 	boss12_cutscene = 0;
 	
-	// if(free_play && desired_bgm == 9) enable_9 = true;
-	// if(free_play && desired_bgm == 10) enable_10 = true;
-	// if(free_play && desired_bgm == 11) enable_11 = true;
-	// if(free_play && desired_bgm == 14) enable_12 = true;
-	// if(free_play && desired_bgm == 15) enable_nan = true;
-	
 	if(!free_play && LEVEL==8) enable_9 = true;
 	if(!free_play && LEVEL==9) enable_10 = true;
 	if(!free_play && LEVEL==10) enable_11 = true;
@@ -84,7 +82,7 @@ void ResetGrid()
 		SetupBoss9Positions(boss9_count);
 		if(free_play)
 		{
-			desired_bgm = 10;
+			if(desired_bgm == 9) desired_bgm = 10;
 			boss9_cutscene = 2;
 		}
 	}
@@ -93,7 +91,7 @@ void ResetGrid()
 		SetupBoss10Positions(boss10_count);
 		if(free_play)
 		{
-			desired_bgm = 12;
+			if(desired_bgm == 10) desired_bgm = 12;
 			boss10_cutscene = 2;
 		}
 	}
@@ -102,7 +100,7 @@ void ResetGrid()
 		SetupBoss11Positions(boss11_count);
 		if(free_play)
 		{
-			desired_bgm = 15;
+			if(desired_bgm == 11) desired_bgm = 15;
 			boss11_cutscene = 2;
 		}
 	}
@@ -111,7 +109,7 @@ void ResetGrid()
 		SetupBoss12Position();
 		if(free_play)
 		{
-			desired_bgm = 19;
+			if(desired_bgm == 14) desired_bgm = 19;
 			boss12_cutscene = 2;
 		}
 	}
@@ -120,7 +118,7 @@ void ResetGrid()
 		SetupBossNaNPositions(bossnan_count);
 		if(free_play)
 		{
-			desired_bgm = 19;
+			// desired_bgm = 19;
 			bossnan_cutscene = 2;
 		}
 	}
@@ -591,167 +589,209 @@ int main(int argc, const char* argv[])
 								}
 								else
 								{
-									if(paddata.BTN_START && !oldpad.BTN_START)
+									if(boss_options)
 									{
-										GRID_ID = 999;
-										ready_to_click = 0;
-										LEVEL_BKP = LEVEL;
-										PlaySFX(&sfx_gamestart);
-										LoadFPLevel();
-										can_move_xd = 1;
-									}
-									
-									if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE)
-									{
-										free_play = 0;
-									}
-									
-									if(paddata.BTN_L1 && !oldpad.BTN_L1)
-									{
-										if(!use_custom_sweeper)
+										if(control_up && !old_control_up)
 										{
-											FILE *fp = fopen("/dev_usb000/SWEEPING/captain.png", "r");
-											if(!fp) msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
-												langStr[48], EmptyDialogCallback, NULL, NULL);
-											else
+											boss_menu--;
+											if (boss_menu<0) boss_menu = 0;
+										}
+										if(control_down && !old_control_down)
+										{
+											boss_menu++;
+											if (boss_menu>4) boss_menu = 4;
+										}
+										if(paddata.BTN_CROSS && !oldpad.BTN_CROSS)
+										{
+											switch(boss_menu)
 											{
-												LoadImageA("/dev_usb000/SWEEPING/captain.png", &spritesheet[13]);
-												
-												int temp = 2048;
-												
-												if(spritesheet[13].width > temp || spritesheet[13].height > temp)
+												case 0: enable_9 = !enable_9; break;
+												case 1: enable_10 = !enable_10; break;
+												case 2: enable_11 = !enable_11; break;
+												case 3: enable_12 = !enable_12; break;
+												case 4:
 												{
-													DebugLog("CAPTAIN: Wrong image size!");
-													UnloadCustomSweeper();
+													// enable_nan = !enable_nan;
 													msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
-														langStr[49], EmptyDialogCallback, NULL, NULL);
-												}
-												else if(spritesheet[13].width != spritesheet[13].height)
-												{
-													DebugLog("CAPTAIN: Wrong image size!");
-													UnloadCustomSweeper();
-													msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
-														langStr[53], EmptyDialogCallback, NULL, NULL);
-												}
-												else
-												{
-													memcpy(texture_pointer, spritesheet[13].bmp_out, spritesheet[13].pitch * spritesheet[13].height);
-													sprite_off[13] = tiny3d_TextureOffset(texture_pointer);
-													free(spritesheet[13].bmp_out);
-													spritesheet[13].bmp_out = NULL;
-													
-													texture_pointer += ((spritesheet[13].pitch * spritesheet[13].height + 15) & ~15) / 4;
-													
-													use_custom_sweeper = true;
+														"Work in progress.", EmptyDialogCallback, NULL, NULL);
+													break;
 												}
 											}
 										}
-										else UnloadCustomSweeper();
-									}
-									
-									if(control_up && !old_control_up)
-									{
-										fp_menu--;
-										if (fp_menu<0) fp_menu = 0;
-									}
-									if(control_down && !old_control_down)
-									{
-										fp_menu++;
-										if (fp_menu>7) fp_menu = 7;
-									}
-									
-									int max_mus = 14;
-									
-									if(control_left && !old_control_left)
-									{
-										switch(fp_menu)
+										if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE)
 										{
-											case 0: fp_width--; if(fp_width<3) fp_width=3; break;
-											case 1: fp_height--; if(fp_height<3) fp_height=3; break;
-											case 2: fp_mines--; if(fp_mines<1) fp_mines=1; break;
-											case 3: fp_doubles--; if(fp_doubles<0) fp_doubles=0; break;
-											case 4: fp_halfes--; if(fp_halfes<0) fp_halfes=0; break;
-											case 5: fp_antis--; if(fp_antis<0) fp_antis=0; break;
-											case 6:
-											{
-												fp_music--;
-												if(fp_music>95) fp_music=max_mus;
-												if(fp_music<1) fp_music=1;
-												ReplaceBGM(fp_music);
-												break;
-											}
-											case 7: fp_back--; if(fp_back<0) fp_back=0; break;
-											default: break;
+											boss_options = false;
 										}
-										
-										if(fp_mines>(fp_width*fp_height)-1) fp_mines=(fp_width*fp_height)-1;
 									}
-									if(control_right && !old_control_right)
+									else
 									{
-										switch(fp_menu)
+										if(paddata.BTN_START && !oldpad.BTN_START)
 										{
-											case 0: fp_width++; if(fp_width>72) fp_width=72; break;
-											case 1: fp_height++; if(fp_height>48) fp_height=48; break;
-											case 2: fp_mines++; break;
-											case 3: fp_doubles++; if(fp_doubles>(fp_mines-fp_halfes-fp_antis)) fp_doubles=fp_mines-fp_halfes-fp_antis; break;
-											case 4: fp_halfes++; if(fp_halfes>(fp_mines-fp_doubles-fp_antis)) fp_halfes=fp_mines-fp_doubles-fp_antis; break;
-											case 5: fp_antis++; if(fp_antis>(fp_mines-fp_doubles-fp_halfes)) fp_antis=fp_mines-fp_doubles-fp_halfes; break;
-											case 6:
-											{
-												fp_music++;
-												if(fp_music>max_mus) fp_music=max_mus;
-												ReplaceBGM(fp_music);
-												break;
-											}
-											case 7: fp_back++; if(fp_back>14) fp_back=14; break;
-											default: break;
-										}
-										
-										if(fp_mines>(fp_width*fp_height)-1) fp_mines=(fp_width*fp_height)-1;
-									}
-									
-									if(paddata.BTN_TRIANGLE && !oldpad.BTN_TRIANGLE)
-									{
-										if(bad_apple_init())
-										{
+											GRID_ID = 999;
 											ready_to_click = 0;
 											LEVEL_BKP = LEVEL;
-											DebugLog("Loaded Bad Apple!!");
 											PlaySFX(&sfx_gamestart);
 											LoadFPLevel();
+											can_move_xd = 1;
 										}
-									}
-									
-									if(fp_menu==6 && paddata.BTN_SQUARE && !oldpad.BTN_SQUARE)
-									{
-										if(!custom_music)
+										
+										if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE)
 										{
-											has_custom_main = FindMusic("/dev_usb000/SWEEPING/bgm", custom_main_path);
-											has_custom_win  = FindMusic("/dev_usb000/SWEEPING/win", custom_win_path);
-
-											if(!has_custom_main)
+											free_play = 0;
+										}
+										
+										if(paddata.BTN_SQUARE && !oldpad.BTN_SQUARE)
+										{
+											boss_options = true;
+										}
+										
+										if(paddata.BTN_L1 && !oldpad.BTN_L1)
+										{
+											if(!use_custom_sweeper)
 											{
-												msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
-													langStr[50], EmptyDialogCallback, NULL, NULL);
-												continue;
+												FILE *fp = fopen("/dev_usb000/SWEEPING/captain.png", "r");
+												if(!fp) msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
+													langStr[48], EmptyDialogCallback, NULL, NULL);
+												else
+												{
+													LoadImageA("/dev_usb000/SWEEPING/captain.png", &spritesheet[13]);
+													
+													int temp = 2048;
+													
+													if(spritesheet[13].width > temp || spritesheet[13].height > temp)
+													{
+														DebugLog("CAPTAIN: Wrong image size!");
+														UnloadCustomSweeper();
+														msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
+															langStr[49], EmptyDialogCallback, NULL, NULL);
+													}
+													else if(spritesheet[13].width != spritesheet[13].height)
+													{
+														DebugLog("CAPTAIN: Wrong image size!");
+														UnloadCustomSweeper();
+														msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
+															langStr[53], EmptyDialogCallback, NULL, NULL);
+													}
+													else
+													{
+														memcpy(texture_pointer, spritesheet[13].bmp_out, spritesheet[13].pitch * spritesheet[13].height);
+														sprite_off[13] = tiny3d_TextureOffset(texture_pointer);
+														free(spritesheet[13].bmp_out);
+														spritesheet[13].bmp_out = NULL;
+														
+														texture_pointer += ((spritesheet[13].pitch * spritesheet[13].height + 15) & ~15) / 4;
+														
+														use_custom_sweeper = true;
+													}
+												}
+											}
+											else UnloadCustomSweeper();
+										}
+										
+										if(control_up && !old_control_up)
+										{
+											fp_menu--;
+											if (fp_menu<0) fp_menu = 0;
+										}
+										if(control_down && !old_control_down)
+										{
+											fp_menu++;
+											if (fp_menu>7) fp_menu = 7;
+										}
+										
+										int max_mus = 14;
+										
+										if(control_left && !old_control_left)
+										{
+											switch(fp_menu)
+											{
+												case 0: fp_width--; if(fp_width<3) fp_width=3; break;
+												case 1: fp_height--; if(fp_height<3) fp_height=3; break;
+												case 2: fp_mines--; if(fp_mines<1) fp_mines=1; break;
+												case 3: fp_doubles--; if(fp_doubles<0) fp_doubles=0; break;
+												case 4: fp_halfes--; if(fp_halfes<0) fp_halfes=0; break;
+												case 5: fp_antis--; if(fp_antis<0) fp_antis=0; break;
+												case 6:
+												{
+													fp_music--;
+													if(fp_music>95) fp_music=max_mus;
+													if(fp_music<1) fp_music=1;
+													ReplaceBGM(fp_music);
+													break;
+												}
+												case 7: fp_back--; if(fp_back<0) fp_back=0; break;
+												default: break;
 											}
 											
-											bgm[99] = custom_main_path;
-											fp_music = 99;
-
-											if(!has_custom_win)
-											{
-												msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
-													langStr[51], EmptyDialogCallback, NULL, NULL);
-												continue;
-											}
-											bgm[199] = custom_win_path;
-											custom_music = true;
+											if(fp_mines>(fp_width*fp_height)-1) fp_mines=(fp_width*fp_height)-1;
 										}
-										else
+										if(control_right && !old_control_right)
 										{
-											fp_music = 1;
-											custom_music = false;
+											switch(fp_menu)
+											{
+												case 0: fp_width++; if(fp_width>72) fp_width=72; break;
+												case 1: fp_height++; if(fp_height>48) fp_height=48; break;
+												case 2: fp_mines++; break;
+												case 3: fp_doubles++; if(fp_doubles>(fp_mines-fp_halfes-fp_antis)) fp_doubles=fp_mines-fp_halfes-fp_antis; break;
+												case 4: fp_halfes++; if(fp_halfes>(fp_mines-fp_doubles-fp_antis)) fp_halfes=fp_mines-fp_doubles-fp_antis; break;
+												case 5: fp_antis++; if(fp_antis>(fp_mines-fp_doubles-fp_halfes)) fp_antis=fp_mines-fp_doubles-fp_halfes; break;
+												case 6:
+												{
+													fp_music++;
+													if(fp_music>max_mus) fp_music=max_mus;
+													ReplaceBGM(fp_music);
+													break;
+												}
+												case 7: fp_back++; if(fp_back>14) fp_back=14; break;
+												default: break;
+											}
+											
+											if(fp_mines>(fp_width*fp_height)-1) fp_mines=(fp_width*fp_height)-1;
+										}
+										
+										if(paddata.BTN_TRIANGLE && !oldpad.BTN_TRIANGLE)
+										{
+											if(bad_apple_init())
+											{
+												ready_to_click = 0;
+												LEVEL_BKP = LEVEL;
+												DebugLog("Loaded Bad Apple!!");
+												PlaySFX(&sfx_gamestart);
+												LoadFPLevel();
+											}
+										}
+										
+										if(fp_menu==6 && paddata.BTN_SQUARE && !oldpad.BTN_SQUARE)
+										{
+											if(!custom_music)
+											{
+												has_custom_main = FindMusic("/dev_usb000/SWEEPING/bgm", custom_main_path);
+												has_custom_win  = FindMusic("/dev_usb000/SWEEPING/win", custom_win_path);
+
+												if(!has_custom_main)
+												{
+													msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
+														langStr[50], EmptyDialogCallback, NULL, NULL);
+													continue;
+												}
+												
+												bgm[99] = custom_main_path;
+												fp_music = 99;
+
+												if(!has_custom_win)
+												{
+													msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
+														langStr[51], EmptyDialogCallback, NULL, NULL);
+													continue;
+												}
+												bgm[199] = custom_win_path;
+												custom_music = true;
+											}
+											else
+											{
+												fp_music = 1;
+												custom_music = false;
+											}
 										}
 									}
 								}
@@ -1303,7 +1343,7 @@ int main(int argc, const char* argv[])
 														boss9_list[i].active = true;
 													}
 													
-													if(!HELL && !custom_music) PlayBGM(11, 1);
+													if(!HELL && desired_bgm == 10) PlayBGM(11, 1);
 													desired_bgm = 9;
 												}
 												else if(enable_10 && boss10_cutscene==2 && !boss10_started)
@@ -1316,7 +1356,7 @@ int main(int argc, const char* argv[])
 														boss10_list[i].active = true;
 													}
 													
-													if(!HELL && !custom_music) PlayBGM(13, 1);
+													if(!HELL && desired_bgm == 12) PlayBGM(13, 1);
 													desired_bgm = 10;
 												}
 												else if(enable_11 && boss11_cutscene==2 && !boss11_started)
@@ -1329,8 +1369,7 @@ int main(int argc, const char* argv[])
 														boss11_list[i].active = true;
 													}
 													
-													StopAudio();
-													if(!HELL && !custom_music) PlayBGM(16, 1);
+													if(!HELL && desired_bgm == 15) PlayBGM(16, 1);
 													desired_bgm = 11;
 												}
 												else if(enable_12 && boss12_cutscene==2 && !boss12_started)
@@ -1338,7 +1377,7 @@ int main(int argc, const char* argv[])
 													boss12_started = 1;
 													boss12.active = true;
 													
-													if(!HELL && !custom_music) PlayBGM(20, 1);
+													if(!HELL && desired_bgm == 19) PlayBGM(20, 1);
 													desired_bgm = 12;
 												}
 												

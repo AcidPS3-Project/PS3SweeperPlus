@@ -1062,6 +1062,7 @@ void drawScene()
 				
 				if(challenge_select) ze_y = (float)lerp(ze_y, -zcs_y, 0.1f);
 				else if(loadout_select) ze_y = (float)lerp(ze_y, zcs_y, 0.1f);
+				else if(boss_options) ze_y = (float)lerp(ze_y, -zcs_y, 0.1f);
 				else ze_y = (float)lerp(ze_y, 0, 0.1f);
 				
 				DrawFString(0, ze_x+ui_x, ze_y+4, 0xffffffff, 0, langStr[16]);
@@ -1136,6 +1137,15 @@ void drawScene()
 				DrawFString(0, ze_x+ui_x-zfp_x+36, ze_y+514, 0xffffffff, 0, "Boss Options");
 				
 				DrawFString(0, ze_x+ui_x-zfp_x+300, ze_y+64+(fp_menu*32), 0xffffffff, 0, "<");
+				
+				DrawFString(0, ze_x+ui_x-zfp_x+36, ze_y+zcs_y+4, 0xffffffff, 0, "Boss Options");
+				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+zcs_y+64, 0xffffffff, 0, "ENABLE 9: %s", enable_9 ? "true" : "false");
+				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+zcs_y+96, 0xffffffff, 0, "ENABLE 10: %s", enable_10 ? "true" : "false");
+				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+zcs_y+128, 0xffffffff, 0, "ENABLE 11: %s", enable_11 ? "true" : "false");
+				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+zcs_y+160, 0xffffffff, 0, "ENABLE XII: %s", enable_12 ? "true" : "false");
+				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+zcs_y+192, 0xffffffff, 0, "ENABLE NaN: %s", enable_nan ? "true" : "false");
+				
+				DrawFString(0, ze_x+ui_x-zfp_x+300, ze_y+zcs_y+64+(boss_menu*32), 0xffffffff, 0, "<");
 				
 				DrawFString(0, ze_x+ui_x, ze_y+zcs_y+4, 0xffffffff, 0, langStr[35]);
 				DrawFString(0, ze_x+ui_x, ze_y+zcs_y+64, 0xffffffff, 0, langStr[36]);

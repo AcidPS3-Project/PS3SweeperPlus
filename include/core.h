@@ -64,6 +64,8 @@ extern int fp_back;
 extern int fp_menu;
 extern int fp_lifes;
 
+extern int boss_menu;
+
 extern int cursorX;
 extern int cursorY;
 extern int gamewin;

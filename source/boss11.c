@@ -131,8 +131,16 @@ void boss11_update(int i)
 		while((!board[_x][_y].active || board[_x][_y].revealed || board[_x][_y].flagged>0)
 			&& attempts < 400);
 		
-		if(mines_count<=0) game_lost();
-		else if(attempts>400) game_lost();
+		if(mines_count<=0)
+		{
+			if(free_play) fp_lifes=0; else LIFES=0;
+			game_lost();
+		}
+		else if(attempts>400)
+		{
+			if(free_play) fp_lifes=0; else LIFES=0;
+			game_lost();
+		}
 		
 		//boss11_list[i].timer = (float)RandRange(4, 5);
 		switch(DIFFICULTY)

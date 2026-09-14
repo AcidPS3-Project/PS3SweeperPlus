@@ -217,6 +217,8 @@ void SplashesInit()
 	splashes_random[splash_count++] = "Also play Minesweeper Oddysey (if it comes out)";
 	splashes_random[splash_count++] = "Also play Minesweeper Plus: Epilogue";
 	splashes_random[splash_count++] = "Also play Minesweeper Plus: Silver's Custom Adventure";
+	splashes_random[splash_count++] = "Also play Minesweeper Deluxe (if it comes out)";
+	splashes_random[splash_count++] = "Also play.. are there any more MS+ fangames/mods out there?";
 	splashes_random[splash_count++] = "Also play Hero's Advent";
 	splashes_random[splash_count++] = "The MORSHU.";
 	splashes_random[splash_count++] = "Why it was rewritten?";
@@ -266,7 +268,7 @@ void SplashesInit()
 	//splashes_random[splash_count++] = "Hi, Xbox Original :)";
 	//splashes_random[splash_count++] = "I wonder what I can do for Mac OS 9 tho...";
 	splashes_random[splash_count++] = "Cutscenes?";
-	// splashes_random[splash_count++] = "v0.4 is here. Prepare thyself!!!";
+	splashes_random[splash_count++] = "v0.4 is here. Prepare thyself!!!";
 	splashes_random[splash_count++] = "BUGS. I HATE BUGS!!!!";
 	splashes_random[splash_count++] = "Hate Lesbian Space Princess. Love PS3Sweeper+.";
 	splashes_random[splash_count++] = "Ay, mate! Don't get snowgraved, heh!";
@@ -275,9 +277,17 @@ void SplashesInit()
 	splashes_random[splash_count++] = "Does not contain too much if else stuff!";
 	splashes_random[splash_count++] = "One of the First PS3 games that support Kazakh Language!";
 	splashes_random[splash_count++] = "Watch no one play this x2.";
-	splashes_random[splash_count++] = "v0.3.5? When v0.4???";
 	splashes_random[splash_count++] = "NaN is coming...";
-	splashes_random[splash_count++] = "Somebody once told me the world is gonna roll me.";
+	splashes_random[splash_count++] = "TRUST THE PROCESS!";
+	splashes_random[splash_count++] = "We need more language support!";
+	splashes_random[splash_count++] = "Haters gonna hate, sweepers gonna sweep.";
+	splashes_random[splash_count++] = "We're no strangers to love...";
+	splashes_random[splash_count++] = "You know the rules and so do I.";
+	splashes_random[splash_count++] = "Я держу тебя за руку и все расплывается";
+	splashes_random[splash_count++] = "Shoutout to my best friends Kirill9ka and tiptopik!";
+	splashes_random[splash_count++] = "КОЙШАМОБИЛЬ";
+	splashes_random[splash_count++] = "You clearly don't own a Koishi Fumo.";
+	splashes_random[splash_count++] = "OOOOEEEEOOOO I LOOK JUST LIKE BUDDY HOLLY";
 	
 	FILE *za = fopen("/dev_hdd0/game/ACIDSTORE/ICON0.PNG", "rb");
 	if(za!=NULL)
@@ -316,6 +326,9 @@ void SplashesInit()
 		splashes_random[splash_count++] = "Please re-install Bad Apple!! DLC";
 		DebugLog("Bad Apple!! DLC Init fail.");
 	}
+	
+	splashes_random[splash_count++] = "Unused splash? Please report!";
+	splashes_random[splash_count] = "Somebody once told me the world is gonna roll me.";
 };
 
 int SplashesCount()
