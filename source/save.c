@@ -84,7 +84,8 @@ void SetSaveDefaults()
 	gSave.save_seen_meleven = false;
 	gSave.save_seen_twelve = false;
 	gSave.save_seen_nan = false;
-
+	
+	gSave.slegacy_9_time = false;
 }
 
 void savestate_init()
@@ -317,6 +318,8 @@ int StartSave(void)
 	gSave.save_seen_twelve = seen_twelve;
 	gSave.save_seen_nan = seen_nan;
 	
+	gSave.slegacy_9_time = legacy_9_time;
+	
 	char debug[256];
 
 	sprintf(debug,"SAVING VALUES: level=%d current=%d global=%d route=%d", gSave.save_level,
@@ -413,6 +416,8 @@ static void LoadThread(void *arg)
 	seen_meleven = gSave.save_seen_meleven;
 	seen_twelve = gSave.save_seen_twelve;
 	seen_nan = gSave.save_seen_nan;
+	
+	legacy_9_time = gSave.slegacy_9_time;
 	
 	char debug[256];
 	sprintf(debug, "LOAD VALUES: level=%d current=%d global=%d route=%d episode=%d", gSave.save_level,

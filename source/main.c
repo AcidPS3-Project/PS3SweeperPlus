@@ -35,7 +35,10 @@ int start_end = 0;
 int start_credits = 0;
 float tnt_alpha = 0.0f;
 
-float ship_speed = 0.75f / 2;
+bool play_bgmz = false;
+
+// float ship_speed = 0.75f / 2;
+float ship_speed = 0.75f;
 
 int LEVEL_BKP = 0;
 int ready_to_click = 0;
@@ -45,6 +48,8 @@ bool HELL = false;
 void ResetGrid()
 {
 	show_warning = false;
+	time_decrease = false;
+	time_left = 999.0f;
 	start_game_mus = 1;
 	ten_arena = 0;
 	FadeInOut(&currentScreen, GAME);
@@ -79,11 +84,42 @@ void ResetGrid()
 	
 	if(enable_9)
 	{
+		time_decrease = true;
 		SetupBoss9Positions(boss9_count);
 		if(free_play)
 		{
+			time_left = 999.9f;
 			if(desired_bgm == 9) desired_bgm = 10;
 			boss9_cutscene = 2;
+		}
+		else
+		{
+			desired_bgm = 10;
+			if(EPISODE==1)
+			{
+				if(legacy_9_time || global_route==1) time_left = 99.9f;
+				else
+				{
+					if(DIFFICULTY==0) time_left = 199.9f;
+                    else if(DIFFICULTY==1) time_left = 179.9f;
+                    else if(DIFFICULTY==2) time_left = 149.9f;
+                    else time_left = 119.9f;
+				}
+			}
+			else if(EPISODE==2)
+			{
+				if(DIFFICULTY==0) time_left = 249.9f;
+				else if(DIFFICULTY==1) time_left = 219.9f;
+				else if(DIFFICULTY==2) time_left = 189.9f;
+				else time_left = 149.9f;
+			}
+			else if(EPISODE==3)
+			{
+				if(DIFFICULTY==0) time_left = 189.9f;
+				else if(DIFFICULTY==1) time_left = 169.9f;
+				else if(DIFFICULTY==2) time_left = 149.9f;
+				else time_left = 119.9f;
+			}
 		}
 	}
 	if(enable_10)
@@ -94,6 +130,7 @@ void ResetGrid()
 			if(desired_bgm == 10) desired_bgm = 12;
 			boss10_cutscene = 2;
 		}
+		else desired_bgm = 12;
 	}
 	if(enable_11)
 	{
@@ -103,6 +140,7 @@ void ResetGrid()
 			if(desired_bgm == 11) desired_bgm = 15;
 			boss11_cutscene = 2;
 		}
+		else desired_bgm = 15;
 	}
 	if(enable_12)
 	{
@@ -112,6 +150,7 @@ void ResetGrid()
 			if(desired_bgm == 14) desired_bgm = 19;
 			boss12_cutscene = 2;
 		}
+		else desired_bgm = 19;
 	}
 	if(enable_nan)
 	{
@@ -870,6 +909,7 @@ int main(int argc, const char* argv[])
 									}
 									default: break;
 								}
+								play_bgmz = false;
 								
 								if(lvl_slct_bgm>0) PlayBGM(lvl_slct_bgm, 1);
 								play_map_bgm = true;
@@ -901,9 +941,14 @@ int main(int argc, const char* argv[])
 											}
 										}
 										
-										if(ship_x > 876.0f && ship_x < 877.0f) PlayBGM(159, 1);
-										if(ship_x > -80.0f && ship_x < -79.0f && LEVEL>0)
+										if(ship_x > 876.0f && !play_bgmz)
 										{
+											play_bgmz = true;
+											PlayBGM(159, 1);
+										}
+										if(ship_x < -79.0f && LEVEL>0 && !play_bgmz)
+										{
+											play_bgmz = true;
 											StopSFX(&sfx_siren);
 											PlayBGM(159, 1);
 										}
@@ -1387,7 +1432,7 @@ int main(int argc, const char* argv[])
 														else Reveal(cursorX, cursorY);
 												}
 												
-												if(!boss9_started) WinCheck();
+												if(!enable_9) WinCheck();
 											}
 										}
 										if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE)
@@ -1670,7 +1715,21 @@ int main(int argc, const char* argv[])
 		
 		boss12.rotation += 1;
 		
-		if(timer_running && !paused) timer_seconds += 0.018f;
+		if(timer_running && !paused)
+		{
+			timer_seconds += 0.018f;
+			if(time_decrease && !gamelose)
+			{
+				time_left -= 0.018f;
+				if(time_left <= 0.0f)
+				{
+					timer_running = 0;
+					printf("TIME OVER");
+					if(free_play) fp_lifes=0; else LIFES=0;
+					game_lost();
+				}
+			}
+		}
 		
 		if(boss10_started && enable_10)
 		{
@@ -1762,7 +1821,7 @@ int main(int argc, const char* argv[])
 				{
 					disable_control = 1;
 					gamelose = 1;
-					tnt_alpha = 240.0f;
+					if(global_route==1) tnt_alpha = 240.0f;
 					DeactivateBosses();
 					timer_running = 0;
 					playing_bgm = false;

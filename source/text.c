@@ -1,3 +1,5 @@
+#include "libraries.h"
+
 #include "text.h"
 #include "asimov_ttf_bin.h"
 
@@ -104,13 +106,28 @@ void TTF_to_Bitmap(u8 chr, u8 * bitmap, short *w, short *h, short *y_correction)
     *h = slot->bitmap.rows;
 }
 
-void DrawWrappedText(float x, float y, float line_h, int max_chars, const char *text)
+void DrawFXString(float x, float y, const char* format, ...)
 {
-    char cp1251_text[1024];
-    utf8_to_cp1251(text, cp1251_text, sizeof(cp1251_text));
+	char buffer[1024];
+	
+    va_list args;
+    va_start(args, format);
+    vsnprintf(buffer, sizeof(buffer), format, args);
+    va_end(args);
+	
+    DrawString(x, y, buffer);
+}
 
-    char line[512];
-    char word[128];
+void DrawWrappedText(float x, float y, float line_h, int max_chars, const char* text)
+{
+    char utf8_buffer[1024];
+    char cp1251_buffer[1024];
+	
+    snprintf(utf8_buffer, sizeof(utf8_buffer), text);
+    utf8_to_cp1251(utf8_buffer, cp1251_buffer, sizeof(cp1251_buffer));
+
+    char line[1024];
+    char word[256];
     int line_len = 0;
     int word_len = 0;
     int i = 0;
@@ -120,7 +137,7 @@ void DrawWrappedText(float x, float y, float line_h, int max_chars, const char *
 
     while(1)
     {
-        char c = cp1251_text[i];
+        char c = cp1251_buffer[i];
 
         if(c != ' ' && c != '\0' && c != '\n')
         {
@@ -140,7 +157,7 @@ void DrawWrappedText(float x, float y, float line_h, int max_chars, const char *
 
                 if(line_len + needed > max_chars)
                 {
-                    DrawFormatString(x, y, "%s", line);
+                    DrawFXString(x, y, "%s", line);
                     y += line_h;
 
                     strcpy(line, word);
@@ -163,7 +180,7 @@ void DrawWrappedText(float x, float y, float line_h, int max_chars, const char *
 
             if(c == '\n')
             {
-                DrawFormatString(x, y, "%s", line);
+                DrawFXString(x, y, "%s", line);
                 y += line_h;
                 line[0] = '\0';
                 line_len = 0;
@@ -175,7 +192,7 @@ void DrawWrappedText(float x, float y, float line_h, int max_chars, const char *
         i++;
     }
 
-    if(line_len > 0) DrawFormatString(x, y, "%s", line);
+    if(line_len > 0) DrawFXString(x, y, "%s", line);
 }
 
 void utf8_to_cp1251(const char* src, char* dest, size_t max_len)

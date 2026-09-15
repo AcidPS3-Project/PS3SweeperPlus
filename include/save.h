@@ -59,6 +59,8 @@ typedef struct
 	bool save_seen_meleven;
 	bool save_seen_twelve;
 	bool save_seen_nan;
+	
+	bool slegacy_9_time;
 } SaveData;
 
 extern SaveData gSave;

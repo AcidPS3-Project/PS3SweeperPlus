@@ -31,6 +31,8 @@ int ten_arena = 0;
 
 bool easter_egg = false;
 
+bool legacy_9_time = false;
+
 bool button_x_hold = false;
 bool button_start_hold = false;
 bool paused = false;
@@ -56,6 +58,8 @@ int custom_sweeper_size = 0;
 
 float timer_seconds = 0;
 int timer_running = 0;
+float time_left = 0.0f;
+bool time_decrease = false;
 
 int screen_w = 848 / 2;
 int screen_h = 512 / 2;
@@ -288,6 +292,9 @@ void SplashesInit()
 	splashes_random[splash_count++] = "КОЙШАМОБИЛЬ";
 	splashes_random[splash_count++] = "You clearly don't own a Koishi Fumo.";
 	splashes_random[splash_count++] = "OOOOEEEEOOOO I LOOK JUST LIKE BUDDY HOLLY";
+	splashes_random[splash_count++] = "So many souls to play with, so little time...";
+	splashes_random[splash_count++] = "imagine this you are minesweeping as a ristar";
+	splashes_random[splash_count++] = "GRAND DAD????";
 	
 	FILE *za = fopen("/dev_hdd0/game/ACIDSTORE/ICON0.PNG", "rb");
 	if(za!=NULL)

@@ -24,6 +24,8 @@
 #include "explosion_bin.h"
 #include "explosion_anti_bin.h"
 #include "shopkeeper_sheet_bin.h"
+#include "boss_render_bin.h"
+
 #include "shopbg_bin.h"
 
 //IMPORT SFX

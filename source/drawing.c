@@ -996,40 +996,40 @@ void drawScene()
 				DrawSprite2D(anim3, -40, -22, 916, 582, 1152, 960, 2304, 1920, 1, color);
 				if(settings_select)
 				{
-					DrawFString(0, ui_x,4, 0xffffffff, 0, langStr[44]);
+					DrawFString(0, ui_x,4, 0xffffffff, 0, 32, langStr[44]);
 					DrawButton(ui_x, 64, 8, 0);
 					switch(language)
 					{
-						case 0: DrawFString(0, ui_x+36, 64, 0xffffffff, 0, "Language: English"); break;
-						case 1: DrawFString(0, ui_x+36, 64, 0xffffffff, 0, "Язык: Русский"); break;
-						case 2: DrawFString(0, ui_x+36, 64, 0xffffffff, 0, "Тілі: Қазақ"); break;
+						case 0: DrawFString(0, ui_x+36, 64, 0xffffffff, 0, 32, "Language: English"); break;
+						case 1: DrawFString(0, ui_x+36, 64, 0xffffffff, 0, 32, "Язык: Русский"); break;
+						case 2: DrawFString(0, ui_x+36, 64, 0xffffffff, 0, 32, "Тілі: Қазақ"); break;
 					}
 					DrawButton(ui_x, 96, 9, 0);
 					switch(setting_guarantee)
 					{
 						case 0:
-							DrawFString(0, ui_x+36, 96, 0xffffffff, 0, "%s: %s", langStr[2], langStr[3]);
+							DrawFString(0, ui_x+36, 96, 0xffffffff, 0, 32, "%s: %s", langStr[2], langStr[3]);
 							break;
 						case 1:
-							DrawFString(0, ui_x+36, 96, 0xffffffff, 0, "%s: %s", langStr[2], langStr[45]);
+							DrawFString(0, ui_x+36, 96, 0xffffffff, 0, 32, "%s: %s", langStr[2], langStr[45]);
 							break;
 						case 2:
-							DrawFString(0, ui_x+36, 96, 0xffffffff, 0, "%s: %s", langStr[2], langStr[46]);
+							DrawFString(0, ui_x+36, 96, 0xffffffff, 0, 32, "%s: %s", langStr[2], langStr[46]);
 							break;
 					}
 					DrawButton(ui_x, 484, 1, 0);
-					DrawFString(0, ui_x+36, 484, 0xffffffff, 0, langStr[32]);
+					DrawFString(0, ui_x+36, 484, 0xffffffff, 0, 32, langStr[32]);
 				}
 				else
 				{
-					DrawFString(0, ui_x,4, 0xffffffff, 0, "%s (%s)", global_name, global_version);
-					DrawFString(0, ui_x,484, 0xffffffff, 0, "%s", splash);
+					DrawFString(0, ui_x,4, 0xffffffff, 0, 32, "%s (%s)", global_name, global_version);
+					DrawFString(0, ui_x,484, 0xffffffff, 0, 32, "%s", splash);
 					DrawButton(ui_x, 128, 4, 0);
-					DrawFString(0, ui_x+36,128, 0xffffffff, 0, langStr[13]);
+					DrawFString(0, ui_x+36,128, 0xffffffff, 0, 32, langStr[13]);
 					DrawButton(ui_x, 160, 3, 0);
-					DrawFString(0, ui_x+36,160, 0xffffffff, 0, langStr[44]);
+					DrawFString(0, ui_x+36,160, 0xffffffff, 0, 32, langStr[44]);
 					DrawButton(ui_x, 224, 0, 0);
-					DrawFString(0, ui_x+36,224, 0xffffffff, 0, langStr[14]);
+					DrawFString(0, ui_x+36,224, 0xffffffff, 0, 32, langStr[14]);
 				}
 				break;
 			}
@@ -1065,23 +1065,23 @@ void drawScene()
 				else if(boss_options) ze_y = (float)lerp(ze_y, -zcs_y, 0.1f);
 				else ze_y = (float)lerp(ze_y, 0, 0.1f);
 				
-				DrawFString(0, ze_x+ui_x, ze_y+4, 0xffffffff, 0, langStr[16]);
+				DrawFString(0, ze_x+ui_x, ze_y+4, 0xffffffff, 0, 32, langStr[16]);
 				
 				SetTexture(9);
 				DrawSpriteUI(ui_x+ze_x+menu_x, ze_y+48, 512, 0, 960, 512, 1536, 1024, 224, 256, 4, color);
 				DrawSpriteUI(ui_x+ze_x+menu_x+262, ze_y+48, 512, 512, 960, 1024, 1536, 1024, 224, 256, 4, color);
 				DrawSpriteUI(ui_x+ze_x+menu_x+(262*2), ze_y+48, 960, 0, 960+448, 512, 1536, 1024, 224, 256, 4, color);
 				DrawSpriteUI(ui_x+ze_x+menu_x+(262*3), ze_y+48, 960, 512, 960+448, 1024, 1536, 1024, 224, 256, 4, color);
-				DrawFString(0, ze_x+ui_x, ze_y+320, 0xffffffff, 0, "        ^^^^^^^^");
+				DrawFString(0, ze_x+ui_x, ze_y+320, 0xffffffff, 0, 32, "        ^^^^^^^^");
 				
 				if(LEVEL>0)
 				{
 					DrawButton(ze_x+ui_x, ze_y+354, 0, 0);
-					DrawFString(0, ze_x+ui_x+36, ze_y+354, 0xffffffff, 0, "%s   (%d-%d)", langStr[15], EPISODE, LEVEL+1);
+					DrawFString(0, ze_x+ui_x+36, ze_y+354, 0xffffffff, 0, 32, "%s   (%d-%d)", langStr[15], EPISODE, LEVEL+1);
 				}
 				
-				DrawFString(0, ze_x+ui_x, ze_y+386, 0xffffffff, 0, "%s", menu_title[menu_pos]);
-				DrawFString(52, ze_x+ui_x, ze_y+420, 0xffffffff, 0, "%s", menu_desc[menu_pos]);
+				DrawFString(0, ze_x+ui_x, ze_y+386, 0xffffffff, 0, 32, "%s", menu_title[menu_pos]);
+				DrawFString(52, ze_x+ui_x, ze_y+420, 0xffffffff, 0, 32, "%s", menu_desc[menu_pos]);
 				
 				u32 color1 = 0xffffffff;
 				u32 color2 = 0xffffffff;
@@ -1093,33 +1093,33 @@ void drawScene()
 				if(DIFFICULTYs==2) color3 = 0xffffffff; else color3 = 0xaaaaaaff;
 				if(DIFFICULTYs==3) color4 = 0xffffffff; else color4 = 0xaaaaaaff;
 				
-				DrawFString(0, ze_x+zas_x, ze_y+4, 0xffffffff, 0, langStr[17]);
+				DrawFString(0, ze_x+zas_x, ze_y+4, 0xffffffff, 0, 32, langStr[17]);
 				SetTexture(9);
 				DrawSpriteUI(ze_x+zas_x, ze_y+48, 0, 0, 512, 128, 1536, 1024, 256, 64, 4, color1);
 				DrawSpriteUI(ze_x+zas_x, ze_y+116, 0, 128, 512, 256, 1536, 1024, 256, 64, 4, color2);
 				DrawSpriteUI(ze_x+zas_x, ze_y+184, 0, 256, 512, 384, 1536, 1024, 256, 64, 4, color3);
 				DrawSpriteUI(ze_x+zas_x, ze_y+252, 0, 384, 512, 512, 1536, 1024, 256, 64, 4, color4);
-				DrawFString(0, ze_x+zas_x, ze_y+322, 0xffffffff, 0, "%s: %d", langStr[24], EPISODEs);
+				DrawFString(0, ze_x+zas_x, ze_y+322, 0xffffffff, 0,  32,"%s: %d", langStr[24], EPISODEs);
 				
-				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+4, 0xffffffff, 0, langStr[27]);
-				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+64, 0xffffffff, 0, "%s: %d", langStr[18], fp_width);
-				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+96, 0xffffffff, 0, "%s: %d", langStr[19], fp_height);
-				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+128, 0xffffffff, 0, "%s: %d", langStr[20], fp_mines);
-				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+160, 0xffffffff, 0, "%s: %d", langStr[21], fp_doubles);
-				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+192, 0xffffffff, 0, "%s: %d", langStr[22], fp_halfes);
-				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+224, 0xffffffff, 0, "%s: %d", langStr[23], fp_antis);
+				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+4, 0xffffffff, 0, 32, langStr[27]);
+				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+64, 0xffffffff, 0, 32, "%s: %d", langStr[18], fp_width);
+				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+96, 0xffffffff, 0, 32, "%s: %d", langStr[19], fp_height);
+				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+128, 0xffffffff, 0, 32, "%s: %d", langStr[20], fp_mines);
+				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+160, 0xffffffff, 0, 32, "%s: %d", langStr[21], fp_doubles);
+				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+192, 0xffffffff, 0, 32, "%s: %d", langStr[22], fp_halfes);
+				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+224, 0xffffffff, 0, 32, "%s: %d", langStr[23], fp_antis);
 				
-				if(fp_music==99) DrawFString(0, ze_x+ui_x-zfp_x, ze_y+256, 0xffffffff, 0, "%s: %s", langStr[25], langStr[26]);
-				else DrawFString(0, ze_x+ui_x-zfp_x, ze_y+256, 0xffffffff, 0, "%s: %d", langStr[25], fp_music);
+				if(fp_music==99) DrawFString(0, ze_x+ui_x-zfp_x, ze_y+256, 0xffffffff, 0, 32, "%s: %s", langStr[25], langStr[26]);
+				else DrawFString(0, ze_x+ui_x-zfp_x, ze_y+256, 0xffffffff, 0, 32, "%s: %d", langStr[25], fp_music);
 				
 				if(fp_menu==6)
 				{
 					DrawButton(ze_x+ui_x-zfp_x+320, ze_y+256, 3, 0);
-					if(fp_music==99) DrawFString(0, ze_x+ui_x-zfp_x+320+36, ze_y+256, 0xffffffff, 0, langStr[28]);
-					else DrawFString(0, ze_x+ui_x-zfp_x+320+36, ze_y+256, 0xffffffff, 0, langStr[29]);
+					if(fp_music==99) DrawFString(0, ze_x+ui_x-zfp_x+320+36, ze_y+256, 0xffffffff, 0, 32, langStr[28]);
+					else DrawFString(0, ze_x+ui_x-zfp_x+320+36, ze_y+256, 0xffffffff, 0, 32, langStr[29]);
 				}
 				
-				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+288, 0xffffffff, 0, "%s: %d", langStr[30], (fp_back+1));
+				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+288, 0xffffffff, 0, 32, "%s: %d", langStr[30], (fp_back+1));
 				
 				DrawButton(ze_x+ui_x-zfp_x, ze_y+386, 4, 0);
 				DrawButton(ze_x+ui_x-zfp_x, ze_y+418, 1, 0);
@@ -1127,38 +1127,38 @@ void drawScene()
 				DrawButton(ze_x+ui_x-zfp_x, ze_y+482, 6, 0);
 				DrawButton(ze_x+ui_x-zfp_x, ze_y+514, 3, 0);
 				
-				DrawFString(0, ze_x+ui_x-zfp_x+36, ze_y+386, 0xffffffff, 0, langStr[31]);
-				DrawFString(0, ze_x+ui_x-zfp_x+36, ze_y+418, 0xffffffff, 0, langStr[32]);
-				DrawFString(0, ze_x+ui_x-zfp_x+36, ze_y+450, 0xffffffff, 0, langStr[34]);
+				DrawFString(0, ze_x+ui_x-zfp_x+36, ze_y+386, 0xffffffff, 0, 32, langStr[31]);
+				DrawFString(0, ze_x+ui_x-zfp_x+36, ze_y+418, 0xffffffff, 0, 32, langStr[32]);
+				DrawFString(0, ze_x+ui_x-zfp_x+36, ze_y+450, 0xffffffff, 0, 32, langStr[34]);
 				
-				if(use_custom_sweeper) DrawFString(0, ze_x+ui_x-zfp_x+36, ze_y+482, 0xffffffff, 0, "%s: V", langStr[54]);
-				else DrawFString(0, ze_x+ui_x-zfp_x+36, ze_y+482, 0xffffffff, 0, "%s: X", langStr[54]);
+				if(use_custom_sweeper) DrawFString(0, ze_x+ui_x-zfp_x+36, ze_y+482, 0xffffffff, 0, 32, "%s: V", langStr[54]);
+				else DrawFString(0, ze_x+ui_x-zfp_x+36, ze_y+482, 0xffffffff, 0, 32, "%s: X", langStr[54]);
 				
-				DrawFString(0, ze_x+ui_x-zfp_x+36, ze_y+514, 0xffffffff, 0, "Boss Options");
+				DrawFString(0, ze_x+ui_x-zfp_x+36, ze_y+514, 0xffffffff, 0, 32, "Boss Options");
 				
-				DrawFString(0, ze_x+ui_x-zfp_x+300, ze_y+64+(fp_menu*32), 0xffffffff, 0, "<");
+				DrawFString(0, ze_x+ui_x-zfp_x+300, ze_y+64+(fp_menu*32), 0xffffffff, 0, 32, "<");
 				
-				DrawFString(0, ze_x+ui_x-zfp_x+36, ze_y+zcs_y+4, 0xffffffff, 0, "Boss Options");
-				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+zcs_y+64, 0xffffffff, 0, "ENABLE 9: %s", enable_9 ? "true" : "false");
-				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+zcs_y+96, 0xffffffff, 0, "ENABLE 10: %s", enable_10 ? "true" : "false");
-				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+zcs_y+128, 0xffffffff, 0, "ENABLE 11: %s", enable_11 ? "true" : "false");
-				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+zcs_y+160, 0xffffffff, 0, "ENABLE XII: %s", enable_12 ? "true" : "false");
-				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+zcs_y+192, 0xffffffff, 0, "ENABLE NaN: %s", enable_nan ? "true" : "false");
+				DrawFString(0, ze_x+ui_x-zfp_x+36, ze_y+zcs_y+4, 0xffffffff, 0, 32, "Boss Options");
+				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+zcs_y+64, 0xffffffff, 0, 32, "ENABLE 9: %s", enable_9 ? "true" : "false");
+				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+zcs_y+96, 0xffffffff, 0, 32, "ENABLE 10: %s", enable_10 ? "true" : "false");
+				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+zcs_y+128, 0xffffffff, 0, 32, "ENABLE 11: %s", enable_11 ? "true" : "false");
+				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+zcs_y+160, 0xffffffff, 0, 32, "ENABLE XII: %s", enable_12 ? "true" : "false");
+				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+zcs_y+192, 0xffffffff, 0, 32, "ENABLE NaN: %s", enable_nan ? "true" : "false");
 				
-				DrawFString(0, ze_x+ui_x-zfp_x+300, ze_y+zcs_y+64+(boss_menu*32), 0xffffffff, 0, "<");
+				DrawFString(0, ze_x+ui_x-zfp_x+300, ze_y+zcs_y+64+(boss_menu*32), 0xffffffff, 0, 32, "<");
 				
-				DrawFString(0, ze_x+ui_x, ze_y+zcs_y+4, 0xffffffff, 0, langStr[35]);
-				DrawFString(0, ze_x+ui_x, ze_y+zcs_y+64, 0xffffffff, 0, langStr[36]);
+				DrawFString(0, ze_x+ui_x, ze_y+zcs_y+4, 0xffffffff, 0, 32, langStr[35]);
+				DrawFString(0, ze_x+ui_x, ze_y+zcs_y+64, 0xffffffff, 0, 32, langStr[36]);
 				
 				// DrawButton(ze_x+ui_x, ze_y+zcs_y+386, 6, 0);
 				// DrawButton(ze_x+ui_x, ze_y+zcs_y+418, 7, 0);
 				DrawButton(ze_x+ui_x, ze_y+zcs_y+450, 8, 0);
 				DrawButton(ze_x+ui_x, ze_y+zcs_y+482, 9, 0);
 				
-				// DrawFString(0, ze_x+ui_x+36, ze_y+zcs_y+386, 0xffffffff, 0, "Bomb Bay HD");
-				// DrawFString(0, ze_x+ui_x+36, ze_y+zcs_y+418, 0xffffffff, 0, "Undetermined Challenge");
-				DrawFString(0, ze_x+ui_x+36, ze_y+zcs_y+450, 0xffffffff, 0, langStr[33]);
-				DrawFString(0, ze_x+ui_x+36, ze_y+zcs_y+482, 0xffffffff, 0, langStr[58]);
+				// DrawFString(0, ze_x+ui_x+36, ze_y+zcs_y+386, 0xffffffff, 0, 32, "Bomb Bay HD");
+				// DrawFString(0, ze_x+ui_x+36, ze_y+zcs_y+418, 0xffffffff, 0, 32, "Undetermined Challenge");
+				DrawFString(0, ze_x+ui_x+36, ze_y+zcs_y+450, 0xffffffff, 0, 32, langStr[33]);
+				DrawFString(0, ze_x+ui_x+36, ze_y+zcs_y+482, 0xffffffff, 0, 32, langStr[58]);
 				
 				SetTexture(2);
 				DrawSpriteUI(262, -22+ze_y-zcs_y+256, 384, 0, 768, 192, 1024, 1024, 314, 112, 4, color);
@@ -1189,7 +1189,7 @@ void drawScene()
 
 				SetTexture(10);
 				DrawSprite2D(animc, ui_x+818, 4, 32, 32, 64, 64, 512, 64, 0, 0xffffffff);
-				DrawTextAligned(0, ui_x+580, ui_x+780, 4, 2, 0xffffffff, 0, 14, "%d", global_minecoins);
+				DrawTextAligned(0, ui_x+580, ui_x+780, 4, 2, 0xffffffff, 0, 14, 32, "%d", global_minecoins);
 				break;
 			}
 			case MAP:
@@ -1226,13 +1226,13 @@ void drawScene()
 				
 				if(EPISODE==1)
 				{
-					if(global_route==1) name_test = 61;
-					else name_test = 111;
+					if(global_route==1) name_test = 111;
+					else name_test = 61;
 				}
 				else if(EPISODE==2)
 				{
-					if(global_route==1) name_test = 80;
-					else name_test = 120;
+					if(global_route==1) name_test = 120;
+					else name_test = 80;
 				}
 				
 				if(ten_arena<=160*4)
@@ -1335,8 +1335,8 @@ void drawScene()
 				SetFontSize(28, 32);
 				if(!ship_a)
 				{
-					if(EPISODE==1 && LEVEL==8) DrawTextAligned(0, 0, 876, -22+(32*4), 1, c_t, 1, 28, langStr[name_test+LEVEL]);
-					else DrawTextAligned(0, 0, 876, -22+(32*4), 1, 0xffffffff, 0, 28, langStr[name_test+LEVEL]);
+					if(EPISODE==1 && LEVEL==8) DrawTextAligned(0, 0, 876, -22+(32*4), 1, c_t, 1, 28, 32, langStr[name_test+LEVEL]);
+					else DrawTextAligned(0, 0, 876, -22+(32*4), 1, 0xffffffff, 0, 28, 32, langStr[name_test+LEVEL]);
 				}
 				
 				break;
@@ -1345,7 +1345,11 @@ void drawScene()
 			{
 				draw_game();
 				int the_timer = (int)timer_seconds;
+				
+				if(enable_9 && boss9_cutscene!=0) the_timer = (int)time_left;
+				
 				if(the_timer>998) the_timer=999;
+				if(the_timer<0) the_timer=0;
 				
 				SetTexture(2);
 				SetFontSize(84, 96);
@@ -1358,24 +1362,24 @@ void drawScene()
 				if(enable_9 || enable_12)
 				{
 					int random_mine = RandRange(-999, 999);
-					if(!boss9_cutscene) DrawFString(0, 94, -26, 0xff0000ff, 1, "???");
-					else DrawFString(0, 94, -26, 0xff0000ff, 1, "%03d", random_mine);
+					if(!boss9_cutscene) DrawFString(0, 94, -26, 0xff0000ff, 1, 96, "???");
+					else DrawFString(0, 94, -26, 0xff0000ff, 1, 96, "%03d", random_mine);
 				}
-				else DrawFString(0, 94, -26, 0xff0000ff, 1, "%03d", mines_count);
+				else DrawFString(0, 94, -26, 0xff0000ff, 1, 96, "%03d", mines_count);
 				
 				int livez = 0;
 				if(free_play) livez = fp_lifes; else livez = LIFES;
 				bool enable_bosses = enable_9 || enable_10 || enable_11 || enable_12;
 				if(enable_bosses) livez = RandRange(-9, 9);
-				DrawFString(0, 498, -26, 0xff0000ff, 1, "%d", livez);
+				DrawFString(0, 498, -26, 0xff0000ff, 1, 96, "%d", livez);
 				
-				if(enable_12)
+				if(enable_12 && !enable_9)
 				{
 					int random_time = RandRange(-999, 999);
-					if(!boss12_cutscene) DrawFString(0, 714, -26, 0xff0000ff, 1, "000");
-					else DrawFString(0, 714, -26, 0xff0000ff, 1, "%03d", random_time);
+					if(!boss12_cutscene) DrawFString(0, 714, -26, 0xff0000ff, 1, 96, "000");
+					else DrawFString(0, 714, -26, 0xff0000ff, 1, 96, "%03d", random_time);
 				}
-				else DrawFString(0, 714,-26, 0xff0000ff, 1, "%03d", the_timer);
+				else DrawFString(0, 714,-26, 0xff0000ff, 1, 96, "%03d", the_timer);
 				
 				SetFontSize(28, 32);
 				
@@ -1402,9 +1406,9 @@ void drawScene()
 					int hat_state = getHatState(the_hat, anim1);
 					DrawSprite2D(hat_state, 372, -14, 94, 94, 40, 40, 960, 360, 0, color);
 				}
-				//DrawFString(0, -20,32, 0xffffffff, 0, "TOTAL MINECOINS: %d", global_minecoins);
-				//DrawFString(0, -20,64, 0xffffffff, 0, "MINECOINS: %d", current_minecoins);
-				DrawFString(0, -20,88, 0xffffffff, 0, "FPS: %d", fps);
+				//DrawFString(0, -20,32, 0xffffffff, 0, 32, "TOTAL MINECOINS: %d", global_minecoins);
+				//DrawFString(0, -20,64, 0xffffffff, 0, 32, "MINECOINS: %d", current_minecoins);
+				DrawFString(0, -20,88, 0xffffffff, 0, 32, "FPS: %d", fps);
 				
 				if(global_route==1) SetTexture(4); else SetTexture(3);
 				
@@ -1506,42 +1510,55 @@ void drawScene()
 				if(gamelose)
 				{
 					DrawButton(-20, 192, 4, -1);
-					DrawFString(0, -20,160, 0xffffffff, 0, langStr[37]);
-					DrawFString(0, -20+36,192, 0xffffffff, 0, langStr[15]);
+					DrawFString(0, -20,160, 0xffffffff, 0, 32, langStr[37]);
+					DrawFString(0, -20+36,192, 0xffffffff, 0, 32, langStr[15]);
 				}
 				else if(gamewin)
 				{
-					DrawFString(0, -20,160, 0xffffffff, 0, langStr[38]);
-					DrawFString(0, -20,320, 0xffffffff, 0, "+ %d %s!", level_minecoins, langStr[39]);
-					if(!(LEVEL==11 || (free_play && fp_music == 14))) DrawFString(0, -20,356, 0xffffffff, 0, "%.2f %s", timer_seconds, langStr[40]);
+					DrawFString(0, -20,160, 0xffffffff, 0, 32, langStr[38]);
+					DrawFString(0, -20,320, 0xffffffff, 0, 32, "+ %d %s!", level_minecoins, langStr[39]);
+					if(!(LEVEL==11 || (free_play && fp_music == 14))) DrawFString(0, -20,356, 0xffffffff, 0, 32, "%.2f %s", timer_seconds, langStr[40]);
 					DrawButton(-20, 192, 4, -1);
 					DrawButton(-20, 224, 5, -1);
 					if(!free_play)
 					{
-						DrawFString(0, -20+36,192, 0xffffffff, 0, langStr[41]);
-						DrawFString(0, -20+36,224, 0xffffffff, 0, langStr[42]);
+						DrawFString(0, -20+36,192, 0xffffffff, 0, 32, langStr[41]);
+						DrawFString(0, -20+36,224, 0xffffffff, 0, 32, langStr[42]);
 					}
 					else
 					{
-						DrawFString(0, -20+36,192, 0xffffffff, 0, langStr[15]);
-						DrawFString(0, -20+36,224, 0xffffffff, 0, langStr[43]);
+						DrawFString(0, -20+36,192, 0xffffffff, 0, 32, langStr[15]);
+						DrawFString(0, -20+36,224, 0xffffffff, 0, 32, langStr[43]);
 					}
 				}
 				else if(paused)
 				{
-					DrawFString(0, -20,160, 0xffffffff, 0, langStr[57]);
+					DrawFString(0, -20,160, 0xffffffff, 0, 32, langStr[57]);
 					DrawButton(-20, 192, 4, -1);
 					DrawButton(-20, 224, 5, -1);
-					DrawFString(0, -20+36,192, 0xffffffff, 0, langStr[15]);
-					DrawFString(0, -20+36,224, 0xffffffff, 0, langStr[42]);
+					DrawFString(0, -20+36,192, 0xffffffff, 0, 32, langStr[15]);
+					DrawFString(0, -20+36,224, 0xffffffff, 0, 32, langStr[42]);
 				}
 				
 				if(show_warning)
 				{
 					bool something = false;
+					int temper = 0;
+					int temper2 = 0;
+					int tempz = 106;
+					
+					if(enable_9){temper = 74; temper2 = 103;}
+					if(enable_10){temper = 75; temper2 = 104;}
+					if(enable_11){temper = 76; temper2 = 105;}
+					
 					DrawRectangle2D(-40+100, -22+100, 876-100, 560-100, 0xaaaaaaff, -5);
-					DrawTextAligned(60, -40, 876, 241, 1, 0x000000ff, 1, 28, "TEST");
-					DrawTextAligned(0, -40, 876, 504, 1, 0x000000ff, 1, 28, "Press START to continue.");
+					
+					SetFontSize(16, 18);
+					if(global_route==1) DrawFString(tempz, -40+100, -22+100, 0x000000ff, 1, 18, "%s\n\n%s\n%s", langStr[temper], langStr[106], langStr[temper2]);
+					else DrawFString(tempz, -40+100, -22+100, 0x000000ff, 1, 18, langStr[temper]);
+					
+					SetFontSize(28, 32);
+					DrawTextAligned(0, 0, 876, 492, 1, 0x000000ff, 1, 28, 32, "Press START to continue.");
 					
 					if(enable_9 && !seen_nine) something = true;
 					else if(enable_9 && global_route==1 && !seen_fnine) something = true;
@@ -1555,7 +1572,7 @@ void drawScene()
 					
 					if(something)
 					{
-						DrawTextAligned(0, -40, 876, 476, 1, 0x000000ff, 1, 28, "Press TRIANGLE to not show it again.");
+						DrawTextAligned(0, 0, 876, 464, 1, 0x000000ff, 1, 28, 32, "Press TRIANGLE to not show it again.");
 					}
 				}
 				
@@ -1577,8 +1594,8 @@ void drawScene()
 					SetFontSize(28, 32);
 					if(end_time<3)
 					{
-						DrawTextAligned(0, -40, 876, -84+zex_y, 1, 0xff0000ff, 1, 28, "PS3SWEEPER+");
-						DrawTextAligned(0, -40, 876, 588-zex_y, 1, 0xff0000ff, 1, 28, "INSPIRED BY MINESWEEPER PLUS");
+						DrawTextAligned(0, -40, 876, -84+zex_y, 1, 0xff0000ff, 1, 28, 32, "PS3SWEEPER+");
+						DrawTextAligned(0, -40, 876, 588-zex_y, 1, 0xff0000ff, 1, 28, 32, "INSPIRED BY MINESWEEPER PLUS");
 					}
 					else
 					{
@@ -1605,16 +1622,16 @@ void drawScene()
 							
 							if(b>max_lvl)
 							{
-								if(a == 1) DrawFString(0, zs_x, 512-(32*d), 0xffffffff, 0, "%s: %.2f", langStr[77], time_total);
-								if(a == 2) DrawFString(0, zs_x, 512-(32*d), 0xffffffff, 0, "%s: %d", langStr[78], current_minecoins);
-								if(a == 3) DrawFString(0, zs_x, 512-(32*d), 0xffffffff, 0, "%s: %d", langStr[79], mistakes);
+								if(a == 1) DrawFString(0, zs_x, 512-(32*d), 0xffffffff, 0, 32, "%s: %.2f", langStr[77], time_total);
+								if(a == 2) DrawFString(0, zs_x, 512-(32*d), 0xffffffff, 0, 32, "%s: %d", langStr[78], current_minecoins);
+								if(a == 3) DrawFString(0, zs_x, 512-(32*d), 0xffffffff, 0, 32, "%s: %d", langStr[79], mistakes);
 							}
-							else DrawFString(0, zs_x, 512-(32*d), 0xffffffff, 0, "%s: %.2f", langStr[name_test+b], level_time[b-1]);
+							else DrawFString(0, zs_x, 512-(32*d), 0xffffffff, 0, 32, "%s: %.2f", langStr[name_test+b], level_time[b-1]);
 						}
 						
 						if(show_shit)
 						{
-							DrawTextAligned(0, -40, 876, 32, 1, 0xff0000ff, 0, 28, "%s:", langStr[9]);
+							DrawTextAligned(0, -40, 876, 32, 1, 0xff0000ff, 0, 28, 32, "%s:", langStr[9]);
 							int rank_letter = 0;
 							test_x = lerp(test_x, 512, 0.05f);
 							
@@ -1633,8 +1650,8 @@ void drawScene()
 							SetTexture(1);
 							DrawSprite2D(rank_letter, 512+64, 20, 64, 64, 16, 16, 320, 320, 0, color);
 							
-							DrawFString(0, test_x, 448, 0xff0000ff, 1, langStr[10]);
-							DrawFString(0, test_x, 480, 0xff0000ff, 1, langStr[11]);
+							DrawFString(0, test_x, 448, 0xff0000ff, 32, 1, langStr[10]);
+							DrawFString(0, test_x, 480, 0xff0000ff, 32, 1, langStr[11]);
 						}
 					}
 				}
@@ -1714,7 +1731,7 @@ void drawScene()
 				SetTexture(15);
 				DrawSprite2D(0+randomizer, 684, 432, 78*2, 49*2, 78, 49, 312, 147, 1, color);
 				
-				DrawFString(52, 32, 420, 0xffffffff, 0, langStr[shopkeeper_quote]);
+				DrawFString(52, 32, 420, 0xffffffff, 0, 32, langStr[shopkeeper_quote]);
 				break;
 			}
 			case CREDITS:
@@ -1723,7 +1740,7 @@ void drawScene()
 				if(specialthanks)
 				{
 					SetFontSize(28, 32);
-					DrawFString(0, ui_x, 4, 0xffffffff, 0, langStr[56]);
+					DrawFString(0, ui_x, 4, 0xffffffff, 0, 32, langStr[56]);
 					SetFontSize(20, 24);
 					
 					char crediter[2048];
@@ -1732,26 +1749,27 @@ void drawScene()
 						credits[15], credits[16], credits[17], credits[18], credits[19], credits[20], credits[21],
 						credits[22], credits[23]
 					);
-					DrawFString(75, ui_x, 40, 0xffffffff, 0, crediter);
+					DrawFString(75, ui_x, 40, 0xffffffff, 24, 0, crediter);
 				}
 				else
 				{
 					SetFontSize(28, 32);
-					DrawFString(0, ui_x, 4, 0xffffffff, 0, langStr[14]);
+					DrawFString(0, ui_x, 4, 0xffffffff, 0, 32, langStr[14]);
 					SetFontSize(20, 24);
-					DrawFString(0, ui_x, 40, 0xffffffff, 0, "%s - %s", langStr[52], credits[0]);
-					DrawFString(0, ui_x, 40+th, 0xffffffff, 0, "%s - %s", langStr[55], credits[1]);
-					DrawFString(0, ui_x, 40+(th*2), 0xffffffff, 0, "%s - %s", langStr[59], credits[4]);
-					DrawFString(0, ui_x, 40+(th*3), 0xffffffff, 0, "%s - %s", langStr[60], credits[5]);
-					DrawFString(0, ui_x, 40+(th*4), 0xffffffff, 0, "%s - %s", langStr[70], credits[6]);
-					DrawFString(0, ui_x, 40+(th*5), 0xffffffff, 0, "%s - %s", langStr[71], credits[7]);
-					DrawFString(0, ui_x, 40+(th*6), 0xffffffff, 0, "%s - %s", langStr[72], credits[8]);
-					DrawFString(0, ui_x, 40+(th*7), 0xffffffff, 0, "%s - %s", langStr[73], credits[9]);
-					//DrawFString(0, ui_x, 40+(th*8), 0xffffffff, 0, "%s - %s", langStr[74], credits[10]);
+					DrawFString(0, ui_x, 40, 0xffffffff, 0, 24, "%s - %s", langStr[52], credits[0]);
+					DrawFString(0, ui_x, 40+th, 0xffffffff, 0, 24, "%s - %s", langStr[55], credits[1]);
+					DrawFString(0, ui_x, 40+(th*2), 0xffffffff, 0, 24, "%s - %s", langStr[59], credits[4]);
+					DrawFString(0, ui_x, 40+(th*3), 0xffffffff, 0, 24, "%s - %s", langStr[60], credits[5]);
+					DrawFString(0, ui_x, 40+(th*4), 0xffffffff, 0, 24, "%s - %s", langStr[70], credits[6]);
+					DrawFString(0, ui_x, 40+(th*5), 0xffffffff, 0, 24, "%s - %s", langStr[71], credits[7]);
+					DrawFString(0, ui_x, 40+(th*6), 0xffffffff, 0, 24, "%s - %s", langStr[72], credits[8]);
+					DrawFString(0, ui_x, 40+(th*7), 0xffffffff, 0, 24, "%s - %s", langStr[73], credits[9]);
+					//DrawFString(0, ui_x, 40+(th*8), 0xffffffff, 0, 24, "%s - %s", langStr[74], credits[10]);
 				}
 				
+				SetFontSize(28, 32);
 				DrawButton(ui_x, 484, 1, 0);
-				DrawFString(0, ui_x + 36, 484, 0xffffffff, 0, "%s         < - %s          > - %s", langStr[32], langStr[14], langStr[56]);
+				DrawFString(0, ui_x + 36, 484, 0xffffffff, 0, 32, "%s         < - %s          > - %s", langStr[32], langStr[14], langStr[56]);
 				
 				if(easter_egg)
 				{
@@ -1763,8 +1781,8 @@ void drawScene()
 			case ERROR_SCREEN:
 			{
 				SetFontSize(28, 32);
-				DrawFString(0, 0, 0, 0xffffffff, 0, "HALT! HALT! STOP EVERYTHING!!!!");
-				DrawFString(52, 0, 156, 0xffffffff, 0, "Report this error to AcidNT3.1 Productions at \"acidgunner@hotmail.com\" or \"acidnt31@hotmail.com\". Please, return to XMB if possible, or restart your PlayStation 3 system.");
+				DrawFString(0, 0, 0, 0xffffffff, 0, 32, "HALT! HALT! STOP EVERYTHING!!!!");
+				DrawFString(52, 0, 156, 0xffffffff, 0, 32, "Report this error to AcidNT3.1 Productions at \"acidgunner@hotmail.com\" or \"acidnt31@hotmail.com\". Please, return to XMB if possible, or restart your PlayStation 3 system.");
 				break;
 			}
 			default: break;
@@ -1775,18 +1793,18 @@ void drawScene()
 		SetFontSize(24, 28);
 		if(game_init)
 		{
-			DrawFString(0, 4,156,0xffffffff,0,langStr[4]);
-			DrawFString(0, 4,188,0xffffffff,0,langStr[5]);
-			DrawFString(0, 4,252,0xff0000ff,0,langStr[6]);
-			DrawFString(0, 4,284,0xff0000ff,0,langStr[7]);
-			DrawFString(0, 40,348,0x00aa00ff,0,langStr[8]);
+			DrawFString(0, 4,156,0xffffffff,0,28,langStr[4]);
+			DrawFString(0, 4,188,0xffffffff,0,28,langStr[5]);
+			DrawFString(0, 4,252,0xff0000ff,0,28,langStr[6]);
+			DrawFString(0, 4,284,0xff0000ff,0,28,langStr[7]);
+			DrawFString(0, 40,348,0x00aa00ff,0,28,langStr[8]);
 			DrawButton(4, 348, 2, 0);
 		}
-		else DrawFString(0, 0,0,0xffffffff,0,langStr[0]);
+		else DrawFString(0, 0,0,0xffffffff,0,28,langStr[0]);
 	}
 	
 	SetFontSize(28, 32);
-	if(save_running) DrawTextAligned(0, 550, 848, 512, 2, 0xffffffff, 0, 14, langStr[1]);
+	if(save_running) DrawTextAligned(0, 550, 848, 512, 2, 0xffffffff, 0, 14, 32, langStr[1]);
 	
 	DrawProjectiles();
 	
@@ -1821,9 +1839,10 @@ void LoadTexture()
     }
 }
 
-void MyDrawFormatString(float x, float y, const char* format, ...) {
-    char utf8_buffer[512];
-    char cp1251_buffer[512];
+void MyDrawFormatString(float x, float y, const char* format, ...)
+{
+    char utf8_buffer[1024];
+    char cp1251_buffer[1024];
 	
     va_list args;
     va_start(args, format);
@@ -1831,10 +1850,10 @@ void MyDrawFormatString(float x, float y, const char* format, ...) {
     va_end(args);
 	
     utf8_to_cp1251(utf8_buffer, cp1251_buffer, sizeof(cp1251_buffer));
-    DrawString(x, y, cp1251_buffer); 
+    DrawString(x, y, cp1251_buffer);
 }
 
-void DrawFString(int wrap, float x, float y, u32 textColor, int BW, const char *fmt, ...)
+void DrawFString(int wrap, float x, float y, u32 textColor, int BW, int size, const char *fmt, ...)
 {
     char buffer[1024];
 	u32 shadowColor = 0x000000ff;
@@ -1849,12 +1868,12 @@ void DrawFString(int wrap, float x, float y, u32 textColor, int BW, const char *
     SetFontColor(shadowColor, 0x00000000);
 	
 	if(wrap==0) MyDrawFormatString(x + 42, y + 24, buffer);
-	else DrawWrappedText(x + 42, y + 24, 32, wrap, buffer);
+	else DrawWrappedText(x + 42, y + 24, size, wrap, buffer);
 	
     SetFontColor(textColor, 0x00000000);
 	
 	if(wrap==0) MyDrawFormatString(x + 40, y + 22, buffer);
-	else DrawWrappedText(x + 40, y + 22, 32, wrap, buffer);
+	else DrawWrappedText(x + 40, y + 22, size, wrap, buffer);
 }
 
 int GetFontWidth(const char *text, int fz)
@@ -1862,7 +1881,7 @@ int GetFontWidth(const char *text, int fz)
     return (int)(strlen(text) * fz * 0.55f);
 }
 
-void DrawTextAligned(int wrap, float x1, float x2, float y, int align, u32 tc, int bw, int fsize, const char *text, ...)
+void DrawTextAligned(int wrap, float x1, float x2, float y, int align, u32 tc, int bw, int fsize, int size, const char *text, ...)
 {
     char bufferz[1024];
     va_list args;
@@ -1878,7 +1897,7 @@ void DrawTextAligned(int wrap, float x1, float x2, float y, int align, u32 tc, i
     else x = x2 - width;
 
     //DrawFormatString(x, y, "%s", text);
-	DrawFString(wrap, x, y, tc, bw, bufferz);
+	DrawFString(wrap, x, y, tc, bw, size, bufferz);
 }
 
 void zoomCheck(int zoom)

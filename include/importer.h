@@ -51,6 +51,8 @@ extern bool seen_nan;
 
 extern bool show_warning;
 
+extern bool legacy_9_time;
+
 extern bool specialthanks;
 
 extern bool paused;
@@ -58,6 +60,8 @@ extern int mistakes;
 
 extern float timer_seconds;
 extern int timer_running;
+extern float time_left;
+extern bool time_decrease;
 
 #define MAXLVLTEST 20
 extern float level_time[MAXLVLTEST];
