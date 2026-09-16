@@ -13,52 +13,13 @@ NOTE: The Source code should be available RIGHT AFTER 1 month after the INITIAL 
 You need a machine running Linux. WSL is supported.
 
 1. Get [PS3DEV](https://github.com/ps3dev/ps3dev) and it's dependencies.
-2. Compile the game using `make pkg` command.
-3. Install PKG in your PS3 system.
-4. Play it!
+2. Copy `/usr/local/ps3dev/portlibs/ppu/include/freetype2/freetype` folder to `/usr/local/ps3dev/portlibs/ppu/include` cuz idk why they don't fix it.
+3. Compile the game using `make pkg` command.
+4. Install PKG in your PS3 system.
 
 # Additional Notes
 * The game's code is partially AI-Assisted.
 * The game is not finished yet.
-
-# TO-DO List!
-
-## v0.4:
-- [ ] Do Cut-scenes.
-- [X] Do Ranks.
-- [ ] Do Shop. Yes, I'm gonna be as a shop-keeper once again.
-- [ ] Do Video Tutorials.
-- [X] Finish 12 Boss.
-- [ ] Finish Episode 3 (Without walls cuz I hate implementing them).
-- [ ] Finish Episode 4.
-- [ ] Start working on NaN Boss.
-
-## v0.5:
-- [ ] Do Episode 5.
-- [ ] Do More Challenges.
-- [ ] Do Touhou Route.
-- [ ] Finish NaN Boss.
-- [ ] Start working on Episode 6 Boss or something.
-
-## v0.6:
-- [ ] Do Episode 6.
-- [ ] Do Gameboy Route Route.
-- [ ] Finish Episode 6 Boss.
-
-## v0.7:
-- [ ] To be announced.
-
-## v0.8:
-- [ ] To be announced.
-
-## v0.9:
-- [ ] Start working on Episode 7 Boss or something.
-- [ ] To be announced.
-
-## v1.0:
-- [ ] Do Episode 7.
-- [ ] Finish Episode 7 Boss.
-- [ ] To be announced.
 
 # Special Tools
 

@@ -94,7 +94,6 @@ void ResetGrid()
 		}
 		else
 		{
-			desired_bgm = 10;
 			if(EPISODE==1)
 			{
 				if(legacy_9_time || global_route==1) time_left = 99.9f;
@@ -130,7 +129,6 @@ void ResetGrid()
 			if(desired_bgm == 10) desired_bgm = 12;
 			boss10_cutscene = 2;
 		}
-		else desired_bgm = 12;
 	}
 	if(enable_11)
 	{
@@ -140,7 +138,6 @@ void ResetGrid()
 			if(desired_bgm == 11) desired_bgm = 15;
 			boss11_cutscene = 2;
 		}
-		else desired_bgm = 15;
 	}
 	if(enable_12)
 	{
@@ -150,7 +147,6 @@ void ResetGrid()
 			if(desired_bgm == 14) desired_bgm = 19;
 			boss12_cutscene = 2;
 		}
-		else desired_bgm = 19;
 	}
 	if(enable_nan)
 	{
@@ -411,6 +407,7 @@ int main(int argc, const char* argv[])
 						{
 							if(start_menu)
 							{
+								boss_render_x = 0.0f;
 								menu_x = 0.0f;
 								ze_x = 0.0f;
 								ze_y = 0.0f;
@@ -429,6 +426,7 @@ int main(int argc, const char* argv[])
 							}
 							
 							menu_x = lerp(menu_x, -262 * menu_pos, 0.1f);
+							boss_render_x = lerp(boss_render_x, 0.0f, 0.1f);
 							
 							if(ready_to_click)
 							{
@@ -633,11 +631,13 @@ int main(int argc, const char* argv[])
 										if(control_up && !old_control_up)
 										{
 											boss_menu--;
+											boss_render_x += 20.0f;
 											if (boss_menu<0) boss_menu = 0;
 										}
 										if(control_down && !old_control_down)
 										{
 											boss_menu++;
+											boss_render_x -= 20.0f;
 											if (boss_menu>4) boss_menu = 4;
 										}
 										if(paddata.BTN_CROSS && !oldpad.BTN_CROSS)
@@ -1276,6 +1276,7 @@ int main(int argc, const char* argv[])
 												{
 													boss9_cutscene = 1;
 													the_bg = 4;
+													desired_bgm = 10;
 													PlayBGM(10, 1);
 													show_warning = true;
 												}
@@ -1286,6 +1287,7 @@ int main(int argc, const char* argv[])
 												{
 													boss10_cutscene = 1;
 													the_bg = 9;
+													desired_bgm = 12;
 													PlayBGM(12, 1);
 													show_warning = true;
 												}
@@ -1296,6 +1298,7 @@ int main(int argc, const char* argv[])
 												{
 													boss11_cutscene = 1;
 													the_bg = 14;
+													desired_bgm = 15;
 													PlayBGM(15, 1);
 													show_warning = true;
 												}
@@ -1305,6 +1308,7 @@ int main(int argc, const char* argv[])
 												if(cursorX==GRID_W/2 && cursorY==GRID_H/2)
 												{
 													boss12_cutscene = 1;
+													desired_bgm = 19;
 													PlayBGM(19, 1);
 													show_warning = true;
 												}
@@ -1378,7 +1382,7 @@ int main(int argc, const char* argv[])
 													}
 												}
 												
-												if(enable_9 && boss9_cutscene==2 && !boss9_started)
+												if(enable_9 && !boss9_started)
 												{
 													boss9_started = 1;
 													
@@ -1391,7 +1395,7 @@ int main(int argc, const char* argv[])
 													if(!HELL && desired_bgm == 10) PlayBGM(11, 1);
 													desired_bgm = 9;
 												}
-												else if(enable_10 && boss10_cutscene==2 && !boss10_started)
+												else if(enable_10 && !boss10_started)
 												{
 													boss10_started = 1;
 													
@@ -1404,7 +1408,7 @@ int main(int argc, const char* argv[])
 													if(!HELL && desired_bgm == 12) PlayBGM(13, 1);
 													desired_bgm = 10;
 												}
-												else if(enable_11 && boss11_cutscene==2 && !boss11_started)
+												else if(enable_11 && !boss11_started)
 												{
 													boss11_started = 1;
 													
@@ -1417,7 +1421,7 @@ int main(int argc, const char* argv[])
 													if(!HELL && desired_bgm == 15) PlayBGM(16, 1);
 													desired_bgm = 11;
 												}
-												else if(enable_12 && boss12_cutscene==2 && !boss12_started)
+												else if(enable_12 && !boss12_started)
 												{
 													boss12_started = 1;
 													boss12.active = true;
@@ -1721,10 +1725,10 @@ int main(int argc, const char* argv[])
 			if(time_decrease && !gamelose)
 			{
 				time_left -= 0.018f;
-				if(time_left <= 0.0f)
+				if(time_left <= 0.9f)
 				{
 					timer_running = 0;
-					printf("TIME OVER");
+					printf("TIME OVER\n");
 					if(free_play) fp_lifes=0; else LIFES=0;
 					game_lost();
 				}
@@ -1821,7 +1825,7 @@ int main(int argc, const char* argv[])
 				{
 					disable_control = 1;
 					gamelose = 1;
-					if(global_route==1) tnt_alpha = 240.0f;
+					if(global_route==1 && enable_10) tnt_alpha = 240.0f;
 					DeactivateBosses();
 					timer_running = 0;
 					playing_bgm = false;
@@ -1857,10 +1861,7 @@ int main(int argc, const char* argv[])
 		
 		drawScene();
 		
-		if(enable_10 && global_route==1)
-		{
-			DrawBackground2D(0x00ff0000 | (int)(tnt_alpha), -7);
-		}
+		if(enable_10 && global_route==1) DrawBackground2D(0x00ff0000 | (int)(tnt_alpha), -7);
 		
 		if(enable_12 && !can_move_xd)
 		{

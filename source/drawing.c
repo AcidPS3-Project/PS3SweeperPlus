@@ -546,14 +546,21 @@ int getHatState(int hat, int anim_z)
 	else if(paused) the_state = 0;
 	else
 	{
-		// if(LEVEL==8) the_state=0;
-		// else
 		if(!can_move_xd) the_state = 5+anim_z;
 		else
 		{
-			if(cursor<left) the_state = 4;
-			else if(cursor>right) the_state = 2;
-			else the_state = 3;
+			if(smiley_face==4)
+			{
+				if(cursor<left) the_state = 2;
+				else if(cursor>right) the_state = 4;
+				else the_state = 3;
+			}
+			else
+			{
+				if(cursor<left) the_state = 4;
+				else if(cursor>right) the_state = 2;
+				else the_state = 3;
+			}
 			
 			if(button_start_hold) the_state=0;
 		}
@@ -1147,16 +1154,18 @@ void drawScene()
 				
 				DrawFString(0, ze_x+ui_x-zfp_x+300, ze_y+zcs_y+64+(boss_menu*32), 0xffffffff, 0, 32, "<");
 				
+				int temperz = 0;
+				if(global_route==1) temperz=8;
+				
+				SetTexture(20);
+				DrawSprite2D(boss_menu+temperz, ze_x+ui_x-zfp_x+580, ze_y+zcs_y+256+boss_render_x, 256, 256, 256, 256, 2048, 2048, 4, color);
+				
 				DrawFString(0, ze_x+ui_x, ze_y+zcs_y+4, 0xffffffff, 0, 32, langStr[35]);
 				DrawFString(0, ze_x+ui_x, ze_y+zcs_y+64, 0xffffffff, 0, 32, langStr[36]);
 				
-				// DrawButton(ze_x+ui_x, ze_y+zcs_y+386, 6, 0);
-				// DrawButton(ze_x+ui_x, ze_y+zcs_y+418, 7, 0);
 				DrawButton(ze_x+ui_x, ze_y+zcs_y+450, 8, 0);
 				DrawButton(ze_x+ui_x, ze_y+zcs_y+482, 9, 0);
 				
-				// DrawFString(0, ze_x+ui_x+36, ze_y+zcs_y+386, 0xffffffff, 0, 32, "Bomb Bay HD");
-				// DrawFString(0, ze_x+ui_x+36, ze_y+zcs_y+418, 0xffffffff, 0, 32, "Undetermined Challenge");
 				DrawFString(0, ze_x+ui_x+36, ze_y+zcs_y+450, 0xffffffff, 0, 32, langStr[33]);
 				DrawFString(0, ze_x+ui_x+36, ze_y+zcs_y+482, 0xffffffff, 0, 32, langStr[58]);
 				
@@ -1208,7 +1217,7 @@ void drawScene()
 						default: break;
 					}
 				}
-					
+				
 				int zp = bg_map/5;
 				int mp = bg_map%5;
 				

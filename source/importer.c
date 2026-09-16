@@ -44,6 +44,8 @@ float RENDER_SIZE;
 
 float time_total = 0.0f;
 
+float boss_render_x = 0.0f;
+
 int RENDERING_PIXELS = 16;
 float RENDERING_SIZE = 2.0f;
 int FIRST_CLICK = 1;
@@ -691,7 +693,7 @@ void Load_PNG()
 	pngLoadFromBuffer(end2_bin, end2_bin_size, &spritesheet[17]);
 	pngLoadFromBuffer(end3_bin, end3_bin_size, &spritesheet[18]);
 	pngLoadFromBuffer(shopbg_bin, shopbg_bin_size, &spritesheet[19]);
-	// something for 20?
+	pngLoadFromBuffer(boss_render_bin, boss_render_bin_size, &spritesheet[20]);
 	pngLoadFromBuffer(tiles_sheet2_bin, tiles_sheet2_bin_size, &spritesheet[21]);
 }
 

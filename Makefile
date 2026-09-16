@@ -15,7 +15,7 @@ APPID		:=	MINESWEEP
 CONTENTID	:=	HP0031-$(APPID)_00-0000000000000000
 
 SFOXML		:=	param/sfo.xml
-ICON0       :=  param/ICON0.PNG
+ICON0       	:=  	param/ICON0.PNG
 PKGFILES	:=	files
 
 include $(PSL1GHT)/ppu_rules
