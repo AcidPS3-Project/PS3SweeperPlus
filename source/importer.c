@@ -297,12 +297,19 @@ void SplashesInit()
 	splashes_random[splash_count++] = "So many souls to play with, so little time...";
 	splashes_random[splash_count++] = "imagine this you are minesweeping as a ristar";
 	splashes_random[splash_count++] = "GRAND DAD????";
+	splashes_random[splash_count++] = "Real name is MS+: PS3 Edition Re-built (MS+PS3ERB)";
+	splashes_random[splash_count++] = "Now with boss combos!";
+	splashes_random[splash_count++] = "Say NO to \"i use arch btw\" types of people";
+	splashes_random[splash_count++] = "boom boom boom boom i want you in my room";
+	splashes_random[splash_count++] = "And MS+PSP is Dead.";
+	splashes_random[splash_count++] = "88005553535";
 	
 	FILE *za = fopen("/dev_hdd0/game/ACIDSTORE/ICON0.PNG", "rb");
 	if(za!=NULL)
 	{
 		splashes_random[splash_count++] = "Thanks for installing AcidPS3 Store! :D";
 		splashes_random[splash_count++] = "Wow dude you have AcidPS3 Store installed? :)";
+		splashes_random[splash_count++] = "Hello, fellow AcidPS3 Store user. Nice to see you here :>";
 		fclose(za);
 	}
 	

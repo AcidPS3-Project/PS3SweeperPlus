@@ -28,6 +28,9 @@ extern LevelData lvl_ep1[];
 extern LevelData lvl_ep2[];
 extern LevelData lvl_ep3[];
 extern LevelData lvl_ep4[];
+extern LevelData lvl_ep5[];
+extern LevelData lvl_ep6[];
+extern LevelData lvl_ep7[];
 
 extern EpisodeData episodes[];
 extern const int episode_count;

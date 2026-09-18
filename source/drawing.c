@@ -1141,16 +1141,16 @@ void drawScene()
 				if(use_custom_sweeper) DrawFString(0, ze_x+ui_x-zfp_x+36, ze_y+482, 0xffffffff, 0, 32, "%s: V", langStr[54]);
 				else DrawFString(0, ze_x+ui_x-zfp_x+36, ze_y+482, 0xffffffff, 0, 32, "%s: X", langStr[54]);
 				
-				DrawFString(0, ze_x+ui_x-zfp_x+36, ze_y+514, 0xffffffff, 0, 32, "Boss Options");
+				DrawFString(0, ze_x+ui_x-zfp_x+36, ze_y+514, 0xffffffff, 0, 32, langStr[130]);
 				
 				DrawFString(0, ze_x+ui_x-zfp_x+300, ze_y+64+(fp_menu*32), 0xffffffff, 0, 32, "<");
 				
-				DrawFString(0, ze_x+ui_x-zfp_x+36, ze_y+zcs_y+4, 0xffffffff, 0, 32, "Boss Options");
-				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+zcs_y+64, 0xffffffff, 0, 32, "ENABLE 9: %s", enable_9 ? "true" : "false");
-				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+zcs_y+96, 0xffffffff, 0, 32, "ENABLE 10: %s", enable_10 ? "true" : "false");
-				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+zcs_y+128, 0xffffffff, 0, 32, "ENABLE 11: %s", enable_11 ? "true" : "false");
-				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+zcs_y+160, 0xffffffff, 0, 32, "ENABLE XII: %s", enable_12 ? "true" : "false");
-				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+zcs_y+192, 0xffffffff, 0, 32, "ENABLE NaN: %s", enable_nan ? "true" : "false");
+				DrawFString(0, ze_x+ui_x-zfp_x+36, ze_y+zcs_y+4, 0xffffffff, 0, 32, langStr[130]);
+				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+zcs_y+64, 0xffffffff, 0, 32, "%s 9: %s", langStr[131], enable_9 ? langStr[132] : langStr[133]);
+				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+zcs_y+96, 0xffffffff, 0, 32, "%s 10: %s", langStr[131], enable_10 ? langStr[132] : langStr[133]);
+				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+zcs_y+128, 0xffffffff, 0, 32, "%s 11: %s", langStr[131], enable_11 ? langStr[132] : langStr[133]);
+				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+zcs_y+160, 0xffffffff, 0, 32, "%s XII: %s", langStr[131], enable_12 ? langStr[132] : langStr[133]);
+				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+zcs_y+192, 0xffffffff, 0, 32, "%s NaN: %s", langStr[131], enable_nan ? langStr[132] : langStr[133]);
 				
 				DrawFString(0, ze_x+ui_x-zfp_x+300, ze_y+zcs_y+64+(boss_menu*32), 0xffffffff, 0, 32, "<");
 				
@@ -1214,6 +1214,17 @@ void drawScene()
 					{
 						case 8: bg_map = 4; break;
 						case 9: bg_map = 9; break;
+						default: break;
+					}
+				}
+				
+				if(EPISODE==7)
+				{
+					switch(LEVEL)
+					{
+						case 0: bg_map = 4; break;
+						case 1: bg_map = 9; break;
+						case 2: bg_map = 14; break;
 						default: break;
 					}
 				}
@@ -1333,6 +1344,25 @@ void drawScene()
 								DrawSprite2D(241 + grid_bg, 120+(64*(3+b2)), -22+(64*(4+b1)), 32, 32, 16, 16, 320, 320, 4, 0xffffffff);
 							}
 							
+							break;
+						}
+						case 7:
+						{
+							for(int _t = 1; _t < max_lvl+1; _t++)
+							{
+								if(LEVEL<_t)
+								{
+									int tile = tile_map_num(_t);
+									DrawSprite2D(tile_bg+anim+2, 152+(64*_t)+ep1_x, -22+(32*11), 32, 32, 16, 16, 320, 320, 6, 0xffffffff);
+									DrawSprite2D(tile, 152+(64*_t), -22+(32*11)+ep1_x, 32, 32, 16, 16, 320, 320, 5, 0xffffffff);
+								}
+								else
+								{
+									DrawSprite2D(112+anim, 152+(64*_t)+ep1_x, -22+(32*11), 32, 32, 16, 16, 320, 320, 5, 0xffffffff);
+								}
+								
+								DrawSprite2D(241 + grid_bg, 152+(64*_t)+ep1_x, -22+(32*11), 32, 32, 16, 16, 320, 320, 4, 0xffffffff);
+							}
 							break;
 						}
 						default: break;
@@ -1567,7 +1597,7 @@ void drawScene()
 					else DrawFString(tempz, -40+100, -22+100, 0x000000ff, 1, 18, langStr[temper]);
 					
 					SetFontSize(28, 32);
-					DrawTextAligned(0, 0, 876, 492, 1, 0x000000ff, 1, 28, 32, "Press START to continue.");
+					DrawTextAligned(0, 0, 876, 492, 1, 0x000000ff, 1, 28, 32, langStr[107]);
 					
 					if(enable_9 && !seen_nine) something = true;
 					else if(enable_9 && global_route==1 && !seen_fnine) something = true;
@@ -1579,10 +1609,7 @@ void drawScene()
 					else if(enable_nan && !seen_nan) something = true;
 					else something = false;
 					
-					if(something)
-					{
-						DrawTextAligned(0, 0, 876, 464, 1, 0x000000ff, 1, 28, 32, "Press TRIANGLE to not show it again.");
-					}
+					if(something) DrawTextAligned(0, 0, 876, 464, 1, 0x000000ff, 1, 28, 32, langStr[108]);
 				}
 				
 				break;
@@ -1603,8 +1630,8 @@ void drawScene()
 					SetFontSize(28, 32);
 					if(end_time<3)
 					{
-						DrawTextAligned(0, -40, 876, -84+zex_y, 1, 0xff0000ff, 1, 28, 32, "PS3SWEEPER+");
-						DrawTextAligned(0, -40, 876, 588-zex_y, 1, 0xff0000ff, 1, 28, 32, "INSPIRED BY MINESWEEPER PLUS");
+						DrawTextAligned(0, -40, 876, -84+zex_y, 1, 0xff0000ff, 1, 28, 32, langStr[109]);
+						DrawTextAligned(0, -40, 876, 588-zex_y, 1, 0xff0000ff, 1, 28, 32, langStr[110]);
 					}
 					else
 					{

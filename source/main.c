@@ -74,11 +74,31 @@ void ResetGrid()
 	boss11_cutscene = 0;
 	boss12_cutscene = 0;
 	
-	if(!free_play && LEVEL==8) enable_9 = true;
-	if(!free_play && LEVEL==9) enable_10 = true;
-	if(!free_play && LEVEL==10) enable_11 = true;
-	if(!free_play && LEVEL==11) enable_12 = true;
-	if(!free_play && LEVEL==12) enable_nan = true;
+	if(EPISODE!=7 && !free_play)
+	{
+		switch(LEVEL)
+		{
+			case 8: enable_9 = true; break;
+			case 9: enable_10 = true; break;
+			case 10: enable_11 = true; break;
+			case 11: enable_12 = true; break;
+			case 12: enable_nan = true; break;
+			default: break;
+		}
+	}
+	
+	if(EPISODE==7 && !free_play)
+	{
+		switch(LEVEL)
+		{
+			case 0: enable_9 = true; break;
+			case 1: enable_10 = true; break;
+			case 2: enable_11 = true; break;
+			case 3: enable_12 = true; break;
+			case 4: enable_nan = true; break;
+			default: break;
+		}
+	}
 	
 	if(enable_9 && enable_10 && enable_11 && enable_12) HELL = true;
 	
@@ -381,10 +401,7 @@ int main(int argc, const char* argv[])
 									FadeInOut(&currentScreen, MENU);
 								}
 								
-								if(paddata.BTN_SQUARE && !oldpad.BTN_SQUARE)
-								{
-									settings_select = 1;
-								}
+								if(paddata.BTN_SQUARE && !oldpad.BTN_SQUARE) settings_select = 1;
 								
 								if(paddata.BTN_TRIANGLE && !oldpad.BTN_TRIANGLE)
 								{
@@ -463,17 +480,11 @@ int main(int argc, const char* argv[])
 											can_move_xd = 1;
 										}
 										
-										if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE)
-										{
-											challenge_select = 0;
-										}
+										if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE) challenge_select = 0;
 									}
 									else if(loadout_select)
 									{
-										if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE)
-										{
-											loadout_select = 0;
-										}
+										if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE) loadout_select = 0;
 										
 										if(paddata.BTN_L1 && !oldpad.BTN_L1) if(smiley_face>0) smiley_face--;
 										if(paddata.BTN_R1 && !oldpad.BTN_R1) if(smiley_face<6) smiley_face++;
@@ -513,6 +524,7 @@ int main(int argc, const char* argv[])
 									{
 										if(paddata.BTN_CROSS && !oldpad.BTN_CROSS)
 										{
+											//if(EPISODEs>2 && EPISODEs<7)
 											if(EPISODEs>2)
 											{
 												msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
@@ -564,10 +576,7 @@ int main(int argc, const char* argv[])
 											EPISODEs++;
 											if (EPISODEs>7) EPISODEs = 7;
 										}
-										if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE)
-										{
-											adventure_select = 0;
-										}
+										if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE) adventure_select = 0;
 										if(paddata.BTN_TRIANGLE && !oldpad.BTN_TRIANGLE)
 										{
 											if(route_touhou_unlocked)
@@ -657,10 +666,7 @@ int main(int argc, const char* argv[])
 												}
 											}
 										}
-										if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE)
-										{
-											boss_options = false;
-										}
+										if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE) boss_options = false;
 									}
 									else
 									{
@@ -674,15 +680,8 @@ int main(int argc, const char* argv[])
 											can_move_xd = 1;
 										}
 										
-										if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE)
-										{
-											free_play = 0;
-										}
-										
-										if(paddata.BTN_SQUARE && !oldpad.BTN_SQUARE)
-										{
-											boss_options = true;
-										}
+										if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE) free_play = 0;
+										if(paddata.BTN_SQUARE && !oldpad.BTN_SQUARE) boss_options = true;
 										
 										if(paddata.BTN_L1 && !oldpad.BTN_L1)
 										{
@@ -841,6 +840,12 @@ int main(int argc, const char* argv[])
 						{
 							if(!play_map_bgm)
 							{
+								enable_9 = false;
+								enable_10 = false;
+								enable_11 = false;
+								enable_12 = false;
+								enable_nan = false;
+								
 								int lvl_slct_bgm = 0;
 								switch(EPISODE)
 								{
@@ -905,6 +910,19 @@ int main(int argc, const char* argv[])
 											case 9: lvl_slct_bgm = 160; ship_x = 88.0f+(64*5); ship_y = -22.0f+(32*12); break;
 											case 10: ship_x = 88.0f+(64*5); ship_y = -22.0f+(32*14); StopAudio(); break;
 										}
+										break;
+									}
+									case 7:
+									{
+										ship_r = 0;
+										ship_y = -22.0f+(32*9);
+										if(LEVEL==0) lvl_slct_bgm = 159;
+										else if(LEVEL==1) lvl_slct_bgm = 160;
+										else if(LEVEL==2) lvl_slct_bgm = 152;
+										else if(LEVEL==3) lvl_slct_bgm = 152;
+										else if(LEVEL==4) lvl_slct_bgm = 153;
+										else if(LEVEL==5) lvl_slct_bgm = 153;
+										else StopAudio();
 										break;
 									}
 									default: break;
@@ -1119,6 +1137,15 @@ int main(int argc, const char* argv[])
 											
 										}
 										else ship_a = false;
+										break;
+									}
+									case 7:
+									{
+										if(LEVEL<6)
+										{
+											if(ship_x < 152.0f+(64*(LEVEL+1))) ship_x+=ship_speed;
+											else ship_a = false;
+										}
 										break;
 									}
 									default: break;
@@ -1875,7 +1902,6 @@ int main(int argc, const char* argv[])
 		if(bad_apple) badAppleUpdate();
 		
 		tiny3d_Flip();
-		usleep(3666);
     }
 
     return 0;
