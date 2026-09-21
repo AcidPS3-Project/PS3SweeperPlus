@@ -26,6 +26,7 @@ Here is something you should know:
 #include "lang.h"
 
 bool play_map_bgm = false;
+bool play_10_bgm = false;
 
 int start_menu = 0;
 int start_game_mus = 0;
@@ -44,6 +45,19 @@ int LEVEL_BKP = 0;
 int ready_to_click = 0;
 
 bool HELL = false;
+
+void episode_check()
+{
+	if(EPISODEs>7) EPISODEs = 7;
+	if(EPISODEs>6 && !ep7_unlock) EPISODEs = 6;
+	if(EPISODEs>5 && !ep6_unlock) EPISODEs = 5;
+	if(EPISODEs>4 && !ep5_unlock) EPISODEs = 4;
+	if(EPISODEs>3 && !ep4_unlock) EPISODEs = 3;
+	if(EPISODEs>2 && !ep3_unlock) EPISODEs = 2;
+	if(EPISODEs>1 && !ep2_unlock) EPISODEs = 1;
+
+	if(EPISODEs<1) EPISODEs=1;
+}
 
 void ResetGrid()
 {
@@ -191,8 +205,7 @@ void ResetGrid()
     GenerateBoard();
     CalculateNumbers();
 	
-	if(desired_bgm!=100) playing_bgm = true;
-	else playing_bgm = false;
+	playing_bgm = true;
 }
 
 void GoBackToTitle()
@@ -524,8 +537,10 @@ int main(int argc, const char* argv[])
 									{
 										if(paddata.BTN_CROSS && !oldpad.BTN_CROSS)
 										{
-											//if(EPISODEs>2 && EPISODEs<7)
-											if(EPISODEs>2)
+											episode_check();
+											
+											//if(EPISODEs>3 && EPISODEs<7)
+											if(EPISODEs>4)
 											{
 												msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
 													"This episode is W.I.P., please wait! ^_^", EmptyDialogCallback, NULL, NULL);
@@ -569,11 +584,13 @@ int main(int argc, const char* argv[])
 										if(control_left && !old_control_left)
 										{
 											EPISODEs--;
+											episode_check();
 											if (EPISODEs<1) EPISODEs = 1;
 										}
 										if(control_right && !old_control_right)
 										{
 											EPISODEs++;
+											episode_check();
 											if (EPISODEs>7) EPISODEs = 7;
 										}
 										if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE) adventure_select = 0;
@@ -928,6 +945,7 @@ int main(int argc, const char* argv[])
 									default: break;
 								}
 								play_bgmz = false;
+								play_10_bgm = false;
 								
 								if(lvl_slct_bgm>0) PlayBGM(lvl_slct_bgm, 1);
 								play_map_bgm = true;
@@ -1045,9 +1063,13 @@ int main(int argc, const char* argv[])
 										else if(LEVEL == 9)
 										{
 											ten_arena++;
-											int ten_arena2 = ten_arena / 4;
+											int ten_arena2 = ten_arena / 2;//4;
 											if(ten_arena2==160) PlaySFX(&sfx_blackout);
-											else if(ten_arena2==300) PlayBGM(160, 1);
+											else if(ten_arena2==300 && !play_10_bgm)
+											{
+												PlayBGM(160, 1);
+												play_10_bgm = true;
+											}
 											else if(ten_arena2>300) ship_a = false;
 										}
 										else ship_a = false;
@@ -1275,6 +1297,7 @@ int main(int argc, const char* argv[])
 											else if(enable_11 && !seen_eleven) seen_eleven = true;
 											else if(enable_11 && global_route==1 && !seen_meleven) seen_meleven = true;
 											else if(enable_12 && !seen_twelve) seen_twelve = true;
+											else if(enable_12 && global_route==1 && !seen_ktwelve) seen_ktwelve = true;
 											else if(enable_nan && !seen_nan) seen_nan = true;
 										}
 									}
@@ -1305,7 +1328,7 @@ int main(int argc, const char* argv[])
 													the_bg = 4;
 													desired_bgm = 10;
 													PlayBGM(10, 1);
-													show_warning = true;
+													if(!seen_nine || (global_route==1 && !seen_fnine)) show_warning = true;
 												}
 											}
 											else if(!free_play && LEVEL==9 && boss10_cutscene==0)
@@ -1316,7 +1339,7 @@ int main(int argc, const char* argv[])
 													the_bg = 9;
 													desired_bgm = 12;
 													PlayBGM(12, 1);
-													show_warning = true;
+													if(!seen_ten || (global_route==1 && !seen_nten)) show_warning = true;
 												}
 											}
 											else if(!free_play && LEVEL==10 && boss11_cutscene==0)
@@ -1327,7 +1350,7 @@ int main(int argc, const char* argv[])
 													the_bg = 14;
 													desired_bgm = 15;
 													PlayBGM(15, 1);
-													show_warning = true;
+													if(!seen_eleven || (global_route==1 && !seen_meleven)) show_warning = true;
 												}
 											}
 											else if(!free_play && LEVEL==11 && boss12_cutscene==0)
@@ -1337,7 +1360,7 @@ int main(int argc, const char* argv[])
 													boss12_cutscene = 1;
 													desired_bgm = 19;
 													PlayBGM(19, 1);
-													show_warning = true;
+													if(!seen_twelve || (global_route==1 && !seen_ktwelve)) show_warning = true;
 												}
 											}
 											else
@@ -1409,18 +1432,41 @@ int main(int argc, const char* argv[])
 													}
 												}
 												
-												if(enable_9 && !boss9_started)
+												bool nine_mines_intro = false;
+												
+												if(enable_9)
 												{
-													boss9_started = 1;
-													
-													int i;
-													for (i = 0; i < boss9_count; i++)
+													if(!boss9_started)
 													{
-														boss9_list[i].active = true;
+														for (int i = 0; i < boss9_count; i++)
+														{
+															for(int x = boss9_list[i].x - 1; x <= boss9_list[i].x + 1; x++)
+															{
+																for(int y = boss9_list[i].y - 1; y <= boss9_list[i].y + 1; y++)
+																{
+																	if(cursorX == x && cursorY == y)
+																	{
+																		nine_mines_intro = true;
+																		FIRST_CLICK = 1;
+																	}
+																}
+															}
+														}
+														
+														if(!nine_mines_intro)
+														{
+															boss9_started = 1;
+															
+															int i;
+															for (i = 0; i < boss9_count; i++)
+															{
+																boss9_list[i].active = true;
+															}
+															
+															if(!HELL && desired_bgm == 10) PlayBGM(11, 1);
+															desired_bgm = 9;
+														}
 													}
-													
-													if(!HELL && desired_bgm == 10) PlayBGM(11, 1);
-													desired_bgm = 9;
 												}
 												else if(enable_10 && !boss10_started)
 												{
@@ -1457,7 +1503,7 @@ int main(int argc, const char* argv[])
 													desired_bgm = 12;
 												}
 												
-												if (bonked == 0)
+												if(!bonked && !nine_mines_intro)
 												{
 													if (board[cursorX][cursorY].revealed) Chord(cursorX, cursorY);
 														else Reveal(cursorX, cursorY);
@@ -1562,6 +1608,13 @@ int main(int argc, const char* argv[])
 								
 								global_minecoins += current_minecoins;
 								
+								if(EPISODEs==1) ep2_unlock = true;
+								else if(EPISODEs==2) ep3_unlock = true;
+								else if(EPISODEs==3) ep4_unlock = true;
+								else if(EPISODEs==4) ep5_unlock = true;
+								else if(EPISODEs==5) ep6_unlock = true;
+								else if(EPISODEs==6) ep7_unlock = true;
+								
 								LEVEL=0;
 								StartSave();
 								start_end = 0;
@@ -1573,7 +1626,7 @@ int main(int argc, const char* argv[])
 							static int temp_tz = 0;
 							static int temp_t = 0;
 							temp_tz++;
-							temp_t = temp_tz / 2;
+							temp_t = temp_tz;// / 2;
 							
 							if(temp_t>100)
 							{
@@ -1618,7 +1671,7 @@ int main(int argc, const char* argv[])
 										msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
 											langStr[102], EmptyDialogCallback, NULL, NULL);
 									}
-									
+
 									ready_to_click = 0;
 									splash = splashes_random[rand() % SplashesCount()];
 									start_music = 1;

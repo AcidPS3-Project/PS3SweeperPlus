@@ -127,9 +127,9 @@ void LangInit()
 			
 			langStr[102] = "Something has been unlocked.";
 			
-			langStr[103] = "This is the Frozen Nine, heavily differs from Devil's Nine. It is way faster than it's original counterpart, and it summons the iceberg every 10 seconds. After 10 seconds, the iceberg melts and summons another. The iceberg blocks the 3x3 area on it's location. Good luck.";
-			langStr[104] = "This is the Nuclear Ten. At first, behaves just like it's original, but when pressing SQUARE, it may not reset it's timer, instead it dodges the attack. Be careful! Every time you press SQUARE, it now pollutes the air with toxic acid fumes, making it very harder to see (and maybe breathe). If it fully blocks the view, you suffocate and it's game over.";
-			langStr[105] = "This is the Menacing Eleven. As for now, it's just a re-skin. More mechanics might come in later.";
+			langStr[103] = "This is the Frozen Nine, heavily differs from Devil's Nine.\nIt is way faster than it's original counterpart, and it summons the iceberg every 10 seconds. After 10 seconds, the iceberg melts and summons another. The iceberg blocks the 3x3 area on it's location. Good luck.";
+			langStr[104] = "This is the Nuclear Ten.\nAt first, behaves just like it's original, but when pressing SQUARE, it may not reset it's timer, instead it dodges the attack. Be careful! Every time you press SQUARE, it now pollutes the air with toxic acid fumes, making it very harder to see (and maybe breathe). If it fully blocks the view, you suffocate and it's game over.";
+			langStr[105] = "This is the Menacing Eleven.\nAs for now, it's just a re-skin. More mechanics might come in later.";
 			langStr[106] = "Additional Note:";
 			langStr[107] = "Press START to continue.";
 			langStr[108] = "Press TRIANGLE to not show it again.";
@@ -161,6 +161,9 @@ void LangInit()
 			langStr[131] = "ENABLE";
 			langStr[132] = "True";
 			langStr[133] = "False";
+
+			langStr[134] = "There is again, yet another boss.\nYou don't know, how many mines in this board. Also you don't know how much time passed, but it won't matter anyway. It can stop the time to mess with your current position. You might not notice it, but it may flash before time was stopped. The time stop will last less, than a second. It may also shoot several projectiles after the time stop. Hitting it with cursor explodes the projectile and gives you penalty. After each penalty, time will freeze more often, until the time completely stoppes forever, and then it's game over. To win, complete the board until it ends the time.";
+			langStr[135] = "This is the Killer XII.\nAs for now, it's just a re-skin. More mechanics might come in later.";
 			
 			break;
 		}
@@ -251,8 +254,8 @@ void LangInit()
 			langStr[73] = "Спрайт Замороженного Капитана";
 			
 			langStr[74] = "Здесь имеется битва с боссом.\nБитва работает также, как в обычном сапере, только с усложнениями: ты не знаешь сколько здесь мин, время ограничено, и ты не можешь использовать радар или паузу (хотя здесь радара пока нет ЛОЛ). Нажатие на мину ускоряет таймер. Чтобы выиграть, нажмите на ТРЕУГОЛЬНИК ТОЛЬКО после того, как все пустые клетки открыты. Истечение времени, или же нажатие на босса до того, как все пустые клетки открыты, приводят к окончанию игры.";
-			langStr[75] = "Здесь имеется еще одна битва с боссом (боже опять?).\nКак только вы начнете, пойдет обратный отсчет от 10. Если оно опустится до нуля, игра окончена. Нажмите на КВАДРАТ, чтобы сбросить отсчет, НО будьте аккуратны. Босс от этого будет двигаться быстрее. Нажатие на мину ускорит обратный отсчет. Чтобы выиграть, откройте все пустые клетки до того, как истечет обратный отсчет.";
-			langStr[76] = "Здесь имеется еще одна очередная битва с боссом (ептваюмать).\nЛевая верхняя панель теперь показывает сколько флажков можно поставить перед окончанием игры. Босс будет телепортироваться на поле для установки флагов. Если ты нажмешь на босса до установки флажка, ты можешь предотвратить установку флажка, но не нажимай на босса когда электрические антенны активированы (а когда они собственно будут активированы?) или ты получишь по ебальнику. Удаление флагов до начала игры также приведет к тому, что ты получишь по ебальнику. Так же, все мины в этом поле теперь нажимные. НЕ УБИРАЙТЕ ФЛАГИ С НАЖИМНЫХ МИН. Босс будет ставить много флажков если мина будет обнаружена. Чтобы выиграть, откройте все пустые клетки до того, как количество флагов станет 0, или до того, как некуда будет поставить флажки.";
+			langStr[75] = "Здесь имеется еще одна битва с боссом.\nКак только вы начнете, пойдет обратный отсчет от 10. Если оно опустится до нуля, игра окончена. Нажмите на КВАДРАТ, чтобы сбросить отсчет, НО будьте аккуратны. Босс от этого будет двигаться быстрее. Нажатие на мину ускорит обратный отсчет. Чтобы выиграть, откройте все пустые клетки до того, как истечет обратный отсчет.";
+			langStr[76] = "Здесь имеется еще одна очередная битва с боссом.\nЛевая верхняя панель теперь показывает сколько флажков можно поставить перед окончанием игры. Босс будет телепортироваться на поле для установки флагов. Если ты нажмешь на босса до установки флажка, ты можешь предотвратить установку флажка, но не нажимай на босса когда электрические антенны активированы (а когда они собственно будут активированы?) или ты получишь по ебальнику. Удаление флагов до начала игры также приведет к тому, что ты получишь по ебальнику. Так же, все мины в этом поле теперь нажимные. НЕ УБИРАЙТЕ ФЛАГИ С НАЖИМНЫХ МИН. Босс будет ставить много флажков если мина будет обнаружена. Чтобы выиграть, откройте все пустые клетки до того, как количество флагов станет 0, или до того, как некуда будет поставить флажки.";
 			
 			langStr[77] = "Всего времени прошло";
 			langStr[78] = "Заработано Бомба-коинов";
@@ -283,9 +286,9 @@ void LangInit()
 			
 			langStr[102] = "Что-то разблокировалось.";
 			
-			langStr[103] = "Это Ледяная Девятка (да, это Чирно. идите нахуй), сильно отличается от Дьявольской Девятки. Она призывает айсберги каждые 10 секунд. По истечении 10 секунд айсберг тает, и появляется новая, но в другом месте. Айсберг блокирует определенную территорию 3 на 3. Удачи.";
-			langStr[104] = "Это Ядерная Десятка (Утсухо, да да да, завалите ебальники). At first, behaves just like it's original, but when pressing SQUARE, it may not reset it's timer, instead it dodges the attack. Be careful! Every time you press SQUARE, it now pollutes the air with toxic acid fumes, making it very harder to see (and maybe breathe). If it fully blocks the view, you suffocate and it's game over.";
-			langStr[105] = "Это Menacing Eleven. As for now, it's just a re-skin. More mechanics might come in later.";
+			langStr[103] = "Это Ледяная Девятка, сильно отличается от Дьявольской Девятки.\nОна призывает айсберги каждые 10 секунд. По истечении 10 секунд айсберг тает, и появляется новая, но в другом месте. Айсберг блокирует определенную территорию 3 на 3. Удачи.";
+			langStr[104] = "Это Ядерная Десятка.\nAt first, behaves just like it's original, but when pressing SQUARE, it may not reset it's timer, instead it dodges the attack. Be careful! Every time you press SQUARE, it now pollutes the air with toxic acid fumes, making it very harder to see (and maybe breathe). If it fully blocks the view, you suffocate and it's game over.";
+			langStr[105] = "Это Menacing Eleven.\nAs for now, it's just a re-skin. More mechanics might come in later.";
 			langStr[106] = "Заметка:";
 			langStr[107] = "Нажмите на START чтобы продолжить.";
 			langStr[108] = "Нажмите на TRIANGLE чтобы не показывать снова.";
@@ -410,8 +413,8 @@ void LangInit()
 			langStr[73] = "Спрайт Замороженного Капитана";
 			
 			langStr[74] = "Здесь имеется битва с боссом.\nБитва работает также, как в обычном сапере, только с усложнениями: ты не знаешь сколько здесь мин, время ограничено, и ты не можешь использовать радар или паузу (хотя здесь радара пока нет ЛОЛ). Нажатие на мину ускоряет таймер. Чтобы выиграть, нажмите на ТРЕУГОЛЬНИК ТОЛЬКО после того, как все пустые клетки открыты. Истечение времени, или же нажатие на босса до того, как все пустые клетки открыты, приводят к окончанию игры.";
-			langStr[75] = "Здесь имеется еще одна битва с боссом (боже опять?).\nКак только вы начнете, пойдет обратный отсчет от 10. Если оно опустится до нуля, игра окончена. Нажмите на КВАДРАТ, чтобы сбросить отсчет, НО будьте аккуратны. Босс от этого будет двигаться быстрее. Нажатие на мину ускорит обратный отсчет. Чтобы выиграть, откройте все пустые клетки до того, как истечет обратный отсчет.";
-			langStr[76] = "Здесь имеется еще одна очередная битва с боссом (ептваюмать).\nЛевая верхняя панель теперь показывает сколько флажков можно поставить перед окончанием игры. Босс будет телепортироваться на поле для установки флагов. Если ты нажмешь на босса до установки флажка, ты можешь предотвратить установку флажка, но не нажимай на босса когда электрические антенны активированы (а когда они собственно будут активированы?) или ты получишь по ебальнику. Удаление флагов до начала игры также приведет к тому, что ты получишь по ебальнику. Так же, все мины в этом поле теперь нажимные. НЕ УБИРАЙТЕ ФЛАГИ С НАЖИМНЫХ МИН. Босс будет ставить много флажков если мина будет обнаружена. Чтобы выиграть, откройте все пустые клетки до того, как количество флагов станет 0, или до того, как некуда будет поставить флажки.";
+			langStr[75] = "Здесь имеется еще одна битва с боссом.\nКак только вы начнете, пойдет обратный отсчет от 10. Если оно опустится до нуля, игра окончена. Нажмите на КВАДРАТ, чтобы сбросить отсчет, НО будьте аккуратны. Босс от этого будет двигаться быстрее. Нажатие на мину ускорит обратный отсчет. Чтобы выиграть, откройте все пустые клетки до того, как истечет обратный отсчет.";
+			langStr[76] = "Здесь имеется еще одна очередная битва с боссом.\nЛевая верхняя панель теперь показывает сколько флажков можно поставить перед окончанием игры. Босс будет телепортироваться на поле для установки флагов. Если ты нажмешь на босса до установки флажка, ты можешь предотвратить установку флажка, но не нажимай на босса когда электрические антенны активированы (а когда они собственно будут активированы?) или ты получишь по ебальнику. Удаление флагов до начала игры также приведет к тому, что ты получишь по ебальнику. Так же, все мины в этом поле теперь нажимные. НЕ УБИРАЙТЕ ФЛАГИ С НАЖИМНЫХ МИН. Босс будет ставить много флажков если мина будет обнаружена. Чтобы выиграть, откройте все пустые клетки до того, как количество флагов станет 0, или до того, как некуда будет поставить флажки.";
 			
 			langStr[77] = "Всего времени прошло";
 			langStr[78] = "Заработано Бомба-коинов";
@@ -442,9 +445,9 @@ void LangInit()
 			
 			langStr[102] = "Что-то разблокировалось.";
 			
-			langStr[103] = "Это Ледяная Девятка (да, это Чирно. идите нахуй), сильно отличается от Дьявольской Девятки. Она призывает айсберги каждые 10 секунд. По истечении 10 секунд айсберг тает, и появляется новая, но в другом месте. Айсберг блокирует определенную территорию 3 на 3. Удачи.";
-			langStr[104] = "Это Ядерная Десятка (Утсухо, да да да, завалите ебальники). At first, behaves just like it's original, but when pressing SQUARE, it may not reset it's timer, instead it dodges the attack. Be careful! Every time you press SQUARE, it now pollutes the air with toxic acid fumes, making it very harder to see (and maybe breathe). If it fully blocks the view, you suffocate and it's game over.";
-			langStr[105] = "Это Menacing Eleven. As for now, it's just a re-skin. More mechanics might come in later.";
+			langStr[103] = "Это Ледяная Девятка, сильно отличается от Дьявольской Девятки.\nОна призывает айсберги каждые 10 секунд. По истечении 10 секунд айсберг тает, и появляется новая, но в другом месте. Айсберг блокирует определенную территорию 3 на 3. Удачи.";
+			langStr[104] = "Это Ядерная Десятка.\nAt first, behaves just like it's original, but when pressing SQUARE, it may not reset it's timer, instead it dodges the attack. Be careful! Every time you press SQUARE, it now pollutes the air with toxic acid fumes, making it very harder to see (and maybe breathe). If it fully blocks the view, you suffocate and it's game over.";
+			langStr[105] = "Это Menacing Eleven.\nAs for now, it's just a re-skin. More mechanics might come in later.";
 			langStr[106] = "Заметка:";
 			langStr[107] = "Нажмите на START чтобы продолжить.";
 			langStr[108] = "Нажмите на TRIANGLE чтобы не показывать снова.";

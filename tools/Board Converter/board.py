@@ -5,24 +5,14 @@ INPUT_IMAGE = "board.png"
 SHAPE_OUTPUT = "board.txt"
 
 THRESHOLD = 128
-INVERT = False
 
 img = Image.open(INPUT_IMAGE).convert("RGB")
 
 width, height = img.size
 
-def is_wall_pixel(x, y):
-    r, g, b = img.getpixel((x, y))
-    return g > 0
-
-
 def is_playable_pixel(x, y):
-    r, g, b = img.getpixel((x, y))
-
-    if INVERT:
-        return r > THRESHOLD and g > THRESHOLD and b > THRESHOLD
-
-    return r < THRESHOLD and g < THRESHOLD and b < THRESHOLD
+	r, g, b = img.getpixel((x, y))
+	return r < THRESHOLD and b > THRESHOLD
 
 shape = []
 
@@ -31,9 +21,9 @@ for y in range(height):
 
     for x in range(width):
         if is_playable_pixel(x, y):
-            row += "0"
-        else:
             row += "X"
+        else:
+            row += "0"
 
     shape.append(row)
 

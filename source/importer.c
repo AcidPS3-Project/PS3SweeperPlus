@@ -55,6 +55,13 @@ int language = 0;
 
 int mistakes = 0;
 
+bool ep2_unlock = false;
+bool ep3_unlock = false;
+bool ep4_unlock = false;
+bool ep5_unlock = false;
+bool ep6_unlock = false;
+bool ep7_unlock = false;
+
 bool use_custom_sweeper = false;
 int custom_sweeper_size = 0;
 
@@ -89,7 +96,7 @@ bool seen_nten = false;
 bool seen_eleven = false;
 bool seen_meleven = false;
 bool seen_twelve = false;
-// bool seen_touhoutwelve = false;
+bool seen_ktwelve = false;
 bool seen_nan = false;
 
 bool show_warning = false;

@@ -86,6 +86,15 @@ void SetSaveDefaults()
 	gSave.save_seen_nan = false;
 	
 	gSave.slegacy_9_time = false;
+
+	gSave.ep2_unlock = false;
+	gSave.ep3_unlock = false;
+	gSave.ep4_unlock = false;
+	gSave.ep5_unlock = false;
+	gSave.ep6_unlock = false;
+	gSave.ep7_unlock = false;
+	
+	gSave.save_seen_ktwelve = false;
 }
 
 void savestate_init()
@@ -319,7 +328,16 @@ int StartSave(void)
 	gSave.save_seen_nan = seen_nan;
 	
 	gSave.slegacy_9_time = legacy_9_time;
+
+	gSave.ep2_unlock = ep2_unlock;
+	gSave.ep3_unlock = ep3_unlock;
+	gSave.ep4_unlock = ep4_unlock;
+	gSave.ep5_unlock = ep5_unlock;
+	gSave.ep6_unlock = ep6_unlock;
+	gSave.ep7_unlock = ep7_unlock;
 	
+	gSave.save_seen_ktwelve = seen_ktwelve;
+
 	char debug[256];
 
 	sprintf(debug,"SAVING VALUES: level=%d current=%d global=%d route=%d", gSave.save_level,
@@ -418,6 +436,15 @@ static void LoadThread(void *arg)
 	seen_nan = gSave.save_seen_nan;
 	
 	legacy_9_time = gSave.slegacy_9_time;
+
+	ep2_unlock = gSave.ep2_unlock;
+	ep3_unlock = gSave.ep3_unlock;
+	ep4_unlock = gSave.ep4_unlock;
+	ep5_unlock = gSave.ep5_unlock;
+	ep6_unlock = gSave.ep6_unlock;
+	ep7_unlock = gSave.ep7_unlock;
+
+	seen_ktwelve = gSave.save_seen_ktwelve;
 	
 	char debug[256];
 	sprintf(debug, "LOAD VALUES: level=%d current=%d global=%d route=%d episode=%d", gSave.save_level,

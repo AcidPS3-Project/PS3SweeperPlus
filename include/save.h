@@ -61,6 +61,15 @@ typedef struct
 	bool save_seen_nan;
 	
 	bool slegacy_9_time;
+
+	bool ep2_unlock;
+	bool ep3_unlock;
+	bool ep4_unlock;
+	bool ep5_unlock;
+	bool ep6_unlock;
+	bool ep7_unlock;
+
+	bool save_seen_ktwelve;
 } SaveData;
 
 extern SaveData gSave;

@@ -329,7 +329,7 @@ void UpdateFrozenNine()
 		
 		int zx, zy;
 		
-		zx = RandRange(1, GRID_W - 3);
+		zx = RandRange(1, GRID_W - 2);
 		zy = RandRange(1, GRID_H - 2);
 		
 		board[zx][zy].ice_center = true;

@@ -48,12 +48,19 @@ extern bool seen_nten;
 extern bool seen_eleven;
 extern bool seen_meleven;
 extern bool seen_twelve;
-// extern bool seen_touhoutwelve;
+extern bool seen_ktwelve;
 extern bool seen_nan;
 
 extern bool show_warning;
 
 extern bool legacy_9_time;
+
+extern bool ep2_unlock;
+extern bool ep3_unlock;
+extern bool ep4_unlock;
+extern bool ep5_unlock;
+extern bool ep6_unlock;
+extern bool ep7_unlock;
 
 extern bool specialthanks;
 
