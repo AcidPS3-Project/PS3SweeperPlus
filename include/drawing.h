@@ -39,7 +39,8 @@ typedef enum GameScreen
 	GOTOSHOP,
 	SHOP,
 	CREDITS,
-	ERROR_SCREEN
+	ERROR_SCREEN,
+	ENDING2
 }
 GameScreen;
 

@@ -432,20 +432,31 @@ void init_bgm()
 	bgm[20] = MUS_DIR "boss12.ogg";
 	bgm[21] = MUS_DIR "boss12_2.ogg";
 	
+	bgm[22] = MUS_DIR "bossnan_intro.ogg";
+	bgm[23] = MUS_DIR "bossnan.ogg";
+	
+	bgm[24] = MUS_DIR "dualshock_intro.ogg";
+	bgm[25] = MUS_DIR "dualshock.ogg";
+		
 	bgm[51] = MUS_DIR "Ags1.mp3";
 	bgm[52] = MUS_DIR "Ags2.mp3";
 	bgm[53] = MUS_DIR "Ags3.mp3";
 	bgm[54] = MUS_DIR "Ags4.mp3";
+	
 	bgm[55] = MUS_DIR "Ags5.mp3";
 	bgm[56] = MUS_DIR "Ags6.mp3";
 	bgm[57] = MUS_DIR "Ags7.mp3";
 	bgm[58] = MUS_DIR "Ags8.mp3";
+	
 	bgm[59] = MUS_DIR "Ags9.mp3";
 	bgm[60] = MUS_DIR "Ags10.mp3";
 	bgm[61] = MUS_DIR "Ags11.mp3";
+	
 	bgm[62] = MUS_DIR "Agsrs.ogg";
 	bgm[63] = MUS_DIR "Agss3m.ogg";
 	bgm[64] = MUS_DIR "Ags12.ogg";
+	
+	bgm[65] = MUS_DIR "AgsNaN.ogg";
 	
 	// 99 - custom music
 	// 100 - bad apple!!
@@ -454,32 +465,42 @@ void init_bgm()
 	bgm[102] = MUS_DIR "win2.mp3";
 	bgm[103] = MUS_DIR "win3.mp3";
 	bgm[104] = MUS_DIR "win4.mp3";
+	
 	bgm[105] = MUS_DIR "win5.ogg";
 	bgm[106] = MUS_DIR "win6.ogg";
 	bgm[107] = MUS_DIR "win7.ogg";
 	bgm[108] = MUS_DIR "win8.ogg";
+	
 	bgm[109] = MUS_DIR "boss9_win.ogg";
 	bgm[110] = MUS_DIR "boss10_win.ogg";
 	bgm[111] = MUS_DIR "boss11_win.ogg";
 	bgm[112] = MUS_DIR "boss12_win.ogg";
+	
 	bgm[117] = MUS_DIR "winrs.ogg";
 	bgm[118] = MUS_DIR "wins3m.ogg";
+	bgm[119] = MUS_DIR "bossnan_win.ogg";
 	
 	bgm[151] = MUS_DIR "ls1.mp3";
 	bgm[152] = MUS_DIR "ls2.mp3";
 	bgm[153] = MUS_DIR "ls3.mp3";
 	bgm[154] = MUS_DIR "ls4.mp3";
+	
 	bgm[155] = MUS_DIR "ls5.mp3";
 	bgm[156] = MUS_DIR "ls6.mp3";
 	bgm[157] = MUS_DIR "ls7.mp3";
 	bgm[158] = MUS_DIR "ls8.mp3";
+	
 	bgm[159] = MUS_DIR "ls9.mp3";
 	bgm[160] = MUS_DIR "ls10.mp3";
 	bgm[161] = MUS_DIR "ls11.mp3";
+	
 	bgm[162] = MUS_DIR "lsrs.ogg";
 	bgm[163] = MUS_DIR "lss3m.ogg";
 	bgm[164] = MUS_DIR "ls12.ogg";
 	
+	bgm[165] = MUS_DIR "lsNaN.ogg";
+	
+	bgm[189] = MUS_DIR "bugged_ending.ogg";
 	bgm[190] = MUS_DIR "wind.ogg";
 	bgm[191] = MUS_DIR "untitled.ogg";
 	bgm[192] = MUS_DIR "credits.ogg";
@@ -640,7 +661,7 @@ void PlayBGM(int id, int inf)
 	int temp = 0;
 	
 	if(global_route == 1) temp = 200;
-	if(id>=190 || id==99 || id==100 || id==9 || id==0) temp = 0;
+	if(id>=176 || id==99 || id==100 || id==9 || id==0) temp = 0;
 	
 	FILE *fp = fopen(bgm[temp+id], "rb");
 	

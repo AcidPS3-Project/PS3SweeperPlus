@@ -1821,6 +1821,30 @@ void drawScene()
 				DrawFString(52, 0, 156, 0xffffffff, 0, 32, "Report this error to AcidNT3.1 Productions at \"acidgunner@hotmail.com\" or \"acidnt31@hotmail.com\". Please, return to XMB if possible, or restart your PlayStation 3 system.");
 				break;
 			}
+			case ENDING2:
+			{
+				if(end_time>0)
+				{
+					if(end_time>1) zez_y = -22; else zez_y = 96;
+					zex_y = lerp(zex_y, zez_y, 0.05f);
+					
+					SetTexture(15+EPISODE);
+					DrawSprite2D(0, -40, -22, 916, 582, 1152, 960, 2304, 1920, 1, color);
+					
+					DrawRectangle2D(-40, -22, 916, zex_y, 0x000000ff, -2);
+					DrawRectangle2D(-40, 562-zex_y, 916, 582, 0x000000ff, -2);
+					
+					SetFontSize(28, 32);
+					DrawTextAligned(0, -40, 876, -84+zex_y, 1, 0xff0000ff, 1, 28, 32, langStr[109]);
+					DrawTextAligned(0, -40, 876, 588-zex_y, 1, 0xff0000ff, 1, 28, 32, langStr[110]);
+				}
+				else
+				{
+					zex_y = 96;
+					zez_y = 96;
+				}
+				break;
+			}
 			default: break;
 		}
 	}

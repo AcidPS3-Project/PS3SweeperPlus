@@ -27,6 +27,9 @@ Here is something you should know:
 
 bool play_map_bgm = false;
 bool play_10_bgm = false;
+bool play_10_sfx = false;
+
+bool temp_t2 = false;
 
 int start_menu = 0;
 int start_game_mus = 0;
@@ -38,8 +41,7 @@ float tnt_alpha = 0.0f;
 
 bool play_bgmz = false;
 
-// float ship_speed = 0.75f / 2;
-float ship_speed = 0.75f;
+float ship_speed = 0.75f / 2;
 
 int LEVEL_BKP = 0;
 int ready_to_click = 0;
@@ -192,6 +194,79 @@ void ResetGrid()
 		}
 	}
 	
+	int j;
+	for (j = 0; j < boss10_count; j++)
+	{
+		boss10_list[j].time = 10;
+		boss10_list[j].pulse = 0.0f;
+		boss10_list[j].speed = 0.018f;
+		boss10_list[j].timer = 0.0f;
+		boss10_list[j].tspeed = 0.0f;
+	}
+	
+    GenerateBoard();
+    CalculateNumbers();
+	
+	playing_bgm = true;
+}
+
+void ResetGridTest()
+{
+	show_warning = false;
+	start_game_mus = 1;
+	ten_arena = 0;
+	currentScreen = GAME;
+	
+    mines_count = MINES;
+	tnt_alpha = 0.0f;
+	
+    FIRST_CLICK = 1;
+    gamewin = 0;
+    disable_control = 0;
+    gamelose = 0;
+	level_minecoins = 0;
+	
+	timer_running = 0;
+	timer_seconds = 0;
+	
+	time_decrease = true;
+	
+	GRID_ID = 999;
+	
+	if(DIFFICULTY==1)
+	{
+		GRID_W = 9;
+		GRID_H = 9;
+		MINES = 10;
+		time_left = 99.9f;
+	}
+	else if(DIFFICULTY==2)
+	{
+		GRID_W = 11;
+		GRID_H = 11;
+		MINES = 20;
+		time_left = 149.9f;
+	}
+	else
+	{
+		GRID_W = 13;
+		GRID_H = 13;
+		MINES = 30;
+		time_left = 199.9f;
+	}
+	
+	desired_bgm = 24;
+	
+	SetupBoss9Positions(1);
+	SetupBoss10Positions(1);
+	boss9_cutscene = 2;
+	boss10_cutscene = 2;
+	
+	smiley_face = 4;
+	
+    cursorX = GRID_W/2;
+    cursorY = GRID_H/2;
+
 	int j;
 	for (j = 0; j < boss10_count; j++)
 	{
@@ -422,14 +497,8 @@ int main(int argc, const char* argv[])
 									ready_to_click = 0;
 									FadeInOut(&currentScreen, CREDITS);
 								}
-								if(paddata.BTN_SELECT && !oldpad.BTN_SELECT)
-								{
-									start_end = 1;
-									ready_to_click = 0;
-									FadeInOut(&currentScreen, ENDING);
-								}
 								
-								if(paddata.BTN_CROSS && !oldpad.BTN_CROSS) LEVEL=8;
+								if(paddata.BTN_CROSS && !oldpad.BTN_CROSS) LEVEL=9;
 							}
 							break;
 						}
@@ -1063,8 +1132,12 @@ int main(int argc, const char* argv[])
 										else if(LEVEL == 9)
 										{
 											ten_arena++;
-											int ten_arena2 = ten_arena / 2;//4;
-											if(ten_arena2==160) PlaySFX(&sfx_blackout);
+											int ten_arena2 = ten_arena / 4;
+											if(ten_arena2==160 && !play_10_sfx)
+											{
+												PlaySFX(&sfx_blackout);
+												play_10_sfx = true;
+											}
 											else if(ten_arena2==300 && !play_10_bgm)
 											{
 												PlayBGM(160, 1);
@@ -1270,8 +1343,16 @@ int main(int argc, const char* argv[])
 
 											if(LEVEL >= max_lvl)
 											{
-												start_end = 1;
-												FadeInOut(&currentScreen, ENDING);
+												if(EPISODE == 2 && DIFFICULTY > 0)
+												{
+													start_end = 1;
+													FadeInOut(&currentScreen, ENDING2);
+												}
+												else
+												{
+													start_end = 1;
+													FadeInOut(&currentScreen, ENDING);
+												}
 											}
 											else
 											{
@@ -1464,7 +1545,7 @@ int main(int argc, const char* argv[])
 															}
 															
 															if(!HELL && desired_bgm == 10) PlayBGM(11, 1);
-															desired_bgm = 9;
+															if(desired_bgm != 24) desired_bgm = 9;
 														}
 													}
 												}
@@ -1479,7 +1560,7 @@ int main(int argc, const char* argv[])
 													}
 													
 													if(!HELL && desired_bgm == 12) PlayBGM(13, 1);
-													desired_bgm = 10;
+													if(desired_bgm != 24) desired_bgm = 10;
 												}
 												else if(enable_11 && !boss11_started)
 												{
@@ -1507,6 +1588,12 @@ int main(int argc, const char* argv[])
 												{
 													if (board[cursorX][cursorY].revealed) Chord(cursorX, cursorY);
 														else Reveal(cursorX, cursorY);
+												}
+												
+												if(desired_bgm == 24)
+												{
+													desired_bgm = 10;
+													PlayBGM(25, 1);
 												}
 												
 												if(!enable_9) WinCheck();
@@ -1626,7 +1713,7 @@ int main(int argc, const char* argv[])
 							static int temp_tz = 0;
 							static int temp_t = 0;
 							temp_tz++;
-							temp_t = temp_tz;// / 2;
+							temp_t = temp_tz / 2;
 							
 							if(temp_t>100)
 							{
@@ -1758,6 +1845,35 @@ int main(int argc, const char* argv[])
 							}
 							
 							break;
+						}
+						case ENDING2:
+						{
+							if(start_end)
+							{
+								printf("RANK: %d\n", rank_result);
+								start_end = 0;
+								PlayBGM(189, 0);
+								ready_to_click = 1;
+								end_time = 0;
+								
+								temp_t2 = false;
+							}
+							
+							static int temp_tz = 0;
+							static int temp_t = 0;
+							temp_tz++;
+							
+							temp_t = temp_tz / 2;
+							
+							if(temp_t>100)
+							{
+								if(temp_t>200 && !temp_t2)
+								{
+									temp_t2 = true;
+									ResetGridTest();
+								}
+								else end_time = 1;
+							}
 						}
 						default: break;
 					}
