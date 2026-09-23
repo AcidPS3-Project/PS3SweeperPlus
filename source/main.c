@@ -31,13 +31,15 @@ bool play_10_sfx = false;
 
 bool temp_t2 = false;
 
+int temp_tz = 0;
+int temp_t = 0;
+
 int start_menu = 0;
 int start_game_mus = 0;
 int startbgmgtsp = 0;
 int start_shop = 0;
 int start_end = 0;
 int start_credits = 0;
-float tnt_alpha = 0.0f;
 
 bool play_bgmz = false;
 
@@ -63,12 +65,16 @@ void episode_check()
 
 void ResetGrid()
 {
+	boss9_started = 0;
+	boss10_started = 0;
+	boss11_started = 0;
+	boss12_started = 0;
+	bossnan_started = 0;
+	
 	show_warning = false;
 	time_decrease = false;
 	time_left = 999.0f;
 	start_game_mus = 1;
-	ten_arena = 0;
-	FadeInOut(&currentScreen, GAME);
 	
     mines_count = MINES;
 	tnt_alpha = 0.0f;
@@ -207,17 +213,20 @@ void ResetGrid()
     GenerateBoard();
     CalculateNumbers();
 	
+	FadeInOut(&currentScreen, GAME);
+	
 	playing_bgm = true;
 }
 
 void ResetGridTest()
 {
+	boss9_started = 0;
+	boss10_started = 0;
+	
 	show_warning = false;
 	start_game_mus = 1;
 	ten_arena = 0;
-	currentScreen = GAME;
 	
-    mines_count = MINES;
 	tnt_alpha = 0.0f;
 	
     FIRST_CLICK = 1;
@@ -225,6 +234,7 @@ void ResetGridTest()
     disable_control = 0;
     gamelose = 0;
 	level_minecoins = 0;
+	can_move_xd = 1;
 	
 	timer_running = 0;
 	timer_seconds = 0;
@@ -235,30 +245,31 @@ void ResetGridTest()
 	
 	if(DIFFICULTY==1)
 	{
-		GRID_W = 9;
-		GRID_H = 9;
-		MINES = 10;
+		GRID_W = 18;
+		GRID_H = 18;
+		MINES = 40;
 		time_left = 99.9f;
 	}
 	else if(DIFFICULTY==2)
 	{
-		GRID_W = 11;
-		GRID_H = 11;
-		MINES = 20;
+		GRID_W = 22;
+		GRID_H = 22;
+		MINES = 60;
 		time_left = 149.9f;
 	}
 	else
 	{
-		GRID_W = 13;
-		GRID_H = 13;
-		MINES = 30;
+		GRID_W = 26;
+		GRID_H = 26;
+		MINES = 80;
 		time_left = 199.9f;
 	}
+	mines_count = MINES;
 	
 	desired_bgm = 24;
 	
-	SetupBoss9Positions(1);
-	SetupBoss10Positions(1);
+	SetupBoss9Positions(boss9_count);
+	SetupBoss10Positions(boss10_count);
 	boss9_cutscene = 2;
 	boss10_cutscene = 2;
 	
@@ -280,6 +291,10 @@ void ResetGridTest()
     GenerateBoard();
     CalculateNumbers();
 	
+	enable_9 = true;
+	enable_10 = true;
+	
+	currentScreen = GAME;
 	playing_bgm = true;
 }
 
@@ -423,7 +438,7 @@ int main(int argc, const char* argv[])
 					{
 						case LOGO:
 						{
-							static int video_frame = 0;
+							static float video_frame = 0.0f;
 							PS3Video_Update(&the_video);
 							
 							if(vdec_picout_pending>0)
@@ -433,7 +448,7 @@ int main(int argc, const char* argv[])
 								// int ret = PS3Video_GetFrame(&the_video);
 								// printf("[VDEC] GetFrame ret=%d pending=%d\n", ret, vdec_picout_pending);
 							}
-							video_frame++;
+							video_frame+=0.5f;
 							
 							if(video_frame<150) PS3Video_Draw(&the_video, 0);
 							else
@@ -442,7 +457,6 @@ int main(int argc, const char* argv[])
 								currentScreen = TITLE;
 								start_music = 1;
 							}
-							usleep(30000);
 							break;
 						}
 						case TITLE:
@@ -1276,6 +1290,8 @@ int main(int argc, const char* argv[])
 						}
 						case GAME:
 						{
+							if(ten_arena > 0) ten_arena = 0;
+							
 							if(start_game_mus)
 							{
 								play_map_bgm = false;
@@ -1343,9 +1359,10 @@ int main(int argc, const char* argv[])
 
 											if(LEVEL >= max_lvl)
 											{
-												if(EPISODE == 2 && DIFFICULTY > 0)
+												if(EPISODE == 2 && DIFFICULTY > 0 && LEVEL < 67)
 												{
 													start_end = 1;
+													LEVEL = 66;
 													FadeInOut(&currentScreen, ENDING2);
 												}
 												else
@@ -1398,6 +1415,7 @@ int main(int argc, const char* argv[])
 										// basic crap
 										if(paddata.BTN_CROSS && !oldpad.BTN_CROSS)
 										{
+											printf("Cross Received\n");
 											if(!board[cursorX][cursorY].active) continue;
 											if(board[cursorX][cursorY].ice_block) continue;
 											
@@ -1544,12 +1562,15 @@ int main(int argc, const char* argv[])
 																boss9_list[i].active = true;
 															}
 															
-															if(!HELL && desired_bgm == 10) PlayBGM(11, 1);
-															if(desired_bgm != 24) desired_bgm = 9;
+															if(!free_play)
+															{
+																if(!HELL && desired_bgm == 10) PlayBGM(11, 1);
+																if(desired_bgm != 24) desired_bgm = 9;
+															}
 														}
 													}
 												}
-												else if(enable_10 && !boss10_started)
+												if(enable_10 && !boss10_started)
 												{
 													boss10_started = 1;
 													
@@ -1559,10 +1580,13 @@ int main(int argc, const char* argv[])
 														boss10_list[i].active = true;
 													}
 													
-													if(!HELL && desired_bgm == 12) PlayBGM(13, 1);
-													if(desired_bgm != 24) desired_bgm = 10;
+													if(!free_play)
+													{
+														if(!HELL && desired_bgm == 12) PlayBGM(13, 1);
+														if(desired_bgm != 24) desired_bgm = 10;
+													}
 												}
-												else if(enable_11 && !boss11_started)
+												if(enable_11 && !boss11_started)
 												{
 													boss11_started = 1;
 													
@@ -1572,16 +1596,22 @@ int main(int argc, const char* argv[])
 														boss11_list[i].active = true;
 													}
 													
-													if(!HELL && desired_bgm == 15) PlayBGM(16, 1);
-													desired_bgm = 11;
+													if(!free_play)
+													{
+														if(!HELL && desired_bgm == 15) PlayBGM(16, 1);
+														desired_bgm = 11;
+													}
 												}
-												else if(enable_12 && !boss12_started)
+												if(enable_12 && !boss12_started)
 												{
 													boss12_started = 1;
 													boss12.active = true;
 													
-													if(!HELL && desired_bgm == 19) PlayBGM(20, 1);
-													desired_bgm = 12;
+													if(!free_play)
+													{
+														if(!HELL && desired_bgm == 19) PlayBGM(20, 1);
+														desired_bgm = 12;
+													}
 												}
 												
 												if(!bonked && !nine_mines_intro)
@@ -1601,6 +1631,7 @@ int main(int argc, const char* argv[])
 										}
 										if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE)
 										{
+											printf("Circle Received\n");
 											if((LEVEL==10 && !boss11_started) || (free_play && boss11_cutscene && !boss11_started)) continue;
 											
 											if(!board[cursorX][cursorY].revealed)
@@ -1682,6 +1713,9 @@ int main(int argc, const char* argv[])
 							int max_lvl = episodes[EPISODE-1].level_count;
 							if(start_end)
 							{
+								temp_tz = 0;
+								temp_t = 0;
+
 								show_shit = false;
 								time_total = 0.0f;
 								
@@ -1710,8 +1744,6 @@ int main(int argc, const char* argv[])
 								end_time = 0;
 							}
 							
-							static int temp_tz = 0;
-							static int temp_t = 0;
 							temp_tz++;
 							temp_t = temp_tz / 2;
 							
@@ -1850,6 +1882,9 @@ int main(int argc, const char* argv[])
 						{
 							if(start_end)
 							{
+								temp_tz = 0;
+								temp_t = 0;
+								
 								printf("RANK: %d\n", rank_result);
 								start_end = 0;
 								PlayBGM(189, 0);
@@ -1859,8 +1894,6 @@ int main(int argc, const char* argv[])
 								temp_t2 = false;
 							}
 							
-							static int temp_tz = 0;
-							static int temp_t = 0;
 							temp_tz++;
 							
 							temp_t = temp_tz / 2;
@@ -2056,16 +2089,6 @@ int main(int argc, const char* argv[])
 		}
 		
 		drawScene();
-		
-		if(enable_10 && global_route==1) DrawBackground2D(0x00ff0000 | (int)(tnt_alpha), -7);
-		
-		if(enable_12 && !can_move_xd)
-		{
-			tiny3d_BlendFunc(1, TINY3D_BLEND_FUNC_SRC_RGB_ONE_MINUS_DST_COLOR | TINY3D_BLEND_FUNC_SRC_ALPHA_ONE,
-				TINY3D_BLEND_FUNC_DST_RGB_ZERO | TINY3D_BLEND_FUNC_DST_ALPHA_ZERO, TINY3D_BLEND_RGB_FUNC_ADD | TINY3D_BLEND_ALPHA_FUNC_ADD);
-			
-			DrawBackground2D(0xffffffff, -7);
-		}
 		
 		if(playing_bgm) UpdateBGM();
 		if(bad_apple) badAppleUpdate();

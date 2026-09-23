@@ -169,20 +169,6 @@ void DrawBossTriangles(float x, float y, float size)
     }
 }
 
-void DrawInvertEffect()
-{
-    tiny3d_SetPolygon(TINY3D_QUADS);
-
-    tiny3d_VertexColor(0xFFFFFFFF);
-
-    tiny3d_VertexPos(-60, 22, -5);
-    tiny3d_VertexPos(1040, 22, -5);
-    tiny3d_VertexPos(1040, 1022, -5);
-    tiny3d_VertexPos(-60, 1022, -5);
-
-    tiny3d_End();
-}
-
 void DrawFade(void)
 {
     if(fade_alpha <= 0.0f) return;
@@ -473,14 +459,14 @@ int getCaptainState(int anim_z, int anim1_z, int anim2_z)
 					if(!can_move_xd) the_state = 174+anim_z;
 					else if(disable_control)
 					{
-						if(cursor<left) the_state = 104;
-						else if(cursor>right) the_state = 105;
+						if(cursor<left) the_state = 105;
+						else if(cursor>right) the_state = 104;
 						else the_state = 177;
 					}
 					else
 					{
-						if(cursor<left) the_state = 127;
-						else if(cursor>right) the_state = 129;
+						if(cursor<left) the_state = 129;
+						else if(cursor>right) the_state = 127;
 						else the_state = 128;
 						
 						if(button_x_hold) the_state+=24;
@@ -512,14 +498,14 @@ int getCaptainState(int anim_z, int anim1_z, int anim2_z)
 					}
 					else if(disable_control)
 					{
-						if(cursor<left) the_state = 108;
-						else if(cursor>right) the_state = 109;
+						if(cursor<left) the_state = 109;
+						else if(cursor>right) the_state = 107;
 						else the_state = 181;
 					}
 					else
 					{
-						if(cursor<left) the_state = 131;
-						else if(cursor>right) the_state = 133;
+						if(cursor<left) the_state = 133;
+						else if(cursor>right) the_state = 131;
 						else the_state = 132;
 						
 						if(button_x_hold) the_state+=24;
@@ -1869,6 +1855,19 @@ void drawScene()
 	DrawProjectiles();
 	
 	DrawFade();
+	
+	if(currentScreen == GAME)
+	{
+		if(enable_10 && global_route==1) DrawBackground2D(0x00ff0000 | (int)(tnt_alpha), -7);
+		
+		if(enable_12 && !can_move_xd)
+		{
+			tiny3d_BlendFunc(1, TINY3D_BLEND_FUNC_SRC_RGB_ONE_MINUS_DST_COLOR | TINY3D_BLEND_FUNC_SRC_ALPHA_ONE,
+				TINY3D_BLEND_FUNC_DST_RGB_ZERO | TINY3D_BLEND_FUNC_DST_ALPHA_ZERO, TINY3D_BLEND_RGB_FUNC_ADD | TINY3D_BLEND_ALPHA_FUNC_ADD);
+			
+			DrawBackground2D(0xffffffff, -7);
+		}
+	}
 }
 
 u32 *texture_pointer = NULL;

@@ -53,6 +53,8 @@ extern int enable_half;
 extern int enable_double;
 extern int enable_anti;
 
+extern float tnt_alpha;
+
 extern int fp_width;
 extern int fp_height;
 extern int fp_mines;

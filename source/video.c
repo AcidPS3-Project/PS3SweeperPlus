@@ -122,7 +122,7 @@ int PS3Video_Init(PS3Video *video, u32 width, u32 height)
     config.mem_size = VDEC_MEM_SIZE;
 
     config.ppu_thread_prio = 500;
-    config.ppu_thread_stack_size = 0x10000;
+    config.ppu_thread_stack_size = 0x15000;
     config.spu_thread_prio = 250;
     config.num_spus = 1;
 
@@ -333,7 +333,7 @@ int PS3Video_Update(PS3Video *video)
             au_end = next;
             if (au_end > au_start)
             {
-                if(PS3Video_DecodeAU(video, video->file_data + au_start, au_end - au_start, video->frame_number, video->frame_number)  > 0)
+                if(PS3Video_DecodeAU(video, video->file_data + au_start, au_end - au_start, video->frame_number*2, video->frame_number*2)  > 0)
 				{
 					video->error = 1;
 					return -3;
@@ -351,7 +351,7 @@ int PS3Video_Update(PS3Video *video)
 
     if (au_end > au_start)
     {
-        PS3Video_DecodeAU(video, video->file_data + au_start, au_end - au_start, video->frame_number, video->frame_number);
+        PS3Video_DecodeAU(video, video->file_data + au_start, au_end - au_start, video->frame_number*2, video->frame_number*2);
     }
 
     video->file_pos = video->file_size;

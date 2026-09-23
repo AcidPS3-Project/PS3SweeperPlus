@@ -437,7 +437,7 @@ void init_bgm()
 	
 	bgm[24] = MUS_DIR "dualshock_intro.ogg";
 	bgm[25] = MUS_DIR "dualshock.ogg";
-		
+	
 	bgm[51] = MUS_DIR "Ags1.mp3";
 	bgm[52] = MUS_DIR "Ags2.mp3";
 	bgm[53] = MUS_DIR "Ags3.mp3";
@@ -569,6 +569,9 @@ void init_bgm()
 	bgm[216] = MUS_DIR "touhou/boss11.ogg";
 	bgm_start[216] = 3438;
 	bgm_end[216] = 145504;
+	
+	bgm[224] = MUS_DIR "touhou/dualshock_intro.ogg";
+	bgm[225] = MUS_DIR "touhou/dualshock.ogg";
 	
 	bgm[251] = MUS_DIR "touhou/Ags1.ogg";
 	bgm[252] = MUS_DIR "touhou/Ags2.ogg";

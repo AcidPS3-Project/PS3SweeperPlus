@@ -14,6 +14,8 @@ int MINES  = 40;
 int GRID_ID = 00;
 int mines_count = 0;
 
+float tnt_alpha = 0.0f;
+
 int the_hat = 0;
 
 int enable_half = 0;
@@ -466,7 +468,14 @@ void WinCheck()
 		level_minecoins = calculate_score();
 		current_minecoins += level_minecoins;
 		
-		if(!free_play) level_time[LEVEL] = timer_seconds;
+		if(!free_play)
+		{
+			if(LEVEL==66)
+			{
+				level_time[9] += timer_seconds;
+			}
+			else level_time[LEVEL] = timer_seconds;
+		}
 		else global_minecoins += current_minecoins;
 	}
 	else if(enable_9)
