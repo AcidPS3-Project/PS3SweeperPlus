@@ -4,5 +4,5 @@ build
 *.elf
 *.pkg
 *.sh
-"tools/Board Converter/*.txt"
-"tools/Board Converter/*.png"
+tools/Board Converter/*.txt
+tools/Board Converter/*.png

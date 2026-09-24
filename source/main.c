@@ -131,7 +131,6 @@ void ResetGrid()
 		if(free_play)
 		{
 			time_left = 999.9f;
-			if(desired_bgm == 9) desired_bgm = 10;
 			boss9_cutscene = 2;
 		}
 		else
@@ -166,39 +165,28 @@ void ResetGrid()
 	if(enable_10)
 	{
 		SetupBoss10Positions(boss10_count);
-		if(free_play)
-		{
-			if(desired_bgm == 10) desired_bgm = 12;
-			boss10_cutscene = 2;
-		}
+		if(free_play) boss10_cutscene = 2;
 	}
 	if(enable_11)
 	{
 		SetupBoss11Positions(boss11_count);
-		if(free_play)
-		{
-			if(desired_bgm == 11) desired_bgm = 15;
-			boss11_cutscene = 2;
-		}
+		if(free_play) boss11_cutscene = 2;
 	}
 	if(enable_12)
 	{
 		SetupBoss12Position();
-		if(free_play)
-		{
-			if(desired_bgm == 14) desired_bgm = 19;
-			boss12_cutscene = 2;
-		}
+		if(free_play) boss12_cutscene = 2;
 	}
 	if(enable_nan)
 	{
 		SetupBossNaNPositions(bossnan_count);
-		if(free_play)
-		{
-			// desired_bgm = 19;
-			bossnan_cutscene = 2;
-		}
+		if(free_play) bossnan_cutscene = 2;
 	}
+	
+	if(desired_bgm == 9) desired_bgm = 10;
+	else if(desired_bgm == 10) desired_bgm = 12;
+	else if(desired_bgm == 11) desired_bgm = 15;
+	else if(desired_bgm == 14) desired_bgm = 19;
 	
 	int j;
 	for (j = 0; j < boss10_count; j++)
@@ -1561,12 +1549,6 @@ int main(int argc, const char* argv[])
 															{
 																boss9_list[i].active = true;
 															}
-															
-															if(!free_play)
-															{
-																if(!HELL && desired_bgm == 10) PlayBGM(11, 1);
-																if(desired_bgm != 24) desired_bgm = 9;
-															}
 														}
 													}
 												}
@@ -1579,12 +1561,6 @@ int main(int argc, const char* argv[])
 													{
 														boss10_list[i].active = true;
 													}
-													
-													if(!free_play)
-													{
-														if(!HELL && desired_bgm == 12) PlayBGM(13, 1);
-														if(desired_bgm != 24) desired_bgm = 10;
-													}
 												}
 												if(enable_11 && !boss11_started)
 												{
@@ -1595,29 +1571,64 @@ int main(int argc, const char* argv[])
 													{
 														boss11_list[i].active = true;
 													}
-													
-													if(!free_play)
-													{
-														if(!HELL && desired_bgm == 15) PlayBGM(16, 1);
-														desired_bgm = 11;
-													}
 												}
 												if(enable_12 && !boss12_started)
 												{
 													boss12_started = 1;
 													boss12.active = true;
-													
-													if(!free_play)
-													{
-														if(!HELL && desired_bgm == 19) PlayBGM(20, 1);
-														desired_bgm = 12;
-													}
 												}
 												
 												if(!bonked && !nine_mines_intro)
 												{
 													if (board[cursorX][cursorY].revealed) Chord(cursorX, cursorY);
 														else Reveal(cursorX, cursorY);
+												}
+												
+												if(free_play && !HELL)
+												{
+													if(desired_bgm == 10)
+													{
+														PlayBGM(11, 1);
+														desired_bgm = 9;
+													}
+													else if(desired_bgm == 12)
+													{
+														PlayBGM(13, 1);
+														desired_bgm = 10;
+													}
+													else if(desired_bgm == 15)
+													{
+														PlayBGM(16, 1);
+														desired_bgm = 11;
+													}
+													else if(desired_bgm == 19)
+													{
+														PlayBGM(20, 1);
+														desired_bgm = 12;
+													}
+												}
+												else if(!free_play)
+												{
+													if(enable_9)
+													{
+														PlayBGM(11, 1);
+														desired_bgm = 9;
+													}
+													else if(enable_10)
+													{
+														PlayBGM(13, 1);
+														desired_bgm = 10;
+													}
+													else if(enable_11)
+													{
+														PlayBGM(16, 1);
+														desired_bgm = 11;
+													}
+													else if(enable_12)
+													{
+														PlayBGM(20, 1);
+														desired_bgm = 12;
+													}
 												}
 												
 												if(desired_bgm == 24)
