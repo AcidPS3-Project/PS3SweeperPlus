@@ -308,8 +308,14 @@ void SplashesInit()
 	splashes_random[splash_count++] = "Now with boss combos!";
 	splashes_random[splash_count++] = "Say NO to \"i use arch btw\" types of people";
 	splashes_random[splash_count++] = "boom boom boom boom i want you in my room";
+	splashes_random[splash_count++] = "boom boom boom i cant stop singing this bloody tune tune tune";
 	splashes_random[splash_count++] = "And MS+PSP is Dead.";
 	splashes_random[splash_count++] = "88005553535";
+	splashes_random[splash_count++] = "That's not... the... ThornRing, is it...?";
+	splashes_random[splash_count++] = "Lurk more, it's never enough.";
+	splashes_random[splash_count++] = "Almost half-way through!";
+	splashes_random[splash_count++] = "Things can go in weird way. Note that!";
+	splashes_random[splash_count++] = "I do not like when my used content is not credited.";
 	
 	FILE *za = fopen("/dev_hdd0/game/ACIDSTORE/ICON0.PNG", "rb");
 	if(za!=NULL)
@@ -317,6 +323,7 @@ void SplashesInit()
 		splashes_random[splash_count++] = "Thanks for installing AcidPS3 Store! :D";
 		splashes_random[splash_count++] = "Wow dude you have AcidPS3 Store installed? :)";
 		splashes_random[splash_count++] = "Hello, fellow AcidPS3 Store user. Nice to see you here :>";
+		splashes_random[splash_count++] = "Migrated from Github links to Archive.org!";
 		fclose(za);
 	}
 	
@@ -570,6 +577,13 @@ void init_bgm()
 	bgm_start[216] = 3438;
 	bgm_end[216] = 145504;
 	
+	bgm[219] = MUS_DIR "touhou/boss12_intro.ogg";
+	bgm_start[219] = 23283;
+	bgm_end[219] = 35027-10;
+	
+	bgm[220] = MUS_DIR "touhou/boss12.ogg";
+	bgm[221] = MUS_DIR "touhou/boss12_2.ogg";
+	
 	bgm[224] = MUS_DIR "touhou/dualshock_intro.ogg";
 	bgm[225] = MUS_DIR "touhou/dualshock.ogg";
 	
@@ -584,10 +598,12 @@ void init_bgm()
 	bgm[259] = MUS_DIR "touhou/Ags9.ogg";
 	bgm[260] = MUS_DIR "touhou/Ags10.ogg";
 	bgm[261] = MUS_DIR "touhou/Ags11.ogg";
+	bgm[262] = MUS_DIR "touhou/Ags12.ogg";
 	
 	bgm[309] = MUS_DIR "touhou/boss9_win.ogg";
 	bgm[310] = MUS_DIR "touhou/boss10_win.ogg";
 	bgm[311] = MUS_DIR "touhou/boss11_win.ogg";
+	bgm[312] = MUS_DIR "touhou/boss12_win.ogg";
 	
 	bgm[351] = MUS_DIR "touhou/ls1.ogg";
 	bgm[352] = MUS_DIR "touhou/ls2.ogg";
@@ -600,6 +616,7 @@ void init_bgm()
 	bgm[359] = MUS_DIR "touhou/ls9.ogg";
 	bgm[360] = MUS_DIR "touhou/ls10.ogg";
 	bgm[361] = MUS_DIR "touhou/ls11.ogg";
+	bgm[362] = MUS_DIR "touhou/ls12.ogg";
 	
 	// coming soon 0_0
 }

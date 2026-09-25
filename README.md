@@ -1,6 +1,6 @@
 # Welcome to the PS3Sweeper+!
 *This game is based of the [Minesweeper Plus](https://jorel-simpson.itch.io/minesweeper-plus) game made by Jorel Simpson. Please, play the original game to support the original author of the Minesweeper Plus.*\
-Isn't it the most awesome minesweeper game to play on YOUR PS3? Well, I hope so! With multiple chapters, multiple routes, and much more upon awaits you in this simple homebrew, made by one person! Currently, this version only contains two chapters (third in works) and the main route among many, but it's at least better, than nothing, right?
+Isn't it the most awesome minesweeper game to play on YOUR PS3? Well, I hope so! With multiple chapters, multiple routes, and much more upon awaits you in this simple homebrew, made by one person! Currently, this version only contains three chapters (fourth in works) and 2 routes among many, but it's at least better, than nothing, right?
 
 Don't like the adventure? You can always count on free play! Customize your most finest game of minesweeper. It may be relaxing, it may be HARDCORE. Free choice, Free play!
 

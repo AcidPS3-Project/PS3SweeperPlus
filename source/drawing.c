@@ -11,9 +11,9 @@ int end_time = 0;
 
 BossTriangle boss_triangles[3] =
 {
-    {0.0f, 40.0f, 0xff0000cc},
-    {120.0f, -20.0f, 0xff0000aa},
-    {240.0f, 60.0f, 0xff0000ff}
+	{0.0f, 40.0f, 0xff0000cc},
+	{120.0f, -20.0f, 0xff0000aa},
+	{240.0f, 60.0f, 0xff0000ff}
 };
 
 #define FADE_NONE 0
@@ -22,29 +22,36 @@ BossTriangle boss_triangles[3] =
 
 static const LevelSelectPos level_positions[9] = 
 {
-    { 88 + (64 * 4), -22 + (32 * 8)  }, // 1
-    { 88 + (64 * 5), -22 + (32 * 8)  }, // 2
-    { 88 + (64 * 6), -22 + (32 * 8)  }, // 3
-    { 88 + (64 * 6), -22 + (32 * 10) }, // 4
-    { 88 + (64 * 6), -22 + (32 * 12) }, // 5
-    { 88 + (64 * 5), -22 + (32 * 12) }, // 6
-    { 88 + (64 * 4), -22 + (32 * 12) }, // 7
-    { 88 + (64 * 4), -22 + (32 * 10) }, // 8
-    { 88 + (64 * 5), -22 + (32 * 10) }  // 9
+	{88 + (64 * 4), -22 + (32 * 8)},  // 1
+	{88 + (64 * 5), -22 + (32 * 8)},  // 2
+	{88 + (64 * 6), -22 + (32 * 8)},  // 3
+	{88 + (64 * 6), -22 + (32 * 10)}, // 4
+	{88 + (64 * 6), -22 + (32 * 12)}, // 5
+	{88 + (64 * 5), -22 + (32 * 12)}, // 6
+	{88 + (64 * 4), -22 + (32 * 12)}, // 7
+	{88 + (64 * 4), -22 + (32 * 10)}, // 8
+	{88 + (64 * 5), -22 + (32 * 10)}  // 9
 };
 
 static const LevelSelectPos level_positions2[10] = 
 {
-    { 120 + (64 * 4), -22 + (32 * 14)  }, // 1
-    { 120 + (64 * 3), -22 + (32 * 12)  }, // 2
-    { 120 + (64 * 3), -22 + (32 * 10)  }, // 3
-    { 120 + (64 * 4), -22 + (32 * 8) }, // 4
-    { 120 + (64 * 5), -22 + (32 * 8) }, // 5
-    { 120 + (64 * 6), -22 + (32 * 10) }, // 6
-    { 120 + (64 * 6), -22 + (32 * 12) }, // 7
-    { 120 + (64 * 5), -22 + (32 * 14) }, // 8
-    { 120 + (64 * 4), -22 + (32 * 12) },  // 9
-    { 120 + (64 * 5), -22 + (32 * 10) }  // 10
+	{120 + (64 * 4), -22 + (32 * 14)}, // 1
+	{120 + (64 * 3), -22 + (32 * 12)}, // 2
+	{120 + (64 * 3), -22 + (32 * 10)}, // 3
+	{120 + (64 * 4), -22 + (32 * 8)},  // 4
+	{120 + (64 * 5), -22 + (32 * 8)},  // 5
+	{120 + (64 * 6), -22 + (32 * 10)}, // 6
+	{120 + (64 * 6), -22 + (32 * 12)}, // 7
+	{120 + (64 * 5), -22 + (32 * 14)}, // 8
+	{120 + (64 * 4), -22 + (32 * 12)}, // 9
+	{120 + (64 * 5), -22 + (32 * 10)}  // 10
+};
+
+static const LevelSelectPos level_positions3[3] = 
+{
+	{88 + (64 * 5), -22 + (32 * 8)},  // 1
+	{88 + (64 * 6), -22 + (32 * 12)}, // 2
+	{88 + (64 * 4), -22 + (32 * 12)}  // 3
 };
 
 static int fade_mode = FADE_NONE;
@@ -870,22 +877,6 @@ void draw_game()
 				}
 			}
 			
-			// if(board[x1][y1].wall_left)
-				// DrawSprite2D(195 + grid_bg, offset_x + (x1 * RENDER_SIZE), offset_y + (y1 * RENDER_SIZE),
-					// RENDER_SIZE / 16, RENDER_SIZE, 16, 16, 320, 320, 1, color);
-
-			// if(board[x1][y1].wall_right)
-				// DrawSprite2D(195 + grid_bg, offset_x + (x1 * RENDER_SIZE) + RENDER_SIZE, offset_y + (y1 * RENDER_SIZE),
-					// RENDER_SIZE / 16, RENDER_SIZE, 16, 16, 320, 320, 1, color);
-
-			// if(board[x1][y1].wall_up)
-				// DrawSprite2D(195 + grid_bg, offset_x + (x1 * RENDER_SIZE), offset_y + (y1 * RENDER_SIZE),
-					// RENDER_SIZE, RENDER_SIZE / 16, 16, 16, 320, 320, 1, color);
-
-			// if(board[x1][y1].wall_down)
-				// DrawSprite2D(195 + grid_bg, offset_x + (x1 * RENDER_SIZE), offset_y + (y1 * RENDER_SIZE) + RENDER_SIZE,
-					// RENDER_SIZE, RENDER_SIZE / 16, 16, 16, 320, 320, 1, color);
-			
 			if(draw_grid_outlines)
 			{
 				DrawSprite2D(241 + grid_bg, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE),
@@ -979,10 +970,7 @@ void drawScene()
 		
 		switch(currentScreen)
 		{
-			case LOGO:
-			{
-				break;
-			}
+			case LOGO: break;
 			case TITLE:
 			{
 				SetTexture(7);
@@ -1328,6 +1316,16 @@ void drawScene()
 								}
 								
 								DrawSprite2D(241 + grid_bg, 120+(64*(3+b2)), -22+(64*(4+b1)), 32, 32, 16, 16, 320, 320, 4, 0xffffffff);
+							}
+							
+							break;
+						}
+						case 4:
+						{
+							for(int b = 0; b < 3; b++)
+							{
+								DrawLevelIcon(b + 1, level_positions3[b].x, level_positions3[b].y, anim, tile_bg);
+								DrawSprite2D(241 + grid_bg, level_positions3[b].x, level_positions3[b].y, 32, 32, 16, 16, 320, 320, 4, 0xffffffff);
 							}
 							
 							break;

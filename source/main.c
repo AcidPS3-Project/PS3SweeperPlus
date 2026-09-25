@@ -96,29 +96,47 @@ void ResetGrid()
 	boss11_cutscene = 0;
 	boss12_cutscene = 0;
 	
-	if(EPISODE!=7 && !free_play)
+	if(!free_play)
 	{
-		switch(LEVEL)
+		if(EPISODE<4)
 		{
-			case 8: enable_9 = true; break;
-			case 9: enable_10 = true; break;
-			case 10: enable_11 = true; break;
-			case 11: enable_12 = true; break;
-			case 12: enable_nan = true; break;
-			default: break;
+			switch(LEVEL)
+			{
+				case 8: enable_9 = true; break;
+				case 9: enable_10 = true; break;
+				case 10: enable_11 = true; break;
+				default: break;
+			}
 		}
-	}
-	
-	if(EPISODE==7 && !free_play)
-	{
-		switch(LEVEL)
+		else if(EPISODE==4)
 		{
-			case 0: enable_9 = true; break;
-			case 1: enable_10 = true; break;
-			case 2: enable_11 = true; break;
-			case 3: enable_12 = true; break;
-			case 4: enable_nan = true; break;
-			default: break;
+			switch(LEVEL)
+			{
+				case 2: enable_10 = true; break;
+				case 3: enable_12 = true; break;
+				default: break;
+			}
+		}
+		else if(EPISODE==5)
+		{
+			switch(LEVEL)
+			{
+				case 3: enable_11 = true; break;
+				case 4: enable_nan = true; break;
+				default: break;
+			}
+		}
+		else if(EPISODE==7)
+		{
+			switch(LEVEL)
+			{
+				case 0: enable_9 = true; break;
+				case 1: enable_10 = true; break;
+				case 2: enable_11 = true; break;
+				case 3: enable_12 = true; break;
+				case 4: enable_nan = true; break;
+				default: break;
+			}
 		}
 	}
 	
@@ -183,10 +201,13 @@ void ResetGrid()
 		if(free_play) bossnan_cutscene = 2;
 	}
 	
-	if(desired_bgm == 9) desired_bgm = 10;
-	else if(desired_bgm == 10) desired_bgm = 12;
-	else if(desired_bgm == 11) desired_bgm = 15;
-	else if(desired_bgm == 14) desired_bgm = 19;
+	if(free_play)
+	{
+		if(desired_bgm == 9) desired_bgm = 10;
+		else if(desired_bgm == 10) desired_bgm = 12;
+		else if(desired_bgm == 11) desired_bgm = 15;
+		else if(desired_bgm == 14) desired_bgm = 19;
+	}
 	
 	int j;
 	for (j = 0; j < boss10_count; j++)
@@ -517,6 +538,12 @@ int main(int argc, const char* argv[])
 								disable_control = 0;
 								can_move_xd = 1;
 								
+								enable_9 = false;
+								enable_10 = false;
+								enable_11 = false;
+								enable_12 = false;
+								enable_nan = false;
+								
 								free_play = 0;
 
 								gamewin = 0;
@@ -578,6 +605,9 @@ int main(int argc, const char* argv[])
 										
 										if(paddata.BTN_TRIANGLE && !oldpad.BTN_TRIANGLE)
 										{
+											msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
+												"I was about to open the shop, but it is delayed. Gimme some weeks, I just need some time..", EmptyDialogCallback, NULL, NULL);
+											/*
 											startbgmgtsp = 1;
 											ship_x = -80;
 											ship_y = -22+(32*6);
@@ -602,6 +632,7 @@ int main(int argc, const char* argv[])
 												StopAudio();
 												FadeInOut(&currentScreen, GOTOSHOP);
 											}
+											*/
 										}
 									}
 									else if(adventure_select)
@@ -610,12 +641,16 @@ int main(int argc, const char* argv[])
 										{
 											episode_check();
 											
-											//if(EPISODEs>3 && EPISODEs<7)
 											if(EPISODEs>4)
 											{
 												msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
-													"This episode is W.I.P., please wait! ^_^", EmptyDialogCallback, NULL, NULL);
+													"This episode is not started it's development, please wait! ^_^", EmptyDialogCallback, NULL, NULL);
 												continue;
+											}
+											else if(EPISODEs==4)
+											{
+												msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
+													"This episode is W.I.P., however you can still access it. Beware of the crappy stuff going on. Thanks!", EmptyDialogCallback, NULL, NULL);
 											}
 											
 											GRID_ID = 999;
@@ -627,12 +662,6 @@ int main(int argc, const char* argv[])
 											DIFFICULTY = DIFFICULTYs;
 											EPISODE = EPISODEs;
 											LIFES = 3;
-											
-											if(paddata.BTN_L2)
-											{
-												int max_lvl = episodes[EPISODE-1].level_count;
-												LEVEL = max_lvl-1;
-											}
 											
 											current_minecoins = 0;
 											mistakes = 0;
@@ -672,6 +701,11 @@ int main(int argc, const char* argv[])
 												if(global_route == 0) global_route = 1; else global_route = 0;
 												ReplaceBGM(fp_music);
 											}
+											else
+											{
+												msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
+													"To unlock the Touhou route, You must complete the Episode 1 with no mistakes in Novice and higher difficulty.", EmptyDialogCallback, NULL, NULL);
+											}
 										}
 									}
 									else
@@ -702,12 +736,12 @@ int main(int argc, const char* argv[])
 										if(control_left && !old_control_left)
 										{
 											menu_pos--;
-											if (menu_pos<0) menu_pos = 0;
+											if(menu_pos<0) menu_pos = 0;
 										}
 										if(control_right && !old_control_right)
 										{
 											menu_pos++;
-											if (menu_pos>3) menu_pos = 3;
+											if(menu_pos>3) menu_pos = 3;
 										}
 										
 										if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE)
@@ -749,7 +783,7 @@ int main(int argc, const char* argv[])
 												{
 													// enable_nan = !enable_nan;
 													msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
-														"Work in progress.", EmptyDialogCallback, NULL, NULL);
+														"Work in progress. Please wait!!", EmptyDialogCallback, NULL, NULL);
 													break;
 												}
 											}
@@ -1000,6 +1034,19 @@ int main(int argc, const char* argv[])
 										}
 										break;
 									}
+									case 4:
+									{
+										ship_r = 0;
+										
+										switch(LEVEL)
+										{
+											case 0: lvl_slct_bgm = 162; ship_x = -80.0f; ship_y = -22.0f+(32*7); break;
+											case 1: lvl_slct_bgm = 163; ship_x = 120.0f+(64*6); ship_y = -22.0f+(32*10); break;
+											case 2: lvl_slct_bgm = 160; ship_x = 88.0f+(64*5); ship_y = -22.0f+(32*13); break;
+											case 3: ship_x = 88.0f+(64*5); ship_y = -22.0f+(32*9); StopAudio(); break;
+										}
+										break;
+									}
 									case 7:
 									{
 										ship_r = 0;
@@ -1231,7 +1278,29 @@ int main(int argc, const char* argv[])
 										}
 										else if(LEVEL == 10)
 										{
-											
+											ship_a = false;
+										}
+										else ship_a = false;
+										break;
+									}
+									case 4:
+									{
+										if(LEVEL == 0 && (ship_x < 88.0f+(64*5))) ship_x+=ship_speed;
+										else if(LEVEL == 1)
+										{
+											ship_r = 1;
+											if(ship_y < -22.0f+(32*12)) ship_y+=ship_speed;
+											else ship_a = false;
+										}
+										else if(LEVEL == 2)
+										{
+											ship_r = 2;
+											if(ship_x > 88.0f+(64*4)) ship_x-=ship_speed;
+											else ship_a = false;
+										}
+										else if(LEVEL == 3)
+										{
+											ship_a = false;
 										}
 										else ship_a = false;
 										break;
@@ -1264,11 +1333,17 @@ int main(int argc, const char* argv[])
 										default: smiley_face = 0; break;
 									}
 									
+									if(LEVEL==2 && EPISODE==4) smiley_face = 5;
+									if(LEVEL==3 && EPISODE==4) smiley_face = 4;
+									
 									ready_to_click = 0;
 									StopAudio();
 									LoadLevel(LEVEL);
 									
 									if(LEVEL>=8) PlaySFX(&sfx_level2);
+									else if(LEVEL>=2 && EPISODE==4) PlaySFX(&sfx_level2);
+									else if(LEVEL>=3 && EPISODE==5) PlaySFX(&sfx_level2);
+									else if(EPISODE==7) PlaySFX(&sfx_level2);
 									else PlaySFX(&sfx_level);
 									
 									can_move_xd = 1;
@@ -1320,12 +1395,6 @@ int main(int argc, const char* argv[])
 										else
 										{
 											LEVEL++;
-											if(EPISODE==4)
-											{
-												if(LEVEL<4) LEVEL=4;
-												else if(LEVEL<8) LEVEL=8;
-												else if(LEVEL<11) LEVEL=11;
-											}
 											GoBackToTitle();
 										}
 									}
@@ -1338,13 +1407,6 @@ int main(int argc, const char* argv[])
 											int max_lvl = episodes[EPISODE-1].level_count;
 											LEVEL++;
 											
-											if(EPISODE==4)
-											{
-												if(LEVEL<4) LEVEL=4;
-												else if(LEVEL<8) LEVEL=8;
-												else if(LEVEL<11) LEVEL=11;
-											}
-
 											if(LEVEL >= max_lvl)
 											{
 												if(EPISODE == 2 && DIFFICULTY > 0 && LEVEL < 67)
@@ -1407,47 +1469,59 @@ int main(int argc, const char* argv[])
 											if(!board[cursorX][cursorY].active) continue;
 											if(board[cursorX][cursorY].ice_block) continue;
 											
-											if(!free_play && LEVEL==8 && boss9_cutscene==0)
+											if(!free_play && LEVEL==8 && EPISODE!=4 && boss9_cutscene==0)
 											{
-												if(cursorX==GRID_W/2 && cursorY==GRID_H/2)
+												if((LEVEL==8 && EPISODE!=4) || (LEVEL==0 && EPISODE==7))
 												{
-													boss9_cutscene = 1;
-													the_bg = 4;
-													desired_bgm = 10;
-													PlayBGM(10, 1);
-													if(!seen_nine || (global_route==1 && !seen_fnine)) show_warning = true;
+													if(cursorX==GRID_W/2 && cursorY==GRID_H/2)
+													{
+														boss9_cutscene = 1;
+														the_bg = 4;
+														desired_bgm = 10;
+														PlayBGM(10, 1);
+														if(!seen_nine || (global_route==1 && !seen_fnine)) show_warning = true;
+													}
 												}
 											}
-											else if(!free_play && LEVEL==9 && boss10_cutscene==0)
+											else if(!free_play && ((LEVEL==9 && EPISODE!=4) || (LEVEL==2 && EPISODE==4)) && boss10_cutscene==0)
 											{
-												if(cursorX==GRID_W/2 && cursorY==GRID_H/2)
+												if((LEVEL==9 && EPISODE!=4) || (LEVEL==2 && EPISODE==4) || (LEVEL==1 && EPISODE==7))
 												{
-													boss10_cutscene = 1;
-													the_bg = 9;
-													desired_bgm = 12;
-													PlayBGM(12, 1);
-													if(!seen_ten || (global_route==1 && !seen_nten)) show_warning = true;
+													if(cursorX==GRID_W/2 && cursorY==GRID_H/2)
+													{
+														boss10_cutscene = 1;
+														the_bg = 9;
+														desired_bgm = 12;
+														PlayBGM(12, 1);
+														if(!seen_ten || (global_route==1 && !seen_nten)) show_warning = true;
+													}
 												}
 											}
-											else if(!free_play && LEVEL==10 && boss11_cutscene==0)
+											else if(!free_play && boss11_cutscene==0)
 											{
-												if(cursorX==GRID_W/2 && cursorY==GRID_H/2)
+												if((LEVEL==10 && EPISODE!=4) || (LEVEL==3 && EPISODE==5) || (LEVEL==2 && EPISODE==7))
 												{
-													boss11_cutscene = 1;
-													the_bg = 14;
-													desired_bgm = 15;
-													PlayBGM(15, 1);
-													if(!seen_eleven || (global_route==1 && !seen_meleven)) show_warning = true;
+													if(cursorX==GRID_W/2 && cursorY==GRID_H/2)
+													{
+														boss11_cutscene = 1;
+														the_bg = 14;
+														desired_bgm = 15;
+														PlayBGM(15, 1);
+														if(!seen_eleven || (global_route==1 && !seen_meleven)) show_warning = true;
+													}
 												}
 											}
-											else if(!free_play && LEVEL==11 && boss12_cutscene==0)
+											else if(!free_play && boss12_cutscene==0)
 											{
-												if(cursorX==GRID_W/2 && cursorY==GRID_H/2)
+												if((LEVEL==3 && (EPISODE==4 || EPISODE==7))
 												{
-													boss12_cutscene = 1;
-													desired_bgm = 19;
-													PlayBGM(19, 1);
-													if(!seen_twelve || (global_route==1 && !seen_ktwelve)) show_warning = true;
+													if(cursorX==GRID_W/2 && cursorY==GRID_H/2)
+													{
+														boss12_cutscene = 1;
+														desired_bgm = 19;
+														PlayBGM(19, 1);
+														if(!seen_twelve || (global_route==1 && !seen_ktwelve)) show_warning = true;
+													}
 												}
 											}
 											else
@@ -1497,8 +1571,6 @@ int main(int argc, const char* argv[])
 													boss12.active = true;
 													PlayBGM(195, 1);
 												}
-												
-												FIRST_CLICK = 0;
 												
 												int bonked = 0;
 												
@@ -1584,7 +1656,7 @@ int main(int argc, const char* argv[])
 														else Reveal(cursorX, cursorY);
 												}
 												
-												if(free_play && !HELL)
+												if(free_play && !HELL && FIRST_CLICK)
 												{
 													if(desired_bgm == 10)
 													{
@@ -1607,7 +1679,7 @@ int main(int argc, const char* argv[])
 														desired_bgm = 12;
 													}
 												}
-												else if(!free_play)
+												else if(!free_play && FIRST_CLICK && LEVEL != 66)
 												{
 													if(enable_9)
 													{
@@ -1636,6 +1708,8 @@ int main(int argc, const char* argv[])
 													desired_bgm = 10;
 													PlayBGM(25, 1);
 												}
+												
+												FIRST_CLICK = 0;
 												
 												if(!enable_9) WinCheck();
 											}

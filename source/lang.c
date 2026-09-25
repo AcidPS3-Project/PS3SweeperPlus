@@ -165,6 +165,23 @@ void LangInit()
 			langStr[134] = "There is again, yet another boss.\nYou don't know, how many mines in this board. Also you don't know how much time passed, but it won't matter anyway. It can stop the time to mess with your current position. You might not notice it, but it may flash before time was stopped. The time stop will last less, than a second. It may also shoot several projectiles after the time stop. Hitting it with cursor explodes the projectile and gives you penalty. After each penalty, time will freeze more often, until the time completely stoppes forever, and then it's game over. To win, complete the board until it ends the time.";
 			langStr[135] = "This is the Killer XII.\nAs for now, it's just a re-skin. More mechanics might come in later.";
 			
+			langStr[136] = "Undetermined Hollow";
+			langStr[137] = "Severe Consequences";
+			langStr[138] = "Unacquired Density";
+			langStr[139] = "THE DEVIL'S WATCH";
+			
+			langStr[140] = "Bubbly Tub";
+			langStr[141] = "Steamy Jacuzzi";
+			langStr[142] = "Danger Creek";
+			langStr[143] = "Hazard Canal";
+			langStr[144] = "Flooded Fjord";
+			langStr[145] = "Wacky Whirlpool";
+			langStr[146] = "Bomb Bay";
+			langStr[147] = "Ship's Graveyard";
+			langStr[148] = "Delta P";
+			langStr[149] = "Hydraulic Shock";
+			langStr[150] = "THE DEVIL'S LOCKER";
+			
 			break;
 		}
 		case 1: // Русский Язык
