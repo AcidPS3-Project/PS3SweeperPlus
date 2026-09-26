@@ -30,6 +30,7 @@ bool play_10_bgm = false;
 bool play_10_sfx = false;
 
 bool temp_t2 = false;
+bool test_zero = false;
 
 int temp_tz = 0;
 int temp_t = 0;
@@ -478,6 +479,8 @@ int main(int argc, const char* argv[])
 								ready_to_click = 1;
 								easter_egg = false;
 								
+								route_selector = global_route;
+								
 								if(!route_touhou_unlocked && global_route==1) global_route=0;
 							}
 							
@@ -694,19 +697,7 @@ int main(int argc, const char* argv[])
 											if (EPISODEs>7) EPISODEs = 7;
 										}
 										if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE) adventure_select = 0;
-										if(paddata.BTN_TRIANGLE && !oldpad.BTN_TRIANGLE)
-										{
-											if(route_touhou_unlocked)
-											{
-												if(global_route == 0) global_route = 1; else global_route = 0;
-												ReplaceBGM(fp_music);
-											}
-											else
-											{
-												msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
-													"To unlock the Touhou route, You must complete the Episode 1 with no mistakes in Novice and higher difficulty.", EmptyDialogCallback, NULL, NULL);
-											}
-										}
+										if(paddata.BTN_TRIANGLE && !oldpad.BTN_TRIANGLE) currentScreen = ROUTE_SELECT;
 									}
 									else
 									{
@@ -1338,6 +1329,8 @@ int main(int argc, const char* argv[])
 									
 									ready_to_click = 0;
 									StopAudio();
+									FIRST_CLICK = 1;
+									
 									LoadLevel(LEVEL);
 									
 									if(LEVEL>=8) PlaySFX(&sfx_level2);
@@ -1362,6 +1355,7 @@ int main(int argc, const char* argv[])
 								if(HELL) desired_bgm = 194;
 								PlayBGM(desired_bgm, 1);
 								ready_to_click = 1;
+								test_zero = true;
 								fp_lifes = 3;
 							}
 							
@@ -1465,66 +1459,78 @@ int main(int argc, const char* argv[])
 										// basic crap
 										if(paddata.BTN_CROSS && !oldpad.BTN_CROSS)
 										{
-											printf("Cross Received\n");
+											DebugLog("Cross Received");
 											if(!board[cursorX][cursorY].active) continue;
 											if(board[cursorX][cursorY].ice_block) continue;
 											
-											if(!free_play && LEVEL==8 && EPISODE!=4 && boss9_cutscene==0)
+											if(!free_play && test_zero)
 											{
 												if((LEVEL==8 && EPISODE!=4) || (LEVEL==0 && EPISODE==7))
 												{
+													if(boss9_cutscene!=0) continue;
 													if(cursorX==GRID_W/2 && cursorY==GRID_H/2)
 													{
+														enable_9 = true;
 														boss9_cutscene = 1;
 														the_bg = 4;
 														desired_bgm = 10;
 														PlayBGM(10, 1);
+														test_zero = false;
 														if(!seen_nine || (global_route==1 && !seen_fnine)) show_warning = true;
 													}
 												}
-											}
-											else if(!free_play && ((LEVEL==9 && EPISODE!=4) || (LEVEL==2 && EPISODE==4)) && boss10_cutscene==0)
-											{
-												if((LEVEL==9 && EPISODE!=4) || (LEVEL==2 && EPISODE==4) || (LEVEL==1 && EPISODE==7))
+												else if((LEVEL==9 && EPISODE!=4) || (LEVEL==2 && EPISODE==4) || (LEVEL==1 && EPISODE==7))
 												{
+													if(boss10_cutscene!=0) continue;
 													if(cursorX==GRID_W/2 && cursorY==GRID_H/2)
 													{
+														enable_10 = true;
 														boss10_cutscene = 1;
 														the_bg = 9;
 														desired_bgm = 12;
 														PlayBGM(12, 1);
+														test_zero = false;
 														if(!seen_ten || (global_route==1 && !seen_nten)) show_warning = true;
 													}
 												}
-											}
-											else if(!free_play && boss11_cutscene==0)
-											{
-												if((LEVEL==10 && EPISODE!=4) || (LEVEL==3 && EPISODE==5) || (LEVEL==2 && EPISODE==7))
+												else if((LEVEL==10 && EPISODE!=4) || (LEVEL==3 && EPISODE==5) || (LEVEL==2 && EPISODE==7))
 												{
+													if(boss11_cutscene!=0) continue;
 													if(cursorX==GRID_W/2 && cursorY==GRID_H/2)
 													{
+														enable_11 = true;
 														boss11_cutscene = 1;
 														the_bg = 14;
 														desired_bgm = 15;
 														PlayBGM(15, 1);
+														test_zero = false;
 														if(!seen_eleven || (global_route==1 && !seen_meleven)) show_warning = true;
 													}
 												}
-											}
-											else if(!free_play && boss12_cutscene==0)
-											{
-												if((LEVEL==3 && (EPISODE==4 || EPISODE==7))
+												else if((LEVEL==3 && (EPISODE==4 || EPISODE==7)))
 												{
+													if(boss12_cutscene!=0) continue;
 													if(cursorX==GRID_W/2 && cursorY==GRID_H/2)
 													{
+														enable_12 = true;
 														boss12_cutscene = 1;
 														desired_bgm = 19;
 														PlayBGM(19, 1);
+														test_zero = false;
 														if(!seen_twelve || (global_route==1 && !seen_ktwelve)) show_warning = true;
 													}
 												}
+												else test_zero = false;
+												
+												continue;
 											}
-											else
+											else if(free_play)
+											{
+												test_zero = false;
+												continue;
+											}
+											
+											if(!test_zero)
 											{
 												if(FIRST_CLICK) timer_running = 1;
 												
@@ -1574,7 +1580,7 @@ int main(int argc, const char* argv[])
 												
 												int bonked = 0;
 												
-												if(boss11_started)
+												if(enable_11 && boss11_started)
 												{
 													int i;
 													for (i = 0; i < boss11_count; i++)
@@ -1716,7 +1722,7 @@ int main(int argc, const char* argv[])
 										}
 										if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE)
 										{
-											printf("Circle Received\n");
+											DebugLog("Circle Received");
 											if((LEVEL==10 && !boss11_started) || (free_play && boss11_cutscene && !boss11_started)) continue;
 											
 											if(!board[cursorX][cursorY].revealed)
@@ -1992,6 +1998,62 @@ int main(int argc, const char* argv[])
 								}
 								else end_time = 1;
 							}
+						}
+						case ROUTE_SELECT:
+						{
+							int old_route = global_route;
+							
+							if(paddata.BTN_CROSS && !oldpad.BTN_CROSS)
+							{
+								switch(route_selector)
+								{
+									case 1:
+									{
+										if(route_touhou_unlocked) global_route = 1;
+										else
+										{
+											msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
+												"To unlock the Touhou route, You must complete the Episode 1 with no mistakes in Novice and higher difficulty.", EmptyDialogCallback, NULL, NULL);
+										}
+										break;
+									}
+									case 2:
+									{
+										msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
+											"GameBoy Route is in development. Please wait...", EmptyDialogCallback, NULL, NULL);
+										break;
+									}
+									case 3:
+									{
+										msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
+											"Weird Route is in development. Please wait...", EmptyDialogCallback, NULL, NULL);
+										break;
+									}
+									case 4:
+									{
+										msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
+											"UNKNOWN Route is in development. Please wait...", EmptyDialogCallback, NULL, NULL);
+										break;
+									}
+									default: global_route = route_selector; break;
+								}
+								if(old_route!=global_route) ReplaceBGM(fp_music);
+							}
+							
+							if(control_left && !old_control_left)
+							{
+								route_selector--;
+								if(route_selector<0) route_selector = 0;
+							}
+							if(control_right && !old_control_right)
+							{
+								route_selector++;
+								if(route_selector>4) route_selector = 4;
+							}
+							
+							if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE) currentScreen = MENU;
+							
+							break;
 						}
 						default: break;
 					}

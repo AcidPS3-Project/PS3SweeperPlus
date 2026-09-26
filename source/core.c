@@ -146,25 +146,25 @@ void DeactivateBosses()
 	if(boss9_started)
 	{		
 		boss9_started = 0;
-		if(gamewin) PlayBGM(109,0);
+		if(gamewin && desired_bgm == 9) PlayBGM(109,0);
 		Deactivate9();
 	}
 	if(boss10_started)
 	{
 		boss10_started = 0;
-		if(gamewin) PlayBGM(110,0);
+		if(gamewin && desired_bgm == 10) PlayBGM(110,0);
 		Deactivate10();
 	}
 	if(boss11_started)
 	{
 		boss11_started = 0;
-		if(gamewin) PlayBGM(111,0);
+		if(gamewin && desired_bgm == 11) PlayBGM(111,0);
 		Deactivate11();
 	}
 	if(boss12_started)
 	{
 		boss12_started = 0;
-		if(gamewin) PlayBGM(112,0);
+		if(gamewin && desired_bgm == 12) PlayBGM(112,0);
 		Deactivate12();
 	}
 	if(bossnan_started)

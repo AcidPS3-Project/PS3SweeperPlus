@@ -41,6 +41,8 @@ extern int FIRST_CLICK;
 
 extern int i_10;
 
+extern int route_selector;
+
 extern bool seen_nine;
 extern bool seen_fnine;
 extern bool seen_ten;

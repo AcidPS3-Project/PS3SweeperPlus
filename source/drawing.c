@@ -1829,6 +1829,37 @@ void drawScene()
 				}
 				break;
 			}
+			case ROUTE_SELECT:
+			{
+				SetTexture(1);
+				int x0, y0 = 0;
+				int zp = fp_back/5;
+				int mp = fp_back%5;
+				animc = (count_frames / 9) % 8;
+				
+				int tile_bg = (4*zp)+(mp * 20);
+				
+				for(x0 = -40; x0 < (screen_w * 2) + 99; x0 += 32)
+				{
+					for(y0 = -22; y0 < (screen_h * 2) + 99; y0 += 32)
+					{
+						DrawSprite2D(tile_bg+anim+2, x0, y0, 32, 32, 16, 16, 320, 320, 5, 0xffffffff);
+					}
+				}
+				
+				char *txt;
+				
+				SetFontSize(28, 32);
+				if(route_selector==0) txt = "Main Route";
+				else if(route_selector==1) txt = "Touhou Route";
+				else if(route_selector==2) txt = "GameBoy Route";
+				else if(route_selector==3) txt = "Weird Route";
+				else txt = "UNKNOWN Route";
+				
+				DrawTextAligned(0, -40, 876, 12, 1, 0xff0000ff, 1, 28, 32, txt);
+				
+				break;
+			}
 			default: break;
 		}
 	}

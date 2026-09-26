@@ -18,6 +18,8 @@ float ship_y = -22.0f;
 int ship_r = 0;
 bool ship_a = false;
 
+int route_selector = 0;
+
 bool show_shit = false;
 int global_route = 0;
 

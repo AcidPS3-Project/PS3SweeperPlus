@@ -155,7 +155,7 @@ int PS3Video_Init(PS3Video *video, u32 width, u32 height)
 	u32 map_size;
 	int i;
 
-	video->framebuffer_size = width * height * 4;
+	video->framebuffer_size = width * height * 8;
 
 	map_size = (video->framebuffer_size + 0xFFFFF) & ~0xFFFFF;
 
