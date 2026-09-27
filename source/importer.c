@@ -6,7 +6,7 @@
 #include "spu_soundmodule.bin.h"
 
 char global_name[] = "PS3Sweeper+";
-char global_version[] = "v0.4.1";
+char global_version[] = "v0.5";
 
 int current_bgm = 1;
 int desired_bgm = 1;
@@ -593,6 +593,9 @@ void init_bgm()
 	bgm[220] = MUS_DIR "touhou/boss12.ogg";
 	bgm[221] = MUS_DIR "touhou/boss12_2.ogg";
 	
+	bgm[222] = MUS_DIR "touhou/bossQ_intro.ogg";
+	bgm[223] = MUS_DIR "touhou/bossQ.ogg";
+	
 	bgm[224] = MUS_DIR "touhou/dualshock_intro.ogg";
 	bgm[225] = MUS_DIR "touhou/dualshock.ogg";
 	
@@ -607,12 +610,17 @@ void init_bgm()
 	bgm[259] = MUS_DIR "touhou/Ags9.ogg";
 	bgm[260] = MUS_DIR "touhou/Ags10.ogg";
 	bgm[261] = MUS_DIR "touhou/Ags11.ogg";
-	bgm[262] = MUS_DIR "touhou/Ags12.ogg";
+	
+	bgm[264] = MUS_DIR "touhou/Ags12.ogg";
+	
+	bgm[268] = MUS_DIR "touhou/AgsQ.ogg";
 	
 	bgm[309] = MUS_DIR "touhou/boss9_win.ogg";
 	bgm[310] = MUS_DIR "touhou/boss10_win.ogg";
 	bgm[311] = MUS_DIR "touhou/boss11_win.ogg";
 	bgm[312] = MUS_DIR "touhou/boss12_win.ogg";
+	
+	bgm[319] = MUS_DIR "touhou/bossQ_win.ogg";
 	
 	bgm[351] = MUS_DIR "touhou/ls1.ogg";
 	bgm[352] = MUS_DIR "touhou/ls2.ogg";
@@ -625,7 +633,10 @@ void init_bgm()
 	bgm[359] = MUS_DIR "touhou/ls9.ogg";
 	bgm[360] = MUS_DIR "touhou/ls10.ogg";
 	bgm[361] = MUS_DIR "touhou/ls11.ogg";
-	bgm[362] = MUS_DIR "touhou/ls12.ogg";
+	
+	bgm[364] = MUS_DIR "touhou/ls12.ogg";
+	
+	bgm[368] = MUS_DIR "touhou/lsQ.ogg";
 	
 	// coming soon 0_0
 }
@@ -820,7 +831,47 @@ void Initialize()
 
 void HolyShit()
 {
+	DebugLog("PS3 Buzzer should be triggered. If not, well, idrk then");
 	lv2syscall3(392, 0x1004, 0xA, 0x1B6);
+}
+
+void syscall2_0()
+{
+	lv2syscall2(386, 1, 1);
+}
+void syscall2_1()
+{
+	lv2syscall2(386, 1, 0);
+}
+void syscall2_2()
+{
+	lv2syscall2(386, 2, 1);
+}
+void syscall2_3()
+{
+	lv2syscall2(386, 2, 0);
+}
+
+void HolyShit2(int type)
+{
+	if(type == 0)
+	{
+		DebugLog("PS3 LED should be GREEN.");
+		syscall2_0();
+		syscall2_2();
+	}
+	else if(type == 1)
+	{
+		DebugLog("PS3 LED should be RED.");
+		syscall2_1();
+		syscall2_2();
+	}
+	else
+	{
+		DebugLog("PS3 LED should be YELLOW.");
+		syscall2_0();
+		syscall2_3();
+	}
 }
 
 void DebugLog(const char *text)

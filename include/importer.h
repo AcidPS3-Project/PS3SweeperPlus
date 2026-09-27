@@ -205,7 +205,10 @@ bool FindMusic(const char *base, char *out_path);
 void DemoCompleteCallback(msgButton button, void *usrData);
 void EmptyDialogCallback(msgButton button, void *usrData);
 void Initialize();
+
 void HolyShit();
+void HolyShit2(int type);
+
 void creditsInit();
 
 void SetupTimeSettings();

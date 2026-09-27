@@ -468,6 +468,8 @@ int main(int argc, const char* argv[])
 								PS3Video_Stop(&the_video);
 								currentScreen = TITLE;
 								start_music = 1;
+								
+								HolyShit2(0);
 							}
 							break;
 						}
@@ -772,9 +774,7 @@ int main(int argc, const char* argv[])
 												case 1: enable_10 = !enable_10; break;
 												case 2: enable_11 = !enable_11; break;
 												case 3: enable_12 = !enable_12; break;
-												case 4: msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
-													"Work in progress, please wait!", EmptyDialogCallback, NULL, NULL); break;
-												//case 4: enable_nan = !enable_nan; break;
+												case 4: enable_nan = !enable_nan; break;
 											}
 										}
 										if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE) boss_options = false;
@@ -848,7 +848,7 @@ int main(int argc, const char* argv[])
 											if (fp_menu>7) fp_menu = 7;
 										}
 										
-										int max_mus = 14; //18
+										int max_mus = 18;
 										
 										if(control_left && !old_control_left)
 										{
@@ -2258,6 +2258,8 @@ int main(int argc, const char* argv[])
 						splash = splashes_random[RandRange(0, SplashesCount())];
 						
 						DebugLog("LOGOSHOW");
+						
+						HolyShit2(2);
 						
 						PS3Video_OpenFile(&the_video, "/dev_hdd0/game/MINESWEEP/USRDIR/data/test.264");
 						PS3Video_Start(&the_video);
