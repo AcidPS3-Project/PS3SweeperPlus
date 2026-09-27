@@ -28,15 +28,15 @@
 		279
 	</value>
 	<value name="TITLE" type="string">
-		PS3Sweeper+ (Dev-Build)
+		PS3Sweeper+
 	</value>
 	<value name="TITLE_ID" type="string">
 		MINESWEEP
 	</value>
 	<value name="TITLE_08" type="string">
-		Сапер Плюс для PS3 (БЕТА)
+		Сапер Плюс для PS3
 	</value>
 	<value name="VERSION" type="string">
-		00.40
+		00.41
 	</value>
 </sfo>

@@ -6,7 +6,7 @@
 #include "spu_soundmodule.bin.h"
 
 char global_name[] = "PS3Sweeper+";
-char global_version[] = "v0.4";
+char global_version[] = "v0.4.1";
 
 int current_bgm = 1;
 int desired_bgm = 1;
@@ -219,9 +219,9 @@ void SplashesInit()
 	splashes_random[splash_count++] = "Also play yawn's minesweeper";
 	splashes_random[splash_count++] = "Also play Minesweeper Plus Plus";
 	splashes_random[splash_count++] = "Also play Minesweeper Minus";
-	splashes_random[splash_count++] = "Also play Minesweeper Plus: Second Destination (if it comes out)";
+	splashes_random[splash_count++] = "Also play Minesweeper Plus: Second Destination";
 	splashes_random[splash_count++] = "Also play Minesweeper Plus: Alien Captain Edition";
-	splashes_random[splash_count++] = "Also play Minesweeper Times- oh wait. its canceled :(";
+	splashes_random[splash_count++] = "Also play Minesweeper Times (if it comes out, hopefully)";
 	splashes_random[splash_count++] = "Also play LandMinesweeper Plus";
 	splashes_random[splash_count++] = "Also play Minesweeper Plus: Hard Mode";
 	splashes_random[splash_count++] = "Also play Minesweeper Chronicles (if it gets hopefully finished)";
@@ -240,7 +240,7 @@ void SplashesInit()
 	splashes_random[splash_count++] = "Better, than Minesweeper Plus: PS3 Edition";
 	splashes_random[splash_count++] = "AI-Assisted code, because I suck at C.";
 	splashes_random[splash_count++] = "Optimizing is at it's peakest.";
-	splashes_random[splash_count++] = "Baldi for PS3 re-write coming? Wait..";
+	splashes_random[splash_count++] = "uh guys i dont kinda wanna to continue baldi rewrite thingy";
 	splashes_random[splash_count++] = "CELL Programming";
 	splashes_random[splash_count++] = "Yellow light of Death";
 	splashes_random[splash_count++] = "Reality Synthesizer can fail?";
@@ -248,15 +248,14 @@ void SplashesInit()
 	splashes_random[splash_count++] = "I really suck at PS3 games coding.";
 	splashes_random[splash_count++] = "Definitely does NOT work with aPS3e!";
 	splashes_random[splash_count++] = "May work with RPCS3, but freezes rarely happen. Be careful!";
-	splashes_random[splash_count++] = "Watch no one play this";
 	splashes_random[splash_count++] = "The definition of Insanity.";
 	splashes_random[splash_count++] = "up up down down left right left right circle cross start.\n     oh wait, it doesnt work";
 	splashes_random[splash_count++] = "why do i stay all night for this";
-	splashes_random[splash_count++] = "I wanna try making MS+ for PS1 sometime soon. Wait a second...";
+	splashes_random[splash_count++] = "I tried making MS+ for PS1 one time. It is pretty ok..";
 	splashes_random[splash_count++] = "What R2 do? BEEP BEEP BEEP";
 	splashes_random[splash_count++] = "48x36 boards DO NOT GIVE YOU FRAMEDROPS!!!!!!!";
 	splashes_random[splash_count++] = "Now with Full Episode 2!";
-	splashes_random[splash_count++] = "12 is coming...?";
+	splashes_random[splash_count++] = "Now with Full Episode 3..?";
 	splashes_random[splash_count++] = "Minesweeper Plus on Java phones? Heh. Don't make me laugh.";
 	splashes_random[splash_count++] = "DoodleBob plays his game on PS3. Neat.";
 	splashes_random[splash_count++] = "The great fraction of time definition is... i forgor";
@@ -283,15 +282,15 @@ void SplashesInit()
 	//splashes_random[splash_count++] = "Hi, Xbox Original :)";
 	//splashes_random[splash_count++] = "I wonder what I can do for Mac OS 9 tho...";
 	splashes_random[splash_count++] = "Cutscenes?";
-	splashes_random[splash_count++] = "v0.4 is here. Prepare thyself!!!";
 	splashes_random[splash_count++] = "BUGS. I HATE BUGS!!!!";
 	splashes_random[splash_count++] = "Hate Lesbian Space Princess. Love PS3Sweeper+.";
 	splashes_random[splash_count++] = "Ay, mate! Don't get snowgraved, heh!";
 	splashes_random[splash_count++] = "Frozen Nine is not related to Deltarune.";
+	splashes_random[splash_count++] = "Frozen Nine is related to Touhou Project instead.";
 	splashes_random[splash_count++] = "He's gonna take you back to the past.";
 	splashes_random[splash_count++] = "Does not contain too much if else stuff!";
+	splashes_random[splash_count++] = "He he, GTA VI coming soon";
 	splashes_random[splash_count++] = "One of the First PS3 games that support Kazakh Language!";
-	splashes_random[splash_count++] = "Watch no one play this x2.";
 	splashes_random[splash_count++] = "NaN is coming...";
 	splashes_random[splash_count++] = "TRUST THE PROCESS!";
 	splashes_random[splash_count++] = "We need more language support!";
@@ -304,7 +303,7 @@ void SplashesInit()
 	splashes_random[splash_count++] = "You clearly don't own a Koishi Fumo.";
 	splashes_random[splash_count++] = "OOOOEEEEOOOO I LOOK JUST LIKE BUDDY HOLLY";
 	splashes_random[splash_count++] = "So many souls to play with, so little time...";
-	splashes_random[splash_count++] = "imagine this you are minesweeping as a ristar";
+	splashes_random[splash_count++] = "Imagine this: you are minesweeping as Ristar";
 	splashes_random[splash_count++] = "GRAND DAD????";
 	splashes_random[splash_count++] = "Real name is MS+: PS3 Edition Re-built (MS+PS3ERB)";
 	splashes_random[splash_count++] = "Now with boss combos!";
@@ -318,8 +317,12 @@ void SplashesInit()
 	splashes_random[splash_count++] = "Almost half-way through!";
 	splashes_random[splash_count++] = "Things can go in weird way. Note that!";
 	splashes_random[splash_count++] = "I do not like when my used content is not credited.";
+	splashes_random[splash_count++] = "Holy cow, Second destination is out!";
+	splashes_random[splash_count++] = "Why Hard mode references me so much lol";
+	splashes_random[splash_count++] = "AJMonster618, please send me MSx v0.1 via email :)";
+	splashes_random[splash_count++] = "Original game by Jorel Simpson, PS3 ver made by AcidNT3.1";
 	
-	FILE *za = fopen("/dev_hdd0/game/ACIDSTORE/ICON0.PNG", "rb");
+	FILE *za = fopen("/dev_hdd0/game/ACIDSTORE/USRDIR/EBOOT.BIN", "rb");
 	if(za!=NULL)
 	{
 		splashes_random[splash_count++] = "Thanks for installing AcidPS3 Store! :D";
@@ -359,7 +362,6 @@ void SplashesInit()
 		DebugLog("Bad Apple!! DLC Init fail.");
 	}
 	
-	splashes_random[splash_count++] = "Unused splash? Please report!";
 	splashes_random[splash_count] = "Somebody once told me the world is gonna roll me.";
 };
 
@@ -445,7 +447,12 @@ void init_bgm()
 	bgm[23] = MUS_DIR "bossnan.ogg";
 	
 	bgm[24] = MUS_DIR "dualshock_intro.ogg";
+	bgm_start[24] = 36570;
+	bgm_end[24] = 54830;
+	
 	bgm[25] = MUS_DIR "dualshock.ogg";
+	bgm_start[25] = 16805;
+	bgm_end[25] = 202580;
 	
 	bgm[51] = MUS_DIR "Ags1.mp3";
 	bgm[52] = MUS_DIR "Ags2.mp3";
@@ -465,7 +472,7 @@ void init_bgm()
 	bgm[63] = MUS_DIR "Agss3m.ogg";
 	bgm[64] = MUS_DIR "Ags12.ogg";
 	
-	bgm[65] = MUS_DIR "AgsNaN.ogg";
+	bgm[68] = MUS_DIR "AgsNaN.ogg";
 	
 	// 99 - custom music
 	// 100 - bad apple!!
@@ -507,7 +514,7 @@ void init_bgm()
 	bgm[163] = MUS_DIR "lss3m.ogg";
 	bgm[164] = MUS_DIR "ls12.ogg";
 	
-	bgm[165] = MUS_DIR "lsNaN.ogg";
+	bgm[168] = MUS_DIR "lsNaN.ogg";
 	
 	bgm[189] = MUS_DIR "bugged_ending.ogg";
 	bgm[190] = MUS_DIR "wind.ogg";

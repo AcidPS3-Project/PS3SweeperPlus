@@ -96,6 +96,7 @@ void ResetGrid()
 	boss10_cutscene = 0;
 	boss11_cutscene = 0;
 	boss12_cutscene = 0;
+	bossnan_cutscene = 0;
 	
 	if(!free_play)
 	{
@@ -208,6 +209,7 @@ void ResetGrid()
 		else if(desired_bgm == 10) desired_bgm = 12;
 		else if(desired_bgm == 11) desired_bgm = 15;
 		else if(desired_bgm == 14) desired_bgm = 19;
+		else if(desired_bgm == 18) desired_bgm = 22;
 	}
 	
 	int j;
@@ -770,13 +772,9 @@ int main(int argc, const char* argv[])
 												case 1: enable_10 = !enable_10; break;
 												case 2: enable_11 = !enable_11; break;
 												case 3: enable_12 = !enable_12; break;
-												case 4:
-												{
-													// enable_nan = !enable_nan;
-													msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
-														"Work in progress. Please wait!!", EmptyDialogCallback, NULL, NULL);
-													break;
-												}
+												case 4: msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
+													"Work in progress, please wait!", EmptyDialogCallback, NULL, NULL); break;
+												//case 4: enable_nan = !enable_nan; break;
 											}
 										}
 										if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE) boss_options = false;
@@ -850,7 +848,7 @@ int main(int argc, const char* argv[])
 											if (fp_menu>7) fp_menu = 7;
 										}
 										
-										int max_mus = 14;
+										int max_mus = 14; //18
 										
 										if(control_left && !old_control_left)
 										{
@@ -1463,7 +1461,8 @@ int main(int argc, const char* argv[])
 											if(!board[cursorX][cursorY].active) continue;
 											if(board[cursorX][cursorY].ice_block) continue;
 											
-											if(!free_play && test_zero)
+											bool enable_bosses = enable_9 || enable_10 || enable_11 || enable_12;
+											if(!free_play && test_zero && enable_bosses)
 											{
 												if((LEVEL==8 && EPISODE!=4) || (LEVEL==0 && EPISODE==7))
 												{
@@ -1520,15 +1519,30 @@ int main(int argc, const char* argv[])
 														if(!seen_twelve || (global_route==1 && !seen_ktwelve)) show_warning = true;
 													}
 												}
+												else if((LEVEL==4 && (EPISODE==5 || EPISODE==7)))
+												{
+													if(bossnan_cutscene!=0) continue;
+													if(cursorX==GRID_W/2 && cursorY==GRID_H/2)
+													{
+														enable_nan = true;
+														bossnan_cutscene = 1;
+														desired_bgm = 22;
+														PlayBGM(22, 1);
+														test_zero = false;
+														//if(!seen_nan || (global_route==1 && !seen_ktwelve)) show_warning = true;
+														if(!seen_nan) show_warning = true;
+													}
+												}
 												else test_zero = false;
 												
 												continue;
 											}
-											else if(free_play)
+											else if(free_play && test_zero && enable_bosses)
 											{
 												test_zero = false;
 												continue;
 											}
+											else if(!enable_bosses) test_zero = false;
 											
 											if(!test_zero)
 											{
@@ -1655,6 +1669,16 @@ int main(int argc, const char* argv[])
 													boss12_started = 1;
 													boss12.active = true;
 												}
+												if(enable_nan && !bossnan_started)
+												{
+													bossnan_started = 1;
+													
+													int i;
+													for (i = 0; i < bossnan_count; i++)
+													{
+														bossnan_list[i].active = true;
+													}
+												}
 												
 												if(!bonked && !nine_mines_intro)
 												{
@@ -1684,6 +1708,11 @@ int main(int argc, const char* argv[])
 														PlayBGM(20, 1);
 														desired_bgm = 12;
 													}
+													else if(desired_bgm == 22)
+													{
+														PlayBGM(23, 1);
+														desired_bgm = 19;
+													}
 												}
 												else if(!free_play && FIRST_CLICK && LEVEL != 66)
 												{
@@ -1706,6 +1735,11 @@ int main(int argc, const char* argv[])
 													{
 														PlayBGM(20, 1);
 														desired_bgm = 12;
+													}
+													else if(enable_nan)
+													{
+														PlayBGM(23, 1);
+														desired_bgm = 19;
 													}
 												}
 												

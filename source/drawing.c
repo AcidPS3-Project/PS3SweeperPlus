@@ -1435,7 +1435,7 @@ void drawScene()
 				
 				if(global_route==1) SetTexture(4); else SetTexture(3);
 				
-				if(boss9_count>0 && boss9_cutscene)
+				if(boss9_count>0 && boss9_cutscene && enable_9)
 				{
 					int i;
 
@@ -1450,7 +1450,7 @@ void drawScene()
 					}
 				}
 			
-				if(boss10_count>0 && boss10_cutscene)
+				if(boss10_count>0 && boss10_cutscene && enable_10)
 				{
 					int jl = 0;
 					int num = 0;
@@ -1498,7 +1498,7 @@ void drawScene()
 				
 				if(global_route==1) SetTexture(4); else SetTexture(3);
 				
-				if(boss11_count>0 && boss11_cutscene)
+				if(boss11_count>0 && boss11_cutscene && enable_11)
 				{
 					int i;
 
@@ -1516,7 +1516,7 @@ void drawScene()
 					}
 				}
 				
-				if(boss12_count>0 && boss12_cutscene)
+				if(boss12_count>0 && boss12_cutscene && enable_12)
 				{
 					float TMP_SIZ = 3.0f * RENDERING_PIXELS;
 					
@@ -1526,6 +1526,18 @@ void drawScene()
 						384, 384, 1536, 1536, -boss12.rotation, -3, color);
 					DrawSprite2D(7, boss12.x - TMP_SIZ, boss12.y - TMP_SIZ, TMP_SIZ*3, TMP_SIZ*3,
 						384, 384, 1536, 1536, -3, color);
+				}
+				
+				if(bossnan_count>0 && bossnan_cutscene && enable_nan)
+				{
+					int i;
+
+					for (i = 0; i < bossnan_count; i++)
+					{
+						//if(bossnan_count>0 && i>0) SetTexture(5);
+						DrawSprite2D(6, offset_x+(bossnan_list[i].x*RENDER_SIZE)-RENDER_SIZE, offset_y+(bossnan_list[i].y*RENDER_SIZE)-RENDER_SIZE,
+							RENDER_SIZE*3, RENDER_SIZE*3, 384, 384, 1536, 1536, -1, color);
+					}
 				}
 				
 				SetFontSize(28, 32);
