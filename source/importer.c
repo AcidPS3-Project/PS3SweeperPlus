@@ -275,7 +275,7 @@ void SplashesInit()
 	splashes_random[splash_count++] = "Share with your friends! The more, the merrier!";
 	splashes_random[splash_count++] = "WELCOME TO THE AMAZING DIGITAL CREATION OF HATRED wait wha-";
 	splashes_random[splash_count++] = "BRING BACK FLANDREKIDD";
-	splashes_random[splash_count++] = "JACK BEATED THE OG GAME WITH EVERY M RANK";
+	splashes_random[splash_count++] = "JACK BEATED THE OG 3 EPISODES WITH EVERY M RANK";
 	splashes_random[splash_count++] = "I dare anyone complete Expert 10 without dying";
 	splashes_random[splash_count++] = "Sweepers gonna sweep";
 	splashes_random[splash_count++] = "Don't forget to feed me with a spoon!";
@@ -321,6 +321,7 @@ void SplashesInit()
 	splashes_random[splash_count++] = "Why Hard mode references me so much lol";
 	splashes_random[splash_count++] = "AJMonster618, please send me MSx v0.1 via email :)";
 	splashes_random[splash_count++] = "Original game by Jorel Simpson, PS3 ver made by AcidNT3.1";
+	splashes_random[splash_count++] = "GENERAL SWEEPY BEATED THE OG 3 EPISODES WITH EVERY M RANK\n      ON MOBILE!!";
 	
 	FILE *za = fopen("/dev_hdd0/game/ACIDSTORE/USRDIR/EBOOT.BIN", "rb");
 	if(za!=NULL)
@@ -444,15 +445,18 @@ void init_bgm()
 	bgm[21] = MUS_DIR "boss12_2.ogg";
 	
 	bgm[22] = MUS_DIR "bossnan_intro.ogg";
+	bgm_start[22] = 36566;
+	bgm_end[22] = 54835;
+	
 	bgm[23] = MUS_DIR "bossnan.ogg";
+	bgm_start[23] = 16805;
+	bgm_end[23] = 202583;
 	
 	bgm[24] = MUS_DIR "dualshock_intro.ogg";
 	bgm_start[24] = 36570;
 	bgm_end[24] = 54830;
 	
 	bgm[25] = MUS_DIR "dualshock.ogg";
-	bgm_start[25] = 16805;
-	bgm_end[25] = 202580;
 	
 	bgm[51] = MUS_DIR "Ags1.mp3";
 	bgm[52] = MUS_DIR "Ags2.mp3";
@@ -595,6 +599,8 @@ void init_bgm()
 	
 	bgm[222] = MUS_DIR "touhou/bossQ_intro.ogg";
 	bgm[223] = MUS_DIR "touhou/bossQ.ogg";
+	bgm_start[223] = 15219;
+	bgm_end[223] = 143201;
 	
 	bgm[224] = MUS_DIR "touhou/dualshock_intro.ogg";
 	bgm[225] = MUS_DIR "touhou/dualshock.ogg";

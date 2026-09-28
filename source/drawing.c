@@ -1535,8 +1535,9 @@ void drawScene()
 					for (i = 0; i < bossnan_count; i++)
 					{
 						//if(bossnan_count>0 && i>0) SetTexture(5);
-						DrawSprite2D(6, offset_x+(bossnan_list[i].x*RENDER_SIZE)-RENDER_SIZE, offset_y+(bossnan_list[i].y*RENDER_SIZE)-RENDER_SIZE,
-							RENDER_SIZE*3, RENDER_SIZE*3, 384, 384, 1536, 1536, -1, color);
+						DrawSprite2D(6, offset_x+(bossnan_list[i].x*RENDER_SIZE)-(RENDER_SIZE*2),
+							offset_y+(bossnan_list[i].y*RENDER_SIZE)-(RENDER_SIZE*2), RENDER_SIZE*4, RENDER_SIZE*4,
+							384, 384, 1536, 1536, -1, color);
 					}
 				}
 				
