@@ -28,6 +28,8 @@
 
 #include "shopbg_bin.h"
 
+#include "logo_bin.h"
+
 //IMPORT SFX
 #include "flag_bin.h"
 #include "unflag_bin.h"

@@ -22,7 +22,6 @@ Here is something you should know:
 #include "level_data.h"
 #include "save.h"
 #include "drawing.h"
-#include "video.h"
 #include "lang.h"
 
 bool play_map_bgm = false;
@@ -377,7 +376,7 @@ int main(int argc, const char* argv[])
 	padData paddata;
 	
 	srand(time(NULL));
-	tiny3d_Init(6*1024*1024);
+	tiny3d_Init(8*1024*1024);
 	tiny3d_UserViewport(1, 0, 0, (float)(Video_Resolution.width / 916.0f), (float)(Video_Resolution.height / 582.0f),
 		(float)(Video_Resolution.width / 1920.0f), (float)(Video_Resolution.height / 1080.0f));
 	
@@ -409,8 +408,6 @@ int main(int argc, const char* argv[])
 	
 	StartLoad();
 
-	PS3Video_Init(&the_video, 1280, 720);
-	
     while(1)
     {
 		sysUtilCheckCallback();
@@ -450,24 +447,15 @@ int main(int argc, const char* argv[])
 					{
 						case LOGO:
 						{
-							static float video_frame = 0.0f;
-							PS3Video_Update(&the_video);
+							static int video_frame = 0;
 							
-							if(vdec_picout_pending>0)
-							{
-								vdec_picout_pending--;
-								PS3Video_GetFrame(&the_video);
-								// int ret = PS3Video_GetFrame(&the_video);
-								// printf("[VDEC] GetFrame ret=%d pending=%d\n", ret, vdec_picout_pending);
-							}
-							video_frame+=0.5f;
+							video_frame++;
 							
-							if(video_frame<150) PS3Video_Draw(&the_video, 0);
-							else
+							if(video_frame>300)
 							{
-								PS3Video_Stop(&the_video);
 								currentScreen = TITLE;
 								start_music = 1;
+								video_frame = 0;
 								
 								HolyShit2(0);
 							}
@@ -2256,14 +2244,8 @@ int main(int argc, const char* argv[])
 					if(paddata.BTN_CROSS && !oldpad.BTN_CROSS)
 					{
 						splash = splashes_random[RandRange(0, SplashesCount())];
-						
 						DebugLog("LOGOSHOW");
-						
 						HolyShit2(2);
-						
-						PS3Video_OpenFile(&the_video, "/dev_hdd0/game/MINESWEEP/USRDIR/data/test.264");
-						PS3Video_Start(&the_video);
-						PlayBGM(198, 1);
 						game_loaded = 1;
 					}
 					oldpad = paddata;

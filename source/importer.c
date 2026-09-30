@@ -322,6 +322,7 @@ void SplashesInit()
 	splashes_random[splash_count++] = "AJMonster618, please send me MSx v0.1 via email :)";
 	splashes_random[splash_count++] = "Original game by Jorel Simpson, PS3 ver made by AcidNT3.1";
 	splashes_random[splash_count++] = "GENERAL SWEEPY BEATED THE OG 3 EPISODES WITH EVERY M RANK\n      ON MOBILE!!";
+	splashes_random[splash_count++] = "im having an emotional breakdown again";
 	
 	FILE *za = fopen("/dev_hdd0/game/ACIDSTORE/USRDIR/EBOOT.BIN", "rb");
 	if(za!=NULL)
@@ -776,12 +777,12 @@ void Load_PNG()
 	pngLoadFromBuffer(shopbg_bin, shopbg_bin_size, &spritesheet[19]);
 	pngLoadFromBuffer(boss_render_bin, boss_render_bin_size, &spritesheet[20]);
 	pngLoadFromBuffer(tiles_sheet2_bin, tiles_sheet2_bin_size, &spritesheet[21]);
+	pngLoadFromBuffer(logo_bin, logo_bin_size, &spritesheet[22]);
 }
 
 void ReplaceBGM(int music)
 {
 	StopAudio();
-	usleep(3666);
 	PlayBGM(50+music, 1);
 }
 

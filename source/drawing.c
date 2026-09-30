@@ -970,7 +970,11 @@ void drawScene()
 		
 		switch(currentScreen)
 		{
-			case LOGO: break;
+			case LOGO:
+			{
+				
+				break;
+			}
 			case TITLE:
 			{
 				SetTexture(7);

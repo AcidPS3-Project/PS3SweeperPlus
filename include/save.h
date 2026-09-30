@@ -9,9 +9,6 @@ float level_time[MAXLVLTEST];
 
 typedef struct
 {
-	// my idiotic mistake i did earlier and such.
-	// whatever you do, please dont change the order!
-	// adding to it is fine as long as the order doesnt change :)
 	int save_level;
 	int save_global_minecoins;
 	int save_current_minecoins;
