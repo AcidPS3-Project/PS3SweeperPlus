@@ -1,5 +1,6 @@
 #include "importer.h"
 #include "assets.h"
+#include "achievements.h"
 #include "libraries.h"
 #include "soundlib/spu_soundlib.h"
 #include "soundlib/audioplayer.h"
@@ -120,6 +121,9 @@ int LIFES = 3;
 
 int the_bg = 0;
 
+bool show_ach = false;
+char* cur_ach_name = "Test Name";
+
 int game_loaded = 0;
 int free_play = 0;
 int draw_grid_outlines = 0;
@@ -154,6 +158,13 @@ bool specialthanks = false;
 bool boss_options = false;
 
 bool route_touhou_unlocked = false;
+
+void CollectAchievement(int ach)
+{
+	*AchDb[ach].achievement = true;
+	*cur_ach_name = *AchDb[ach].name;
+	show_ach = true;
+}
 
 float lerp(int x, int y, float amount)
 {
@@ -604,6 +615,9 @@ void init_bgm()
 	bgm_end[223] = 143201;
 	
 	bgm[224] = MUS_DIR "touhou/dualshock_intro.ogg";
+	bgm_start[224] = 36570;
+	bgm_end[224] = 54830;
+	
 	bgm[225] = MUS_DIR "touhou/dualshock.ogg";
 	
 	bgm[251] = MUS_DIR "touhou/Ags1.ogg";
@@ -821,7 +835,7 @@ void Initialize()
 	DebugLog("Game initialization...");
 	u32 spu;
 	sysSpuImage spu_image;
-	sysSpuInitialize(6, 5);
+	sysSpuInitialize(1, 5);
 	sysSpuRawCreate(&spu, NULL);
 	sysSpuImageImport(&spu_image, spu_soundmodule_bin, 0);
 	sysSpuRawImageLoad(spu, &spu_image);

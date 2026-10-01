@@ -1842,12 +1842,15 @@ int main(int argc, const char* argv[])
 								
 								global_minecoins += current_minecoins;
 								
-								if(EPISODEs==1) ep2_unlock = true;
-								else if(EPISODEs==2) ep3_unlock = true;
-								else if(EPISODEs==3) ep4_unlock = true;
-								else if(EPISODEs==4) ep5_unlock = true;
-								else if(EPISODEs==5) ep6_unlock = true;
-								else if(EPISODEs==6) ep7_unlock = true;
+								if(EPISODE==1) ep2_unlock = true;
+								else if(EPISODE==2) ep3_unlock = true;
+								else if(EPISODE==3) ep4_unlock = true;
+								else if(EPISODE==4) ep5_unlock = true;
+								else if(EPISODE==5) ep6_unlock = true;
+								else if(EPISODE==6) ep7_unlock = true;
+								
+								if(global_route==0) CollectAchievement(EPISODE-1);
+								else if(global_route==1) CollectAchievement(6+EPISODE);
 								
 								LEVEL=0;
 								StartSave();

@@ -972,7 +972,8 @@ void drawScene()
 		{
 			case LOGO:
 			{
-				
+				SetFontSize(28, 32);
+				DrawFString(0, 0, 0, 0xffffffff, 0, 32, "AcidNT3.1 Productions LOGO TEST");
 				break;
 			}
 			case TITLE:
@@ -1539,8 +1540,8 @@ void drawScene()
 					for (i = 0; i < bossnan_count; i++)
 					{
 						//if(bossnan_count>0 && i>0) SetTexture(5);
-						DrawSprite2D(6, offset_x+(bossnan_list[i].x*RENDER_SIZE)-(RENDER_SIZE*2),
-							offset_y+(bossnan_list[i].y*RENDER_SIZE)-(RENDER_SIZE*2), RENDER_SIZE*4, RENDER_SIZE*4,
+						DrawSprite2D(6, offset_x+(bossnan_list[i].x*RENDER_SIZE)-(RENDER_SIZE*1.5f),
+							offset_y+(bossnan_list[i].y*RENDER_SIZE)-(RENDER_SIZE*1.5f), RENDER_SIZE*4, RENDER_SIZE*4,
 							384, 384, 1536, 1536, -1, color);
 					}
 				}
@@ -1902,6 +1903,13 @@ void drawScene()
 	
 	DrawFade();
 	
+	if(show_ach)
+	{
+		SetFontSize(16, 18);
+		DrawRectangle2D(-30, -2, 420, 120, 0xaaaaaaff, -6);
+		DrawFString(0, -20, -2, 0xffffffff, 0, 28, cur_ach_name);
+	}
+	
 	if(currentScreen == GAME)
 	{
 		if(enable_10 && global_route==1) DrawBackground2D(0x00ff0000 | (int)(tnt_alpha), -7);
@@ -1922,7 +1930,7 @@ void LoadTexture()
 {
 	int g;
 	
-    u32 * texture_mem = tiny3d_AllocTexture(64*1024*1024);
+    u32 * texture_mem = tiny3d_AllocTexture(48*1024*1024);
     if(!texture_mem) return;
     texture_pointer = texture_mem;
 	

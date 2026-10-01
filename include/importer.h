@@ -141,6 +141,9 @@ extern int ranks_ep_4[8];
 extern bool route_touhou_unlocked;
 extern bool boss_options;
 
+extern bool show_ach;
+extern char* cur_ach_name;
+
 void SplashesInit();
 int SplashesCount();
 
@@ -210,6 +213,8 @@ void HolyShit();
 void HolyShit2(int type);
 
 void creditsInit();
+
+void CollectAchievement(int ach);
 
 void SetupTimeSettings();
 
