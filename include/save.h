@@ -67,6 +67,7 @@ typedef struct
 	bool ep7_unlock;
 
 	bool save_seen_ktwelve;
+	bool smaster_mode;
 } SaveData;
 
 extern SaveData gSave;

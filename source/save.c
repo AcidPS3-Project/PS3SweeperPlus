@@ -95,6 +95,7 @@ void SetSaveDefaults()
 	gSave.ep7_unlock = false;
 	
 	gSave.save_seen_ktwelve = false;
+	gSave.smaster_mode = false;
 }
 
 void savestate_init()
@@ -337,6 +338,7 @@ int StartSave(void)
 	gSave.ep7_unlock = ep7_unlock;
 	
 	gSave.save_seen_ktwelve = seen_ktwelve;
+	gSave.smaster_mode = master_mode;
 
 	char debug[256];
 
@@ -445,6 +447,7 @@ static void LoadThread(void *arg)
 	ep7_unlock = gSave.ep7_unlock;
 
 	seen_ktwelve = gSave.save_seen_ktwelve;
+	master_mode = gSave.smaster_mode;
 	
 	char debug[256];
 	sprintf(debug, "LOAD VALUES: level=%d current=%d global=%d route=%d episode=%d", gSave.save_level,

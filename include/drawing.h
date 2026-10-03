@@ -23,6 +23,19 @@ typedef struct
 
 #define MAX_PROJECTILES 64
 
+#define PAD_TRIANGLE 0
+#define PAD_CIRCLE 1
+#define PAD_CROSS 2
+#define PAD_SQUARE 3
+#define PAD_START 4
+#define PAD_SELECT 5
+#define PAD_L1 6
+#define PAD_R1 7
+#define PAD_L2 8
+#define PAD_R2 9
+#define PAD_L3 10
+#define PAD_R3 11
+
 Projectile projectiles[MAX_PROJECTILES];
 
 void UpdateProjectiles(float dt);

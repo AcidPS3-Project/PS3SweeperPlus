@@ -43,7 +43,8 @@ int start_credits = 0;
 
 bool play_bgmz = false;
 
-float ship_speed = 0.75f / 2;
+//float ship_speed = 0.75f / 2;
+float ship_speed = 0.75f;
 
 int LEVEL_BKP = 0;
 int ready_to_click = 0;
@@ -553,6 +554,8 @@ int main(int argc, const char* argv[])
 							
 							if(ready_to_click)
 							{
+								if(paddata.BTN_SELECT && !oldpad.BTN_SELECT) master_modeS = !master_modeS;
+								
 								if(!free_play)
 								{
 									if(challenge_select)
@@ -657,6 +660,11 @@ int main(int argc, const char* argv[])
 											DIFFICULTY = DIFFICULTYs;
 											EPISODE = EPISODEs;
 											LIFES = 3;
+											if(master_modeS)
+											{
+												master_mode = master_modeS;
+												LIFES = 1;
+											}
 											
 											current_minecoins = 0;
 											mistakes = 0;
@@ -1902,9 +1910,10 @@ int main(int argc, const char* argv[])
 									{
 										route_touhou_unlocked = true;
 										DebugLog("Touhou Route Unlocked!");
+										CollectAchievement(7);
 										StartSave();
-										msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
-											langStr[102], EmptyDialogCallback, NULL, NULL);
+										//msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
+										//	langStr[102], EmptyDialogCallback, NULL, NULL);
 									}
 
 									ready_to_click = 0;
@@ -2224,6 +2233,7 @@ int main(int argc, const char* argv[])
 				SpawnProjectile(offset_x+(cursorX*RENDER_SIZE), offset_y+(cursorY*RENDER_SIZE), 0, 0, 0, 1.0f);
 				if((fp_lifes < 1 && free_play) || (!free_play && LIFES < 1))
 				{
+					if(!free_play && DIFFICULTY==0 && LEVEL==0 && master_mode) CollectAchievement(15);
 					disable_control = 1;
 					gamelose = 1;
 					if(global_route==1 && enable_10) tnt_alpha = 240.0f;

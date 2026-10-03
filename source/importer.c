@@ -7,7 +7,7 @@
 #include "spu_soundmodule.bin.h"
 
 char global_name[] = "PS3Sweeper+";
-char global_version[] = "v0.5";
+char global_version[] = "v0.5 Dev-Build";
 
 int current_bgm = 1;
 int desired_bgm = 1;
@@ -122,7 +122,7 @@ int LIFES = 3;
 int the_bg = 0;
 
 bool show_ach = false;
-char* cur_ach_name = "Test Name";
+const char* cur_ach_name = "Test Name";
 
 int game_loaded = 0;
 int free_play = 0;
@@ -133,6 +133,9 @@ int disable_control = 0;
 int reveal_mode = 0;
 int start_music = 0;
 int game_init = 0;
+
+bool master_mode = false;
+bool master_modeS = false; // show off
 
 int splash_count = 0;
 bool shop_first = false;
@@ -161,9 +164,14 @@ bool route_touhou_unlocked = false;
 
 void CollectAchievement(int ach)
 {
-	*AchDb[ach].achievement = true;
-	*cur_ach_name = *AchDb[ach].name;
-	show_ach = true;
+	bool achieve = *AchDb[ach].achievement;
+	if(!achieve)
+	{
+		*AchDb[ach].achievement = true;
+		cur_ach_name = AchDb[ach].name;
+		show_ach = true;
+		PlaySFX(&sfx_trophy);
+	}
 }
 
 float lerp(int x, int y, float amount)
@@ -207,9 +215,10 @@ void creditsInit()
 	credits[18] = "Twelv";
 	credits[19] = "Affocoder";
 	credits[20] = "Jack Heredia";
-	credits[21] = "SilverClockBFDI";
+	credits[21] = "S1lverC1ock2763";
 	credits[22] = "1tsLek";
 	credits[23] = "Creeper7925";
+	credits[24] = "D_Fund3781";
 }
 
 void SplashesInit()
@@ -334,6 +343,7 @@ void SplashesInit()
 	splashes_random[splash_count++] = "Original game by Jorel Simpson, PS3 ver made by AcidNT3.1";
 	splashes_random[splash_count++] = "GENERAL SWEEPY BEATED THE OG 3 EPISODES WITH EVERY M RANK\n      ON MOBILE!!";
 	splashes_random[splash_count++] = "im having an emotional breakdown again";
+	splashes_random[splash_count++] = "Achievements? When trophies support? :T";
 	
 	FILE *za = fopen("/dev_hdd0/game/ACIDSTORE/USRDIR/EBOOT.BIN", "rb");
 	if(za!=NULL)
@@ -698,6 +708,7 @@ void init_sfx()
 	LoadSFX(&sfx_blackout, blackout_bin, blackout_bin_size);
 	LoadSFX(&sfx_f9ice, fnine_ice_bin, fnine_ice_bin_size);
 	LoadSFX(&sfx_siren, siren_bin, siren_bin_size);
+	LoadSFX(&sfx_trophy, trophy_bin, trophy_bin_size);
 }
 
 int RandRange(int min, int max)

@@ -39,6 +39,12 @@ typedef struct
 	bool Insanity;
 	bool OneKStare;
 	bool HARDCORE;
+	bool BROWHATLOL;
+	bool Sweeping;
+	bool GAAAHHHH;
+	bool MineCluster;
+	bool AbsSweep;
+	bool OneMStare;
 } AchievementsNameDB;
 
 extern AchievementsNameDB AchNDb;

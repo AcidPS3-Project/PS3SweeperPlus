@@ -115,6 +115,9 @@ extern int reveal_mode;
 extern int start_music;
 extern int game_init;
 
+extern bool master_mode;
+extern bool master_modeS;
+
 extern bool use_custom_sweeper;
 extern bool shop_unlocked;
 extern bool shop_first;
@@ -142,7 +145,7 @@ extern bool route_touhou_unlocked;
 extern bool boss_options;
 
 extern bool show_ach;
-extern char* cur_ach_name;
+extern const char* cur_ach_name;
 
 void SplashesInit();
 int SplashesCount();
@@ -174,6 +177,7 @@ SoundEffect sfx_beep;
 SoundEffect sfx_blackout;
 SoundEffect sfx_f9ice;
 SoundEffect sfx_siren;
+SoundEffect sfx_trophy;
 
 #define BGM_LIST 400
 #define MUS_DIR "/dev_hdd0/game/MINESWEEP/USRDIR/music/"

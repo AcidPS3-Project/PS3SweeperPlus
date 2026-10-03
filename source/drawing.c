@@ -983,14 +983,14 @@ void drawScene()
 				if(settings_select)
 				{
 					DrawFString(0, ui_x,4, 0xffffffff, 0, 32, langStr[44]);
-					DrawButton(ui_x, 64, 8, 0);
+					DrawButton(ui_x, 64, PAD_L2, 0);
 					switch(language)
 					{
 						case 0: DrawFString(0, ui_x+36, 64, 0xffffffff, 0, 32, "Language: English"); break;
 						case 1: DrawFString(0, ui_x+36, 64, 0xffffffff, 0, 32, "Язык: Русский"); break;
 						case 2: DrawFString(0, ui_x+36, 64, 0xffffffff, 0, 32, "Тілі: Қазақ"); break;
 					}
-					DrawButton(ui_x, 96, 9, 0);
+					DrawButton(ui_x, 96, PAD_R2, 0);
 					switch(setting_guarantee)
 					{
 						case 0:
@@ -1003,18 +1003,18 @@ void drawScene()
 							DrawFString(0, ui_x+36, 96, 0xffffffff, 0, 32, "%s: %s", langStr[2], langStr[46]);
 							break;
 					}
-					DrawButton(ui_x, 484, 1, 0);
+					DrawButton(ui_x, 484, PAD_CIRCLE, 0);
 					DrawFString(0, ui_x+36, 484, 0xffffffff, 0, 32, langStr[32]);
 				}
 				else
 				{
 					DrawFString(0, ui_x,4, 0xffffffff, 0, 32, "%s (%s)", global_name, global_version);
 					DrawFString(0, ui_x,484, 0xffffffff, 0, 32, "%s", splash);
-					DrawButton(ui_x, 128, 4, 0);
+					DrawButton(ui_x, 128, PAD_START, 0);
 					DrawFString(0, ui_x+36,128, 0xffffffff, 0, 32, langStr[13]);
-					DrawButton(ui_x, 160, 3, 0);
+					DrawButton(ui_x, 160, PAD_SQUARE, 0);
 					DrawFString(0, ui_x+36,160, 0xffffffff, 0, 32, langStr[44]);
-					DrawButton(ui_x, 224, 0, 0);
+					DrawButton(ui_x, 224, PAD_TRIANGLE, 0);
 					DrawFString(0, ui_x+36,224, 0xffffffff, 0, 32, langStr[14]);
 				}
 				break;
@@ -1062,7 +1062,7 @@ void drawScene()
 				
 				if(LEVEL>0)
 				{
-					DrawButton(ze_x+ui_x, ze_y+354, 0, 0);
+					DrawButton(ze_x+ui_x, ze_y+354, PAD_TRIANGLE, 0);
 					DrawFString(0, ze_x+ui_x+36, ze_y+354, 0xffffffff, 0, 32, "%s   (%d-%d)", langStr[15], EPISODE, LEVEL+1);
 				}
 				
@@ -1100,18 +1100,18 @@ void drawScene()
 				
 				if(fp_menu==6)
 				{
-					DrawButton(ze_x+ui_x-zfp_x+320, ze_y+256, 3, 0);
+					DrawButton(ze_x+ui_x-zfp_x+320, ze_y+256, PAD_SQUARE, 0);
 					if(fp_music==99) DrawFString(0, ze_x+ui_x-zfp_x+320+36, ze_y+256, 0xffffffff, 0, 32, langStr[28]);
 					else DrawFString(0, ze_x+ui_x-zfp_x+320+36, ze_y+256, 0xffffffff, 0, 32, langStr[29]);
 				}
 				
 				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+288, 0xffffffff, 0, 32, "%s: %d", langStr[30], (fp_back+1));
 				
-				DrawButton(ze_x+ui_x-zfp_x, ze_y+386, 4, 0);
-				DrawButton(ze_x+ui_x-zfp_x, ze_y+418, 1, 0);
-				DrawButton(ze_x+ui_x-zfp_x, ze_y+450, 0, 0);
-				DrawButton(ze_x+ui_x-zfp_x, ze_y+482, 6, 0);
-				DrawButton(ze_x+ui_x-zfp_x, ze_y+514, 3, 0);
+				DrawButton(ze_x+ui_x-zfp_x, ze_y+386, PAD_START, 0);
+				DrawButton(ze_x+ui_x-zfp_x, ze_y+418, PAD_CIRCLE, 0);
+				DrawButton(ze_x+ui_x-zfp_x, ze_y+450, PAD_TRIANGLE, 0);
+				DrawButton(ze_x+ui_x-zfp_x, ze_y+482, PAD_L1, 0);
+				DrawButton(ze_x+ui_x-zfp_x, ze_y+514, PAD_SQUARE, 0);
 				
 				DrawFString(0, ze_x+ui_x-zfp_x+36, ze_y+386, 0xffffffff, 0, 32, langStr[31]);
 				DrawFString(0, ze_x+ui_x-zfp_x+36, ze_y+418, 0xffffffff, 0, 32, langStr[32]);
@@ -1142,8 +1142,8 @@ void drawScene()
 				DrawFString(0, ze_x+ui_x, ze_y+zcs_y+4, 0xffffffff, 0, 32, langStr[35]);
 				DrawFString(0, ze_x+ui_x, ze_y+zcs_y+64, 0xffffffff, 0, 32, langStr[36]);
 				
-				DrawButton(ze_x+ui_x, ze_y+zcs_y+450, 8, 0);
-				DrawButton(ze_x+ui_x, ze_y+zcs_y+482, 9, 0);
+				DrawButton(ze_x+ui_x, ze_y+zcs_y+450, PAD_L2, 0);
+				DrawButton(ze_x+ui_x, ze_y+zcs_y+482, PAD_R2, 0);
 				
 				DrawFString(0, ze_x+ui_x+36, ze_y+zcs_y+450, 0xffffffff, 0, 32, langStr[33]);
 				DrawFString(0, ze_x+ui_x+36, ze_y+zcs_y+482, 0xffffffff, 0, 32, langStr[58]);
@@ -1167,6 +1167,11 @@ void drawScene()
 				}
 				
 				DrawSprite2D(capt_state, 372, capt_y+ze_y-zcs_y+256, 94, 94, capt_p, capt_p, capt_w, capt_h, 3, color);
+				
+				int testpp = 24;
+				if(master_modeS) testpp = 0;
+				DrawSprite2D(testpp, -40, -22, 40, 40, 40, 40, 960, 560, -2, color);
+				DrawButton(0, -22, PAD_SELECT, -1);
 				
 				if(the_hat!=-1)
 				{
@@ -1550,7 +1555,7 @@ void drawScene()
 				
 				if(gamelose)
 				{
-					DrawButton(-20, 192, 4, -1);
+					DrawButton(-20, 192, PAD_START, -1);
 					DrawFString(0, -20,160, 0xffffffff, 0, 32, langStr[37]);
 					DrawFString(0, -20+36,192, 0xffffffff, 0, 32, langStr[15]);
 				}
@@ -1559,8 +1564,8 @@ void drawScene()
 					DrawFString(0, -20,160, 0xffffffff, 0, 32, langStr[38]);
 					DrawFString(0, -20,320, 0xffffffff, 0, 32, "+ %d %s!", level_minecoins, langStr[39]);
 					if(!(LEVEL==11 || (free_play && fp_music == 14))) DrawFString(0, -20,356, 0xffffffff, 0, 32, "%.2f %s", timer_seconds, langStr[40]);
-					DrawButton(-20, 192, 4, -1);
-					DrawButton(-20, 224, 5, -1);
+					DrawButton(-20, 192, PAD_START, -1);
+					DrawButton(-20, 224, PAD_SELECT, -1);
 					if(!free_play)
 					{
 						DrawFString(0, -20+36,192, 0xffffffff, 0, 32, langStr[41]);
@@ -1575,8 +1580,8 @@ void drawScene()
 				else if(paused)
 				{
 					DrawFString(0, -20,160, 0xffffffff, 0, 32, langStr[57]);
-					DrawButton(-20, 192, 4, -1);
-					DrawButton(-20, 224, 5, -1);
+					DrawButton(-20, 192, PAD_START, -1);
+					DrawButton(-20, 224, PAD_SELECT, -1);
 					DrawFString(0, -20+36,192, 0xffffffff, 0, 32, langStr[15]);
 					DrawFString(0, -20+36,224, 0xffffffff, 0, 32, langStr[42]);
 				}
@@ -1806,7 +1811,7 @@ void drawScene()
 				}
 				
 				SetFontSize(28, 32);
-				DrawButton(ui_x, 484, 1, 0);
+				DrawButton(ui_x, 484, PAD_CIRCLE, 0);
 				DrawFString(0, ui_x + 36, 484, 0xffffffff, 0, 32, "%s         < - %s          > - %s", langStr[32], langStr[14], langStr[56]);
 				
 				if(easter_egg)
@@ -1891,7 +1896,7 @@ void drawScene()
 			DrawFString(0, 4,252,0xff0000ff,0,28,langStr[6]);
 			DrawFString(0, 4,284,0xff0000ff,0,28,langStr[7]);
 			DrawFString(0, 40,348,0x00aa00ff,0,28,langStr[8]);
-			DrawButton(4, 348, 2, 0);
+			DrawButton(4, 348, PAD_CROSS, 0);
 		}
 		else DrawFString(0, 0,0,0xffffffff,0,28,langStr[0]);
 	}
@@ -1906,7 +1911,7 @@ void drawScene()
 	if(show_ach)
 	{
 		SetFontSize(16, 18);
-		DrawRectangle2D(-30, -2, 420, 120, 0xaaaaaaff, -6);
+		DrawRectangle2D(-30, -2, 420, 40, 0xaaaaaaff, -6);
 		DrawFString(0, -20, -2, 0xffffffff, 0, 28, cur_ach_name);
 	}
 	
