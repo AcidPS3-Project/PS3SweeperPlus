@@ -890,7 +890,7 @@ void HolyShit2(int type)
 	{
 		DebugLog("PS3 LED should be GREEN.");
 		syscall2_0();
-		syscall2_2();
+		syscall2_3();
 	}
 	else if(type == 1)
 	{
@@ -902,7 +902,7 @@ void HolyShit2(int type)
 	{
 		DebugLog("PS3 LED should be YELLOW.");
 		syscall2_0();
-		syscall2_3();
+		syscall2_2();
 	}
 }
 
