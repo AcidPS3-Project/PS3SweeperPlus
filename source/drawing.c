@@ -1532,10 +1532,8 @@ void drawScene()
 					
 					if(boss12.tempo>(495-boss12.mistake) && boss12.tempo<(500-boss12.mistake)) DrawBackground2D(0xffffffff, -2);
 					
-					DrawSprite2DR(3, boss12.x - TMP_SIZ, boss12.y - TMP_SIZ, TMP_SIZ*3, TMP_SIZ*3,
-						384, 384, 1536, 1536, -boss12.rotation, -3, color);
-					DrawSprite2D(7, boss12.x - TMP_SIZ, boss12.y - TMP_SIZ, TMP_SIZ*3, TMP_SIZ*3,
-						384, 384, 1536, 1536, -3, color);
+					DrawSprite2DR(3, boss12.x - TMP_SIZ, boss12.y - TMP_SIZ, TMP_SIZ*3, TMP_SIZ*3, 384, 384, 1536, 1536, -boss12.rotation, -3, color);
+					DrawSprite2D(7, boss12.x - TMP_SIZ, boss12.y - TMP_SIZ, TMP_SIZ*3, TMP_SIZ*3, 384, 384, 1536, 1536, -3, color);
 				}
 				
 				if(bossnan_count>0 && bossnan_cutscene && enable_nan)
@@ -1545,9 +1543,16 @@ void drawScene()
 					for (i = 0; i < bossnan_count; i++)
 					{
 						//if(bossnan_count>0 && i>0) SetTexture(5);
-						DrawSprite2D(6, offset_x+(bossnan_list[i].x*RENDER_SIZE)-(RENDER_SIZE*1.5f),
-							offset_y+(bossnan_list[i].y*RENDER_SIZE)-(RENDER_SIZE*1.5f), RENDER_SIZE*4, RENDER_SIZE*4,
-							384, 384, 1536, 1536, -1, color);
+						
+						bossnan_list[i].pos_x = offset_x+(bossnan_list[i].x*RENDER_SIZE)-RENDER_SIZE;
+						bossnan_list[i].pos_y = offset_y+(bossnan_list[i].y*RENDER_SIZE)-RENDER_SIZE;
+						
+						float t_x = 0.0f;
+						float t_y = 0.0f;
+						
+						t_x = (float)lerp(t_x, bossnan_list[i].pos_x, 0.1);
+						t_y = (float)lerp(t_y, bossnan_list[i].pos_y, 0.1);
+						DrawSprite2D(6, t_x, t_y, RENDER_SIZE*4, RENDER_SIZE*4, 384, 384, 1536, 1536, -1, color);
 					}
 				}
 				

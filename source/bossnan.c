@@ -67,6 +67,8 @@ void SetupBossNaNPositions(int count)
     for (int i = 0; i < count; i++)
     {
         bossnan_list[i].active = false;
+        bossnan_list[i].pos_x = 0.0f;
+        bossnan_list[i].pos_y = 0.0f;
     }
 }
 

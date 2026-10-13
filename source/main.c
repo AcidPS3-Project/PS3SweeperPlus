@@ -383,9 +383,6 @@ int main(int argc, const char* argv[])
 	
 	sysModuleLoad(SYSMODULE_PNGDEC);
 	
-	s32 ret = sysModuleLoad(SYSMODULE_VDEC);
-	printf("[VDEC] sysModuleLoad(SYSMODULE_VDEC) = %08X\n", ret);
-	
 	savestate_init();
 	SplashesInit();
 	Initialize();
@@ -603,9 +600,6 @@ int main(int argc, const char* argv[])
 										
 										if(paddata.BTN_TRIANGLE && !oldpad.BTN_TRIANGLE)
 										{
-											msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
-												"I was about to open the shop, but it is delayed. Gimme some weeks, I just need some time..", EmptyDialogCallback, NULL, NULL);
-											/*
 											startbgmgtsp = 1;
 											ship_x = -80;
 											ship_y = -22+(32*6);
@@ -630,7 +624,6 @@ int main(int argc, const char* argv[])
 												StopAudio();
 												FadeInOut(&currentScreen, GOTOSHOP);
 											}
-											*/
 										}
 									}
 									else if(adventure_select)
@@ -2211,6 +2204,15 @@ int main(int argc, const char* argv[])
 		}
 		
 		if(boss12_started && enable_12) boss12_update(disable_control);
+		
+		if(bossnan_started && !disable_control && enable_nan)
+		{
+			int i;
+			for (i = 0; i < bossnan_count; i++)
+			{
+				bossnan_update(i);
+			}
+		}
 		
 		if(disable_control && !gamelose && !gamewin)
 		{

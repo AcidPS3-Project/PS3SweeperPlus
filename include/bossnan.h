@@ -9,6 +9,7 @@ typedef struct
 {
     bool active;
     int x, y;
+    float pos_x, pos_y;
 } BossNaN;
 
 extern BossNaN bossnan_list[MAX_BOSSNAN];

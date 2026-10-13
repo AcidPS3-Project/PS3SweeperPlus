@@ -26,6 +26,13 @@ static sys_ppu_thread_t load_thread = 0;
 volatile int load_running = 0;
 volatile int load_result = 0;
 
+static struct XMBEvent {
+    int drawing;
+    int opened;
+    int closed;
+    int exit;
+} xmb;
+
 void SetSaveDefaults()
 {
     memset(&gSave, 0, sizeof(gSave));
@@ -268,6 +275,9 @@ static void SaveThread(void *arg)
 
 	sprintf(debug,"Save finished: %d",ret);
     DebugLog(debug);
+	xmb.opened = 0;
+	xmb.closed = 1;
+	xmb.drawing = 0;
 
     sysThreadExit(0);
 }
@@ -350,6 +360,9 @@ int StartSave(void)
 	operationMode = MODE_SAVE;
 	
     save_running = 1;
+	xmb.opened = 1;
+	xmb.closed = 0;
+	xmb.drawing = 1;
 
     s32 ret = sysThreadCreate(&save_thread, SaveThread, NULL, 1500, 0x4000, 0, "SaveThread");
 
@@ -461,6 +474,10 @@ static void LoadThread(void *arg)
 	if(fp_music<1) fp_music=1;
 	game_init = 1;
 	
+	xmb.opened = 0;
+	xmb.closed = 1;
+	xmb.drawing = 0;
+	
     sysThreadExit(0);
 }
 
@@ -471,7 +488,9 @@ int StartLoad(void)
 	operationMode = MODE_LOAD;
 	
     load_running = 1;
-
+	xmb.opened = 1;
+	xmb.closed = 0;
+	xmb.drawing = 1;
     s32 ret = sysThreadCreate(&load_thread, LoadThread, NULL, 1500, 0x4000, 0, "LoadThread");
 
     if(ret != 0)
