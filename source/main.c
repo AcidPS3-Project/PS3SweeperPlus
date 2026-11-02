@@ -12,8 +12,11 @@ Here is something you should know:
 - AcidNT3.1
 
 */
+#include "rsx_renderer.h"
+#include "rsxutil.h"
+#define MAX_BUFFERS 2
 
-#include <tiny3d.h>
+#include <sysutil/sysutil.h>
 
 #include "soundlib/spu_soundlib.h"
 #include "soundlib/audioplayer.h"
@@ -23,6 +26,7 @@ Here is something you should know:
 #include "save.h"
 #include "drawing.h"
 #include "lang.h"
+#include "text.h"
 
 bool play_map_bgm = false;
 bool play_10_bgm = false;
@@ -43,13 +47,26 @@ int start_credits = 0;
 
 bool play_bgmz = false;
 
-//float ship_speed = 0.75f / 2;
-float ship_speed = 0.75f;
+float ship_speed = 0.75f / 2;
 
 int LEVEL_BKP = 0;
 int ready_to_click = 0;
 
 bool HELL = false;
+
+static volatile int exit_requested = 0;
+static volatile int xmb_open = 0;
+
+static void sysutil_cb(u64 status, u64 param, void *usrdata)
+{
+    (void)param; (void)usrdata;
+    switch (status)
+    {
+        case SYSUTIL_EXIT_GAME:  exit_requested = 1; break;
+        case SYSUTIL_MENU_OPEN:  xmb_open = 1; break;
+        case SYSUTIL_MENU_CLOSE: xmb_open = 0; break;
+    }
+}
 
 void episode_check()
 {
@@ -350,11 +367,11 @@ void GoBackToTitle()
 void UnloadCustomSweeper()
 {
 	use_custom_sweeper = false;
-	if(spritesheet[13].bmp_out)
-	{
-		free(spritesheet[13].bmp_out);
-		spritesheet[13].bmp_out = NULL;
-	}
+	// if(spritesheet[13].bmp_out)
+	// {
+		// free(spritesheet[13].bmp_out);
+		// spritesheet[13].bmp_out = NULL;
+	// }
 
 	spritesheet[13].pitch = 0;
 	spritesheet[13].width = 0;
@@ -377,9 +394,46 @@ int main(int argc, const char* argv[])
 	padData paddata;
 	
 	srand(time(NULL));
-	tiny3d_Init(8*1024*1024);
-	tiny3d_UserViewport(1, 0, 0, (float)(Video_Resolution.width / 916.0f), (float)(Video_Resolution.height / 582.0f),
-		(float)(Video_Resolution.width / 1920.0f), (float)(Video_Resolution.height / 1080.0f));
+	sysUtilRegisterCallback(SYSUTIL_EVENT_SLOT0, sysutil_cb, NULL);
+	
+	if(RSX_Init() !=0)
+	{
+		DebugLog("RSX: Init failed!");
+		return -1;
+	}
+	
+	u16 screen_width, screen_height;
+	rsxBuffer buffers[MAX_BUFFERS];
+
+	if (!getResolution(&screen_width, &screen_height))
+	{
+		DebugLog("Failed to get display resolution!");
+		return -1;
+	}
+
+	printf("Display: %dx%d\n", screen_width, screen_height);
+
+	for (int i = 0; i < MAX_BUFFERS; i++) {
+		if (!makeBuffer(&buffers[i], screen_width, screen_height, i))
+		{
+			printf("Failed to create framebuffer %d!\n", i);
+			return -1;
+		}
+	}
+
+	DebugLog("Both framebuffers created!");
+	
+	if (RSX_LoadShaders() != 0)
+	{
+		DebugLog("RSX: shader loading failed!");
+		return -1;
+	}
+	
+	if (!RSX_CreateSpriteBuffers())
+	{
+		DebugLog("RSX: sprite buffer creation failed!");
+		return -1;
+	}
 	
 	sysModuleLoad(SYSMODULE_PNGDEC);
 	
@@ -399,26 +453,46 @@ int main(int argc, const char* argv[])
 	init_sfx();
 	
 	ioPadInit(7);
-    LoadTexture();
+	Load_PNG();
+    RSX_UploadSpritesheets();
+	Text_Init();
+	
 	LangInit();
 	creditsInit();
 	SetupTimeSettings();
 	
 	StartLoad();
+	
+	for(int i = 0; i < MAX_BUFFERS; i++) RSX_TestDraw(&buffers[i]);
+	if(!flip(RSX_GetContext(), MAX_BUFFERS - 1)) printf("RSX: initial flip failed!\n");
+
+	int currentBuffer = 0;
+	
+	depth_pitch = screen_width * 2;
+
+	depth_buffer = (u32*)rsxMemalign(64, depth_pitch * screen_height);
+	if (!depth_buffer)
+	{
+		DebugLog("RSX: depth buffer allocation failed!");
+		return -1;
+	}
+
+	if (rsxAddressToOffset(depth_buffer, &depth_offset) != 0)
+	{
+		DebugLog("RSX: depth buffer offset failed!");
+		return -1;
+	}
 
     while(1)
     {
 		sysUtilCheckCallback();
+		
+		if (exit_requested) break;
+		
 		UpdateFPS();
 		
 		UpdateFade(1.0f / 60.0f);
 		UpdateProjectiles(1.0f / 60.0f);
-		
-        tiny3d_Clear(0xff000000, TINY3D_CLEAR_ALL);
-		tiny3d_AlphaTest(1, 0x10, TINY3D_ALPHA_FUNC_GEQUAL);
-		tiny3d_BlendFunc(1, TINY3D_BLEND_FUNC_SRC_RGB_SRC_ALPHA | TINY3D_BLEND_FUNC_SRC_ALPHA_SRC_ALPHA,
-            TINY3D_BLEND_FUNC_DST_RGB_ONE_MINUS_SRC_ALPHA | TINY3D_BLEND_FUNC_DST_ALPHA_ZERO,
-            TINY3D_BLEND_RGB_FUNC_ADD | TINY3D_BLEND_ALPHA_FUNC_ADD);
 		
 		if(game_loaded)
 		{
@@ -812,12 +886,12 @@ int main(int argc, const char* argv[])
 													}
 													else
 													{
-														memcpy(texture_pointer, spritesheet[13].bmp_out, spritesheet[13].pitch * spritesheet[13].height);
-														sprite_off[13] = tiny3d_TextureOffset(texture_pointer);
-														free(spritesheet[13].bmp_out);
-														spritesheet[13].bmp_out = NULL;
+														// memcpy(texture_pointer, spritesheet[13].bmp_out, spritesheet[13].pitch * spritesheet[13].height);
+														// sprite_off[13] = tiny3d_TextureOffset(texture_pointer);
+														// free(spritesheet[13].bmp_out);
+														// spritesheet[13].bmp_out = NULL;
 														
-														texture_pointer += ((spritesheet[13].pitch * spritesheet[13].height + 15) & ~15) / 4;
+														// texture_pointer += ((spritesheet[13].pitch * spritesheet[13].height + 15) & ~15) / 4;
 														
 														use_custom_sweeper = true;
 													}
@@ -2247,7 +2321,6 @@ int main(int argc, const char* argv[])
 			}
 		}
 		
-		
 		if(game_init && !game_loaded)
 		{
 			ioPadGetInfo(&padinfo);
@@ -2268,13 +2341,29 @@ int main(int argc, const char* argv[])
 			}
 		}
 		
-		drawScene();
-		
 		if(playing_bgm) UpdateBGM();
 		if(bad_apple) badAppleUpdate();
 		
-		tiny3d_Flip();
+		if(!xmb_open)
+		{
+			waitFlip();
+		
+			RSX_BeginFrame();
+			
+			RSX_SetRenderTarget(&buffers[currentBuffer]);
+			RSX_SetupViewport();
+			RSX_ClearScreen();
+			
+			drawScene();
+			
+			if (!flip(RSX_GetContext(), buffers[currentBuffer].id)) printf("RSX: test flip failed!\n");
+			currentBuffer = (currentBuffer + 1) % MAX_BUFFERS;
+		}
     }
 
+	rsxFinish(RSX_GetContext(), 1);
+	StopAudio();
+	ioPadEnd();
+	sysUtilUnregisterCallback(SYSUTIL_EVENT_SLOT0);
     return 0;
 }

@@ -7,6 +7,8 @@
 
 #include "level_data.h"
 
+#include "rsx_renderer.h"
+
 int end_time = 0;
 
 BossTriangle boss_triangles[3] =
@@ -75,15 +77,13 @@ void DrawProjectiles()
 		{
 			case 0:
 			{
-				SetTexture(8);
-				DrawSprite2D(p->anim, p->x - 34, p->y - 34, 96, 96, 48, 48, 240, 240, -5, 0xFFFFFFFF);
+				RSX_DrawSprite(8, p->anim, p->x - 34, p->y - 34, 96, 96, 48, 48, 0xFFFFFFFF);
 				break;
 			}
 			case 1:
 			{
-				SetTexture(2);
 				float S = RENDERING_PIXELS / 2;
-				DrawSpriteUI(p->x - S, p->y - S, 768, 0, 858, 90, 1024, 1024, S*3, S*3, -5, 0xFFFFFFFF);
+				RSX_DrawSpriteUI(2, p->x - S, p->y - S, 768, 0, 858, 90, 1024, 1024, S*3, S*3, 0xFFFFFFFF);
 			}
 			default: break;
 		}
@@ -96,58 +96,6 @@ bool ProjectileOnCursor(float px, float py)
     float cy = offset_y + cursorY * RENDER_SIZE;
 
     return px >= cx && px <  cx + RENDER_SIZE && py >= cy && py <  cy + RENDER_SIZE;
-}
-
-void DrawBackground2D(u32 rgba, float l)
-{
-    tiny3d_SetPolygon(TINY3D_QUADS);
-
-    tiny3d_VertexPos(-40, -22, l);
-    tiny3d_VertexColor(rgba);
-    tiny3d_VertexPos(1040, -22, l);
-    tiny3d_VertexPos(1040, 1022, l);
-    tiny3d_VertexPos(-40, 1022, l);
-    tiny3d_End();
-}
-
-void DrawRectangle2D(float x, float y, float w, float h, u32 rgba, float l)
-{
-    tiny3d_SetPolygon(TINY3D_QUADS);
-
-    tiny3d_VertexPos(x+40, y+22, l);
-    tiny3d_VertexColor(rgba);
-    tiny3d_VertexPos(x+w+40, y+22, l);
-    tiny3d_VertexPos(x+w+40, y+h+22, l);
-    tiny3d_VertexPos(x+40, y+h+22, l);
-    tiny3d_End();
-}
-
-void DrawRotatingTriangle(float x, float y, float size, float angle, u32 color, float l)
-{
-    float rad = angle * 3.14159265f / 180.0f;
-
-    float a1 = rad - 3.14159265f / 2.0f;
-    float a2 = a1 + 2.0f * 3.14159265f / 3.0f;
-    float a3 = a1 + 4.0f * 3.14159265f / 3.0f;
-
-    float x1 = x + cosf(a1) * size;
-    float y1 = y + sinf(a1) * size;
-
-    float x2 = x + cosf(a2) * size;
-    float y2 = y + sinf(a2) * size;
-
-    float x3 = x + cosf(a3) * size;
-    float y3 = y + sinf(a3) * size;
-
-    tiny3d_SetPolygon(TINY3D_TRIANGLES);
-
-    tiny3d_VertexColor(color);
-
-    tiny3d_VertexPos(x1+40, y1+22, -1);
-    tiny3d_VertexPos(x2+40, y2+22, -1);
-    tiny3d_VertexPos(x3+40, y3+22, -1);
-
-    tiny3d_End();
 }
 
 void UpdateBossTriangles()
@@ -172,7 +120,7 @@ void DrawBossTriangles(float x, float y, float size)
 
     for(i = 0; i < 3; i++)
     {
-        DrawRotatingTriangle(x, y, sz*(4-i), boss_triangles[i].angle, boss_triangles[i].color, 4-i);
+        RSX_DrawRotatingTriangle(x, y, sz*(4-i), boss_triangles[i].angle, boss_triangles[i].color);
     }
 }
 
@@ -184,7 +132,7 @@ void DrawFade(void)
     u32 color = alpha;
     color = 0x00000000 | alpha;
 	
-	DrawBackground2D(color, -8);
+	RSX_DrawBackground2D(color);
 }
 
 u32 color_from_value(int value)
@@ -423,7 +371,6 @@ int getCaptainState(int anim_z, int anim1_z, int anim2_z)
 				//else the_state = 120+anim1_z;
 			}
 			break;
-			/*
 			switch (boss9_cutscene)
 			{
 				case 0: the_state = 240; break;
@@ -446,7 +393,6 @@ int getCaptainState(int anim_z, int anim1_z, int anim2_z)
 				}
 			}
 			break;
-			*/
 		}
 		case 5:
 		{
@@ -564,159 +510,20 @@ int getHatState(int hat, int anim_z)
 	return the_state;
 }
 
-void DrawSprite2D(int id, float x, float y, int wid2, int hei2, int wid1, int hei1, int wid0, int hei0, float layer, u32 color)
-{
-	int cols = wid0 / wid1;
-    int col = id % cols;
-    int row = id / cols;
-    float u0 = (float)(col * wid1) / wid0;
-    float v0 = (float)(row * hei1) / hei0;
-    float u1 = (float)((col + 1) * wid1) / wid0;
-    float v1 = (float)((row + 1) * hei1) / hei0;
-	
-    tiny3d_SetPolygon(TINY3D_QUADS);
-
-    tiny3d_VertexPos(x+40, y+22, layer);
-    tiny3d_VertexColor(color);
-    tiny3d_VertexTexture(u0, v0);
-    tiny3d_VertexPos(x+wid2+40, y+22, layer);
-    tiny3d_VertexTexture(u1, v0);
-    tiny3d_VertexPos(x+wid2+40, y+hei2+22, layer);
-    tiny3d_VertexTexture(u1, v1);
-    tiny3d_VertexPos(x+40, y+hei2+22, layer);
-    tiny3d_VertexTexture(u0, v1);
-
-    tiny3d_End();
-}
-
-void DrawSpriteUI(float x, float y, int wid1, int hei1, int wid2, int hei2, int wid0, int hei0, int wid3, int hei3, float layer, u32 color)
-{
-    float u0 = (float)wid1 / (float)wid0;
-    float v0 = (float)hei1 / (float)hei0;
-    float u1 = (float)wid2 / (float)wid0;
-    float v1 = (float)hei2 / (float)hei0;
-	
-    tiny3d_SetPolygon(TINY3D_QUADS);
-
-    tiny3d_VertexPos(x+40, y+22, layer);
-    tiny3d_VertexColor(color);
-    tiny3d_VertexTexture(u0, v0);
-    tiny3d_VertexPos(x+wid3+40, y+22, layer);
-    tiny3d_VertexTexture(u1, v0);
-    tiny3d_VertexPos(x+wid3+40, y+hei3+22, layer);
-    tiny3d_VertexTexture(u1, v1);
-    tiny3d_VertexPos(x+40, y+hei3+22, layer);
-    tiny3d_VertexTexture(u0, v1);
-
-    tiny3d_End();
-}
-
-void DrawSpriteUIR(float x, float y, int wid1, int hei1, int wid2, int hei2, int wid0, int hei0, int wid3, int hei3, float layer, float angle, u32 color)
-{
-    float u0 = (float)wid1 / (float)wid0;
-    float v0 = (float)hei1 / (float)hei0;
-    float u1 = (float)wid2 / (float)wid0;
-    float v1 = (float)hei2 / (float)hei0;
-	
-    float cx = x + wid3 * 0.5f;
-    float cy = y + hei3 * 0.5f;
-    float hw = wid3 * 0.5f;
-    float hh = hei3 * 0.5f;
-
-    float rad = angle * (M_PI / 180.0f);
-    float c = cosf(rad);
-    float s = sinf(rad);
-
-    float x0 = (-hw * c) - (-hh * s);
-    float y0 = (-hw * s) + (-hh * c);
-    float x1 = ( hw * c) - (-hh * s);
-    float y1 = ( hw * s) + (-hh * c);
-    float x2 = ( hw * c) - ( hh * s);
-    float y2 = ( hw * s) + ( hh * c);
-    float x3 = (-hw * c) - ( hh * s);
-    float y3 = (-hw * s) + ( hh * c);
-
-    tiny3d_SetPolygon(TINY3D_QUADS);
-
-    tiny3d_VertexPos(cx + x0 + 40, cy + y0 + 22, layer);
-    tiny3d_VertexColor(color);
-    tiny3d_VertexTexture(u0, v0);
-    tiny3d_VertexPos(cx + x1 + 40, cy + y1 + 22, layer);
-    tiny3d_VertexTexture(u1, v0);
-    tiny3d_VertexPos(cx + x2 + 40, cy + y2 + 22, layer);
-    tiny3d_VertexTexture(u1, v1);
-    tiny3d_VertexPos(cx + x3 + 40, cy + y3 + 22, layer);
-    tiny3d_VertexTexture(u0, v1);
-	
-    tiny3d_End();
-}
-
-void DrawSprite2DR(int id, float x, float y, int wid2, int hei2, int wid1, int hei1, int wid0, int hei0, float angle, float layer, u32 color)
-{
-    int cols = wid0 / wid1;
-    int col = id % cols;
-    int row = id / cols;
-
-    float u0 = (float)(col * wid1) / wid0;
-    float v0 = (float)(row * hei1) / hei0;
-    float u1 = (float)((col + 1) * wid1) / wid0;
-    float v1 = (float)((row + 1) * hei1) / hei0;
-
-    float cx = x + wid2 * 0.5f;
-    float cy = y + hei2 * 0.5f;
-    float hw = wid2 * 0.5f;
-    float hh = hei2 * 0.5f;
-
-    float rad = angle * (M_PI / 180.0f);
-    float c = cosf(rad);
-    float s = sinf(rad);
-
-    float x0 = (-hw * c) - (-hh * s);
-    float y0 = (-hw * s) + (-hh * c);
-    float x1 = ( hw * c) - (-hh * s);
-    float y1 = ( hw * s) + (-hh * c);
-    float x2 = ( hw * c) - ( hh * s);
-    float y2 = ( hw * s) + ( hh * c);
-    float x3 = (-hw * c) - ( hh * s);
-    float y3 = (-hw * s) + ( hh * c);
-
-    tiny3d_SetPolygon(TINY3D_QUADS);
-
-    tiny3d_VertexPos(cx + x0 + 40, cy + y0 + 22, layer);
-    tiny3d_VertexColor(color);
-    tiny3d_VertexTexture(u0, v0);
-    tiny3d_VertexPos(cx + x1 + 40, cy + y1 + 22, layer);
-    tiny3d_VertexTexture(u1, v0);
-    tiny3d_VertexPos(cx + x2 + 40, cy + y2 + 22, layer);
-    tiny3d_VertexTexture(u1, v1);
-    tiny3d_VertexPos(cx + x3 + 40, cy + y3 + 22, layer);
-    tiny3d_VertexTexture(u0, v1);
-
-    tiny3d_End();
-}
-
-void SetTexture(int id)
-{
-	if(id==1 && global_route==1) id = 21;
-	tiny3d_SetTexture(0, sprite_off[id], spritesheet[id].width, spritesheet[id].height,
-		spritesheet[id].pitch, TINY3D_TEX_FORMAT_A8R8G8B8, TEXTURE_NEAREST);
-}
-
 void DrawLevelIcon(int level, int x, int y, int anim, int tile_bg)
 {
     int tile = tile_map_num(level);
 
     if(LEVEL < level)
     {
-        DrawSprite2D(tile_bg + anim + 2, x, y, 32, 32, 16, 16, 320, 320, 6, 0xffffffff);
-        DrawSprite2D(tile, x, y, 32, 32, 16, 16, 320, 320, 5, 0xffffffff);
+        RSX_DrawSprite(1, tile_bg + anim + 2, x, y, 32, 32, 16, 16, 0xffffffff);
+        RSX_DrawSprite(1, tile, x, y, 32, 32, 16, 16, 0xffffffff);
     }
-    else DrawSprite2D(112 + anim, x, y, 32, 32, 16, 16, 320, 320, 5, 0xffffffff);
+    else RSX_DrawSprite(1, 112 + anim, x, y, 32, 32, 16, 16, 0xffffffff);
 }
 
 void draw_game()
 {
-	SetTexture(1);
 	int x1, y1 = 0;
 	int x0, y0 = 0;
 	int zp = the_bg/5;
@@ -737,7 +544,7 @@ void draw_game()
 	{
 		for(y0 = -22; y0 < (screen_h * 2) + 99; y0 += 64)
 		{
-			DrawSprite2D(tile_bg + anim + 2, x0, y0, 64, 64, 16, 16, 320, 320, 5, 0xffffff88);
+			RSX_DrawSprite(1, tile_bg + anim + 2, x0, y0, 64, 64, 16, 16, 0xffffff88);
 		}
 	}
 	
@@ -747,12 +554,10 @@ void draw_game()
 		{
 			if(board[x1][y1].ice_center)
 			{
-				SetTexture(2);
 				int tz = 858;
 				if(anim==1) tz = 858+54;
-				DrawSpriteUI(offset_x+(x1*RENDER_SIZE)-RENDER_SIZE, offset_y+(y1*RENDER_SIZE)-RENDER_SIZE,
-					tz, 0, tz+54, 54, 1024, 1024, RENDER_SIZE*3, RENDER_SIZE*3, 1, color);
-				SetTexture(1);
+				RSX_DrawSpriteUI(2, offset_x+(x1*RENDER_SIZE)-RENDER_SIZE, offset_y+(y1*RENDER_SIZE)-RENDER_SIZE,
+					tz, 0, tz+54, 54, 1024, 1024, RENDER_SIZE*3, RENDER_SIZE*3, color);
 			}
 			
 			if (!board[x1][y1].active) continue;
@@ -761,16 +566,8 @@ void draw_game()
 			
 			if(board[x1][y1].revealed)
 			{
-				if(board[x1][y1].mine)
-				{
-					DrawSprite2D(163, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE),
-						RENDER_SIZE, RENDER_SIZE, 16, 16, 320, 320, 3, color);
-				}
-				else
-				{
-					DrawSprite2D(tile_bg + anim + 2, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE),
-						RENDER_SIZE, RENDER_SIZE, 16, 16, 320, 320, 4, color);
-				}
+				if(board[x1][y1].mine) RSX_DrawSprite(1, 163, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE), RENDER_SIZE, RENDER_SIZE, 16, 16, color);
+				else RSX_DrawSprite(1, tile_bg + anim + 2, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE), RENDER_SIZE, RENDER_SIZE, 16, 16, color);
 				
 				switch(board[x1][y1].neighbors)
 				{
@@ -830,18 +627,11 @@ void draw_game()
 				
 				int zpz = RENDER_SIZE;
 				if(board[x1][y1].halfmine) zpz = RENDER_SIZE/2;
-				
-				if(board[x1][y1].hasNeighborMines || board[x1][y1].mine)
-				{
-					DrawSprite2D(tile, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE),
-						RENDER_SIZE, zpz, 16, 16, 320, 320, 3, color);
-				}
+				if(board[x1][y1].hasNeighborMines || board[x1][y1].mine) RSX_DrawSprite(1, tile, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE), RENDER_SIZE, zpz, 16, 16, color);
 			}
 			else
 			{
-				DrawSprite2D(tile_bg + anim, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE),
-					RENDER_SIZE, RENDER_SIZE, 16, 16, 320, 320, 4, color);
-				
+				RSX_DrawSprite(1, tile_bg + anim, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE), RENDER_SIZE, RENDER_SIZE, 16, 16, color);
 				if(board[x1][y1].mine && gamelose == 1)
 				{
 					if(board[x1][y1].mine) tile = 114+anim;
@@ -851,15 +641,12 @@ void draw_game()
 					int zpz = RENDER_SIZE;
 					if(board[x1][y1].halfmine) zpz = RENDER_SIZE/2;
 					
-					DrawSprite2D(tile, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE),
-						RENDER_SIZE, zpz, 16, 16, 320, 320, 3, color);
+					RSX_DrawSprite(1, tile, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE), RENDER_SIZE, zpz, 16, 16, color);
 				}
 				
 				if(board[x1][y1].flagged>0)
 				{
-					if(board[x1][y1].mine == 0 && gamelose)
-						DrawSprite2D(132, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE),
-							RENDER_SIZE, RENDER_SIZE, 16, 16, 320, 320, 3, color);
+					if(board[x1][y1].mine == 0 && gamelose) RSX_DrawSprite(1, 132, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE), RENDER_SIZE, RENDER_SIZE, 16, 16, color);
 					else if(!gamelose)
 					{
 						int ze_flag = 0;
@@ -871,38 +658,30 @@ void draw_game()
 							case 4: ze_flag = 74; break;
 						}
 						
-						DrawSprite2D(ze_flag + anim, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE),
-							RENDER_SIZE, RENDER_SIZE, 16, 16, 320, 320, 3, color);
+						RSX_DrawSprite(1, ze_flag + anim, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE), RENDER_SIZE, RENDER_SIZE, 16, 16, color);
 					}
 				}
 			}
 			
-			if(draw_grid_outlines)
-			{
-				DrawSprite2D(241 + grid_bg, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE),
-					RENDER_SIZE, RENDER_SIZE, 16, 16, 320, 320, 2, 0xffffff88);
-			}
+			if(draw_grid_outlines) RSX_DrawSprite(1, 241 + grid_bg, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE), RENDER_SIZE, RENDER_SIZE, 16, 16, 0xffffff88);
 		}
 	}
 	
-	DrawSprite2D(240, offset_x+(cursorX*RENDER_SIZE), offset_y+(cursorY*RENDER_SIZE),
-		RENDER_SIZE, RENDER_SIZE, 16, 16, 320, 320, -4, color);
+	RSX_DrawSprite(1, 240, offset_x+(cursorX*RENDER_SIZE), offset_y+(cursorY*RENDER_SIZE), RENDER_SIZE, RENDER_SIZE, 16, 16, color);
 	
 	if(LEVEL>=8 && (!boss9_cutscene && !boss10_cutscene && !boss11_cutscene && !boss12_cutscene))
 	{
 		int center_x = GRID_W / 2;
 		int center_y = GRID_H / 2;
 		
-		DrawSprite2D(300, offset_x+(center_x*RENDER_SIZE), offset_y+(center_y*RENDER_SIZE),
-			RENDER_SIZE, RENDER_SIZE, 16, 16, 320, 320, -4, color);
+		RSX_DrawSprite(1, 300, offset_x+(center_x*RENDER_SIZE), offset_y+(center_y*RENDER_SIZE), RENDER_SIZE, RENDER_SIZE, 16, 16, color);
 	}
 }
 
 void DrawButton(int x, int y, int button, int z)
 {
 	u32 color = 0xffffffff;
-	SetTexture(11);
-	DrawSprite2D(button, x, y+4, 32, 32, 20, 20, 120, 40, z, color);
+	RSX_DrawSprite(11, button, x, y+4, 32, 32, 20, 20, color);
 }
 
 int tile_map_num(int _t)
@@ -944,7 +723,6 @@ int zex_y = -22;
 void drawScene()
 {
 	u32 color = 0xffffffff;
-    tiny3d_Project2D();
 
     static int count_frames = 0;
     static int anim = 0;
@@ -957,7 +735,7 @@ void drawScene()
 	int ui_x = 4;
 	
     SetFontColor(0xffffffff, 0x00000000);
-    SetCurrentFont(0);
+    //SetCurrentFont(0);
 	
 	if(game_loaded)
 	{
@@ -978,8 +756,7 @@ void drawScene()
 			}
 			case TITLE:
 			{
-				SetTexture(7);
-				DrawSprite2D(anim3, -40, -22, 916, 582, 1152, 960, 2304, 1920, 1, color);
+				RSX_DrawSprite(7, anim3, -40, -22, 916, 582, 1152, 960, color);
 				if(settings_select)
 				{
 					DrawFString(0, ui_x,4, 0xffffffff, 0, 32, langStr[44]);
@@ -1021,7 +798,6 @@ void drawScene()
 			}
 			case MENU:
 			{
-				SetTexture(1);
 				int x0, y0 = 0;
 				int zp = fp_back/5;
 				int mp = fp_back%5;
@@ -1033,7 +809,7 @@ void drawScene()
 				{
 					for(y0 = -22; y0 < (screen_h * 2) + 99; y0 += 32)
 					{
-						DrawSprite2D(tile_bg+anim+2, x0, y0, 32, 32, 16, 16, 320, 320, 5, 0xffffffff);
+						RSX_DrawSprite(1, tile_bg+anim+2, x0, y0, 32, 32, 16, 16, 0xffffffff);
 					}
 				}
 				
@@ -1053,11 +829,10 @@ void drawScene()
 				
 				DrawFString(0, ze_x+ui_x, ze_y+4, 0xffffffff, 0, 32, langStr[16]);
 				
-				SetTexture(9);
-				DrawSpriteUI(ui_x+ze_x+menu_x, ze_y+48, 512, 0, 960, 512, 1536, 1024, 224, 256, 4, color);
-				DrawSpriteUI(ui_x+ze_x+menu_x+262, ze_y+48, 512, 512, 960, 1024, 1536, 1024, 224, 256, 4, color);
-				DrawSpriteUI(ui_x+ze_x+menu_x+(262*2), ze_y+48, 960, 0, 960+448, 512, 1536, 1024, 224, 256, 4, color);
-				DrawSpriteUI(ui_x+ze_x+menu_x+(262*3), ze_y+48, 960, 512, 960+448, 1024, 1536, 1024, 224, 256, 4, color);
+				RSX_DrawSpriteUI(9, ui_x+ze_x+menu_x, ze_y+48, 512, 0, 960, 512, 1536, 1024, 224, 256, color);
+				RSX_DrawSpriteUI(9, ui_x+ze_x+menu_x+262, ze_y+48, 512, 512, 960, 1024, 1536, 1024, 224, 256, color);
+				RSX_DrawSpriteUI(9, ui_x+ze_x+menu_x+(262*2), ze_y+48, 960, 0, 960+448, 512, 1536, 1024, 224, 256, color);
+				RSX_DrawSpriteUI(9, ui_x+ze_x+menu_x+(262*3), ze_y+48, 960, 512, 960+448, 1024, 1536, 1024, 224, 256, color);
 				DrawFString(0, ze_x+ui_x, ze_y+320, 0xffffffff, 0, 32, "        ^^^^^^^^");
 				
 				if(LEVEL>0)
@@ -1080,11 +855,10 @@ void drawScene()
 				if(DIFFICULTYs==3) color4 = 0xffffffff; else color4 = 0xaaaaaaff;
 				
 				DrawFString(0, ze_x+zas_x, ze_y+4, 0xffffffff, 0, 32, langStr[17]);
-				SetTexture(9);
-				DrawSpriteUI(ze_x+zas_x, ze_y+48, 0, 0, 512, 128, 1536, 1024, 256, 64, 4, color1);
-				DrawSpriteUI(ze_x+zas_x, ze_y+116, 0, 128, 512, 256, 1536, 1024, 256, 64, 4, color2);
-				DrawSpriteUI(ze_x+zas_x, ze_y+184, 0, 256, 512, 384, 1536, 1024, 256, 64, 4, color3);
-				DrawSpriteUI(ze_x+zas_x, ze_y+252, 0, 384, 512, 512, 1536, 1024, 256, 64, 4, color4);
+				RSX_DrawSpriteUI(9, ze_x+zas_x, ze_y+48, 0, 0, 512, 128, 1536, 1024, 256, 64, color1);
+				RSX_DrawSpriteUI(9, ze_x+zas_x, ze_y+116, 0, 128, 512, 256, 1536, 1024, 256, 64, color2);
+				RSX_DrawSpriteUI(9, ze_x+zas_x, ze_y+184, 0, 256, 512, 384, 1536, 1024, 256, 64, color3);
+				RSX_DrawSpriteUI(9, ze_x+zas_x, ze_y+252, 0, 384, 512, 512, 1536, 1024, 256, 64, color4);
 				DrawFString(0, ze_x+zas_x, ze_y+322, 0xffffffff, 0,  32,"%s: %d", langStr[24], EPISODEs);
 				
 				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+4, 0xffffffff, 0, 32, langStr[27]);
@@ -1136,8 +910,7 @@ void drawScene()
 				int temperz = 0;
 				if(global_route==1) temperz=8;
 				
-				SetTexture(20);
-				DrawSprite2D(boss_menu+temperz, ze_x+ui_x-zfp_x+580, ze_y+zcs_y+256+boss_render_x, 256, 256, 256, 256, 2048, 2048, 4, color);
+				RSX_DrawSprite(20, boss_menu+temperz, ze_x+ui_x-zfp_x+580, ze_y+zcs_y+256+boss_render_x, 256, 256, 256, 256, color);
 				
 				DrawFString(0, ze_x+ui_x, ze_y+zcs_y+4, 0xffffffff, 0, 32, langStr[35]);
 				DrawFString(0, ze_x+ui_x, ze_y+zcs_y+64, 0xffffffff, 0, 32, langStr[36]);
@@ -1148,46 +921,38 @@ void drawScene()
 				DrawFString(0, ze_x+ui_x+36, ze_y+zcs_y+450, 0xffffffff, 0, 32, langStr[33]);
 				DrawFString(0, ze_x+ui_x+36, ze_y+zcs_y+482, 0xffffffff, 0, 32, langStr[58]);
 				
-				SetTexture(2);
-				DrawSpriteUI(262, -22+ze_y-zcs_y+256, 384, 0, 768, 192, 1024, 1024, 314, 112, 4, color);
+				RSX_DrawSpriteUI(2, 262, -22+ze_y-zcs_y+256, 384, 0, 768, 192, 1024, 1024, 314, 112, color);
 				
-				SetTexture(0);
 				int capt_state = getCaptainState(anim1, anim2, anim3);
 				int capt_y = -9; if(the_hat==-1) capt_y = -14;
 				
-				int capt_w = 960; int capt_h = 560; int capt_p = 40;
+				int capt_p = 40;
 				
 				if(use_custom_sweeper)
 				{
 					capt_y = -14;
-					capt_w = spritesheet[13].width;
-					capt_h = spritesheet[13].height;
-					capt_p = capt_w / 4;
-					SetTexture(13);
+					capt_p = spritesheet[13].width / 4;
 				}
 				
-				DrawSprite2D(capt_state, 372, capt_y+ze_y-zcs_y+256, 94, 94, capt_p, capt_p, capt_w, capt_h, 3, color);
+				RSX_DrawSprite(0, capt_state, 372, capt_y+ze_y-zcs_y+256, 94, 94, capt_p, capt_p, color);
 				
 				int testpp = 24;
 				if(master_modeS) testpp = 0;
-				DrawSprite2D(testpp, -40, -22, 40, 40, 40, 40, 960, 560, -2, color);
+				RSX_DrawSprite(0, testpp, -40, -22, 40, 40, 40, 40, color);
 				DrawButton(0, -22, PAD_SELECT, -1);
 				
 				if(the_hat!=-1)
 				{
-					SetTexture(12);
 					int hat_state = getHatState(the_hat, anim1);
-					DrawSprite2D(hat_state, 372, -14+ze_y-zcs_y+256, 94, 94, 40, 40, 960, 360, 2, color);
+					RSX_DrawSprite(12, hat_state, 372, -14+ze_y-zcs_y+256, 94, 94, 40, 40, color);
 				}
 
-				SetTexture(10);
-				DrawSprite2D(animc, ui_x+818, 4, 32, 32, 64, 64, 512, 64, 0, 0xffffffff);
+				RSX_DrawSprite(10, animc, ui_x+818, 4, 32, 32, 64, 64, 0xffffffff);
 				DrawTextAligned(0, ui_x+580, ui_x+780, 4, 2, 0xffffffff, 0, 14, 32, "%d", global_minecoins);
 				break;
 			}
 			case MAP:
 			{
-				SetTexture(1);
 				DifficultyData *lvl = &episodes[EPISODE-1].levels[LEVEL].difficulties[DIFFICULTY];
 				int max_lvl = episodes[EPISODE-1].level_count;
 				
@@ -1221,7 +986,6 @@ void drawScene()
 				
 				static int ep1_x = 0;
 				
-				SetTexture(1);
 				int name_test = 0;
 				
 				u32 c_t = 0xff0000ff;
@@ -1245,7 +1009,7 @@ void drawScene()
 					{
 						for(int y0 = -22; y0 < (screen_h * 2) + 99; y0 += 32)
 						{
-							DrawSprite2D(tile_bg+anim, x0, y0, 32, 32, 16, 16, 320, 320, 8, 0xffffffff);
+							RSX_DrawSprite(1, tile_bg+anim, x0, y0, 32, 32, 16, 16, 0xffffffff);
 						}
 					}
 					switch(EPISODE)
@@ -1256,7 +1020,7 @@ void drawScene()
 							{
 								c_t = 0xff0000ff;
 								ep1_x = lerp(ep1_x, -956, 0.025f);
-								DrawRectangle2D(876+ep1_x, -22, 2763, 1000, 0x000000ff, 7);
+								RSX_DrawRectangle2D(876+ep1_x, -22, 2763, 1000, 0x000000ff);
 								DrawBossTriangles((876/2)+ep1_x+876+12, 560/2, 200);
 								UpdateBossTriangles();
 							}
@@ -1264,12 +1028,10 @@ void drawScene()
 							{
 								c_t = 0x0000ffff;
 								ep1_x = lerp(ep1_x, 1132, 0.025f);
-								DrawRectangle2D(-40, -22, ep1_x, 1000, 0x000000ff, 7);
+								RSX_DrawRectangle2D(-40, -22, ep1_x, 1000, 0x000000ff);
 								static float ang = 0.0f;
 								ang += 1.8f;
-								SetTexture(2);
-								DrawSpriteUIR(-1388+ep1_x+(876/2), (560/2) - 256, 768, 90, 768+208, 298, 1024, 1024, 512, 512, 1, ang, 0xffffff67);
-								SetTexture(1);
+								RSX_DrawSpriteUIR(2, -1388+ep1_x+(876/2), (560/2) - 256, 768, 90, 768+208, 298, 1024, 1024, 512, 512, ang, 0xffffff67);
 							}
 							
 							for(int _t = 1; _t < max_lvl; _t++)
@@ -1277,15 +1039,11 @@ void drawScene()
 								if(LEVEL<_t)
 								{
 									int tile = tile_map_num(_t);
-									DrawSprite2D(tile_bg+anim+2, 120+(64*_t)+ep1_x, -22+(32*11), 32, 32, 16, 16, 320, 320, 6, 0xffffffff);
-									DrawSprite2D(tile, 120+(64*_t), -22+(32*11)+ep1_x, 32, 32, 16, 16, 320, 320, 5, 0xffffffff);
+									RSX_DrawSprite(1, tile_bg+anim+2, 120+(64*_t)+ep1_x, -22+(32*11), 32, 32, 16, 16, 0xffffffff);
+									RSX_DrawSprite(1, tile, 120+(64*_t), -22+(32*11)+ep1_x, 32, 32, 16, 16, 0xffffffff);
 								}
-								else
-								{
-									DrawSprite2D(112+anim, 120+(64*_t)+ep1_x, -22+(32*11), 32, 32, 16, 16, 320, 320, 5, 0xffffffff);
-								}
-								
-								DrawSprite2D(241 + grid_bg, 120+(64*_t)+ep1_x, -22+(32*11), 32, 32, 16, 16, 320, 320, 4, 0xffffffff);
+								else RSX_DrawSprite(1, 112+anim, 120+(64*_t)+ep1_x, -22+(32*11), 32, 32, 16, 16, 0xffffffff);
+								RSX_DrawSprite(1, 241 + grid_bg, 120+(64*_t)+ep1_x, -22+(32*11), 32, 32, 16, 16, 0xffffffff);
 							}
 							break;
 						}
@@ -1297,7 +1055,7 @@ void drawScene()
 								
 								int b1 = b % 3;
 								int b2 = b / 3;
-								DrawSprite2D(241 + grid_bg, 88+(64*(4+b2)), -22+(64*(4+b1)), 32, 32, 16, 16, 320, 320, 4, 0xffffffff);
+								RSX_DrawSprite(1, 241 + grid_bg, 88+(64*(4+b2)), -22+(64*(4+b1)), 32, 32, 16, 16, 0xffffffff);
 							}
 							
 							break;
@@ -1325,7 +1083,7 @@ void drawScene()
 									case 9: b1 = 3; b2 = 2; break;
 								}
 								
-								DrawSprite2D(241 + grid_bg, 120+(64*(3+b2)), -22+(64*(4+b1)), 32, 32, 16, 16, 320, 320, 4, 0xffffffff);
+								RSX_DrawSprite(1, 241 + grid_bg, 120+(64*(3+b2)), -22+(64*(4+b1)), 32, 32, 16, 16, 0xffffffff);
 							}
 							
 							break;
@@ -1335,7 +1093,7 @@ void drawScene()
 							for(int b = 0; b < 3; b++)
 							{
 								DrawLevelIcon(b + 1, level_positions3[b].x, level_positions3[b].y, anim, tile_bg);
-								DrawSprite2D(241 + grid_bg, level_positions3[b].x, level_positions3[b].y, 32, 32, 16, 16, 320, 320, 4, 0xffffffff);
+								RSX_DrawSprite(1, 241 + grid_bg, level_positions3[b].x, level_positions3[b].y, 32, 32, 16, 16, 0xffffffff);
 							}
 							
 							break;
@@ -1347,15 +1105,11 @@ void drawScene()
 								if(LEVEL<_t)
 								{
 									int tile = tile_map_num(_t);
-									DrawSprite2D(tile_bg+anim+2, 152+(64*_t)+ep1_x, -22+(32*11), 32, 32, 16, 16, 320, 320, 6, 0xffffffff);
-									DrawSprite2D(tile, 152+(64*_t), -22+(32*11)+ep1_x, 32, 32, 16, 16, 320, 320, 5, 0xffffffff);
+									RSX_DrawSprite(1, tile_bg+anim+2, 152+(64*_t)+ep1_x, -22+(32*11), 32, 32, 16, 16, 0xffffffff);
+									RSX_DrawSprite(1, tile, 152+(64*_t), -22+(32*11)+ep1_x, 32, 32, 16, 16, 0xffffffff);
 								}
-								else
-								{
-									DrawSprite2D(112+anim, 152+(64*_t)+ep1_x, -22+(32*11), 32, 32, 16, 16, 320, 320, 5, 0xffffffff);
-								}
-								
-								DrawSprite2D(241 + grid_bg, 152+(64*_t)+ep1_x, -22+(32*11), 32, 32, 16, 16, 320, 320, 4, 0xffffffff);
+								else RSX_DrawSprite(1, 112+anim, 152+(64*_t)+ep1_x, -22+(32*11), 32, 32, 16, 16, 0xffffffff);
+								RSX_DrawSprite(1, 241 + grid_bg, 152+(64*_t)+ep1_x, -22+(32*11), 32, 32, 16, 16, 0xffffffff);
 							}
 							break;
 						}
@@ -1363,7 +1117,7 @@ void drawScene()
 					}
 				}
 				
-				DrawSprite2D(getShipRot(ship_r)+anim1, ship_x+ep1_x, ship_y, 32, 32, 16, 16, 320, 320, 0, 0xffffffff);
+				RSX_DrawSprite(1, getShipRot(ship_r)+anim1, ship_x+ep1_x, ship_y, 32, 32, 16, 16, 0xffffffff);
 				
 				SetFontSize(28, 32);
 				if(!ship_a)
@@ -1384,13 +1138,12 @@ void drawScene()
 				if(the_timer>998) the_timer=999;
 				if(the_timer<0) the_timer=0;
 				
-				SetTexture(2);
 				SetFontSize(84, 96);
-				DrawSpriteUI(-40, -22, 0, 0, 384, 192, 1024, 1024, 302, 112, 1, color);
-				DrawSpriteUI(576, -22, 0, 0, 384, 192, 1024, 1024, 302, 112, 1, color);
-				DrawSpriteUI(262, -22, 384, 0, 768, 192, 1024, 1024, 314, 112, 1, color);
-				DrawSpriteUI(-20, -10, 0+(anim*264), 192, 264+(anim*264), 456, 1024, 1024, 94, 94, 1, color);
-				DrawSpriteUI(586, -10, 0+(anim*264), 456, 264+(anim*264), 720, 1024, 1024, 94, 94, 1, color);
+				RSX_DrawSpriteUI(2, -40, -22, 0, 0, 384, 192, 1024, 1024, 302, 112, color);
+				RSX_DrawSpriteUI(2, 576, -22, 0, 0, 384, 192, 1024, 1024, 302, 112, color);
+				RSX_DrawSpriteUI(2, 262, -22, 384, 0, 768, 192, 1024, 1024, 314, 112, color);
+				RSX_DrawSpriteUI(2, -20, -10, 0+(anim*264), 192, 264+(anim*264), 456, 1024, 1024, 94, 94, color);
+				RSX_DrawSpriteUI(2, 586, -10, 0+(anim*264), 456, 264+(anim*264), 720, 1024, 1024, 94, 94, color);
 				
 				if(enable_9 || enable_12)
 				{
@@ -1416,34 +1169,30 @@ void drawScene()
 				
 				SetFontSize(28, 32);
 				
-				SetTexture(0);
 				int capt_state = getCaptainState(anim1, anim2, anim3);
 				int capt_y = -9; if(the_hat==-1) capt_y = -14;
 				
-				int capt_w = 960; int capt_h = 560; int capt_p = 40;
-				
+				int capt_p = 40;
 				if(use_custom_sweeper)
 				{
 					capt_y = -14;
-					capt_w = spritesheet[13].width;
-					capt_h = spritesheet[13].height;
-					capt_p = capt_w / 4;
-					SetTexture(13);
+					capt_p = spritesheet[13].width / 4;
+					// SetTexture(13);
 				}
 				
-				DrawSprite2D(capt_state, 372, capt_y, 94, 94, capt_p, capt_p, capt_w, capt_h, 0, color);
+				RSX_DrawSprite(0, capt_state, 372, capt_y, 94, 94, capt_p, capt_p, color);
 				
 				if(the_hat!=-1)
 				{
-					SetTexture(12);
 					int hat_state = getHatState(the_hat, anim1);
-					DrawSprite2D(hat_state, 372, -14, 94, 94, 40, 40, 960, 360, 0, color);
+					RSX_DrawSprite(12, hat_state, 372, -14, 94, 94, 40, 40, color);
 				}
-				//DrawFString(0, -20,32, 0xffffffff, 0, 32, "TOTAL MINECOINS: %d", global_minecoins);
-				//DrawFString(0, -20,64, 0xffffffff, 0, 32, "MINECOINS: %d", current_minecoins);
-				DrawFString(0, -20,88, 0xffffffff, 0, 32, "FPS: %d", fps);
+				// DrawFString(0, -20,32, 0xffffffff, 0, 32, "TOTAL MINECOINS: %d", global_minecoins);
+				// DrawFString(0, -20,64, 0xffffffff, 0, 32, "MINECOINS: %d", current_minecoins);
+				// DrawFString(0, -20,88, 0xffffffff, 0, 32, "FPS: %d", fps);
 				
-				if(global_route==1) SetTexture(4); else SetTexture(3);
+				int tex_boss = 0;
+				if(global_route==1) tex_boss = 4; else tex_boss = 3;
 				
 				if(boss9_count>0 && boss9_cutscene && enable_9)
 				{
@@ -1451,12 +1200,11 @@ void drawScene()
 
 					for (i = 0; i < boss9_count; i++)
 					{
-						if(boss9_count>0 && i>0) SetTexture(5);
+						// if(boss9_count>0 && i>0) SetTexture(5);
 						
-						DrawSprite2DR(0, offset_x+(boss9_list[i].x*RENDER_SIZE)-RENDER_SIZE, offset_y+(boss9_list[i].y*RENDER_SIZE)-RENDER_SIZE,
-							RENDER_SIZE*3, RENDER_SIZE*3, 384, 384, 1536, 1536, boss9_list[i].rotation, -1, color);
-						DrawSprite2D(1, offset_x+(boss9_list[i].x*RENDER_SIZE)-RENDER_SIZE, offset_y+(boss9_list[i].y*RENDER_SIZE)-RENDER_SIZE,
-							RENDER_SIZE*3, RENDER_SIZE*3, 384, 384, 1536, 1536, -1, color);
+						RSX_DrawSprite2DR(tex_boss, 0, offset_x+(boss9_list[i].x*RENDER_SIZE)-RENDER_SIZE, offset_y+(boss9_list[i].y*RENDER_SIZE)-RENDER_SIZE,
+							RENDER_SIZE*3, RENDER_SIZE*3, 384, 384, 1536, 1536, boss9_list[i].rotation, color);
+						RSX_DrawSprite(tex_boss, 1, offset_x+(boss9_list[i].x*RENDER_SIZE)-RENDER_SIZE, offset_y+(boss9_list[i].y*RENDER_SIZE)-RENDER_SIZE, RENDER_SIZE*3, RENDER_SIZE*3, 384, 384, color);
 					}
 				}
 			
@@ -1473,7 +1221,7 @@ void drawScene()
 						boss10_list[i].pulse += 0.4f / (float)boss10_list[i].time;
 						if (boss10_list[i].pulse > 6.283185f) boss10_list[i].pulse -= 6.283185f; // keep it sane mkay?
 						
-						if(boss10_count>0 && i>0) SetTexture(5);
+						// if(boss10_count>0 && i>0) SetTexture(5);
 						
 						switch(boss10_list[i].time)
 						{
@@ -1497,16 +1245,12 @@ void drawScene()
 							float draw_x = (boss10_list[i].x - TMP_SIZ) - (TMP_SIZE / 2.0f) + (TMP_SIZ*1.5f);
 							float draw_y = (boss10_list[i].y - TMP_SIZ) - (TMP_SIZE / 2.0f) + (TMP_SIZ*1.5f);
 							
-							DrawSprite2DR(4, draw_x, draw_y, TMP_SIZE, TMP_SIZE, 384, 384, 1536, 1536, 36*jl, -1, color_from_value(boss10_list[i].time));
+							RSX_DrawSprite2DR(tex_boss, 4, draw_x, draw_y, TMP_SIZE, TMP_SIZE, 384, 384, 1536, 1536, 36*jl, color_from_value(boss10_list[i].time));
 						}
-						DrawSprite2D(5, boss10_list[i].x - TMP_SIZ, boss10_list[i].y - TMP_SIZ, TMP_SIZ*3, TMP_SIZ*3, 384, 384, 1536, 1536, -2, color_from_value(boss10_list[i].time));
-						
-						SetTexture(1);
-						DrawSprite2D(num, boss10_list[i].x, boss10_list[i].y, TMP_SIZ, TMP_SIZ, 16, 16, 320, 320, -3, color);
+						RSX_DrawSprite(tex_boss, 5, boss10_list[i].x - TMP_SIZ, boss10_list[i].y - TMP_SIZ, TMP_SIZ*3, TMP_SIZ*3, 384, 384, color_from_value(boss10_list[i].time));
+						RSX_DrawSprite(1, num, boss10_list[i].x, boss10_list[i].y, TMP_SIZ, TMP_SIZ, 16, 16, color);
 					}
 				}
-				
-				if(global_route==1) SetTexture(4); else SetTexture(3);
 				
 				if(boss11_count>0 && boss11_cutscene && enable_11)
 				{
@@ -1515,14 +1259,11 @@ void drawScene()
 					for (i = 0; i < boss11_count; i++)
 					{
 						u32 colorz = (0xFFFFFF00 | boss11_list[i].alpha);
-						//if(boss11_count>0 && i>0) SetTexture(5);
-						DrawSprite2D(4, offset_x+(boss11_list[i].x*RENDER_SIZE)-(RENDER_SIZE*0.5)-boss11_list[i].vis_x1+(RENDER_SIZE*0.022),
-							offset_y+(boss11_list[i].y*RENDER_SIZE)-(RENDER_SIZE*0.5),
-							RENDER_SIZE, RENDER_SIZE*2, 192, 384, 1536, 1536, -1, colorz);
+						RSX_DrawSprite(tex_boss, 4, offset_x+(boss11_list[i].x*RENDER_SIZE)-(RENDER_SIZE*0.5)-boss11_list[i].vis_x1+(RENDER_SIZE*0.022),
+							offset_y+(boss11_list[i].y*RENDER_SIZE)-(RENDER_SIZE*0.5), RENDER_SIZE, RENDER_SIZE*2, 192, 384, colorz);
 						
-						DrawSprite2D(5, offset_x+(boss11_list[i].x*RENDER_SIZE)-(RENDER_SIZE*0.5)+RENDER_SIZE+boss11_list[i].vis_x2-(RENDER_SIZE*0.022),
-							offset_y+(boss11_list[i].y*RENDER_SIZE)-(RENDER_SIZE*0.5),
-							RENDER_SIZE, RENDER_SIZE*2, 192, 384, 1536, 1536, -1, colorz);
+						RSX_DrawSprite(tex_boss, 5, offset_x+(boss11_list[i].x*RENDER_SIZE)-(RENDER_SIZE*0.5)+RENDER_SIZE+boss11_list[i].vis_x2-(RENDER_SIZE*0.022),
+							offset_y+(boss11_list[i].y*RENDER_SIZE)-(RENDER_SIZE*0.5), RENDER_SIZE, RENDER_SIZE*2, 192, 384, colorz);
 					}
 				}
 				
@@ -1530,10 +1271,10 @@ void drawScene()
 				{
 					float TMP_SIZ = 3.0f * RENDERING_PIXELS;
 					
-					if(boss12.tempo>(495-boss12.mistake) && boss12.tempo<(500-boss12.mistake)) DrawBackground2D(0xffffffff, -2);
+					//if(boss12.tempo>(495-boss12.mistake) && boss12.tempo<(500-boss12.mistake)) DrawBackground2D(0xffffffff, -2);
 					
-					DrawSprite2DR(3, boss12.x - TMP_SIZ, boss12.y - TMP_SIZ, TMP_SIZ*3, TMP_SIZ*3, 384, 384, 1536, 1536, -boss12.rotation, -3, color);
-					DrawSprite2D(7, boss12.x - TMP_SIZ, boss12.y - TMP_SIZ, TMP_SIZ*3, TMP_SIZ*3, 384, 384, 1536, 1536, -3, color);
+					RSX_DrawSprite2DR(tex_boss, 3, boss12.x - TMP_SIZ, boss12.y - TMP_SIZ, TMP_SIZ*3, TMP_SIZ*3, 384, 384, 1536, 1536, -boss12.rotation, color);
+					RSX_DrawSprite(tex_boss, 7, boss12.x - TMP_SIZ, boss12.y - TMP_SIZ, TMP_SIZ*3, TMP_SIZ*3, 384, 384, color);
 				}
 				
 				if(bossnan_count>0 && bossnan_cutscene && enable_nan)
@@ -1552,7 +1293,7 @@ void drawScene()
 						
 						t_x = (float)lerp(t_x, bossnan_list[i].pos_x, 0.1);
 						t_y = (float)lerp(t_y, bossnan_list[i].pos_y, 0.1);
-						DrawSprite2D(6, t_x, t_y, RENDER_SIZE*4, RENDER_SIZE*4, 384, 384, 1536, 1536, -1, color);
+						RSX_DrawSprite(tex_boss, 6, t_x, t_y, RENDER_SIZE*4, RENDER_SIZE*4, 384, 384, color);
 					}
 				}
 				
@@ -1602,7 +1343,7 @@ void drawScene()
 					if(enable_10){temper = 75; temper2 = 104;}
 					if(enable_11){temper = 76; temper2 = 105;}
 					
-					DrawRectangle2D(-40+100, -22+100, 876-100, 560-100, 0xaaaaaaff, -5);
+					RSX_DrawRectangle2D(-40+100, -22+100, 876-100, 560-100, 0xaaaaaaff);
 					
 					SetFontSize(16, 18);
 					if(global_route==1) DrawFString(tempz, -40+100, -22+100, 0x000000ff, 1, 18, "%s\n\n%s\n%s", langStr[temper], langStr[106], langStr[temper2]);
@@ -1633,11 +1374,10 @@ void drawScene()
 					if(end_time>1) zez_y = -22; else zez_y = 96;
 					zex_y = lerp(zex_y, zez_y, 0.05f);
 					
-					SetTexture(15+EPISODE);
-					DrawSprite2D(anim3, -40, -22, 916, 582, 1152, 960, 2304, 1920, 1, color);
+					RSX_DrawSprite(15+EPISODE, anim3, -40, -22, 916, 582, 1152, 960, color);
 					
-					DrawRectangle2D(-40, -22, 916, zex_y, 0x000000ff, -2);
-					DrawRectangle2D(-40, 562-zex_y, 916, 582, 0x000000ff, -2);
+					RSX_DrawRectangle2D(-40, -22, 916, zex_y, 0x000000ff);
+					RSX_DrawRectangle2D(-40, 562-zex_y, 916, 582, 0x000000ff);
 					
 					SetFontSize(28, 32);
 					if(end_time<3)
@@ -1665,8 +1405,7 @@ void drawScene()
 							
 							if(a==1) icon = 35; else if(a==2) icon = 133; else if(a==3) icon = 114;
 							
-							SetTexture(1);
-							DrawSprite2D(icon, zs_x - 32, 512-(32*d)+4, 32, 32, 16, 16, 320, 320, 0, color);
+							RSX_DrawSprite(1, icon, zs_x - 32, 512-(32*d)+4, 32, 32, 16, 16, color);
 							
 							if(b>max_lvl)
 							{
@@ -1695,8 +1434,7 @@ void drawScene()
 								case 7: rank_letter = 246; break; // Master
 							}
 							
-							SetTexture(1);
-							DrawSprite2D(rank_letter, 512+64, 20, 64, 64, 16, 16, 320, 320, 0, color);
+							RSX_DrawSprite(1, rank_letter, 512+64, 20, 64, 64, 16, 16, color);
 							
 							DrawFString(0, test_x, 448, 0xff0000ff, 32, 1, langStr[10]);
 							DrawFString(0, test_x, 480, 0xff0000ff, 32, 1, langStr[11]);
@@ -1713,17 +1451,15 @@ void drawScene()
 			}
 			case GOTOSHOP:
 			{
-				SetTexture(1);
 				for(int x0 = -40; x0 < (screen_w * 2) + 99; x0 += 32)
 				{
 					for(int y0 = -22; y0 < (screen_h * 2) + 99; y0 += 32)
 					{
-						DrawSprite2D(anim, x0, y0, 32, 32, 16, 16, 320, 320, 5, color);
+						RSX_DrawSprite(1, anim, x0, y0, 32, 32, 16, 16, color);
 					}
 				}
-				DrawSprite2D(192+anim2, -40+(32*16), -22+(32*6), 32, 32, 16, 16, 320, 320, 5, color);
-				
-				DrawSprite2D(getShipRot(ship_r)+anim1, ship_x, ship_y, 32, 32, 16, 16, 320, 320, 5, color);
+				RSX_DrawSprite(1, 192+anim2, -40+(32*16), -22+(32*6), 32, 32, 16, 16, color);
+				RSX_DrawSprite(1, getShipRot(ship_r)+anim1, ship_x, ship_y, 32, 32, 16, 16, color);
 				
 				break;
 			}
@@ -1767,17 +1503,14 @@ void drawScene()
 				}
 				else shopkeeper_quote = 101;
 				
-				SetTexture(19);
-				DrawSprite2D(0, -40, -22, 916, 582, 640, 360, 640, 360, 2, color);
+				RSX_DrawSprite(19, 0, -40, -22, 916, 582, 640, 360, color);
 				
-				SetTexture(12);
 				for(int p = 0; p < 7; p++)
 				{
-					DrawSprite2D(p*24, 32+(p*112), 64, 80, 80, 40, 40, 960, 360, 0, color);
+					RSX_DrawSprite(12, p*24, 32+(p*112), 64, 80, 80, 40, 40, color);
 				}
 				
-				SetTexture(15);
-				DrawSprite2D(0+randomizer, 684, 432, 78*2, 49*2, 78, 49, 312, 147, 1, color);
+				RSX_DrawSprite(15, 0+randomizer, 684, 432, 78*2, 49*2, 78, 49, color);
 				
 				DrawFString(52, 32, 420, 0xffffffff, 0, 32, langStr[shopkeeper_quote]);
 				break;
@@ -1821,8 +1554,7 @@ void drawScene()
 				
 				if(easter_egg)
 				{
-					SetTexture(15);
-					DrawSprite2D(8+anim3, 684, 432, 78*2, 49*2, 78, 49, 312, 147, 5, 0xffffffff);
+					RSX_DrawSprite(15, 8+anim3, 684, 432, 78*2, 49*2, 78, 49, 0xffffffff);
 				}
 				break;
 			}
@@ -1840,11 +1572,10 @@ void drawScene()
 					if(end_time>1) zez_y = -22; else zez_y = 96;
 					zex_y = lerp(zex_y, zez_y, 0.05f);
 					
-					SetTexture(15+EPISODE);
-					DrawSprite2D(0, -40, -22, 916, 582, 1152, 960, 2304, 1920, 1, color);
+					RSX_DrawSprite(15+EPISODE, 0, -40, -22, 916, 582, 1152, 960, color);
 					
-					DrawRectangle2D(-40, -22, 916, zex_y, 0x000000ff, -2);
-					DrawRectangle2D(-40, 562-zex_y, 916, 582, 0x000000ff, -2);
+					RSX_DrawRectangle2D(-40, -22, 916, zex_y, 0x000000ff);
+					RSX_DrawRectangle2D(-40, 562-zex_y, 916, 582, 0x000000ff);
 					
 					SetFontSize(28, 32);
 					DrawTextAligned(0, -40, 876, -84+zex_y, 1, 0xff0000ff, 1, 28, 32, langStr[109]);
@@ -1859,7 +1590,6 @@ void drawScene()
 			}
 			case ROUTE_SELECT:
 			{
-				SetTexture(1);
 				int x0, y0 = 0;
 				int zp = fp_back/5;
 				int mp = fp_back%5;
@@ -1871,7 +1601,7 @@ void drawScene()
 				{
 					for(y0 = -22; y0 < (screen_h * 2) + 99; y0 += 32)
 					{
-						DrawSprite2D(tile_bg+anim+2, x0, y0, 32, 32, 16, 16, 320, 320, 5, 0xffffffff);
+						RSX_DrawSprite(1, tile_bg+anim+2, x0, y0, 32, 32, 16, 16, 0xffffffff);
 					}
 				}
 				
@@ -1916,50 +1646,22 @@ void drawScene()
 	if(show_ach)
 	{
 		SetFontSize(16, 18);
-		DrawRectangle2D(-30, -2, 420, 40, 0xaaaaaaff, -6);
+		RSX_DrawRectangle2D(-30, -2, 420, 40, 0xaaaaaaff);
 		DrawFString(0, -20, -2, 0xffffffff, 0, 28, cur_ach_name);
 	}
 	
-	if(currentScreen == GAME)
-	{
-		if(enable_10 && global_route==1) DrawBackground2D(0x00ff0000 | (int)(tnt_alpha), -7);
+	// if(currentScreen == GAME)
+	// {
+		// if(enable_10 && global_route==1) DrawBackground2D(0x00ff0000 | (int)(tnt_alpha), -7);
 		
-		if(enable_12 && !can_move_xd)
-		{
-			tiny3d_BlendFunc(1, TINY3D_BLEND_FUNC_SRC_RGB_ONE_MINUS_DST_COLOR | TINY3D_BLEND_FUNC_SRC_ALPHA_ONE,
-				TINY3D_BLEND_FUNC_DST_RGB_ZERO | TINY3D_BLEND_FUNC_DST_ALPHA_ZERO, TINY3D_BLEND_RGB_FUNC_ADD | TINY3D_BLEND_ALPHA_FUNC_ADD);
+		// if(enable_12 && !can_move_xd)
+		// {
+			// tiny3d_BlendFunc(1, TINY3D_BLEND_FUNC_SRC_RGB_ONE_MINUS_DST_COLOR | TINY3D_BLEND_FUNC_SRC_ALPHA_ONE,
+				// TINY3D_BLEND_FUNC_DST_RGB_ZERO | TINY3D_BLEND_FUNC_DST_ALPHA_ZERO, TINY3D_BLEND_RGB_FUNC_ADD | TINY3D_BLEND_ALPHA_FUNC_ADD);
 			
-			DrawBackground2D(0xffffffff, -7);
-		}
-	}
-}
-
-u32 *texture_pointer = NULL;
-
-void LoadTexture()
-{
-	int g;
-	
-    u32 * texture_mem = tiny3d_AllocTexture(48*1024*1024);
-    if(!texture_mem) return;
-    texture_pointer = texture_mem;
-	
-    Load_PNG();
-	
-	ResetFont();
-    TTFLoadFont(NULL, (void *) asimov_ttf_bin, asimov_ttf_bin_size);
-    texture_pointer = (u32 *) AddFontFromTTF((u8 *) texture_pointer, 32, 255, 64, 64, TTF_to_Bitmap);
-    TTFUnloadFont();
-	
-    for(g = 0; g < TOTAL_SHEETS; g++)
-	{
-		memcpy(texture_pointer, spritesheet[g].bmp_out, spritesheet[g].pitch * spritesheet[g].height);
-		sprite_off[g] = tiny3d_TextureOffset(texture_pointer);
-		free(spritesheet[g].bmp_out);
-		spritesheet[g].bmp_out = NULL;
-		
-		texture_pointer += ((spritesheet[g].pitch * spritesheet[g].height + 15) & ~15) / 4;
-    }
+			// DrawBackground2D(0xffffffff, -7);
+		// }
+	// }
 }
 
 void MyDrawFormatString(float x, float y, const char* format, ...)
@@ -2130,10 +1832,7 @@ void UpdateProjectiles(float dt)
 
         p->lifetime -= dt;
 		
-		if(p->type == 0)
-		{
-			p->anim += 0.41f;
-		}
+		if(p->type == 0) p->anim += 0.41f;
 		else
 		{
 			if(ProjectileOnCursor(projectiles[i].x, projectiles[i].y))
@@ -2147,10 +1846,7 @@ void UpdateProjectiles(float dt)
 
         if(p->lifetime <= 0.0f)
         {
-			if(p->type == 0) // explosion :)
-			{
-				can_move_xd = 1;
-			}
+			if(p->type == 0) can_move_xd = 1;
             p->active = 0;
         }
     }

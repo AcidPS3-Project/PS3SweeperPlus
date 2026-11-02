@@ -22,9 +22,8 @@ DATA		:=	data
 SHADERS		:=	shaders
 INCLUDES	:=	include
 
-LIBS		:=	-lfont3d -lfreetype -Wl,--start-group -ltiny3d -lrsx -lgcm_sys \
-			-Wl,--end-group -lsimdmath -lio -lsysutil -lrt -llv2 -lsysmodule -laudioplayer \
-			-lmpg123 -logg -lspu_sound -laudio -lpngdec -lz -lm -llv2dbg
+LIBS		:=	-lfreetype -lrsx -lgcm_sys -lsimdmath -lio -lsysutil -lrt -llv2 -lsysmodule \
+				-laudioplayer -lmpg123 -logg -lspu_sound -laudio -lpngdec -lz -lm -llv2dbg
 
 CFLAGS		=	-O2 -Wall -mcpu=cell $(MACHDEP) $(INCLUDE)
 
@@ -96,6 +95,14 @@ $(OUTPUT).elf:	$(OFILES)
 %.bin.o	:	%.bin
 	@echo $(notdir $<)
 	@$(bin2o)
+
+%.vpo: %.vcg
+	@echo Compiling vertex shader: $(notdir $<)
+	@cgcomp -v $< $@
+
+%.fpo: %.fcg
+	@echo Compiling fragment shader: $(notdir $<)
+	@cgcomp -f $< $@
 
 %.vpo.o	:	%.vpo
 	@echo $(notdir $<)
