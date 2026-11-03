@@ -5,7 +5,9 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
+#include <unistd.h>
 #include <math.h>
+
 #include "importer.h"
 #include "rsx_renderer.h"
 
@@ -13,6 +15,9 @@
 #include <sysmodule/sysmodule.h>
 
 static RSX_Texture textures[RSX_MAX_TEXTURES];
+
+#define RSX_FENCE_LABEL 250
+static u32 fence_value = 0;
 
 typedef struct {
     float x, y, z, w;
@@ -478,7 +483,16 @@ int RSX_CreateSpriteBuffers(void)
     return 1;
 }
 
-void RSX_BeginFrame(void) { frame_idx ^= 1; sprite_n = 0; }
+void RSX_BeginFrame(void)
+{
+    volatile u32 *label = (volatile u32*)gcmGetLabelAddress(RSX_FENCE_LABEL);
+    int tries = 0;
+    while (fence_value && *label != fence_value && ++tries < 10000)
+        usleep(50);
+
+    frame_idx ^= 1;
+    sprite_n = 0;
+}
 
 void RSX_DrawSprite2D(int texture_id, float x, float y, float width, float height, float u, float v,
     float uv_width, float uv_height, u32 color)
@@ -706,4 +720,12 @@ void RSX_SetTextureFilter(int id, int linear)
 {
     if (id < 0 || id >= RSX_MAX_TEXTURES) return;
     textures[id].linear = linear ? 1 : 0;
+}
+
+void RSX_EndFrameMark(void)
+{
+    gcmContextData *ctx = RSX_GetContext();
+    fence_value++;
+    rsxSetWriteBackendLabel(ctx, RSX_FENCE_LABEL, fence_value);
+    rsxFlushBuffer(ctx);
 }

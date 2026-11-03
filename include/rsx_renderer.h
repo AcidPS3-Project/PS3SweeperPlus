@@ -57,5 +57,6 @@ void RSX_DrawSpriteUIR(int texture_id, float x, float y, int wid1, int hei1, int
 void RSX_DrawSprite2DR(int texture_id, int id, float x, float y, int wid2, int hei2, int wid1, int hei1, int wid0, int hei0, float angle, u32 color);
 
 void RSX_SetTextureFilter(int id, int linear);
+void RSX_EndFrameMark(void);
 
 #endif

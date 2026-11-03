@@ -229,7 +229,7 @@ extern int setting_guarantee;
 
 float lerp(int x, int y, float amount);
 
-void DebugLog(const char *text);
+void DebugLog(const char *format, ...);
 
 int LoadImageA(const char *path, pngData *texture);
 

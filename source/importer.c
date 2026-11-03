@@ -14,6 +14,8 @@ int desired_bgm = 1;
 
 int smiley_face = 0;
 
+bool doLogs = true;
+
 float ship_x = -40.0f;
 float ship_y = -22.0f;
 int ship_r = 0;
@@ -739,16 +741,16 @@ void PlayBGM(int id, int inf)
 	
 	if(!fp)
     {
-        printf("Error! No music found.\n");
+        DebugLog("Error! No music found.\n");
         return;
     }
 	
     PlayAudiofd(fp, 0, inf ? AUDIO_INFINITE_TIME : AUDIO_ONE_TIME);
     current_bgm = temp+id;
 	
-	printf("FILE: %s\n", bgm[temp+id]);
-	printf("START: %d\n", bgm_start[temp+id]);
-	printf("END: %d\n", bgm_end[temp+id]);
+	DebugLog("FILE: %s\n", bgm[temp+id]);
+	DebugLog("START: %d\n", bgm_start[temp+id]);
+	DebugLog("END: %d\n", bgm_end[temp+id]);
 }
 
 void UpdateBGM(void)
@@ -906,16 +908,26 @@ void HolyShit2(int type)
 	}
 }
 
-void DebugLog(const char *text)
+void DebugLog(const char *format, ...)
 {
-	printf("%s\n", text);
-    FILE *fp = fopen("/dev_hdd0/game/MINESWEEP/USRDIR/logstuff.txt", "ab");
+	char buffer[1024];
 
-    if(fp)
-    {
-        fprintf(fp, "%s\n", text);
-        fclose(fp);
-    }
+    va_list args;
+    va_start(args, format);
+    vsnprintf(buffer, sizeof(buffer), format, args);
+    va_end(args);
+	
+	printf(buffer);
+	
+	if(doLogs)
+	{
+		FILE *fp = fopen("/dev_hdd0/game/MINESWEEP/USRDIR/log.txt", "ab");
+		if(fp)
+		{
+			fprintf(fp, buffer);
+			fclose(fp);
+		}
+	}
 }
 
 int LoadImageA(const char *path, pngData *texture)

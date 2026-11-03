@@ -6,12 +6,14 @@ If you are reading this, then congrats! The 1 month after v1.0 release has passs
 Thanks for visiting this amazing project of mine.
 Here is something you should know:
 1. If using my source code, please credit!
-2. Yes, the game code is AI-Assisted, but NOT generated.
-3. Please do ANY significant changes. Ports are fine as long as it's not for PS3 (well.. guess?)
+2. Yes, the game code is AI-Assisted/Generated. Any game asset (music, image, story, well.. anything except some code) wasn't made with AI.
+3. Please do ANY significant changes. Ports to other platforms are fine.
+4. Any test has been made by a real person. If something doesn't work, please, test the issue on real hardware first.
 
 - AcidNT3.1
 
 */
+
 #include "rsx_renderer.h"
 #include "rsxutil.h"
 #define MAX_BUFFERS 2
@@ -411,12 +413,12 @@ int main(int argc, const char* argv[])
 		return -1;
 	}
 
-	printf("Display: %dx%d\n", screen_width, screen_height);
+	DebugLog("Display: %dx%d\n", screen_width, screen_height);
 
 	for (int i = 0; i < MAX_BUFFERS; i++) {
 		if (!makeBuffer(&buffers[i], screen_width, screen_height, i))
 		{
-			printf("Failed to create framebuffer %d!\n", i);
+			DebugLog("Failed to create framebuffer %d!\n", i);
 			return -1;
 		}
 	}
@@ -464,7 +466,7 @@ int main(int argc, const char* argv[])
 	StartLoad();
 	
 	for(int i = 0; i < MAX_BUFFERS; i++) RSX_TestDraw(&buffers[i]);
-	if(!flip(RSX_GetContext(), MAX_BUFFERS - 1)) printf("RSX: initial flip failed!\n");
+	if(!flip(RSX_GetContext(), MAX_BUFFERS - 1)) DebugLog("RSX: initial flip failed!\n");
 
 	int currentBuffer = 0;
 	
@@ -486,6 +488,9 @@ int main(int argc, const char* argv[])
     while(1)
     {
 		sysUtilCheckCallback();
+		
+		static int fc = 0;
+		if((++fc % 60) == 0) DebugLog("frame %d xmb=%d flipstatus=%d\n", fc, xmb_open, gcmGetFlipStatus());
 		
 		if (exit_requested) break;
 		
@@ -1913,7 +1918,7 @@ int main(int argc, const char* argv[])
 								}
 								
 								rank_result = calculate_rank(time_total);
-								printf("RANK: %d\n", rank_result);
+								DebugLog("RANK: %d\n", rank_result);
 								
 								global_minecoins += current_minecoins;
 								
@@ -2077,7 +2082,7 @@ int main(int argc, const char* argv[])
 								temp_tz = 0;
 								temp_t = 0;
 								
-								printf("RANK: %d\n", rank_result);
+								DebugLog("RANK: %d\n", rank_result);
 								start_end = 0;
 								PlayBGM(189, 0);
 								ready_to_click = 1;
@@ -2205,7 +2210,7 @@ int main(int argc, const char* argv[])
 				if(time_left <= 0.9f)
 				{
 					timer_running = 0;
-					printf("TIME OVER\n");
+					DebugLog("TIME OVER\n");
 					if(free_play) fp_lifes=0; else LIFES=0;
 					game_lost();
 				}
@@ -2356,9 +2361,11 @@ int main(int argc, const char* argv[])
 			
 			drawScene();
 			
-			if (!flip(RSX_GetContext(), buffers[currentBuffer].id)) printf("RSX: test flip failed!\n");
+			RSX_EndFrameMark();
+			if (!flip(RSX_GetContext(), buffers[currentBuffer].id)) DebugLog("RSX: test flip failed!\n");
 			currentBuffer = (currentBuffer + 1) % MAX_BUFFERS;
 		}
+		else usleep(16000);
     }
 
 	rsxFinish(RSX_GetContext(), 1);
