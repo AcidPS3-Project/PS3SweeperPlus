@@ -14,7 +14,8 @@ int desired_bgm = 1;
 
 int smiley_face = 0;
 
-bool doLogs = true;
+bool doLogs = false;
+bool ultrakill_dlc = false;
 
 float ship_x = -40.0f;
 float ship_y = -22.0f;

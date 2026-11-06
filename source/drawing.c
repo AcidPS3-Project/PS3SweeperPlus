@@ -77,13 +77,13 @@ void DrawProjectiles()
 		{
 			case 0:
 			{
-				RSX_DrawSprite(8, p->anim, p->x - 34, p->y - 34, 96, 96, 48, 48, 0xFFFFFFFF);
+				DrawSprite(8, p->anim, p->x - 34, p->y - 34, 96, 96, 48, 48, -5, 0xFFFFFFFF);
 				break;
 			}
 			case 1:
 			{
 				float S = RENDERING_PIXELS / 2;
-				RSX_DrawSpriteUI(2, p->x - S, p->y - S, 768, 0, 858, 90, 1024, 1024, S*3, S*3, 0xFFFFFFFF);
+				DrawSpriteUI(2, p->x - S, p->y - S, 768, 0, 858, 90, 1024, 1024, S*3, S*3, -5, 0xFFFFFFFF);
 			}
 			default: break;
 		}
@@ -120,7 +120,7 @@ void DrawBossTriangles(float x, float y, float size)
 
     for(i = 0; i < 3; i++)
     {
-        RSX_DrawRotatingTriangle(x, y, sz*(4-i), boss_triangles[i].angle, boss_triangles[i].color);
+        DrawRotatingTriangle(x, y, sz*(4-i), boss_triangles[i].angle, boss_triangles[i].color, 4-1);
     }
 }
 
@@ -132,7 +132,7 @@ void DrawFade(void)
     u32 color = alpha;
     color = 0x00000000 | alpha;
 	
-	RSX_DrawBackground2D(color);
+	DrawBackground2D(color, -9);
 }
 
 u32 color_from_value(int value)
@@ -516,10 +516,10 @@ void DrawLevelIcon(int level, int x, int y, int anim, int tile_bg)
 
     if(LEVEL < level)
     {
-        RSX_DrawSprite(1, tile_bg + anim + 2, x, y, 32, 32, 16, 16, 0xffffffff);
-        RSX_DrawSprite(1, tile, x, y, 32, 32, 16, 16, 0xffffffff);
+        DrawSprite(1, tile_bg + anim + 2, x, y, 32, 32, 16, 16, 6, 0xffffffff);
+        DrawSprite(1, tile, x, y, 32, 32, 16, 16, 5, 0xffffffff);
     }
-    else RSX_DrawSprite(1, 112 + anim, x, y, 32, 32, 16, 16, 0xffffffff);
+    else DrawSprite(1, 112 + anim, x, y, 32, 32, 16, 16, 5, 0xffffffff);
 }
 
 void draw_game()
@@ -544,7 +544,7 @@ void draw_game()
 	{
 		for(y0 = -22; y0 < (screen_h * 2) + 99; y0 += 64)
 		{
-			RSX_DrawSprite(1, tile_bg + anim + 2, x0, y0, 64, 64, 16, 16, 0xffffff88);
+			DrawSprite(1, tile_bg + anim + 2, x0, y0, 64, 64, 16, 16, 5, 0xffffff88);
 		}
 	}
 	
@@ -556,8 +556,8 @@ void draw_game()
 			{
 				int tz = 858;
 				if(anim==1) tz = 858+54;
-				RSX_DrawSpriteUI(2, offset_x+(x1*RENDER_SIZE)-RENDER_SIZE, offset_y+(y1*RENDER_SIZE)-RENDER_SIZE,
-					tz, 0, tz+54, 54, 1024, 1024, RENDER_SIZE*3, RENDER_SIZE*3, color);
+				DrawSpriteUI(2, offset_x+(x1*RENDER_SIZE)-RENDER_SIZE, offset_y+(y1*RENDER_SIZE)-RENDER_SIZE,
+					tz, 0, tz+54, 54, 1024, 1024, RENDER_SIZE*3, RENDER_SIZE*3, 1, color);
 			}
 			
 			if (!board[x1][y1].active) continue;
@@ -566,8 +566,8 @@ void draw_game()
 			
 			if(board[x1][y1].revealed)
 			{
-				if(board[x1][y1].mine) RSX_DrawSprite(1, 163, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE), RENDER_SIZE, RENDER_SIZE, 16, 16, color);
-				else RSX_DrawSprite(1, tile_bg + anim + 2, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE), RENDER_SIZE, RENDER_SIZE, 16, 16, color);
+				if(board[x1][y1].mine) DrawSprite(1, 163, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE), RENDER_SIZE, RENDER_SIZE, 16, 16, 3, color);
+				else DrawSprite(1, tile_bg + anim + 2, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE), RENDER_SIZE, RENDER_SIZE, 16, 16, 4, color);
 				
 				switch(board[x1][y1].neighbors)
 				{
@@ -627,11 +627,11 @@ void draw_game()
 				
 				int zpz = RENDER_SIZE;
 				if(board[x1][y1].halfmine) zpz = RENDER_SIZE/2;
-				if(board[x1][y1].hasNeighborMines || board[x1][y1].mine) RSX_DrawSprite(1, tile, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE), RENDER_SIZE, zpz, 16, 16, color);
+				if(board[x1][y1].hasNeighborMines || board[x1][y1].mine) DrawSprite(1, tile, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE), RENDER_SIZE, zpz, 16, 16, 3, color);
 			}
 			else
 			{
-				RSX_DrawSprite(1, tile_bg + anim, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE), RENDER_SIZE, RENDER_SIZE, 16, 16, color);
+				DrawSprite(1, tile_bg + anim, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE), RENDER_SIZE, RENDER_SIZE, 16, 16, 4, color);
 				if(board[x1][y1].mine && gamelose == 1)
 				{
 					if(board[x1][y1].mine) tile = 114+anim;
@@ -641,12 +641,12 @@ void draw_game()
 					int zpz = RENDER_SIZE;
 					if(board[x1][y1].halfmine) zpz = RENDER_SIZE/2;
 					
-					RSX_DrawSprite(1, tile, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE), RENDER_SIZE, zpz, 16, 16, color);
+					DrawSprite(1, tile, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE), RENDER_SIZE, zpz, 16, 16, 3, color);
 				}
 				
 				if(board[x1][y1].flagged>0)
 				{
-					if(board[x1][y1].mine == 0 && gamelose) RSX_DrawSprite(1, 132, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE), RENDER_SIZE, RENDER_SIZE, 16, 16, color);
+					if(board[x1][y1].mine == 0 && gamelose) DrawSprite(1, 132, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE), RENDER_SIZE, RENDER_SIZE, 16, 16, 3, color);
 					else if(!gamelose)
 					{
 						int ze_flag = 0;
@@ -658,30 +658,30 @@ void draw_game()
 							case 4: ze_flag = 74; break;
 						}
 						
-						RSX_DrawSprite(1, ze_flag + anim, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE), RENDER_SIZE, RENDER_SIZE, 16, 16, color);
+						DrawSprite(1, ze_flag + anim, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE), RENDER_SIZE, RENDER_SIZE, 16, 16, 3, color);
 					}
 				}
 			}
 			
-			if(draw_grid_outlines) RSX_DrawSprite(1, 241 + grid_bg, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE), RENDER_SIZE, RENDER_SIZE, 16, 16, 0xffffff88);
+			if(draw_grid_outlines) DrawSprite(1, 241 + grid_bg, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE), RENDER_SIZE, RENDER_SIZE, 16, 16, 2, 0xffffff88);
 		}
 	}
 	
-	RSX_DrawSprite(1, 240, offset_x+(cursorX*RENDER_SIZE), offset_y+(cursorY*RENDER_SIZE), RENDER_SIZE, RENDER_SIZE, 16, 16, color);
+	DrawSprite(1, 240, offset_x+(cursorX*RENDER_SIZE), offset_y+(cursorY*RENDER_SIZE), RENDER_SIZE, RENDER_SIZE, 16, 16, -4, color);
 	
-	if(LEVEL>=8 && (!boss9_cutscene && !boss10_cutscene && !boss11_cutscene && !boss12_cutscene))
+	if(!free_play && LEVEL>=8 && (!boss9_cutscene && !boss10_cutscene && !boss11_cutscene && !boss12_cutscene))
 	{
 		int center_x = GRID_W / 2;
 		int center_y = GRID_H / 2;
 		
-		RSX_DrawSprite(1, 300, offset_x+(center_x*RENDER_SIZE), offset_y+(center_y*RENDER_SIZE), RENDER_SIZE, RENDER_SIZE, 16, 16, color);
+		DrawSprite(1, 300, offset_x+(center_x*RENDER_SIZE), offset_y+(center_y*RENDER_SIZE), RENDER_SIZE, RENDER_SIZE, 16, 16, -4, color);
 	}
 }
 
 void DrawButton(int x, int y, int button, int z)
 {
 	u32 color = 0xffffffff;
-	RSX_DrawSprite(11, button, x, y+4, 32, 32, 20, 20, color);
+	DrawSprite(11, button, x, y+4, 32, 32, 20, 20, z, color);
 }
 
 int tile_map_num(int _t)
@@ -735,7 +735,6 @@ void drawScene()
 	int ui_x = 4;
 	
     SetFontColor(0xffffffff, 0x00000000);
-    //SetCurrentFont(0);
 	
 	if(game_loaded)
 	{
@@ -756,7 +755,7 @@ void drawScene()
 			}
 			case TITLE:
 			{
-				RSX_DrawSprite(7, anim3, -40, -22, 916, 582, 1152, 960, color);
+				DrawSprite(7, anim3, -40, -22, 916, 582, 1152, 960, 1, color);
 				if(settings_select)
 				{
 					DrawFString(0, ui_x,4, 0xffffffff, 0, 32, langStr[44]);
@@ -809,7 +808,7 @@ void drawScene()
 				{
 					for(y0 = -22; y0 < (screen_h * 2) + 99; y0 += 32)
 					{
-						RSX_DrawSprite(1, tile_bg+anim+2, x0, y0, 32, 32, 16, 16, 0xffffffff);
+						DrawSprite(1, tile_bg+anim+2, x0, y0, 32, 32, 16, 16, 5, 0xffffffff);
 					}
 				}
 				
@@ -829,10 +828,10 @@ void drawScene()
 				
 				DrawFString(0, ze_x+ui_x, ze_y+4, 0xffffffff, 0, 32, langStr[16]);
 				
-				RSX_DrawSpriteUI(9, ui_x+ze_x+menu_x, ze_y+48, 512, 0, 960, 512, 1536, 1024, 224, 256, color);
-				RSX_DrawSpriteUI(9, ui_x+ze_x+menu_x+262, ze_y+48, 512, 512, 960, 1024, 1536, 1024, 224, 256, color);
-				RSX_DrawSpriteUI(9, ui_x+ze_x+menu_x+(262*2), ze_y+48, 960, 0, 960+448, 512, 1536, 1024, 224, 256, color);
-				RSX_DrawSpriteUI(9, ui_x+ze_x+menu_x+(262*3), ze_y+48, 960, 512, 960+448, 1024, 1536, 1024, 224, 256, color);
+				DrawSpriteUI(9, ui_x+ze_x+menu_x, ze_y+48, 512, 0, 960, 512, 1536, 1024, 224, 256, 4, color);
+				DrawSpriteUI(9, ui_x+ze_x+menu_x+262, ze_y+48, 512, 512, 960, 1024, 1536, 1024, 224, 256, 4, color);
+				DrawSpriteUI(9, ui_x+ze_x+menu_x+(262*2), ze_y+48, 960, 0, 960+448, 512, 1536, 1024, 224, 256, 4, color);
+				DrawSpriteUI(9, ui_x+ze_x+menu_x+(262*3), ze_y+48, 960, 512, 960+448, 1024, 1536, 1024, 224, 256, 4, color);
 				DrawFString(0, ze_x+ui_x, ze_y+320, 0xffffffff, 0, 32, "        ^^^^^^^^");
 				
 				if(LEVEL>0)
@@ -855,10 +854,10 @@ void drawScene()
 				if(DIFFICULTYs==3) color4 = 0xffffffff; else color4 = 0xaaaaaaff;
 				
 				DrawFString(0, ze_x+zas_x, ze_y+4, 0xffffffff, 0, 32, langStr[17]);
-				RSX_DrawSpriteUI(9, ze_x+zas_x, ze_y+48, 0, 0, 512, 128, 1536, 1024, 256, 64, color1);
-				RSX_DrawSpriteUI(9, ze_x+zas_x, ze_y+116, 0, 128, 512, 256, 1536, 1024, 256, 64, color2);
-				RSX_DrawSpriteUI(9, ze_x+zas_x, ze_y+184, 0, 256, 512, 384, 1536, 1024, 256, 64, color3);
-				RSX_DrawSpriteUI(9, ze_x+zas_x, ze_y+252, 0, 384, 512, 512, 1536, 1024, 256, 64, color4);
+				DrawSpriteUI(9, ze_x+zas_x, ze_y+48, 0, 0, 512, 128, 1536, 1024, 256, 64, 4, color1);
+				DrawSpriteUI(9, ze_x+zas_x, ze_y+116, 0, 128, 512, 256, 1536, 1024, 256, 64, 4, color2);
+				DrawSpriteUI(9, ze_x+zas_x, ze_y+184, 0, 256, 512, 384, 1536, 1024, 256, 64, 4, color3);
+				DrawSpriteUI(9, ze_x+zas_x, ze_y+252, 0, 384, 512, 512, 1536, 1024, 256, 64, 4, color4);
 				DrawFString(0, ze_x+zas_x, ze_y+322, 0xffffffff, 0,  32,"%s: %d", langStr[24], EPISODEs);
 				
 				DrawFString(0, ze_x+ui_x-zfp_x, ze_y+4, 0xffffffff, 0, 32, langStr[27]);
@@ -910,7 +909,7 @@ void drawScene()
 				int temperz = 0;
 				if(global_route==1) temperz=8;
 				
-				RSX_DrawSprite(20, boss_menu+temperz, ze_x+ui_x-zfp_x+580, ze_y+zcs_y+256+boss_render_x, 256, 256, 256, 256, color);
+				DrawSprite(20, boss_menu+temperz, ze_x+ui_x-zfp_x+580, ze_y+zcs_y+256+boss_render_x, 256, 256, 256, 256, 4, color);
 				
 				DrawFString(0, ze_x+ui_x, ze_y+zcs_y+4, 0xffffffff, 0, 32, langStr[35]);
 				DrawFString(0, ze_x+ui_x, ze_y+zcs_y+64, 0xffffffff, 0, 32, langStr[36]);
@@ -921,7 +920,7 @@ void drawScene()
 				DrawFString(0, ze_x+ui_x+36, ze_y+zcs_y+450, 0xffffffff, 0, 32, langStr[33]);
 				DrawFString(0, ze_x+ui_x+36, ze_y+zcs_y+482, 0xffffffff, 0, 32, langStr[58]);
 				
-				RSX_DrawSpriteUI(2, 262, -22+ze_y-zcs_y+256, 384, 0, 768, 192, 1024, 1024, 314, 112, color);
+				DrawSpriteUI(2, 262, -22+ze_y-zcs_y+256, 384, 0, 768, 192, 1024, 1024, 314, 112, 4, color);
 				
 				int capt_state = getCaptainState(anim1, anim2, anim3);
 				int capt_y = -9; if(the_hat==-1) capt_y = -14;
@@ -934,20 +933,20 @@ void drawScene()
 					capt_p = spritesheet[13].width / 4;
 				}
 				
-				RSX_DrawSprite(0, capt_state, 372, capt_y+ze_y-zcs_y+256, 94, 94, capt_p, capt_p, color);
+				DrawSprite(0, capt_state, 372, capt_y+ze_y-zcs_y+256, 94, 94, capt_p, capt_p, 3, color);
 				
 				int testpp = 24;
 				if(master_modeS) testpp = 0;
-				RSX_DrawSprite(0, testpp, -40, -22, 40, 40, 40, 40, color);
+				DrawSprite(0, testpp, -40, -22, 40, 40, 40, 40, -2, color);
 				DrawButton(0, -22, PAD_SELECT, -1);
 				
 				if(the_hat!=-1)
 				{
 					int hat_state = getHatState(the_hat, anim1);
-					RSX_DrawSprite(12, hat_state, 372, -14+ze_y-zcs_y+256, 94, 94, 40, 40, color);
+					DrawSprite(12, hat_state, 372, -14+ze_y-zcs_y+256, 94, 94, 40, 40, 2, color);
 				}
 
-				RSX_DrawSprite(10, animc, ui_x+818, 4, 32, 32, 64, 64, 0xffffffff);
+				DrawSprite(10, animc, ui_x+818, 4, 32, 32, 64, 64, 0, 0xffffffff);
 				DrawTextAligned(0, ui_x+580, ui_x+780, 4, 2, 0xffffffff, 0, 14, 32, "%d", global_minecoins);
 				break;
 			}
@@ -1009,7 +1008,7 @@ void drawScene()
 					{
 						for(int y0 = -22; y0 < (screen_h * 2) + 99; y0 += 32)
 						{
-							RSX_DrawSprite(1, tile_bg+anim, x0, y0, 32, 32, 16, 16, 0xffffffff);
+							DrawSprite(1, tile_bg+anim, x0, y0, 32, 32, 16, 16, 8, 0xffffffff);
 						}
 					}
 					switch(EPISODE)
@@ -1020,7 +1019,7 @@ void drawScene()
 							{
 								c_t = 0xff0000ff;
 								ep1_x = lerp(ep1_x, -956, 0.025f);
-								RSX_DrawRectangle2D(876+ep1_x, -22, 2763, 1000, 0x000000ff);
+								DrawRectangle2D(876+ep1_x, -22, 2763, 1000, 0x000000ff, 7);
 								DrawBossTriangles((876/2)+ep1_x+876+12, 560/2, 200);
 								UpdateBossTriangles();
 							}
@@ -1028,10 +1027,10 @@ void drawScene()
 							{
 								c_t = 0x0000ffff;
 								ep1_x = lerp(ep1_x, 1132, 0.025f);
-								RSX_DrawRectangle2D(-40, -22, ep1_x, 1000, 0x000000ff);
+								DrawRectangle2D(-40, -22, ep1_x, 1000, 0x000000ff, 7);
 								static float ang = 0.0f;
 								ang += 1.8f;
-								RSX_DrawSpriteUIR(2, -1388+ep1_x+(876/2), (560/2) - 256, 768, 90, 768+208, 298, 1024, 1024, 512, 512, ang, 0xffffff67);
+								DrawSpriteUIR(2, -1388+ep1_x+(876/2), (560/2) - 256, 768, 90, 768+208, 298, 1024, 1024, 512, 512, ang, 0xffffff67, 1);
 							}
 							
 							for(int _t = 1; _t < max_lvl; _t++)
@@ -1039,11 +1038,11 @@ void drawScene()
 								if(LEVEL<_t)
 								{
 									int tile = tile_map_num(_t);
-									RSX_DrawSprite(1, tile_bg+anim+2, 120+(64*_t)+ep1_x, -22+(32*11), 32, 32, 16, 16, 0xffffffff);
-									RSX_DrawSprite(1, tile, 120+(64*_t), -22+(32*11)+ep1_x, 32, 32, 16, 16, 0xffffffff);
+									DrawSprite(1, tile_bg+anim+2, 120+(64*_t)+ep1_x, -22+(32*11), 32, 32, 16, 16, 6, 0xffffffff);
+									DrawSprite(1, tile, 120+(64*_t), -22+(32*11)+ep1_x, 32, 32, 16, 16, 5, 0xffffffff);
 								}
-								else RSX_DrawSprite(1, 112+anim, 120+(64*_t)+ep1_x, -22+(32*11), 32, 32, 16, 16, 0xffffffff);
-								RSX_DrawSprite(1, 241 + grid_bg, 120+(64*_t)+ep1_x, -22+(32*11), 32, 32, 16, 16, 0xffffffff);
+								else DrawSprite(1, 112+anim, 120+(64*_t)+ep1_x, -22+(32*11), 32, 32, 16, 16, 5, 0xffffffff);
+								DrawSprite(1, 241 + grid_bg, 120+(64*_t)+ep1_x, -22+(32*11), 32, 32, 16, 16, 4, 0xffffffff);
 							}
 							break;
 						}
@@ -1055,7 +1054,7 @@ void drawScene()
 								
 								int b1 = b % 3;
 								int b2 = b / 3;
-								RSX_DrawSprite(1, 241 + grid_bg, 88+(64*(4+b2)), -22+(64*(4+b1)), 32, 32, 16, 16, 0xffffffff);
+								DrawSprite(1, 241 + grid_bg, 88+(64*(4+b2)), -22+(64*(4+b1)), 32, 32, 16, 16, 4, 0xffffffff);
 							}
 							
 							break;
@@ -1083,7 +1082,7 @@ void drawScene()
 									case 9: b1 = 3; b2 = 2; break;
 								}
 								
-								RSX_DrawSprite(1, 241 + grid_bg, 120+(64*(3+b2)), -22+(64*(4+b1)), 32, 32, 16, 16, 0xffffffff);
+								DrawSprite(1, 241 + grid_bg, 120+(64*(3+b2)), -22+(64*(4+b1)), 32, 32, 16, 16, 4, 0xffffffff);
 							}
 							
 							break;
@@ -1093,7 +1092,7 @@ void drawScene()
 							for(int b = 0; b < 3; b++)
 							{
 								DrawLevelIcon(b + 1, level_positions3[b].x, level_positions3[b].y, anim, tile_bg);
-								RSX_DrawSprite(1, 241 + grid_bg, level_positions3[b].x, level_positions3[b].y, 32, 32, 16, 16, 0xffffffff);
+								DrawSprite(1, 241 + grid_bg, level_positions3[b].x, level_positions3[b].y, 32, 32, 16, 16, 4, 0xffffffff);
 							}
 							
 							break;
@@ -1105,11 +1104,11 @@ void drawScene()
 								if(LEVEL<_t)
 								{
 									int tile = tile_map_num(_t);
-									RSX_DrawSprite(1, tile_bg+anim+2, 152+(64*_t)+ep1_x, -22+(32*11), 32, 32, 16, 16, 0xffffffff);
-									RSX_DrawSprite(1, tile, 152+(64*_t), -22+(32*11)+ep1_x, 32, 32, 16, 16, 0xffffffff);
+									DrawSprite(1, tile_bg+anim+2, 152+(64*_t)+ep1_x, -22+(32*11), 32, 32, 16, 16, 6, 0xffffffff);
+									DrawSprite(1, tile, 152+(64*_t), -22+(32*11)+ep1_x, 32, 32, 16, 16, 5, 0xffffffff);
 								}
-								else RSX_DrawSprite(1, 112+anim, 152+(64*_t)+ep1_x, -22+(32*11), 32, 32, 16, 16, 0xffffffff);
-								RSX_DrawSprite(1, 241 + grid_bg, 152+(64*_t)+ep1_x, -22+(32*11), 32, 32, 16, 16, 0xffffffff);
+								else DrawSprite(1, 112+anim, 152+(64*_t)+ep1_x, -22+(32*11), 32, 32, 16, 16, 5, 0xffffffff);
+								DrawSprite(1, 241 + grid_bg, 152+(64*_t)+ep1_x, -22+(32*11), 32, 32, 16, 16, 4, 0xffffffff);
 							}
 							break;
 						}
@@ -1117,7 +1116,7 @@ void drawScene()
 					}
 				}
 				
-				RSX_DrawSprite(1, getShipRot(ship_r)+anim1, ship_x+ep1_x, ship_y, 32, 32, 16, 16, 0xffffffff);
+				DrawSprite(1, getShipRot(ship_r)+anim1, ship_x+ep1_x, ship_y, 32, 32, 16, 16, 0, 0xffffffff);
 				
 				SetFontSize(28, 32);
 				if(!ship_a)
@@ -1139,11 +1138,11 @@ void drawScene()
 				if(the_timer<0) the_timer=0;
 				
 				SetFontSize(84, 96);
-				RSX_DrawSpriteUI(2, -40, -22, 0, 0, 384, 192, 1024, 1024, 302, 112, color);
-				RSX_DrawSpriteUI(2, 576, -22, 0, 0, 384, 192, 1024, 1024, 302, 112, color);
-				RSX_DrawSpriteUI(2, 262, -22, 384, 0, 768, 192, 1024, 1024, 314, 112, color);
-				RSX_DrawSpriteUI(2, -20, -10, 0+(anim*264), 192, 264+(anim*264), 456, 1024, 1024, 94, 94, color);
-				RSX_DrawSpriteUI(2, 586, -10, 0+(anim*264), 456, 264+(anim*264), 720, 1024, 1024, 94, 94, color);
+				DrawSpriteUI(2, -40, -22, 0, 0, 384, 192, 1024, 1024, 302, 112, 1, color);
+				DrawSpriteUI(2, 576, -22, 0, 0, 384, 192, 1024, 1024, 302, 112, 1, color);
+				DrawSpriteUI(2, 262, -22, 384, 0, 768, 192, 1024, 1024, 314, 112, 1, color);
+				DrawSpriteUI(2, -20, -10, 0+(anim*264), 192, 264+(anim*264), 456, 1024, 1024, 94, 94, 1, color);
+				DrawSpriteUI(2, 586, -10, 0+(anim*264), 456, 264+(anim*264), 720, 1024, 1024, 94, 94, 1, color);
 				
 				if(enable_9 || enable_12)
 				{
@@ -1180,12 +1179,12 @@ void drawScene()
 					// SetTexture(13);
 				}
 				
-				RSX_DrawSprite(0, capt_state, 372, capt_y, 94, 94, capt_p, capt_p, color);
+				DrawSprite(0, capt_state, 372, capt_y, 94, 94, capt_p, capt_p, 0, color);
 				
 				if(the_hat!=-1)
 				{
 					int hat_state = getHatState(the_hat, anim1);
-					RSX_DrawSprite(12, hat_state, 372, -14, 94, 94, 40, 40, color);
+					DrawSprite(12, hat_state, 372, -14, 94, 94, 40, 40, 0, color);
 				}
 				// DrawFString(0, -20,32, 0xffffffff, 0, 32, "TOTAL MINECOINS: %d", global_minecoins);
 				// DrawFString(0, -20,64, 0xffffffff, 0, 32, "MINECOINS: %d", current_minecoins);
@@ -1202,9 +1201,9 @@ void drawScene()
 					{
 						// if(boss9_count>0 && i>0) SetTexture(5);
 						
-						RSX_DrawSprite2DR(tex_boss, 0, offset_x+(boss9_list[i].x*RENDER_SIZE)-RENDER_SIZE, offset_y+(boss9_list[i].y*RENDER_SIZE)-RENDER_SIZE,
-							RENDER_SIZE*3, RENDER_SIZE*3, 384, 384, 1536, 1536, boss9_list[i].rotation, color);
-						RSX_DrawSprite(tex_boss, 1, offset_x+(boss9_list[i].x*RENDER_SIZE)-RENDER_SIZE, offset_y+(boss9_list[i].y*RENDER_SIZE)-RENDER_SIZE, RENDER_SIZE*3, RENDER_SIZE*3, 384, 384, color);
+						DrawSpriteRot(tex_boss, 0, offset_x+(boss9_list[i].x*RENDER_SIZE)-RENDER_SIZE, offset_y+(boss9_list[i].y*RENDER_SIZE)-RENDER_SIZE,
+							RENDER_SIZE*3, RENDER_SIZE*3, 384, 384, 1536, 1536, boss9_list[i].rotation, color, -1);
+						DrawSprite(tex_boss, 1, offset_x+(boss9_list[i].x*RENDER_SIZE)-RENDER_SIZE, offset_y+(boss9_list[i].y*RENDER_SIZE)-RENDER_SIZE, RENDER_SIZE*3, RENDER_SIZE*3, 384, 384, -2, color);
 					}
 				}
 			
@@ -1245,10 +1244,10 @@ void drawScene()
 							float draw_x = (boss10_list[i].x - TMP_SIZ) - (TMP_SIZE / 2.0f) + (TMP_SIZ*1.5f);
 							float draw_y = (boss10_list[i].y - TMP_SIZ) - (TMP_SIZE / 2.0f) + (TMP_SIZ*1.5f);
 							
-							RSX_DrawSprite2DR(tex_boss, 4, draw_x, draw_y, TMP_SIZE, TMP_SIZE, 384, 384, 1536, 1536, 36*jl, color_from_value(boss10_list[i].time));
+							DrawSpriteRot(tex_boss, 4, draw_x, draw_y, TMP_SIZE, TMP_SIZE, 384, 384, 1536, 1536, 36*jl, color_from_value(boss10_list[i].time), -1);
 						}
-						RSX_DrawSprite(tex_boss, 5, boss10_list[i].x - TMP_SIZ, boss10_list[i].y - TMP_SIZ, TMP_SIZ*3, TMP_SIZ*3, 384, 384, color_from_value(boss10_list[i].time));
-						RSX_DrawSprite(1, num, boss10_list[i].x, boss10_list[i].y, TMP_SIZ, TMP_SIZ, 16, 16, color);
+						DrawSprite(tex_boss, 5, boss10_list[i].x - TMP_SIZ, boss10_list[i].y - TMP_SIZ, TMP_SIZ*3, TMP_SIZ*3, 384, 384, -2, color_from_value(boss10_list[i].time));
+						DrawSprite(1, num, boss10_list[i].x, boss10_list[i].y, TMP_SIZ, TMP_SIZ, 16, 16, -3, color);
 					}
 				}
 				
@@ -1259,11 +1258,11 @@ void drawScene()
 					for (i = 0; i < boss11_count; i++)
 					{
 						u32 colorz = (0xFFFFFF00 | boss11_list[i].alpha);
-						RSX_DrawSprite(tex_boss, 4, offset_x+(boss11_list[i].x*RENDER_SIZE)-(RENDER_SIZE*0.5)-boss11_list[i].vis_x1+(RENDER_SIZE*0.022),
-							offset_y+(boss11_list[i].y*RENDER_SIZE)-(RENDER_SIZE*0.5), RENDER_SIZE, RENDER_SIZE*2, 192, 384, colorz);
+						DrawSprite(tex_boss, 4, offset_x+(boss11_list[i].x*RENDER_SIZE)-(RENDER_SIZE*0.5)-boss11_list[i].vis_x1+(RENDER_SIZE*0.022),
+							offset_y+(boss11_list[i].y*RENDER_SIZE)-(RENDER_SIZE*0.5), RENDER_SIZE, RENDER_SIZE*2, 192, 384, -1, colorz);
 						
-						RSX_DrawSprite(tex_boss, 5, offset_x+(boss11_list[i].x*RENDER_SIZE)-(RENDER_SIZE*0.5)+RENDER_SIZE+boss11_list[i].vis_x2-(RENDER_SIZE*0.022),
-							offset_y+(boss11_list[i].y*RENDER_SIZE)-(RENDER_SIZE*0.5), RENDER_SIZE, RENDER_SIZE*2, 192, 384, colorz);
+						DrawSprite(tex_boss, 5, offset_x+(boss11_list[i].x*RENDER_SIZE)-(RENDER_SIZE*0.5)+RENDER_SIZE+boss11_list[i].vis_x2-(RENDER_SIZE*0.022),
+							offset_y+(boss11_list[i].y*RENDER_SIZE)-(RENDER_SIZE*0.5), RENDER_SIZE, RENDER_SIZE*2, 192, 384, -2, colorz);
 					}
 				}
 				
@@ -1273,8 +1272,8 @@ void drawScene()
 					
 					//if(boss12.tempo>(495-boss12.mistake) && boss12.tempo<(500-boss12.mistake)) DrawBackground2D(0xffffffff, -2);
 					
-					RSX_DrawSprite2DR(tex_boss, 3, boss12.x - TMP_SIZ, boss12.y - TMP_SIZ, TMP_SIZ*3, TMP_SIZ*3, 384, 384, 1536, 1536, -boss12.rotation, color);
-					RSX_DrawSprite(tex_boss, 7, boss12.x - TMP_SIZ, boss12.y - TMP_SIZ, TMP_SIZ*3, TMP_SIZ*3, 384, 384, color);
+					DrawSpriteRot(tex_boss, 3, boss12.x - TMP_SIZ, boss12.y - TMP_SIZ, TMP_SIZ*3, TMP_SIZ*3, 384, 384, 1536, 1536, -boss12.rotation, color, -1);
+					DrawSprite(tex_boss, 7, boss12.x - TMP_SIZ, boss12.y - TMP_SIZ, TMP_SIZ*3, TMP_SIZ*3, 384, 384, -2, color);
 				}
 				
 				if(bossnan_count>0 && bossnan_cutscene && enable_nan)
@@ -1293,7 +1292,7 @@ void drawScene()
 						
 						t_x = (float)lerp(t_x, bossnan_list[i].pos_x, 0.1);
 						t_y = (float)lerp(t_y, bossnan_list[i].pos_y, 0.1);
-						RSX_DrawSprite(tex_boss, 6, t_x, t_y, RENDER_SIZE*4, RENDER_SIZE*4, 384, 384, color);
+						DrawSprite(tex_boss, 6, t_x, t_y, RENDER_SIZE*4, RENDER_SIZE*4, 384, 384, -1, color);
 					}
 				}
 				
@@ -1343,7 +1342,7 @@ void drawScene()
 					if(enable_10){temper = 75; temper2 = 104;}
 					if(enable_11){temper = 76; temper2 = 105;}
 					
-					RSX_DrawRectangle2D(-40+100, -22+100, 876-100, 560-100, 0xaaaaaaff);
+					DrawRectangle2D(-40+100, -22+100, 876-100, 560-100, 0xaaaaaaff, -5);
 					
 					SetFontSize(16, 18);
 					if(global_route==1) DrawFString(tempz, -40+100, -22+100, 0x000000ff, 1, 18, "%s\n\n%s\n%s", langStr[temper], langStr[106], langStr[temper2]);
@@ -1374,10 +1373,10 @@ void drawScene()
 					if(end_time>1) zez_y = -22; else zez_y = 96;
 					zex_y = lerp(zex_y, zez_y, 0.05f);
 					
-					RSX_DrawSprite(15+EPISODE, anim3, -40, -22, 916, 582, 1152, 960, color);
+					DrawSprite(15+EPISODE, anim3, -40, -22, 916, 582, 1152, 960, 1, color);
 					
-					RSX_DrawRectangle2D(-40, -22, 916, zex_y, 0x000000ff);
-					RSX_DrawRectangle2D(-40, 562-zex_y, 916, 582, 0x000000ff);
+					DrawRectangle2D(-40, -22, 916, zex_y, 0x000000ff, -2);
+					DrawRectangle2D(-40, 562-zex_y, 916, 582, 0x000000ff, -2);
 					
 					SetFontSize(28, 32);
 					if(end_time<3)
@@ -1405,7 +1404,7 @@ void drawScene()
 							
 							if(a==1) icon = 35; else if(a==2) icon = 133; else if(a==3) icon = 114;
 							
-							RSX_DrawSprite(1, icon, zs_x - 32, 512-(32*d)+4, 32, 32, 16, 16, color);
+							DrawSprite(1, icon, zs_x - 32, 512-(32*d)+4, 32, 32, 16, 16, 0, color);
 							
 							if(b>max_lvl)
 							{
@@ -1434,7 +1433,7 @@ void drawScene()
 								case 7: rank_letter = 246; break; // Master
 							}
 							
-							RSX_DrawSprite(1, rank_letter, 512+64, 20, 64, 64, 16, 16, color);
+							DrawSprite(1, rank_letter, 512+64, 20, 64, 64, 16, 16, 0, color);
 							
 							DrawFString(0, test_x, 448, 0xff0000ff, 32, 1, langStr[10]);
 							DrawFString(0, test_x, 480, 0xff0000ff, 32, 1, langStr[11]);
@@ -1455,11 +1454,11 @@ void drawScene()
 				{
 					for(int y0 = -22; y0 < (screen_h * 2) + 99; y0 += 32)
 					{
-						RSX_DrawSprite(1, anim, x0, y0, 32, 32, 16, 16, color);
+						DrawSprite(1, anim, x0, y0, 32, 32, 16, 16, 5, color);
 					}
 				}
-				RSX_DrawSprite(1, 192+anim2, -40+(32*16), -22+(32*6), 32, 32, 16, 16, color);
-				RSX_DrawSprite(1, getShipRot(ship_r)+anim1, ship_x, ship_y, 32, 32, 16, 16, color);
+				DrawSprite(1, 192+anim2, -40+(32*16), -22+(32*6), 32, 32, 16, 16, 4, color);
+				DrawSprite(1, getShipRot(ship_r)+anim1, ship_x, ship_y, 32, 32, 16, 16, 4, color);
 				
 				break;
 			}
@@ -1503,14 +1502,14 @@ void drawScene()
 				}
 				else shopkeeper_quote = 101;
 				
-				RSX_DrawSprite(19, 0, -40, -22, 916, 582, 640, 360, color);
+				DrawSprite(19, 0, -40, -22, 916, 582, 640, 360, 2, color);
 				
 				for(int p = 0; p < 7; p++)
 				{
-					RSX_DrawSprite(12, p*24, 32+(p*112), 64, 80, 80, 40, 40, color);
+					DrawSprite(12, p*24, 32+(p*112), 64, 80, 80, 40, 40, 0, color);
 				}
 				
-				RSX_DrawSprite(15, 0+randomizer, 684, 432, 78*2, 49*2, 78, 49, color);
+				DrawSprite(15, 0+randomizer, 684, 432, 78*2, 49*2, 78, 49, 1, color);
 				
 				DrawFString(52, 32, 420, 0xffffffff, 0, 32, langStr[shopkeeper_quote]);
 				break;
@@ -1554,7 +1553,7 @@ void drawScene()
 				
 				if(easter_egg)
 				{
-					RSX_DrawSprite(15, 8+anim3, 684, 432, 78*2, 49*2, 78, 49, 0xffffffff);
+					DrawSprite(15, 8+anim3, 684, 432, 78*2, 49*2, 78, 49, 0, 0xffffffff);
 				}
 				break;
 			}
@@ -1572,10 +1571,10 @@ void drawScene()
 					if(end_time>1) zez_y = -22; else zez_y = 96;
 					zex_y = lerp(zex_y, zez_y, 0.05f);
 					
-					RSX_DrawSprite(15+EPISODE, 0, -40, -22, 916, 582, 1152, 960, color);
+					DrawSprite(15+EPISODE, 0, -40, -22, 916, 582, 1152, 960, 1, color);
 					
-					RSX_DrawRectangle2D(-40, -22, 916, zex_y, 0x000000ff);
-					RSX_DrawRectangle2D(-40, 562-zex_y, 916, 582, 0x000000ff);
+					DrawRectangle2D(-40, -22, 916, zex_y, 0x000000ff, -2);
+					DrawRectangle2D(-40, 562-zex_y, 916, 582, 0x000000ff, -2);
 					
 					SetFontSize(28, 32);
 					DrawTextAligned(0, -40, 876, -84+zex_y, 1, 0xff0000ff, 1, 28, 32, langStr[109]);
@@ -1601,7 +1600,7 @@ void drawScene()
 				{
 					for(y0 = -22; y0 < (screen_h * 2) + 99; y0 += 32)
 					{
-						RSX_DrawSprite(1, tile_bg+anim+2, x0, y0, 32, 32, 16, 16, 0xffffffff);
+						DrawSprite(1, tile_bg+anim+2, x0, y0, 32, 32, 16, 16, 5, 0xffffffff);
 					}
 				}
 				
@@ -1612,7 +1611,8 @@ void drawScene()
 				else if(route_selector==1) txt = "Touhou Route";
 				else if(route_selector==2) txt = "GameBoy Route";
 				else if(route_selector==3) txt = "Weird Route";
-				else txt = "UNKNOWN Route";
+				else if(route_selector==4) txt = "UNKNOWN Route";
+				else txt = "ULTRA ROUTE KILLER";
 				
 				DrawTextAligned(0, -40, 876, 12, 1, 0xff0000ff, 1, 28, 32, txt);
 				
@@ -1646,22 +1646,22 @@ void drawScene()
 	if(show_ach)
 	{
 		SetFontSize(16, 18);
-		RSX_DrawRectangle2D(-30, -2, 420, 40, 0xaaaaaaff);
+		DrawRectangle2D(-30, -2, 420, 40, 0xaaaaaaff, -6);
 		DrawFString(0, -20, -2, 0xffffffff, 0, 28, cur_ach_name);
 	}
 	
-	// if(currentScreen == GAME)
-	// {
-		// if(enable_10 && global_route==1) DrawBackground2D(0x00ff0000 | (int)(tnt_alpha), -7);
+	if(currentScreen == GAME)
+	{
+		if(enable_10 && global_route==1) DrawBackground2D(0x00ff0000 | (int)(tnt_alpha), -8);
 		
-		// if(enable_12 && !can_move_xd)
-		// {
+		if(enable_12 && !can_move_xd)
+		{
 			// tiny3d_BlendFunc(1, TINY3D_BLEND_FUNC_SRC_RGB_ONE_MINUS_DST_COLOR | TINY3D_BLEND_FUNC_SRC_ALPHA_ONE,
 				// TINY3D_BLEND_FUNC_DST_RGB_ZERO | TINY3D_BLEND_FUNC_DST_ALPHA_ZERO, TINY3D_BLEND_RGB_FUNC_ADD | TINY3D_BLEND_ALPHA_FUNC_ADD);
 			
-			// DrawBackground2D(0xffffffff, -7);
-		// }
-	// }
+			DrawBackground2D(0xffffffff, -7);
+		}
+	}
 }
 
 void MyDrawFormatString(float x, float y, const char* format, ...)

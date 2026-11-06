@@ -45,6 +45,23 @@ typedef struct
 	bool MineCluster;
 	bool AbsSweep;
 	bool OneMStare;
+	bool NahFuckThis;
+	bool GEp1Complete;
+	bool GEp2Complete;
+	bool GEp3Complete;
+	bool GEp4Complete;
+	bool GEp5Complete;
+	bool GEp6Complete;
+	bool GGameComplete;
+	bool UnlockWeird;
+	bool WEp1Complete;
+	bool WEp2Complete;
+	bool WEp3Complete;
+	bool WEp4Complete;
+	bool WEp5Complete;
+	bool WEp6Complete;
+	bool WGameComplete;
+	bool Mines500;
 } AchievementsNameDB;
 
 extern AchievementsNameDB AchNDb;

@@ -48,6 +48,9 @@ int start_end = 0;
 int start_credits = 0;
 
 bool play_bgmz = false;
+int max_route = 4;
+
+static long xmb_frame = 0;
 
 float ship_speed = 0.75f / 2;
 
@@ -2141,6 +2144,12 @@ int main(int argc, const char* argv[])
 											"UNKNOWN Route is in development. Please wait...", EmptyDialogCallback, NULL, NULL);
 										break;
 									}
+									case 5:
+									{
+										msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
+											"UNKNOWN Route is in development. Please wait...", EmptyDialogCallback, NULL, NULL);
+										break;
+									}
 									default: global_route = route_selector; break;
 								}
 								if(old_route!=global_route) ReplaceBGM(fp_music);
@@ -2154,7 +2163,7 @@ int main(int argc, const char* argv[])
 							if(control_right && !old_control_right)
 							{
 								route_selector++;
-								if(route_selector>4) route_selector = 4;
+								if(route_selector>max_route) route_selector = max_route;
 							}
 							
 							if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE) currentScreen = MENU;
@@ -2338,6 +2347,15 @@ int main(int argc, const char* argv[])
 					{
 						splash = splashes_random[RandRange(0, SplashesCount())];
 						DebugLog("LOGOSHOW");
+						
+						FILE *fp = fopen("/dev_hdd0/game/MINESWEEP/USRDIR/ultra/killer.txt", "w");
+						if(fp)
+						{
+							max_route = 5;
+							fprintf(fp, "Ultrakill DLC Initialized!");
+							fclose(fp);
+						}
+						
 						HolyShit2(2);
 						game_loaded = 1;
 					}
@@ -2349,10 +2367,11 @@ int main(int argc, const char* argv[])
 		if(playing_bgm) UpdateBGM();
 		if(bad_apple) badAppleUpdate();
 		
-		if(!xmb_open)
-		{
-			waitFlip();
+		waitFlip();
 		
+		if(xmb_open) drawFrame(&buffers[currentBuffer], xmb_frame++);
+		else
+		{
 			RSX_BeginFrame();
 			
 			RSX_SetRenderTarget(&buffers[currentBuffer]);
@@ -2360,12 +2379,12 @@ int main(int argc, const char* argv[])
 			RSX_ClearScreen();
 			
 			drawScene();
-			
+			RSX_FlushDraws();
 			RSX_EndFrameMark();
-			if (!flip(RSX_GetContext(), buffers[currentBuffer].id)) DebugLog("RSX: test flip failed!\n");
-			currentBuffer = (currentBuffer + 1) % MAX_BUFFERS;
 		}
-		else usleep(16000);
+		
+		if (!flip(RSX_GetContext(), buffers[currentBuffer].id)) DebugLog("RSX: test flip failed!\n");
+		currentBuffer = (currentBuffer + 1) % MAX_BUFFERS;
     }
 
 	rsxFinish(RSX_GetContext(), 1);

@@ -14,6 +14,8 @@ extern int desired_bgm;
 
 extern int smiley_face;
 
+extern bool ultrakill_dlc;
+
 extern float boss_render_x;
 
 extern float ship_x;

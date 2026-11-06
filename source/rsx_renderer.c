@@ -205,6 +205,29 @@ gcmContextData *RSX_GetContext(void)
     return rsx_context;
 }
 
+static void RSX_ApplyFrameState(void)
+{
+    gcmContextData *c = RSX_GetContext();
+    if (!vertex_program || !fragment_program) return;
+
+    rsxLoadVertexProgram(c, vertex_program, vertex_ucode);
+    rsxLoadFragmentProgramLocation(c, fragment_program, fragment_ucode_offset, GCM_LOCATION_RSX);
+
+    rsxSetColorMask(c, GCM_COLOR_MASK_R | GCM_COLOR_MASK_G | GCM_COLOR_MASK_B | GCM_COLOR_MASK_A);
+    rsxSetColorMaskMrt(c, 0);
+    rsxSetBlendEnable(c, GCM_TRUE);
+    rsxSetBlendFunc(c, GCM_SRC_ALPHA, GCM_ONE_MINUS_SRC_ALPHA, GCM_SRC_ALPHA, GCM_ONE_MINUS_SRC_ALPHA);
+    rsxSetBlendEquation(c, GCM_FUNC_ADD, GCM_FUNC_ADD);
+    rsxSetDepthTestEnable(c, GCM_FALSE);
+    rsxSetDepthWriteEnable(c, GCM_FALSE);
+    rsxSetCullFaceEnable(c, GCM_FALSE);
+    rsxSetScissor(c, 0, 0, screen_width, screen_height);
+	
+	rsxSetAlphaTestEnable(c, GCM_FALSE);
+	rsxSetStencilTestEnable(c, GCM_FALSE);
+	rsxSetShadeModel(c, GCM_SHADE_MODEL_SMOOTH);
+}
+
 void RSX_SetRenderTarget(rsxBuffer *buffer)
 {
     gcmSurface surface;
@@ -240,6 +263,7 @@ void RSX_SetRenderTarget(rsxBuffer *buffer)
     surface.y = 0;
 
     rsxSetSurface(RSX_GetContext(), &surface);
+	RSX_ApplyFrameState();
 }
 
 void RSX_SetupViewport(void)
@@ -728,4 +752,15 @@ void RSX_EndFrameMark(void)
     fence_value++;
     rsxSetWriteBackendLabel(ctx, RSX_FENCE_LABEL, fence_value);
     rsxFlushBuffer(ctx);
+}
+
+void drawFrame(rsxBuffer *buffer, long frame)
+{
+	s32 i, j;
+	for(i = 0; i < buffer->height; i++)
+	{
+		s32 color = (i / (buffer->height * 1.0) * 256);
+		color = (color << 8) | ((frame % 255) << 16);
+		for(j = 0; j < buffer->width; j++) buffer->ptr[i* buffer->width + j] = color;
+	}
 }
