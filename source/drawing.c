@@ -926,14 +926,15 @@ void drawScene()
 				int capt_y = -9; if(the_hat==-1) capt_y = -14;
 				
 				int capt_p = 40;
-				
+				int capt_id = 0;
 				if(use_custom_sweeper)
 				{
 					capt_y = -14;
 					capt_p = spritesheet[13].width / 4;
+					capt_id = 13;
 				}
 				
-				DrawSprite(0, capt_state, 372, capt_y+ze_y-zcs_y+256, 94, 94, capt_p, capt_p, 3, color);
+				DrawSprite(capt_id, capt_state, 372, capt_y+ze_y-zcs_y+256, 94, 94, capt_p, capt_p, 3, color);
 				
 				int testpp = 24;
 				if(master_modeS) testpp = 0;
@@ -1152,11 +1153,14 @@ void drawScene()
 				}
 				else DrawFString(0, 94, -26, 0xff0000ff, 1, 96, "%03d", mines_count);
 				
-				int livez = 0;
-				if(free_play) livez = fp_lifes; else livez = LIFES;
-				bool enable_bosses = enable_9 || enable_10 || enable_11 || enable_12;
-				if(enable_bosses) livez = RandRange(-9, 9);
-				DrawFString(0, 498, -26, 0xff0000ff, 1, 96, "%d", livez);
+				if(!master_mode)
+				{
+					int livez = 0;
+					if(free_play) livez = fp_lifes; else livez = LIFES;
+					bool enable_bosses = enable_9 || enable_10 || enable_11 || enable_12;
+					if(enable_bosses) livez = RandRange(-9, 9);
+					DrawFString(0, 498, -26, 0xff0000ff, 1, 96, "%d", livez);
+				}
 				
 				if(enable_12 && !enable_9)
 				{
@@ -1172,14 +1176,15 @@ void drawScene()
 				int capt_y = -9; if(the_hat==-1) capt_y = -14;
 				
 				int capt_p = 40;
+				int capt_id = 0;
 				if(use_custom_sweeper)
 				{
 					capt_y = -14;
 					capt_p = spritesheet[13].width / 4;
-					// SetTexture(13);
+					capt_id = 13;
 				}
 				
-				DrawSprite(0, capt_state, 372, capt_y, 94, 94, capt_p, capt_p, 0, color);
+				DrawSprite(capt_id, capt_state, 372, capt_y, 94, 94, capt_p, capt_p, 0, color);
 				
 				if(the_hat!=-1)
 				{
@@ -1656,10 +1661,9 @@ void drawScene()
 		
 		if(enable_12 && !can_move_xd)
 		{
-			// tiny3d_BlendFunc(1, TINY3D_BLEND_FUNC_SRC_RGB_ONE_MINUS_DST_COLOR | TINY3D_BLEND_FUNC_SRC_ALPHA_ONE,
-				// TINY3D_BLEND_FUNC_DST_RGB_ZERO | TINY3D_BLEND_FUNC_DST_ALPHA_ZERO, TINY3D_BLEND_RGB_FUNC_ADD | TINY3D_BLEND_ALPHA_FUNC_ADD);
-			
-			DrawBackground2D(0xffffffff, -7);
+			RSX_SetBlendMode(1);
+			DrawBackground2D(0xffffffff, -9);
+			RSX_SetBlendMode(0);
 		}
 	}
 }

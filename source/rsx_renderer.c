@@ -16,6 +16,8 @@
 
 static RSX_Texture textures[RSX_MAX_TEXTURES];
 
+static int sorted_ok = 1;
+
 #define RSX_FENCE_LABEL 250
 static u32 fence_value = 0;
 
@@ -38,7 +40,7 @@ RSX_Vertex quad_vertices[] =
     { -0.8f,  0.8f, 0.0f, 1.0f,  1, 1, 1, 1,  0.0f, 0.0f }
 };
 
-#define MAX_SPRITES_PER_FRAME 4096
+#define MAX_SPRITES_PER_FRAME 16384
 
 static RSX_Vertex *sprite_vb;
 static u32 sprite_vb_offset;
@@ -46,22 +48,6 @@ static int frame_idx = 0, sprite_n = 0;
 
 static float logical_width = 916.0f;
 static float logical_height = 582.0f;
-
-void RSX_SetLogicalResolution(float width, float height)
-{
-    logical_width = width;
-    logical_height = height;
-}
-
-static float RSX_ScreenToNDC_X(float x)
-{
-    return (x / logical_width) * 2.0f - 1.0f;
-}
-
-static float RSX_ScreenToNDC_Y(float y)
-{
-    return 1.0f - (y / logical_height) * 2.0f;
-}
 
 #define CB_SIZE   0x100000
 
@@ -93,6 +79,44 @@ u16 screen_height;
 
 static gcmContextData *rsx_context = NULL;
 static void *host_addr = NULL;
+
+#define RSX_WHITE_TEX   (RSX_MAX_TEXTURES - 1)   /* reserved id for untextured draws */
+#define RSX_PI          3.14159265f
+
+typedef struct { float layer; int seq; int tex; int count; RSX_Vertex v[6]; int blend; } QueuedDraw;
+static QueuedDraw draw_q[MAX_SPRITES_PER_FRAME];
+static int   draw_order[MAX_SPRITES_PER_FRAME];
+static int   draw_n = 0;
+static float cur_layer = 0.0f;
+
+static int cur_blend = 0; /* 0 = normal, 1 = invert */
+void RSX_SetBlendMode(int mode) { cur_blend = mode; }
+
+void RSX_SetLayer(float l) { cur_layer = -l; }
+
+static int cmp_draw(const void *a, const void *b)
+{
+    const QueuedDraw *x = &draw_q[*(const int*)a], *y = &draw_q[*(const int*)b];
+    if (x->layer < y->layer) return -1;
+    if (x->layer > y->layer) return  1;
+    return x->seq - y->seq;
+}
+
+void RSX_SetLogicalResolution(float width, float height)
+{
+    logical_width = width;
+    logical_height = height;
+}
+
+static float RSX_ScreenToNDC_X(float x)
+{
+    return (x / logical_width) * 2.0f - 1.0f;
+}
+
+static float RSX_ScreenToNDC_Y(float y)
+{
+    return 1.0f - (y / logical_height) * 2.0f;
+}
 
 int RSX_Init(void)
 {
@@ -509,97 +533,16 @@ int RSX_CreateSpriteBuffers(void)
 
 void RSX_BeginFrame(void)
 {
+	sorted_ok = 1;
+	draw_n = 0;
+	cur_blend = 0;
     volatile u32 *label = (volatile u32*)gcmGetLabelAddress(RSX_FENCE_LABEL);
     int tries = 0;
-    while (fence_value && *label != fence_value && ++tries < 10000)
-        usleep(50);
+    while (fence_value > 1 && (s32)(*label - (fence_value - 1)) < 0 && ++tries < 10000) usleep(50);
 
     frame_idx ^= 1;
     sprite_n = 0;
 }
-
-void RSX_DrawSprite2D(int texture_id, float x, float y, float width, float height, float u, float v,
-    float uv_width, float uv_height, u32 color)
-{
-    gcmContextData *context = RSX_GetContext();
-
-    float x1 = RSX_ScreenToNDC_X(x);
-    float y1 = RSX_ScreenToNDC_Y(y);
-
-    float x2 = RSX_ScreenToNDC_X(x + width);
-    float y2 = RSX_ScreenToNDC_Y(y + height);
-
-    float r = ((color >> 24) & 0xFF) / 255.0f;
-    float g = ((color >> 16) & 0xFF) / 255.0f;
-    float b = ((color >> 8) & 0xFF) / 255.0f;
-    float a = (color & 0xFF) / 255.0f;
-
-    RSX_Vertex vertices[6] =
-	{
-		{ x1, y1, 0, 1, r,g,b,a, u,           v },
-		{ x2, y1, 0, 1, r,g,b,a, u+uv_width, v },
-		{ x2, y2, 0, 1, r,g,b,a, u+uv_width, v+uv_height },
-		{ x1, y1, 0, 1, r,g,b,a, u,           v },
-		{ x2, y2, 0, 1, r,g,b,a, u+uv_width, v+uv_height },
-		{ x1, y2, 0, 1, r,g,b,a, u,           v+uv_height }
-	};
-	
-	if (sprite_n >= MAX_SPRITES_PER_FRAME) return;
-	RSX_Vertex *dst = sprite_vb + (frame_idx * MAX_SPRITES_PER_FRAME + sprite_n++) * 6;
-	u32 base = sprite_vb_offset + (u32)((u8*)dst - (u8*)sprite_vb);
-	memcpy(dst, vertices, sizeof(vertices));
-	
-    rsxBindVertexArrayAttrib(context, 0, 0, base + offsetof(RSX_Vertex, x),
-        sizeof(RSX_Vertex), 4, GCM_VERTEX_DATA_TYPE_F32, GCM_LOCATION_RSX);
-    rsxBindVertexArrayAttrib(context, 3, 0, base + offsetof(RSX_Vertex, r),
-        sizeof(RSX_Vertex), 4, GCM_VERTEX_DATA_TYPE_F32, GCM_LOCATION_RSX);
-    rsxBindVertexArrayAttrib(context, 8, 0, base + offsetof(RSX_Vertex, u),
-        sizeof(RSX_Vertex), 2, GCM_VERTEX_DATA_TYPE_F32, GCM_LOCATION_RSX);
-
-    rsxInvalidateVertexCache(context);
-	rsxInvalidateTextureCache(context, GCM_INVALIDATE_TEXTURE);
-    RSX_BindTexture(texture_id);
-    rsxSetBlendEnable(context, GCM_TRUE);
-	rsxSetBlendFunc(context, GCM_SRC_ALPHA, GCM_ONE_MINUS_SRC_ALPHA, GCM_SRC_ALPHA, GCM_ONE_MINUS_SRC_ALPHA);
-	rsxSetBlendEquation(context, GCM_FUNC_ADD, GCM_FUNC_ADD);
-	rsxDrawVertexArray(context, GCM_TYPE_TRIANGLES, 0, 6);
-}
-
-void RSX_DrawSprite(int texture_id, int id, float x, float y, int dest_w, int dest_h, int sprite_w, int sprite_h, u32 color)
-{
-    RSX_Texture *tex;
-    int cols;
-    int rows;
-    int col;
-    int row;
-
-    float u, v;
-    float uw, vh;
-
-    if (texture_id < 0 || texture_id >= RSX_MAX_TEXTURES) return;
-    tex = &textures[texture_id];
-    if (!tex->loaded || sprite_w <= 0 || sprite_h <= 0) return;
-
-    cols = tex->width / sprite_w;
-    rows = tex->height / sprite_h;
-
-    if (cols <= 0 || rows <= 0 || id < 0 || id >= cols * rows) return;
-
-    col = id % cols;
-    row = id / cols;
-
-    // Calculate UV coordinates.
-    u  = (float)(col * sprite_w) / tex->width;
-    v  = (float)(row * sprite_h) / tex->height;
-
-    uw = (float)sprite_w / tex->width;
-    vh = (float)sprite_h / tex->height;
-
-    RSX_DrawSprite2D(texture_id, x+40, y+22, dest_w, dest_h, u, v, uw, vh, color);
-}
-
-#define RSX_WHITE_TEX   (RSX_MAX_TEXTURES - 1)   /* reserved id for untextured draws */
-#define RSX_PI          3.14159265f
 
 static RSX_Vertex RSX_MakeVertex(float x, float y, u32 c, float u, float v)
 {
@@ -619,40 +562,99 @@ static RSX_Vertex RSX_MakeVertex(float x, float y, u32 c, float u, float v)
 
 static void RSX_EmitVerts(int texture_id, const RSX_Vertex *verts, int count)
 {
-    gcmContextData *context = RSX_GetContext();
-
-    if (count <= 0 || count > 6) return;
-    if (sprite_n >= MAX_SPRITES_PER_FRAME) return;
-
-    if (texture_id < 0)
+    if (count <= 0 || count > 6 || draw_n >= MAX_SPRITES_PER_FRAME) return;
+	
+	float minx = verts[0].x, maxx = verts[0].x, miny = verts[0].y, maxy = verts[0].y;
+    int k;
+    for (k = 1; k < count; k++)
     {
-        if (!textures[RSX_WHITE_TEX].loaded)
-        {
-            static u32 white[16 * 16];            /* 16x16 so the pitch is 64 bytes */
-            int i;
-            for (i = 0; i < 16 * 16; i++) white[i] = 0xFFFFFFFF;
-            if (!RSX_LoadTexture(RSX_WHITE_TEX, white, 16, 16)) return;   /* returns 1 on success */
-        }
-        texture_id = RSX_WHITE_TEX;
+        if (verts[k].x < minx) minx = verts[k].x;
+        if (verts[k].x > maxx) maxx = verts[k].x;
+        if (verts[k].y < miny) miny = verts[k].y;
+        if (verts[k].y > maxy) maxy = verts[k].y;
     }
+    if (maxx < -1.0f || minx > 1.0f || maxy < -1.0f || miny > 1.0f) return;
+	
+    QueuedDraw *d = &draw_q[draw_n];
+    d->layer = cur_layer; d->seq = draw_n; d->tex = texture_id; d->count = count;
+	d->blend = cur_blend;
+    memcpy(d->v, verts, sizeof(RSX_Vertex) * count);
+	
+	if (draw_n > 0 && d->layer < draw_q[draw_n - 1].layer) sorted_ok = 0;
+    draw_n++;
+}
 
-    RSX_Vertex *dst = sprite_vb + (frame_idx * MAX_SPRITES_PER_FRAME + sprite_n++) * 6;
-    u32 base = sprite_vb_offset + (u32)((u8*)dst - (u8*)sprite_vb);
-    memcpy(dst, verts, sizeof(RSX_Vertex) * count);
+static int RSX_ResolveTex(int t)
+{
+    if (t >= 0) return t;
+    if (!textures[RSX_WHITE_TEX].loaded)
+    {
+        static u32 white[16 * 16];
+        int i;
+        for (i = 0; i < 16 * 16; i++) white[i] = 0xFFFFFFFF;
+        if (!RSX_LoadTexture(RSX_WHITE_TEX, white, 16, 16)) return -1;
+    }
+    return RSX_WHITE_TEX;
+}
 
-    rsxBindVertexArrayAttrib(context, 0, 0, base + offsetof(RSX_Vertex, x),
-        sizeof(RSX_Vertex), 4, GCM_VERTEX_DATA_TYPE_F32, GCM_LOCATION_RSX);
-    rsxBindVertexArrayAttrib(context, 3, 0, base + offsetof(RSX_Vertex, r),
-        sizeof(RSX_Vertex), 4, GCM_VERTEX_DATA_TYPE_F32, GCM_LOCATION_RSX);
-    rsxBindVertexArrayAttrib(context, 8, 0, base + offsetof(RSX_Vertex, u),
-        sizeof(RSX_Vertex), 2, GCM_VERTEX_DATA_TYPE_F32, GCM_LOCATION_RSX);
+static void RSX_ApplyBlend(gcmContextData *c, int mode)
+{
+    rsxSetBlendEnable(c, GCM_TRUE);
+    if (mode == 1) rsxSetBlendFunc(c, GCM_ONE_MINUS_DST_COLOR, GCM_ZERO, GCM_ONE, GCM_ZERO);
+    else rsxSetBlendFunc(c, GCM_SRC_ALPHA, GCM_ONE_MINUS_SRC_ALPHA, GCM_SRC_ALPHA, GCM_ONE_MINUS_SRC_ALPHA);
+    rsxSetBlendEquation(c, GCM_FUNC_ADD, GCM_FUNC_ADD);
+}
 
-    rsxInvalidateVertexCache(context);
-    RSX_BindTexture(texture_id);
-    rsxSetBlendEnable(context, GCM_TRUE);
-    rsxSetBlendFunc(context, GCM_SRC_ALPHA, GCM_ONE_MINUS_SRC_ALPHA, GCM_SRC_ALPHA, GCM_ONE_MINUS_SRC_ALPHA);
-    rsxSetBlendEquation(context, GCM_FUNC_ADD, GCM_FUNC_ADD);
-    rsxDrawVertexArray(context, GCM_TYPE_TRIANGLES, 0, count);
+void RSX_FlushDraws(void)
+{
+    gcmContextData *context = RSX_GetContext();
+    const u32 frame_verts = MAX_SPRITES_PER_FRAME * 6;
+    u32 vert_n = 0;
+    int i, j;
+
+    for (i = 0; i < draw_n; i++) draw_order[i] = i;
+	if (!sorted_ok) qsort(draw_order, draw_n, sizeof(int), cmp_draw);
+
+    i = 0;
+    while (i < draw_n)
+    {
+        int tex = RSX_ResolveTex(draw_q[draw_order[i]].tex);
+		int blend = draw_q[draw_order[i]].blend;
+        u32 first = vert_n;
+        RSX_Vertex *run = sprite_vb + frame_idx * frame_verts + first;
+
+        for (j = i; j < draw_n; j++)
+        {
+            QueuedDraw *d = &draw_q[draw_order[j]];
+            if (RSX_ResolveTex(d->tex) != tex || d->blend != blend) break;
+            if (vert_n + d->count > frame_verts) break;
+            memcpy(sprite_vb + frame_idx * frame_verts + vert_n, d->v, sizeof(RSX_Vertex) * d->count);
+            vert_n += d->count;
+        }
+        if (j == i) break;                       // out of vertex space
+
+        if (tex >= 0)
+        {
+            u32 off = sprite_vb_offset + (u32)((u8*)run - (u8*)sprite_vb);
+            u32 n = vert_n - first, start = 0;
+
+            rsxBindVertexArrayAttrib(context, 0, 0, off + offsetof(RSX_Vertex, x), sizeof(RSX_Vertex), 4, GCM_VERTEX_DATA_TYPE_F32, GCM_LOCATION_RSX);
+            rsxBindVertexArrayAttrib(context, 3, 0, off + offsetof(RSX_Vertex, r), sizeof(RSX_Vertex), 4, GCM_VERTEX_DATA_TYPE_F32, GCM_LOCATION_RSX);
+            rsxBindVertexArrayAttrib(context, 8, 0, off + offsetof(RSX_Vertex, u), sizeof(RSX_Vertex), 2, GCM_VERTEX_DATA_TYPE_F32, GCM_LOCATION_RSX);
+            rsxInvalidateVertexCache(context);
+            rsxInvalidateTextureCache(context, GCM_INVALIDATE_TEXTURE);
+			RSX_ApplyBlend(context, blend);
+            RSX_BindTexture(tex);
+            while (n)
+            {
+                u32 c = (n > 252) ? 252 : n;
+                rsxDrawVertexArray(context, GCM_TYPE_TRIANGLES, start, c);
+                start += c; n -= c;
+            }
+        }
+        i = j;
+    }
+    draw_n = 0;
 }
 
 static void RSX_EmitQuad(int tex, RSX_Vertex a, RSX_Vertex b, RSX_Vertex c, RSX_Vertex d)
@@ -763,4 +765,101 @@ void drawFrame(rsxBuffer *buffer, long frame)
 		color = (color << 8) | ((frame % 255) << 16);
 		for(j = 0; j < buffer->width; j++) buffer->ptr[i* buffer->width + j] = color;
 	}
+}
+
+void RSX_DrawSprite2D(int texture_id, float x, float y, float width, float height,
+	float u, float v, float uv_width, float uv_height, u32 color)
+{
+    RSX_EmitQuad(texture_id,
+	RSX_MakeVertex(x,         y,          color, u,            v),
+	RSX_MakeVertex(x + width, y,          color, u + uv_width, v),
+	RSX_MakeVertex(x + width, y + height, color, u + uv_width, v + uv_height),
+	RSX_MakeVertex(x,         y + height, color, u,            v + uv_height));
+}
+
+
+void RSX_DrawSprite(int texture_id, int id, float x, float y, int dest_w, int dest_h, int sprite_w, int sprite_h, u32 color)
+{
+    RSX_Texture *tex;
+    int cols;
+    int rows;
+    int col;
+    int row;
+
+    float u, v;
+    float uw, vh;
+
+    if (texture_id < 0 || texture_id >= RSX_MAX_TEXTURES) return;
+    tex = &textures[texture_id];
+    if (!tex->loaded || sprite_w <= 0 || sprite_h <= 0) return;
+
+    cols = tex->width / sprite_w;
+    rows = tex->height / sprite_h;
+
+    if (cols <= 0 || rows <= 0 || id < 0 || id >= cols * rows) return;
+
+    col = id % cols;
+    row = id / cols;
+
+    // Calculate UV coordinates.
+    u  = (float)(col * sprite_w) / tex->width;
+    v  = (float)(row * sprite_h) / tex->height;
+
+    uw = (float)sprite_w / tex->width;
+    vh = (float)sprite_h / tex->height;
+
+    RSX_DrawSprite2D(texture_id, x+40, y+22, dest_w, dest_h, u, v, uw, vh, color);
+}
+
+/* Waits until the RSX has finished everything queued so far. */
+static void RSX_WaitIdle(void)
+{
+    gcmContextData *c = RSX_GetContext();
+    volatile u32 *label = (volatile u32*)gcmGetLabelAddress(RSX_FENCE_LABEL);
+    int tries = 0;
+
+    fence_value++;
+    rsxSetWriteBackendLabel(c, RSX_FENCE_LABEL, fence_value);
+    rsxFlushBuffer(c);
+    while (*label != fence_value && ++tries < 20000) usleep(50);
+}
+
+int RSX_UploadSheet(int i)
+{
+	printf("RSX_UploadSheet\n");
+    pngData *sheet = &spritesheet[i];
+    u32 *pixels, y, row_size;
+    int ok;
+
+    if (i < 0 || i >= TOTAL_SHEETS) return 0;
+    if (!sheet->bmp_out || !sheet->width || !sheet->height) return 0;
+
+    RSX_WaitIdle();
+    if (textures[i].loaded) RSX_UnloadTexture(i);
+
+    row_size = sheet->width * sizeof(u32);
+    pixels = malloc(row_size * sheet->height);
+    if (!pixels)
+	{
+		printf("!pixels\n");
+		return 0;
+	}
+
+    for (y = 0; y < sheet->height; y++)
+        memcpy((u8*)pixels + y * row_size, (u8*)sheet->bmp_out + y * sheet->pitch, row_size);
+
+    ok = RSX_LoadTexture(i, pixels, (u16)sheet->width, (u16)sheet->height);
+    free(pixels);
+
+    free(sheet->bmp_out);
+    sheet->bmp_out = NULL;
+	printf("%d\n", ok);
+    return ok;
+}
+
+void RSX_UnloadSheet(int i)
+{
+    if (i < 0 || i >= RSX_MAX_TEXTURES || !textures[i].loaded) return;
+    RSX_WaitIdle();
+    RSX_UnloadTexture(i);
 }

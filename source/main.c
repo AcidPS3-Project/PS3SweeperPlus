@@ -50,8 +50,6 @@ int start_credits = 0;
 bool play_bgmz = false;
 int max_route = 4;
 
-static long xmb_frame = 0;
-
 float ship_speed = 0.75f / 2;
 
 int LEVEL_BKP = 0;
@@ -372,11 +370,13 @@ void GoBackToTitle()
 void UnloadCustomSweeper()
 {
 	use_custom_sweeper = false;
-	// if(spritesheet[13].bmp_out)
-	// {
-		// free(spritesheet[13].bmp_out);
-		// spritesheet[13].bmp_out = NULL;
-	// }
+	RSX_UnloadSheet(13);
+
+	if(spritesheet[13].bmp_out)
+	{
+		free(spritesheet[13].bmp_out);
+		spritesheet[13].bmp_out = NULL;
+	}
 
 	spritesheet[13].pitch = 0;
 	spritesheet[13].width = 0;
@@ -491,9 +491,6 @@ int main(int argc, const char* argv[])
     while(1)
     {
 		sysUtilCheckCallback();
-		
-		static int fc = 0;
-		if((++fc % 60) == 0) DebugLog("frame %d xmb=%d flipstatus=%d\n", fc, xmb_open, gcmGetFlipStatus());
 		
 		if (exit_requested) break;
 		
@@ -894,14 +891,8 @@ int main(int argc, const char* argv[])
 													}
 													else
 													{
-														// memcpy(texture_pointer, spritesheet[13].bmp_out, spritesheet[13].pitch * spritesheet[13].height);
-														// sprite_off[13] = tiny3d_TextureOffset(texture_pointer);
-														// free(spritesheet[13].bmp_out);
-														// spritesheet[13].bmp_out = NULL;
-														
-														// texture_pointer += ((spritesheet[13].pitch * spritesheet[13].height + 15) & ~15) / 4;
-														
-														use_custom_sweeper = true;
+														if(RSX_UploadSheet(13)) use_custom_sweeper = true;
+														else UnloadCustomSweeper();
 													}
 												}
 											}
@@ -2369,19 +2360,15 @@ int main(int argc, const char* argv[])
 		
 		waitFlip();
 		
-		if(xmb_open) drawFrame(&buffers[currentBuffer], xmb_frame++);
-		else
-		{
-			RSX_BeginFrame();
-			
-			RSX_SetRenderTarget(&buffers[currentBuffer]);
-			RSX_SetupViewport();
-			RSX_ClearScreen();
-			
-			drawScene();
-			RSX_FlushDraws();
-			RSX_EndFrameMark();
-		}
+		RSX_BeginFrame();
+		
+		RSX_SetRenderTarget(&buffers[currentBuffer]);
+		RSX_SetupViewport();
+		RSX_ClearScreen();
+		
+		drawScene();
+		RSX_FlushDraws();
+		RSX_EndFrameMark();
 		
 		if (!flip(RSX_GetContext(), buffers[currentBuffer].id)) DebugLog("RSX: test flip failed!\n");
 		currentBuffer = (currentBuffer + 1) % MAX_BUFFERS;
