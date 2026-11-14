@@ -34,6 +34,7 @@ typedef struct
 	
 	bool ice_block;
 	bool ice_center;
+	bool corrupted;
 } Cell; //heh, funny
 
 extern RevealNode reveal_queue[MAX_W * MAX_H];

@@ -60,6 +60,12 @@ bool HELL = false;
 static volatile int exit_requested = 0;
 static volatile int xmb_open = 0;
 
+void addLogoFlag(int id, int x, int y)
+{
+	logoFlags[id].x = x;
+	logoFlags[id].y = y;
+}
+
 static void sysutil_cb(u64 status, u64 param, void *usrdata)
 {
     (void)param; (void)usrdata;
@@ -351,12 +357,13 @@ void GoBackToTitle()
 	enable_double = 0;
 	enable_anti = 0;
 	
-	if(temp_fp_music==100) fp_music = temp_fp_music;
+	if(fp_music==100) fp_music = temp_fp_music;
 	
 	i_10 = 0;
 	
 	menu_pos = 0;
 	menu_x = 0.0f;
+	corruption = 0.0f;
 	ze_x = 0.0f;
 	ze_y = 0.0f;
 	adventure_select = 0;
@@ -390,6 +397,7 @@ bool old_control_left = false;
 bool old_control_right = false;
 bool old_control_up = false;
 bool old_control_down = false;
+bool old_control_any = false;
 
 int main(int argc, const char* argv[])
 {
@@ -400,7 +408,6 @@ int main(int argc, const char* argv[])
 	
 	srand(time(NULL));
 	sysUtilRegisterCallback(SYSUTIL_EVENT_SLOT0, sysutil_cb, NULL);
-	
 	if(RSX_Init() !=0)
 	{
 		DebugLog("RSX: Init failed!");
@@ -409,7 +416,6 @@ int main(int argc, const char* argv[])
 	
 	u16 screen_width, screen_height;
 	rsxBuffer buffers[MAX_BUFFERS];
-
 	if (!getResolution(&screen_width, &screen_height))
 	{
 		DebugLog("Failed to get display resolution!");
@@ -417,7 +423,6 @@ int main(int argc, const char* argv[])
 	}
 
 	DebugLog("Display: %dx%d\n", screen_width, screen_height);
-
 	for (int i = 0; i < MAX_BUFFERS; i++) {
 		if (!makeBuffer(&buffers[i], screen_width, screen_height, i))
 		{
@@ -425,8 +430,6 @@ int main(int argc, const char* argv[])
 			return -1;
 		}
 	}
-
-	DebugLog("Both framebuffers created!");
 	
 	if (RSX_LoadShaders() != 0)
 	{
@@ -470,11 +473,9 @@ int main(int argc, const char* argv[])
 	
 	for(int i = 0; i < MAX_BUFFERS; i++) RSX_TestDraw(&buffers[i]);
 	if(!flip(RSX_GetContext(), MAX_BUFFERS - 1)) DebugLog("RSX: initial flip failed!\n");
-
 	int currentBuffer = 0;
 	
 	depth_pitch = screen_width * 2;
-
 	depth_buffer = (u32*)rsxMemalign(64, depth_pitch * screen_height);
 	if (!depth_buffer)
 	{
@@ -514,6 +515,8 @@ int main(int argc, const char* argv[])
 					bool control_up = paddata.BTN_UP || paddata.ANA_L_V < 80;
 					bool control_down = paddata.BTN_DOWN || paddata.ANA_L_V > 176;
 					
+					bool control_any = paddata.BTN_CROSS || paddata.BTN_CIRCLE || paddata.BTN_TRIANGLE || paddata.BTN_SQUARE || paddata.BTN_START || paddata.BTN_SELECT || paddata.BTN_L1 || paddata.BTN_L2 || paddata.BTN_R1 || paddata.BTN_R2 || paddata.BTN_L3 || paddata.BTN_R3;
+					
 					if(paddata.BTN_CROSS || paddata.BTN_CIRCLE) button_x_hold = true;
 					else button_x_hold = false;
 					
@@ -525,11 +528,89 @@ int main(int argc, const char* argv[])
 						case LOGO:
 						{
 							static int video_frame = 0;
+							static int video_framez = 0;
+							static int f = 0;
 							
-							video_frame++;
+							video_framez++;
+							video_frame = video_framez / 2;
 							
-							if(video_frame>300)
+							if(video_frame>=10 && control_any && !old_control_any) video_frame = 9999;
+							
+							if(video_frame==60)
 							{
+								addLogoFlag(f++,(876-40)/2,(560-22)/2);
+								PlaySFX(&sfx_flag);
+							}
+							
+							if(video_frame>=120 && video_frame<=180)
+							{
+								int test = video_frame - 120;
+								float t = (test / 60.0f) * 4.0f; 
+								
+								float dx = 1.0f - fabs(fmod(t + 1.0f, 4.0f) - 2.0f);
+								float dy = 1.0f - fabs(fmod(t, 4.0f) - 2.0f);
+								
+								int test1 = (int)(dx * 160);
+								int test2 = (int)(dy * 160);
+								
+								addLogoFlag(f++, ((876-40)/2) + test1, ((560-22)/2) + test2);
+								PlaySFX(&sfx_flag);
+							}
+							
+							if(video_frame >= 210 && video_frame <= 270)
+							{
+								int total_frames = 60;
+								int test = video_frame - 210;
+								
+								float t = ((float)test / total_frames) * 4.0f;
+								
+								int w = 50;
+								int h = 100;
+								int test1 = 0;
+								int test2 = 0;
+
+								if (t < 1.0f) {
+									test1 = (int)(-w * t);
+									test2 = (int)(-h + (h * 0.5f * t));
+								}
+								else if (t < 2.0f) {
+									float seg = t - 1.0f;
+									test1 = (int)(-w + (2.0f * w * seg));
+									test2 = (int)((-h * 0.5f) + (h * seg));
+								}
+								else if (t < 3.0f) {
+									float seg = t - 2.0f;
+									test1 = (int)(w - (w * seg));
+									test2 = (int)((h * 0.5f) + (h * 0.5f * seg));
+								}
+								else {
+									float seg = t - 3.0f;
+									test1 = 0;
+									test2 = (int)(h - (2.0f * h * seg));
+								}
+
+								addLogoFlag(f++, ((876-40)/2) + test1, ((560-22)/2) + test2);
+								PlaySFX(&sfx_flag);
+							}
+							
+							if(video_frame==360)
+							{
+								for(int fz = 0; fz < 500; fz++)
+								{
+									logoFlags[fz].x = 0;
+									logoFlags[fz].y = 0;
+								}
+								show_logo=true;
+								PlaySFX(&sfx_unflag);
+							}
+							
+							if(video_frame>520)
+							{
+								for(int fz = 0; fz < 500; fz++)
+								{
+									logoFlags[fz].x = 0;
+									logoFlags[fz].y = 0;
+								}
 								currentScreen = TITLE;
 								start_music = 1;
 								video_frame = 0;
@@ -551,6 +632,9 @@ int main(int argc, const char* argv[])
 								route_selector = global_route;
 								
 								if(!route_touhou_unlocked && global_route==1) global_route=0;
+								
+								if(global_route==1) global_route_tex = 21;
+								else global_route_tex = 1;
 							}
 							
 							if(settings_select)
@@ -592,8 +676,6 @@ int main(int argc, const char* argv[])
 									ready_to_click = 0;
 									FadeInOut(&currentScreen, CREDITS);
 								}
-								
-								if(paddata.BTN_CROSS && !oldpad.BTN_CROSS) LEVEL=9;
 							}
 							break;
 						}
@@ -638,6 +720,8 @@ int main(int argc, const char* argv[])
 									{
 										if(paddata.BTN_L2 && !oldpad.BTN_L2)
 										{
+											master_mode = master_modeS;
+											if(master_mode) LIFES = 1;
 											ready_to_click = 0;
 											GRID_ID = 999;
 											free_play = 1;
@@ -650,6 +734,8 @@ int main(int argc, const char* argv[])
 										}
 										if(paddata.BTN_R2 && !oldpad.BTN_R2)
 										{
+											master_mode = master_modeS;
+											if(master_mode) LIFES = 1;
 											ready_to_click = 0;
 											GRID_ID = 999;
 											free_play = 1;
@@ -671,8 +757,45 @@ int main(int argc, const char* argv[])
 									{
 										if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE) loadout_select = 0;
 										
+										if(paddata.BTN_SQUARE && !oldpad.BTN_SQUARE)
+										{
+											if(!use_custom_sweeper)
+											{
+												FILE *fp = fopen("/dev_usb000/SWEEPING/captain.png", "r");
+												if(!fp) msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
+													langStr[48], EmptyDialogCallback, NULL, NULL);
+												else
+												{
+													LoadImageA("/dev_usb000/SWEEPING/captain.png", &spritesheet[13]);
+													
+													int temp = 2048;
+													
+													if(spritesheet[13].width > temp || spritesheet[13].height > temp)
+													{
+														DebugLog("CAPTAIN: Wrong image size!");
+														UnloadCustomSweeper();
+														msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
+															langStr[49], EmptyDialogCallback, NULL, NULL);
+													}
+													else if(spritesheet[13].width != spritesheet[13].height)
+													{
+														DebugLog("CAPTAIN: Wrong image size!");
+														UnloadCustomSweeper();
+														msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
+															langStr[53], EmptyDialogCallback, NULL, NULL);
+													}
+													else
+													{
+														if(RSX_UploadSheet(13)) use_custom_sweeper = true;
+														else UnloadCustomSweeper();
+													}
+												}
+											}
+											else UnloadCustomSweeper();
+										}
+										
 										if(paddata.BTN_L1 && !oldpad.BTN_L1) if(smiley_face>0) smiley_face--;
-										if(paddata.BTN_R1 && !oldpad.BTN_R1) if(smiley_face<6) smiley_face++;
+										if(paddata.BTN_R1 && !oldpad.BTN_R1) if(smiley_face<8) smiley_face++;
 										
 										if(paddata.BTN_L2 && !oldpad.BTN_L2) if(the_hat>-1) the_hat--;
 										if(paddata.BTN_R2 && !oldpad.BTN_R2) if(the_hat<8) the_hat++;
@@ -732,11 +855,8 @@ int main(int argc, const char* argv[])
 											DIFFICULTY = DIFFICULTYs;
 											EPISODE = EPISODEs;
 											LIFES = 3;
-											if(master_modeS)
-											{
-												master_mode = master_modeS;
-												LIFES = 1;
-											}
+											master_mode = master_modeS;
+											if(master_mode) LIFES = 1;
 											
 											current_minecoins = 0;
 											mistakes = 0;
@@ -862,43 +982,6 @@ int main(int argc, const char* argv[])
 										if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE) free_play = 0;
 										if(paddata.BTN_SQUARE && !oldpad.BTN_SQUARE) boss_options = true;
 										
-										if(paddata.BTN_L1 && !oldpad.BTN_L1)
-										{
-											if(!use_custom_sweeper)
-											{
-												FILE *fp = fopen("/dev_usb000/SWEEPING/captain.png", "r");
-												if(!fp) msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
-													langStr[48], EmptyDialogCallback, NULL, NULL);
-												else
-												{
-													LoadImageA("/dev_usb000/SWEEPING/captain.png", &spritesheet[13]);
-													
-													int temp = 2048;
-													
-													if(spritesheet[13].width > temp || spritesheet[13].height > temp)
-													{
-														DebugLog("CAPTAIN: Wrong image size!");
-														UnloadCustomSweeper();
-														msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
-															langStr[49], EmptyDialogCallback, NULL, NULL);
-													}
-													else if(spritesheet[13].width != spritesheet[13].height)
-													{
-														DebugLog("CAPTAIN: Wrong image size!");
-														UnloadCustomSweeper();
-														msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
-															langStr[53], EmptyDialogCallback, NULL, NULL);
-													}
-													else
-													{
-														if(RSX_UploadSheet(13)) use_custom_sweeper = true;
-														else UnloadCustomSweeper();
-													}
-												}
-											}
-											else UnloadCustomSweeper();
-										}
-										
 										if(control_up && !old_control_up)
 										{
 											fp_menu--;
@@ -964,9 +1047,14 @@ int main(int argc, const char* argv[])
 										{
 											if(bad_apple_init())
 											{
+												enable_9 = false;
+												enable_10 = false;
+												enable_11 = false;
+												enable_12 = false;
+												enable_nan = false;
 												ready_to_click = 0;
 												LEVEL_BKP = LEVEL;
-												DebugLog("Loaded Bad Apple!!");
+												DebugLog("Loaded Bad Apple!!\n");
 												PlaySFX(&sfx_gamestart);
 												LoadFPLevel();
 											}
@@ -1508,7 +1596,7 @@ int main(int argc, const char* argv[])
 										// pausing shit
 										if(!paddata.BTN_START && oldpad.BTN_START)
 										{
-											bool enable_bosses = enable_9 || enable_10 || enable_11 || enable_12;
+											bool enable_bosses = enable_9 || enable_10 || enable_11 || enable_12 || enable_nan;
 											if(!enable_bosses)
 											{
 												paused = true;
@@ -1519,11 +1607,11 @@ int main(int argc, const char* argv[])
 										// basic crap
 										if(paddata.BTN_CROSS && !oldpad.BTN_CROSS)
 										{
-											DebugLog("Cross Received");
+											//DebugLog("Cross Received");
 											if(!board[cursorX][cursorY].active) continue;
 											if(board[cursorX][cursorY].ice_block) continue;
 											
-											bool enable_bosses = enable_9 || enable_10 || enable_11 || enable_12;
+											bool enable_bosses = enable_9 || enable_10 || enable_11 || enable_12 || enable_nan;
 											if(!free_play && test_zero && enable_bosses)
 											{
 												if((LEVEL==8 && EPISODE!=4) || (LEVEL==0 && EPISODE==7))
@@ -1818,7 +1906,7 @@ int main(int argc, const char* argv[])
 										}
 										if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE)
 										{
-											DebugLog("Circle Received");
+											//DebugLog("Circle Received");
 											if((LEVEL==10 && !boss11_started) || (free_play && boss11_cutscene && !boss11_started)) continue;
 											
 											if(!board[cursorX][cursorY].revealed)
@@ -1972,6 +2060,8 @@ int main(int argc, const char* argv[])
 							{
 								if(paddata.BTN_START && !oldpad.BTN_START)
 								{
+									StopAudio();
+									PlaySFX(&sfx_gamestart);
 									if(mistakes == 0 && EPISODE == 1 && DIFFICULTY>0 && !route_touhou_unlocked)
 									{
 										route_touhou_unlocked = true;
@@ -1986,7 +2076,6 @@ int main(int argc, const char* argv[])
 									splash = splashes_random[rand() % SplashesCount()];
 									start_music = 1;
 									FadeInOut(&currentScreen, TITLE);
-									PlaySFX(&sfx_gamestart);
 								}
 							}
 							
@@ -2058,12 +2147,12 @@ int main(int argc, const char* argv[])
 								
 								if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE)
 								{
+									StopAudio();
+									PlaySFX(&sfx_gamestart);
 									ready_to_click = 0;
 									splash = splashes_random[rand() % SplashesCount()];
-									StopAudio();
 									start_music = 1;
 									FadeInOut(&currentScreen, TITLE);
-									PlaySFX(&sfx_gamestart);
 								}
 							}
 							
@@ -2109,7 +2198,11 @@ int main(int argc, const char* argv[])
 								{
 									case 1:
 									{
-										if(route_touhou_unlocked) global_route = 1;
+										if(route_touhou_unlocked)
+										{
+											global_route = 1;
+											global_route_tex = 21;
+										}
 										else
 										{
 											msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
@@ -2141,7 +2234,12 @@ int main(int argc, const char* argv[])
 											"UNKNOWN Route is in development. Please wait...", EmptyDialogCallback, NULL, NULL);
 										break;
 									}
-									default: global_route = route_selector; break;
+									default:
+									{
+										global_route = route_selector;
+										global_route_tex = 1;
+										break;
+									}
 								}
 								if(old_route!=global_route) ReplaceBGM(fp_music);
 							}
@@ -2168,6 +2266,7 @@ int main(int argc, const char* argv[])
 					old_control_right = control_right;
 					old_control_up = control_up;
 					old_control_down = control_down;
+					old_control_any = control_any;
 					oldpad = paddata;
 				}
 			}
@@ -2289,6 +2388,11 @@ int main(int argc, const char* argv[])
 			int i;
 			for (i = 0; i < bossnan_count; i++)
 			{
+				if(!gamelose && corruption>49.9f)
+				{
+					if(free_play) fp_lifes=0; else LIFES=0;
+					game_lost();
+				}
 				bossnan_update(i);
 			}
 		}
@@ -2301,7 +2405,7 @@ int main(int argc, const char* argv[])
 				can_move_xd = 0;
 				disable_control = 0;
 				
-				bool enable_bosses = enable_9 || enable_10 || enable_11 || enable_12;
+				bool enable_bosses = enable_9 || enable_10 || enable_11 || enable_12 || enable_nan;
 				
 				if(free_play && !enable_bosses) fp_lifes--;
 				else
@@ -2337,7 +2441,7 @@ int main(int argc, const char* argv[])
 					if(paddata.BTN_CROSS && !oldpad.BTN_CROSS)
 					{
 						splash = splashes_random[RandRange(0, SplashesCount())];
-						DebugLog("LOGOSHOW");
+						DebugLog("LOGOSHOW\n");
 						
 						FILE *fp = fopen("/dev_hdd0/game/MINESWEEP/USRDIR/ultra/killer.txt", "w");
 						if(fp)
@@ -2346,8 +2450,9 @@ int main(int argc, const char* argv[])
 							fprintf(fp, "Ultrakill DLC Initialized!");
 							fclose(fp);
 						}
-						
+						show_logo=false;
 						HolyShit2(2);
+						PlayBGM(198, 1);
 						game_loaded = 1;
 					}
 					oldpad = paddata;
@@ -2357,6 +2462,16 @@ int main(int argc, const char* argv[])
 		
 		if(playing_bgm) UpdateBGM();
 		if(bad_apple) badAppleUpdate();
+		if(show_ach)
+		{
+			static int ach_show_time = 0;
+			ach_show_time++;
+			if(ach_show_time>=210)
+			{
+				ach_show_time=0;
+				show_ach = false;
+			}
+		}
 		
 		waitFlip();
 		

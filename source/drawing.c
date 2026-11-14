@@ -341,7 +341,11 @@ int getCaptainState(int anim_z, int anim1_z, int anim2_z)
 			else
 			{
 				if(gamewin) the_state = 96+anim_z;
-				else if(gamelose) the_state = 218;
+				else if(gamelose)
+				{
+					if(global_route==1) the_state=312;
+					else the_state = 218;
+				}
 				else if(paused)
 				{
 					if(button_start_hold) the_state=168+anim1_z;
@@ -468,6 +472,73 @@ int getCaptainState(int anim_z, int anim1_z, int anim2_z)
 			}
 			break;
 		}
+		case 7:
+		{
+			// PLACEHOLDER SPRITES
+			if(currentScreen != GAME) the_state = 24;
+			else if(gamewin) the_state = 0+anim_z;
+			else if(gamelose) the_state = 74;
+			else if(paused)
+			{
+				if(button_start_hold) the_state=48;
+				else the_state = 24;
+			}
+			else
+			{
+				if(!can_move_xd) the_state = 72+anim_z;
+				else if(disable_control)
+				{
+					if(cursor<left) the_state = 3;
+					else if(cursor>right) the_state = 2;
+					else the_state = 75;
+				}
+				else
+				{
+					if(cursor<left) the_state = 27;
+					else if(cursor>right) the_state = 25;
+					else the_state = 26;
+					
+					if(button_x_hold) the_state+=24;
+					else if(button_start_hold) the_state=48;
+				}
+			}
+			break;
+		}
+		case 8:
+		{
+			if(currentScreen != GAME) the_state = 274;
+			else if(enable_11 && boss11_cutscene==0) the_state = 110;
+			else
+			{
+				if(gamewin) the_state = 250+anim_z;
+				else if(gamelose) the_state = 324;
+				else if(paused)
+				{
+					if(button_start_hold) the_state=298;
+					else the_state = 274;
+				}
+				else
+				{
+					if(!can_move_xd) the_state = 322+anim_z;
+					else if(disable_control)
+					{
+						if(cursor<left) the_state = 253;
+						else if(cursor>right) the_state = 252;
+						else the_state = 325;
+					}
+					else
+					{
+						if(cursor<left) the_state = 277;
+						else if(cursor>right) the_state = 275;
+						else the_state = 276;
+						
+						if(button_x_hold) the_state+=24;
+						else if(button_start_hold) the_state=298;
+					}
+				}
+			}
+			break;
+		}
 	}
 	return the_state;
 }
@@ -516,10 +587,10 @@ void DrawLevelIcon(int level, int x, int y, int anim, int tile_bg)
 
     if(LEVEL < level)
     {
-        DrawSprite(1, tile_bg + anim + 2, x, y, 32, 32, 16, 16, 6, 0xffffffff);
-        DrawSprite(1, tile, x, y, 32, 32, 16, 16, 5, 0xffffffff);
+        DrawSprite(global_route_tex, tile_bg + anim + 2, x, y, 32, 32, 16, 16, 6, 0xffffffff);
+        DrawSprite(global_route_tex, tile, x, y, 32, 32, 16, 16, 5, 0xffffffff);
     }
-    else DrawSprite(1, 112 + anim, x, y, 32, 32, 16, 16, 5, 0xffffffff);
+    else DrawSprite(global_route_tex, 112 + anim, x, y, 32, 32, 16, 16, 5, 0xffffffff);
 }
 
 void draw_game()
@@ -544,7 +615,7 @@ void draw_game()
 	{
 		for(y0 = -22; y0 < (screen_h * 2) + 99; y0 += 64)
 		{
-			DrawSprite(1, tile_bg + anim + 2, x0, y0, 64, 64, 16, 16, 5, 0xffffff88);
+			DrawSprite(global_route_tex, tile_bg + anim + 2, x0, y0, 64, 64, 16, 16, 5, 0xffffff88);
 		}
 	}
 	
@@ -560,14 +631,19 @@ void draw_game()
 					tz, 0, tz+54, 54, 1024, 1024, RENDER_SIZE*3, RENDER_SIZE*3, 1, color);
 			}
 			
-			if (!board[x1][y1].active) continue;
+			if(board[x1][y1].corrupted)
+			{
+				DrawSprite(global_route_tex, 34, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE), RENDER_SIZE, RENDER_SIZE, 16, 16, 4, color);
+				continue;
+			}
+			if(!board[x1][y1].active) continue;
 			
 			int tile = 0;
 			
 			if(board[x1][y1].revealed)
 			{
-				if(board[x1][y1].mine) DrawSprite(1, 163, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE), RENDER_SIZE, RENDER_SIZE, 16, 16, 3, color);
-				else DrawSprite(1, tile_bg + anim + 2, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE), RENDER_SIZE, RENDER_SIZE, 16, 16, 4, color);
+				if(board[x1][y1].mine) DrawSprite(global_route_tex, 163, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE), RENDER_SIZE, RENDER_SIZE, 16, 16, 3, color);
+				else DrawSprite(global_route_tex, tile_bg + anim + 2, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE), RENDER_SIZE, RENDER_SIZE, 16, 16, 4, color);
 				
 				switch(board[x1][y1].neighbors)
 				{
@@ -627,11 +703,11 @@ void draw_game()
 				
 				int zpz = RENDER_SIZE;
 				if(board[x1][y1].halfmine) zpz = RENDER_SIZE/2;
-				if(board[x1][y1].hasNeighborMines || board[x1][y1].mine) DrawSprite(1, tile, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE), RENDER_SIZE, zpz, 16, 16, 3, color);
+				if(board[x1][y1].hasNeighborMines || board[x1][y1].mine) DrawSprite(global_route_tex, tile, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE), RENDER_SIZE, zpz, 16, 16, 3, color);
 			}
 			else
 			{
-				DrawSprite(1, tile_bg + anim, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE), RENDER_SIZE, RENDER_SIZE, 16, 16, 4, color);
+				DrawSprite(global_route_tex, tile_bg + anim, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE), RENDER_SIZE, RENDER_SIZE, 16, 16, 4, color);
 				if(board[x1][y1].mine && gamelose == 1)
 				{
 					if(board[x1][y1].mine) tile = 114+anim;
@@ -641,12 +717,12 @@ void draw_game()
 					int zpz = RENDER_SIZE;
 					if(board[x1][y1].halfmine) zpz = RENDER_SIZE/2;
 					
-					DrawSprite(1, tile, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE), RENDER_SIZE, zpz, 16, 16, 3, color);
+					DrawSprite(global_route_tex, tile, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE), RENDER_SIZE, zpz, 16, 16, 3, color);
 				}
 				
 				if(board[x1][y1].flagged>0)
 				{
-					if(board[x1][y1].mine == 0 && gamelose) DrawSprite(1, 132, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE), RENDER_SIZE, RENDER_SIZE, 16, 16, 3, color);
+					if(board[x1][y1].mine == 0 && gamelose) DrawSprite(global_route_tex, 132, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE), RENDER_SIZE, RENDER_SIZE, 16, 16, 3, color);
 					else if(!gamelose)
 					{
 						int ze_flag = 0;
@@ -658,23 +734,23 @@ void draw_game()
 							case 4: ze_flag = 74; break;
 						}
 						
-						DrawSprite(1, ze_flag + anim, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE), RENDER_SIZE, RENDER_SIZE, 16, 16, 3, color);
+						DrawSprite(global_route_tex, ze_flag + anim, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE), RENDER_SIZE, RENDER_SIZE, 16, 16, 3, color);
 					}
 				}
 			}
 			
-			if(draw_grid_outlines) DrawSprite(1, 241 + grid_bg, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE), RENDER_SIZE, RENDER_SIZE, 16, 16, 2, 0xffffff88);
+			if(draw_grid_outlines) DrawSprite(global_route_tex, 241 + grid_bg, offset_x+(x1*RENDER_SIZE), offset_y+(y1*RENDER_SIZE), RENDER_SIZE, RENDER_SIZE, 16, 16, 2, 0xffffff88);
 		}
 	}
 	
-	DrawSprite(1, 240, offset_x+(cursorX*RENDER_SIZE), offset_y+(cursorY*RENDER_SIZE), RENDER_SIZE, RENDER_SIZE, 16, 16, -4, color);
+	DrawSprite(global_route_tex, 240, offset_x+(cursorX*RENDER_SIZE), offset_y+(cursorY*RENDER_SIZE), RENDER_SIZE, RENDER_SIZE, 16, 16, -4, color);
 	
 	if(!free_play && LEVEL>=8 && (!boss9_cutscene && !boss10_cutscene && !boss11_cutscene && !boss12_cutscene))
 	{
 		int center_x = GRID_W / 2;
 		int center_y = GRID_H / 2;
 		
-		DrawSprite(1, 300, offset_x+(center_x*RENDER_SIZE), offset_y+(center_y*RENDER_SIZE), RENDER_SIZE, RENDER_SIZE, 16, 16, -4, color);
+		DrawSprite(global_route_tex, 300, offset_x+(center_x*RENDER_SIZE), offset_y+(center_y*RENDER_SIZE), RENDER_SIZE, RENDER_SIZE, 16, 16, -4, color);
 	}
 }
 
@@ -717,6 +793,13 @@ int tile_map_num(int _t)
 	return tile;
 }
 
+int tex_boss = 0;
+void CheckBossTexture()
+{
+	if(global_route==1) tex_boss = 4;
+	else tex_boss = 3;
+}
+
 int zez_y = -22;
 int zex_y = -22;
 
@@ -750,7 +833,18 @@ void drawScene()
 			case LOGO:
 			{
 				SetFontSize(28, 32);
-				DrawFString(0, 0, 0, 0xffffffff, 0, 32, "AcidNT3.1 Productions LOGO TEST");
+				for(int f = 0; f < 500; f++)
+				{
+					int fx = logoFlags[f].x;
+					int fy = logoFlags[f].y;
+					if(fx==0 && fy==0) continue;
+					DrawSprite(global_route_tex, 112+anim, fx-8, fy-8, 16, 16, 16, 16, -f, color);
+				}
+				if(show_logo)
+				{
+					DrawSprite(22, 0, ((876-40)/2)-160, ((560-22)/2)-160, 320, 320, 260, 260, 0, color);
+					DrawTextAligned(0, 0, 876, 480, 1, 0xffffffff, 0, 28, 32, "AcidNT3.1 Productions");
+				}
 				break;
 			}
 			case TITLE:
@@ -808,7 +902,7 @@ void drawScene()
 				{
 					for(y0 = -22; y0 < (screen_h * 2) + 99; y0 += 32)
 					{
-						DrawSprite(1, tile_bg+anim+2, x0, y0, 32, 32, 16, 16, 5, 0xffffffff);
+						DrawSprite(global_route_tex, tile_bg+anim+2, x0, y0, 32, 32, 16, 16, 5, 0xffffffff);
 					}
 				}
 				
@@ -883,17 +977,12 @@ void drawScene()
 				DrawButton(ze_x+ui_x-zfp_x, ze_y+386, PAD_START, 0);
 				DrawButton(ze_x+ui_x-zfp_x, ze_y+418, PAD_CIRCLE, 0);
 				DrawButton(ze_x+ui_x-zfp_x, ze_y+450, PAD_TRIANGLE, 0);
-				DrawButton(ze_x+ui_x-zfp_x, ze_y+482, PAD_L1, 0);
-				DrawButton(ze_x+ui_x-zfp_x, ze_y+514, PAD_SQUARE, 0);
+				DrawButton(ze_x+ui_x-zfp_x, ze_y+482, PAD_SQUARE, 0);
 				
 				DrawFString(0, ze_x+ui_x-zfp_x+36, ze_y+386, 0xffffffff, 0, 32, langStr[31]);
 				DrawFString(0, ze_x+ui_x-zfp_x+36, ze_y+418, 0xffffffff, 0, 32, langStr[32]);
 				DrawFString(0, ze_x+ui_x-zfp_x+36, ze_y+450, 0xffffffff, 0, 32, langStr[34]);
-				
-				if(use_custom_sweeper) DrawFString(0, ze_x+ui_x-zfp_x+36, ze_y+482, 0xffffffff, 0, 32, "%s: V", langStr[54]);
-				else DrawFString(0, ze_x+ui_x-zfp_x+36, ze_y+482, 0xffffffff, 0, 32, "%s: X", langStr[54]);
-				
-				DrawFString(0, ze_x+ui_x-zfp_x+36, ze_y+514, 0xffffffff, 0, 32, langStr[130]);
+				DrawFString(0, ze_x+ui_x-zfp_x+36, ze_y+482, 0xffffffff, 0, 32, langStr[130]);
 				
 				DrawFString(0, ze_x+ui_x-zfp_x+300, ze_y+64+(fp_menu*32), 0xffffffff, 0, 32, "<");
 				
@@ -935,6 +1024,10 @@ void drawScene()
 				}
 				
 				DrawSprite(capt_id, capt_state, 372, capt_y+ze_y-zcs_y+256, 94, 94, capt_p, capt_p, 3, color);
+				
+				DrawButton(ui_x, ze_y+482-zcs_y, PAD_SQUARE, 0);
+				if(use_custom_sweeper) DrawFString(0, ui_x+36, ze_y+482-zcs_y, 0xffffffff, 0, 32, "%s: V", langStr[54]);
+				else DrawFString(0, ui_x+36, ze_y+482-zcs_y, 0xffffffff, 0, 32, "%s: X", langStr[54]);
 				
 				int testpp = 24;
 				if(master_modeS) testpp = 0;
@@ -1009,7 +1102,7 @@ void drawScene()
 					{
 						for(int y0 = -22; y0 < (screen_h * 2) + 99; y0 += 32)
 						{
-							DrawSprite(1, tile_bg+anim, x0, y0, 32, 32, 16, 16, 8, 0xffffffff);
+							DrawSprite(global_route_tex, tile_bg+anim, x0, y0, 32, 32, 16, 16, 8, 0xffffffff);
 						}
 					}
 					switch(EPISODE)
@@ -1039,11 +1132,11 @@ void drawScene()
 								if(LEVEL<_t)
 								{
 									int tile = tile_map_num(_t);
-									DrawSprite(1, tile_bg+anim+2, 120+(64*_t)+ep1_x, -22+(32*11), 32, 32, 16, 16, 6, 0xffffffff);
-									DrawSprite(1, tile, 120+(64*_t), -22+(32*11)+ep1_x, 32, 32, 16, 16, 5, 0xffffffff);
+									DrawSprite(global_route_tex, tile_bg+anim+2, 120+(64*_t)+ep1_x, -22+(32*11), 32, 32, 16, 16, 6, 0xffffffff);
+									DrawSprite(global_route_tex, tile, 120+(64*_t), -22+(32*11)+ep1_x, 32, 32, 16, 16, 5, 0xffffffff);
 								}
-								else DrawSprite(1, 112+anim, 120+(64*_t)+ep1_x, -22+(32*11), 32, 32, 16, 16, 5, 0xffffffff);
-								DrawSprite(1, 241 + grid_bg, 120+(64*_t)+ep1_x, -22+(32*11), 32, 32, 16, 16, 4, 0xffffffff);
+								else DrawSprite(global_route_tex, 112+anim, 120+(64*_t)+ep1_x, -22+(32*11), 32, 32, 16, 16, 5, 0xffffffff);
+								DrawSprite(global_route_tex, 241 + grid_bg, 120+(64*_t)+ep1_x, -22+(32*11), 32, 32, 16, 16, 4, 0xffffffff);
 							}
 							break;
 						}
@@ -1055,7 +1148,7 @@ void drawScene()
 								
 								int b1 = b % 3;
 								int b2 = b / 3;
-								DrawSprite(1, 241 + grid_bg, 88+(64*(4+b2)), -22+(64*(4+b1)), 32, 32, 16, 16, 4, 0xffffffff);
+								DrawSprite(global_route_tex, 241 + grid_bg, 88+(64*(4+b2)), -22+(64*(4+b1)), 32, 32, 16, 16, 5, 0xffffffff);
 							}
 							
 							break;
@@ -1083,7 +1176,7 @@ void drawScene()
 									case 9: b1 = 3; b2 = 2; break;
 								}
 								
-								DrawSprite(1, 241 + grid_bg, 120+(64*(3+b2)), -22+(64*(4+b1)), 32, 32, 16, 16, 4, 0xffffffff);
+								DrawSprite(global_route_tex, 241 + grid_bg, 120+(64*(3+b2)), -22+(64*(4+b1)), 32, 32, 16, 16, 5, 0xffffffff);
 							}
 							
 							break;
@@ -1093,7 +1186,7 @@ void drawScene()
 							for(int b = 0; b < 3; b++)
 							{
 								DrawLevelIcon(b + 1, level_positions3[b].x, level_positions3[b].y, anim, tile_bg);
-								DrawSprite(1, 241 + grid_bg, level_positions3[b].x, level_positions3[b].y, 32, 32, 16, 16, 4, 0xffffffff);
+								DrawSprite(global_route_tex, 241 + grid_bg, level_positions3[b].x, level_positions3[b].y, 32, 32, 16, 16, 5, 0xffffffff);
 							}
 							
 							break;
@@ -1105,11 +1198,11 @@ void drawScene()
 								if(LEVEL<_t)
 								{
 									int tile = tile_map_num(_t);
-									DrawSprite(1, tile_bg+anim+2, 152+(64*_t)+ep1_x, -22+(32*11), 32, 32, 16, 16, 6, 0xffffffff);
-									DrawSprite(1, tile, 152+(64*_t), -22+(32*11)+ep1_x, 32, 32, 16, 16, 5, 0xffffffff);
+									DrawSprite(global_route_tex, tile_bg+anim+2, 152+(64*_t)+ep1_x, -22+(32*11), 32, 32, 16, 16, 6, 0xffffffff);
+									DrawSprite(global_route_tex, tile, 152+(64*_t), -22+(32*11)+ep1_x, 32, 32, 16, 16, 5, 0xffffffff);
 								}
-								else DrawSprite(1, 112+anim, 152+(64*_t)+ep1_x, -22+(32*11), 32, 32, 16, 16, 5, 0xffffffff);
-								DrawSprite(1, 241 + grid_bg, 152+(64*_t)+ep1_x, -22+(32*11), 32, 32, 16, 16, 4, 0xffffffff);
+								else DrawSprite(global_route_tex, 112+anim, 152+(64*_t)+ep1_x, -22+(32*11), 32, 32, 16, 16, 5, 0xffffffff);
+								DrawSprite(global_route_tex, 241 + grid_bg, 152+(64*_t)+ep1_x, -22+(32*11), 32, 32, 16, 16, 4, 0xffffffff);
 							}
 							break;
 						}
@@ -1117,7 +1210,7 @@ void drawScene()
 					}
 				}
 				
-				DrawSprite(1, getShipRot(ship_r)+anim1, ship_x+ep1_x, ship_y, 32, 32, 16, 16, 0, 0xffffffff);
+				DrawSprite(global_route_tex, getShipRot(ship_r)+anim1, ship_x+ep1_x, ship_y, 32, 32, 16, 16, 0, 0xffffffff);
 				
 				SetFontSize(28, 32);
 				if(!ship_a)
@@ -1138,37 +1231,40 @@ void drawScene()
 				if(the_timer>998) the_timer=999;
 				if(the_timer<0) the_timer=0;
 				
-				SetFontSize(84, 96);
-				DrawSpriteUI(2, -40, -22, 0, 0, 384, 192, 1024, 1024, 302, 112, 1, color);
-				DrawSpriteUI(2, 576, -22, 0, 0, 384, 192, 1024, 1024, 302, 112, 1, color);
-				DrawSpriteUI(2, 262, -22, 384, 0, 768, 192, 1024, 1024, 314, 112, 1, color);
-				DrawSpriteUI(2, -20, -10, 0+(anim*264), 192, 264+(anim*264), 456, 1024, 1024, 94, 94, 1, color);
-				DrawSpriteUI(2, 586, -10, 0+(anim*264), 456, 264+(anim*264), 720, 1024, 1024, 94, 94, 1, color);
-				
-				if(enable_9 || enable_12)
+				if(!enable_nan)
 				{
-					int random_mine = RandRange(-999, 999);
-					if(!boss9_cutscene) DrawFString(0, 94, -26, 0xff0000ff, 1, 96, "???");
-					else DrawFString(0, 94, -26, 0xff0000ff, 1, 96, "%03d", random_mine);
+					SetFontSize(84, 96);
+					DrawSpriteUI(2, -40, -22, 0, 0, 384, 192, 1024, 1024, 302, 112, 1, color);
+					DrawSpriteUI(2, 576, -22, 0, 0, 384, 192, 1024, 1024, 302, 112, 1, color);
+					DrawSpriteUI(2, 262, -22, 384, 0, 768, 192, 1024, 1024, 314, 112, 1, color);
+					DrawSpriteUI(2, -20, -10, 0+(anim*264), 192, 264+(anim*264), 456, 1024, 1024, 94, 94, 1, color);
+					DrawSpriteUI(2, 586, -10, 0+(anim*264), 456, 264+(anim*264), 720, 1024, 1024, 94, 94, 1, color);
+					
+					if(enable_9 || enable_12)
+					{
+						int random_mine = RandRange(-999, 999);
+						if(!boss9_cutscene) DrawFString(0, 94, -26, 0xff0000ff, 1, 96, "???");
+						else DrawFString(0, 94, -26, 0xff0000ff, 1, 96, "%03d", random_mine);
+					}
+					else DrawFString(0, 94, -26, 0xff0000ff, 1, 96, "%03d", mines_count);
+					
+					if(!master_mode)
+					{
+						int livez = 0;
+						if(free_play) livez = fp_lifes; else livez = LIFES;
+						bool enable_bosses = enable_9 || enable_10 || enable_11 || enable_12 || enable_nan;
+						if(enable_bosses) livez = RandRange(-9, 9);
+						DrawFString(0, 498, -26, 0xff0000ff, 1, 96, "%d", livez);
+					}
+					
+					if(enable_12 && !enable_9)
+					{
+						int random_time = RandRange(-999, 999);
+						if(!boss12_cutscene) DrawFString(0, 714, -26, 0xff0000ff, 1, 96, "000");
+						else DrawFString(0, 714, -26, 0xff0000ff, 1, 96, "%03d", random_time);
+					}
+					else DrawFString(0, 714,-26, 0xff0000ff, 1, 96, "%03d", the_timer);
 				}
-				else DrawFString(0, 94, -26, 0xff0000ff, 1, 96, "%03d", mines_count);
-				
-				if(!master_mode)
-				{
-					int livez = 0;
-					if(free_play) livez = fp_lifes; else livez = LIFES;
-					bool enable_bosses = enable_9 || enable_10 || enable_11 || enable_12;
-					if(enable_bosses) livez = RandRange(-9, 9);
-					DrawFString(0, 498, -26, 0xff0000ff, 1, 96, "%d", livez);
-				}
-				
-				if(enable_12 && !enable_9)
-				{
-					int random_time = RandRange(-999, 999);
-					if(!boss12_cutscene) DrawFString(0, 714, -26, 0xff0000ff, 1, 96, "000");
-					else DrawFString(0, 714, -26, 0xff0000ff, 1, 96, "%03d", random_time);
-				}
-				else DrawFString(0, 714,-26, 0xff0000ff, 1, 96, "%03d", the_timer);
 				
 				SetFontSize(28, 32);
 				
@@ -1191,12 +1287,6 @@ void drawScene()
 					int hat_state = getHatState(the_hat, anim1);
 					DrawSprite(12, hat_state, 372, -14, 94, 94, 40, 40, 0, color);
 				}
-				// DrawFString(0, -20,32, 0xffffffff, 0, 32, "TOTAL MINECOINS: %d", global_minecoins);
-				// DrawFString(0, -20,64, 0xffffffff, 0, 32, "MINECOINS: %d", current_minecoins);
-				// DrawFString(0, -20,88, 0xffffffff, 0, 32, "FPS: %d", fps);
-				
-				int tex_boss = 0;
-				if(global_route==1) tex_boss = 4; else tex_boss = 3;
 				
 				if(boss9_count>0 && boss9_cutscene && enable_9)
 				{
@@ -1204,7 +1294,8 @@ void drawScene()
 
 					for (i = 0; i < boss9_count; i++)
 					{
-						// if(boss9_count>0 && i>0) SetTexture(5);
+						CheckBossTexture();
+						if(boss9_count>0 && i>0) tex_boss=5;
 						
 						DrawSpriteRot(tex_boss, 0, offset_x+(boss9_list[i].x*RENDER_SIZE)-RENDER_SIZE, offset_y+(boss9_list[i].y*RENDER_SIZE)-RENDER_SIZE,
 							RENDER_SIZE*3, RENDER_SIZE*3, 384, 384, 1536, 1536, boss9_list[i].rotation, color, -1);
@@ -1225,7 +1316,8 @@ void drawScene()
 						boss10_list[i].pulse += 0.4f / (float)boss10_list[i].time;
 						if (boss10_list[i].pulse > 6.283185f) boss10_list[i].pulse -= 6.283185f; // keep it sane mkay?
 						
-						// if(boss10_count>0 && i>0) SetTexture(5);
+						CheckBossTexture();
+						if(boss10_count>0 && i>0) tex_boss=5;
 						
 						switch(boss10_list[i].time)
 						{
@@ -1252,22 +1344,26 @@ void drawScene()
 							DrawSpriteRot(tex_boss, 4, draw_x, draw_y, TMP_SIZE, TMP_SIZE, 384, 384, 1536, 1536, 36*jl, color_from_value(boss10_list[i].time), -1);
 						}
 						DrawSprite(tex_boss, 5, boss10_list[i].x - TMP_SIZ, boss10_list[i].y - TMP_SIZ, TMP_SIZ*3, TMP_SIZ*3, 384, 384, -2, color_from_value(boss10_list[i].time));
-						DrawSprite(1, num, boss10_list[i].x, boss10_list[i].y, TMP_SIZ, TMP_SIZ, 16, 16, -3, color);
+						DrawSprite(global_route_tex, num, boss10_list[i].x, boss10_list[i].y, TMP_SIZ, TMP_SIZ, 16, 16, -3, color);
 					}
 				}
 				
 				if(boss11_count>0 && boss11_cutscene && enable_11)
 				{
 					int i;
+					float smooth = sinf(count_frames/100)*2.9f;
 
 					for (i = 0; i < boss11_count; i++)
 					{
+						CheckBossTexture();
+						if(boss11_count>0 && i>0) tex_boss=5;
+						
 						u32 colorz = (0xFFFFFF00 | boss11_list[i].alpha);
 						DrawSprite(tex_boss, 4, offset_x+(boss11_list[i].x*RENDER_SIZE)-(RENDER_SIZE*0.5)-boss11_list[i].vis_x1+(RENDER_SIZE*0.022),
-							offset_y+(boss11_list[i].y*RENDER_SIZE)-(RENDER_SIZE*0.5), RENDER_SIZE, RENDER_SIZE*2, 192, 384, -1, colorz);
+							offset_y+(boss11_list[i].y*RENDER_SIZE)-(RENDER_SIZE*0.5)+smooth+0.0f, RENDER_SIZE, RENDER_SIZE*2, 192, 384, -1, colorz);
 						
 						DrawSprite(tex_boss, 5, offset_x+(boss11_list[i].x*RENDER_SIZE)-(RENDER_SIZE*0.5)+RENDER_SIZE+boss11_list[i].vis_x2-(RENDER_SIZE*0.022),
-							offset_y+(boss11_list[i].y*RENDER_SIZE)-(RENDER_SIZE*0.5), RENDER_SIZE, RENDER_SIZE*2, 192, 384, -2, colorz);
+							offset_y+(boss11_list[i].y*RENDER_SIZE)-(RENDER_SIZE*0.5)+smooth+0.0f, RENDER_SIZE, RENDER_SIZE*2, 192, 384, -2, colorz);
 					}
 				}
 				
@@ -1275,7 +1371,7 @@ void drawScene()
 				{
 					float TMP_SIZ = 3.0f * RENDERING_PIXELS;
 					
-					//if(boss12.tempo>(495-boss12.mistake) && boss12.tempo<(500-boss12.mistake)) DrawBackground2D(0xffffffff, -2);
+					if(boss12.tempo>(495-boss12.mistake) && boss12.tempo<(500-boss12.mistake)) DrawBackground2D(0xffffffff, -2);
 					
 					DrawSpriteRot(tex_boss, 3, boss12.x - TMP_SIZ, boss12.y - TMP_SIZ, TMP_SIZ*3, TMP_SIZ*3, 384, 384, 1536, 1536, -boss12.rotation, color, -1);
 					DrawSprite(tex_boss, 7, boss12.x - TMP_SIZ, boss12.y - TMP_SIZ, TMP_SIZ*3, TMP_SIZ*3, 384, 384, -2, color);
@@ -1284,21 +1380,19 @@ void drawScene()
 				if(bossnan_count>0 && bossnan_cutscene && enable_nan)
 				{
 					int i;
+					float smooth = sinf(count_frames/100)*2.9f;
 
 					for (i = 0; i < bossnan_count; i++)
 					{
-						//if(bossnan_count>0 && i>0) SetTexture(5);
+						CheckBossTexture();
+						if(bossnan_count>0 && i>0) tex_boss=5;
 						
-						bossnan_list[i].pos_x = offset_x+(bossnan_list[i].x*RENDER_SIZE)-RENDER_SIZE;
-						bossnan_list[i].pos_y = offset_y+(bossnan_list[i].y*RENDER_SIZE)-RENDER_SIZE;
-						
-						float t_x = 0.0f;
-						float t_y = 0.0f;
-						
-						t_x = (float)lerp(t_x, bossnan_list[i].pos_x, 0.1);
-						t_y = (float)lerp(t_y, bossnan_list[i].pos_y, 0.1);
-						DrawSprite(tex_boss, 6, t_x, t_y, RENDER_SIZE*4, RENDER_SIZE*4, 384, 384, -1, color);
+						float pos_x = offset_x+(bossnan_list[i].pos_x*RENDER_SIZE)-RENDER_SIZE;
+						float pos_y = offset_y+(bossnan_list[i].pos_y*RENDER_SIZE)-RENDER_SIZE;
+						DrawSprite(tex_boss, 6, pos_x, pos_y+smooth+0.0f, RENDER_SIZE*3, RENDER_SIZE*3, 384, 384, -1, color);
 					}
+					
+					DrawTextAligned(0, 0, 876, 480, 1, 0xffffffff, 0, 28, 32, "%s: %.2f\%", langStr[153], corruption);
 				}
 				
 				SetFontSize(28, 32);
@@ -1409,7 +1503,7 @@ void drawScene()
 							
 							if(a==1) icon = 35; else if(a==2) icon = 133; else if(a==3) icon = 114;
 							
-							DrawSprite(1, icon, zs_x - 32, 512-(32*d)+4, 32, 32, 16, 16, 0, color);
+							DrawSprite(global_route_tex, icon, zs_x - 32, 512-(32*d)+4, 32, 32, 16, 16, 0, color);
 							
 							if(b>max_lvl)
 							{
@@ -1438,7 +1532,7 @@ void drawScene()
 								case 7: rank_letter = 246; break; // Master
 							}
 							
-							DrawSprite(1, rank_letter, 512+64, 20, 64, 64, 16, 16, 0, color);
+							DrawSprite(global_route_tex, rank_letter, 512+64, 20, 64, 64, 16, 16, 0, color);
 							
 							DrawFString(0, test_x, 448, 0xff0000ff, 32, 1, langStr[10]);
 							DrawFString(0, test_x, 480, 0xff0000ff, 32, 1, langStr[11]);
@@ -1459,11 +1553,11 @@ void drawScene()
 				{
 					for(int y0 = -22; y0 < (screen_h * 2) + 99; y0 += 32)
 					{
-						DrawSprite(1, anim, x0, y0, 32, 32, 16, 16, 5, color);
+						DrawSprite(global_route_tex, anim, x0, y0, 32, 32, 16, 16, 5, color);
 					}
 				}
-				DrawSprite(1, 192+anim2, -40+(32*16), -22+(32*6), 32, 32, 16, 16, 4, color);
-				DrawSprite(1, getShipRot(ship_r)+anim1, ship_x, ship_y, 32, 32, 16, 16, 4, color);
+				DrawSprite(global_route_tex, 192+anim2, -40+(32*16), -22+(32*6), 32, 32, 16, 16, 4, color);
+				DrawSprite(global_route_tex, getShipRot(ship_r)+anim1, ship_x, ship_y, 32, 32, 16, 16, 4, color);
 				
 				break;
 			}
@@ -1605,7 +1699,7 @@ void drawScene()
 				{
 					for(y0 = -22; y0 < (screen_h * 2) + 99; y0 += 32)
 					{
-						DrawSprite(1, tile_bg+anim+2, x0, y0, 32, 32, 16, 16, 5, 0xffffffff);
+						DrawSprite(global_route_tex, tile_bg+anim+2, x0, y0, 32, 32, 16, 16, 5, 0xffffffff);
 					}
 				}
 				
@@ -1645,19 +1739,19 @@ void drawScene()
 	if(save_running) DrawTextAligned(0, 550, 848, 512, 2, 0xffffffff, 0, 14, 32, langStr[1]);
 	
 	DrawProjectiles();
-	
 	DrawFade();
 	
 	if(show_ach)
 	{
 		SetFontSize(16, 18);
-		DrawRectangle2D(-30, -2, 420, 40, 0xaaaaaaff, -6);
+		DrawRectangle2D(-30, -2, 320, 40, 0xaaaaaaff, -6);
 		DrawFString(0, -20, -2, 0xffffffff, 0, 28, cur_ach_name);
 	}
 	
 	if(currentScreen == GAME)
 	{
 		if(enable_10 && global_route==1) DrawBackground2D(0x00ff0000 | (int)(tnt_alpha), -8);
+		if(enable_9 && global_route==1) DrawBackground2D(0x00ffff55, -8);
 		
 		if(enable_12 && !can_move_xd)
 		{

@@ -828,7 +828,7 @@ int RSX_UploadSheet(int i)
 {
 	printf("RSX_UploadSheet\n");
     pngData *sheet = &spritesheet[i];
-    u32 *pixels, y, row_size;
+    u32 y, row_size;
     int ok;
 
     if (i < 0 || i >= TOTAL_SHEETS) return 0;
@@ -837,19 +837,25 @@ int RSX_UploadSheet(int i)
     RSX_WaitIdle();
     if (textures[i].loaded) RSX_UnloadTexture(i);
 
-    row_size = sheet->width * sizeof(u32);
-    pixels = malloc(row_size * sheet->height);
-    if (!pixels)
+	const u32 *src;
+	u32 *pixels = NULL;
+	row_size = sheet->width * sizeof(u32);
+
+	if (sheet->pitch == row_size) src = (const u32*)sheet->bmp_out;
+	else
 	{
-		printf("!pixels\n");
-		return 0;
+		pixels = malloc(row_size * sheet->height);
+		if (!pixels)
+		{
+			printf("SHEET %d: malloc failed (%ux%u pitch=%u)\n", i, (unsigned)sheet->width, (unsigned)sheet->height, (unsigned)sheet->pitch);
+			return 0;
+		}
+		for (y = 0; y < sheet->height; y++) memcpy((u8*)pixels + y * row_size, (u8*)sheet->bmp_out + y * sheet->pitch, row_size);
+		src = pixels;
 	}
 
-    for (y = 0; y < sheet->height; y++)
-        memcpy((u8*)pixels + y * row_size, (u8*)sheet->bmp_out + y * sheet->pitch, row_size);
-
-    ok = RSX_LoadTexture(i, pixels, (u16)sheet->width, (u16)sheet->height);
-    free(pixels);
+	ok = RSX_LoadTexture(i, src, (u16)sheet->width, (u16)sheet->height);
+	free(pixels);
 
     free(sheet->bmp_out);
     sheet->bmp_out = NULL;

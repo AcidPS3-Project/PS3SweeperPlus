@@ -94,7 +94,7 @@ void LangInit()
 			langStr[73] = "Frozen Captain Sprite";
 			
 			langStr[74] = "There is a boss battle in this game.\nThe battle works the same as normal Minesweeper, but with some key distinctions: you won't know the number of mines hidden on the grid, you have limited time to complete the level, and you won't be able to use the sonar or pause the game. Clicking on a mine will make the time run out faster. To win, you must press TRIANGLE ONLY AFTER revealing all the tiles that don't contain mines. If the timer hits 0, or you press TRIANGLE before revealing the entire grid, it's game over.";
-			langStr[75] = "There is another boss battle in this game.\nAs soon as the game starts, this boss will start counting down from 10. If it counts all the way down to 0, it's game over. Press SQUARE reset the countdown back to 10, but be careful. The boss will move faster and faster every time you press. Clicking on a mine will cause the boss to count down more quickly. To win, reveal the entire grid before the boss is able to finish its countdown.";
+			langStr[75] = "There is another boss battle in this game.\nAs soon as the game starts, this boss will start counting down from 10. If it counts all the way down to 0, it's game over. Click on it with the R-Stick to reset the countdown back to 10, but be careful. The boss will move faster and faster every time you click. Clicking on a mine will cause the boss to count down more quickly. To win, reveal the entire grid before the boss is able to finish its countdown.";
 			langStr[76] = "There is yet another boss battle in this game.\nThe top left number now shows how many more tiles are allowed to be flagged before it's game over. The boss will teleport around the grid placing flags. If you can click the boss before it materializes, you can prevent it from placing a flag, but don't click the boss when its electrical coils are active or you will receive a penalty. Unflagging tiles before the game starts will also result in a penalty. Furthermore, the mines in this boss's grid are pressure mines. Do not remove flags from tiles that contain pressure mines. The boss will place many flags in quick succession if a mine is revealed. To win, reveal the entire grid before the flag counter reaches 0, or before no more flags can be placed on the grid.";
 			
 			langStr[77] = "Total Time";
@@ -128,7 +128,7 @@ void LangInit()
 			langStr[102] = "Something has been unlocked.";
 			
 			langStr[103] = "This is the Frozen Nine, heavily differs from Devil's Nine.\nIt is way faster than it's original counterpart, and it summons the iceberg every 10 seconds. After 10 seconds, the iceberg melts and summons another. The iceberg blocks the 3x3 area on it's location. Good luck.";
-			langStr[104] = "This is the Nuclear Ten.\nAt first, behaves just like it's original, but when pressing SQUARE, it may not reset it's timer, instead it dodges the attack. Be careful! Every time you press SQUARE, it now pollutes the air with toxic acid fumes, making it very harder to see (and maybe breathe). If it fully blocks the view, you suffocate and it's game over.";
+			langStr[104] = "This is the Nuclear Ten.\nAt first, behaves just like it's original, but when clicking on it, it may not reset it's timer, instead it dodges the attack. Be careful! Every time you click on it, it now pollutes the air with toxic acid fumes, making it very harder to see (and maybe breathe). If it fully blocks the view, you suffocate and it's game over.";
 			langStr[105] = "This is the Menacing Eleven.\nAs for now, it's just a re-skin. More mechanics might come in later.";
 			langStr[106] = "Additional Note:";
 			langStr[107] = "Press START to continue.";
@@ -181,6 +181,10 @@ void LangInit()
 			langStr[148] = "Delta P";
 			langStr[149] = "Hydraulic Shock";
 			langStr[150] = "THE DEVIL'S LOCKER";
+			
+			langStr[151] = "There is again, and yet, another boss.\nIt slowly corrupts the game board. The CORRUPTION percentage shows, how much the board is corrupted. If the value is above 50%, it's game over. To win, reveal all un-corrupted tiles before the CORRUPTION is above 50%.";
+			langStr[152] = "This is the Question Mark, a.k.a. Enigmatic Little Devil.\nAs for now, it's just a re-skin. More mechanics might come in later.";
+			langStr[153] = "CORRUPTION";
 			
 			break;
 		}

@@ -82,5 +82,50 @@ void DeactivateNaN()
 
 void bossnan_update()
 {
-	// hahhahaha
+    for (int i = 0; i < MAX_BOSSNAN; i++)
+    {
+		int zx = bossnan_list[i].x;
+		int zy = bossnan_list[i].y;
+		float fx = bossnan_list[i].pos_x;
+		float fy = bossnan_list[i].pos_y;
+		
+		float distance_x = fabs((float)(fx-zx));
+		float distance_y = fabs((float)(fy-zy));
+		
+		if(distance_x>0.1f || distance_y>0.1f)
+		{
+			fx = flerp(fx, zx, 0.035f);
+			fy = flerp(fy, zy, 0.035f);
+			bossnan_list[i].pos_x = (float)fx;
+			bossnan_list[i].pos_y = (float)fy;
+		}
+		else
+		{
+			bossnan_list[i].pos_x = (float)zx;
+			bossnan_list[i].pos_y = (float)zy;
+			bossnan_list[i].x = RandRange(1, GRID_W - 2);
+			bossnan_list[i].y = RandRange(1, GRID_H - 2);
+			board[zx][zy].revealed = 0;
+			board[zx][zy].corrupted = true;
+			
+			int xx, yy;
+			int corrupted_count = 0;
+			int total_count = 0;
+			for (xx = 0; xx < GRID_W; xx++)
+			{
+				for (yy = 0; yy < GRID_H; yy++)
+				{
+					if(board[xx][yy].corrupted) corrupted_count++;
+					if(board[xx][yy].active) total_count++;
+				}
+			}
+			
+			corruption = (float)corrupted_count / total_count;
+			corruption *= 100;
+			
+			board[zx][zy].active = 0;
+			CalculateNumbers();
+			DebugLog("NaN Position change\n");
+		}
+    }
 }

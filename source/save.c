@@ -114,7 +114,7 @@ void savestate_init()
 	buffer.buffer = malloc(buffer.bufferSize);
 	
 	char debug1[256];
-	sprintf(debug1,"buffer = %p",buffer.buffer);
+	sprintf(debug1,"buffer = %p\n",buffer.buffer);
     DebugLog(debug1);
 }
 
@@ -147,19 +147,19 @@ void status_cb(sysSaveCallbackResult *result, sysSaveStatusIn *in, sysSaveStatus
 					load_file_size = in->fileList[i].fileSize;
                     if (load_file_size > sizeof(gSave))
                     {
-                        DebugLog("LOAD: SAVE.DAT has wrong size");
+                        DebugLog("LOAD: SAVE.DAT has wrong size\n");
                         result->result = SYS_SAVE_CALLBACK_RESULT_CORRUPTED;
                         return;
                     }
 
-                    DebugLog("LOAD: SAVE.DAT found");
+                    DebugLog("LOAD: SAVE.DAT found\n");
                     break;
                 }
             }
 
             if (!found)
             {
-                DebugLog("LOAD: SAVE.DAT not found");
+                DebugLog("LOAD: SAVE.DAT not found\n");
                 result->result = SYS_SAVE_CALLBACK_RESULT_NOT_FOUND;
                 return;
             }
@@ -213,14 +213,14 @@ void save_file_cb(sysSaveCallbackResult *result, sysSaveFileIn *in, sysSaveFileO
 
 void load_file_cb(sysSaveCallbackResult *result, sysSaveFileIn *in, sysSaveFileOut *out)
 {
-	DebugLog("LOAD FILE CALLBACK ENTER");
+	DebugLog("LOAD FILE CALLBACK ENTER\n");
     static char filename[] = "SAVE.DAT";
 	
 	memset(out, 0, sizeof(*out));
 
     if(in->previousOperationResultSize == 0)
     {
-        DebugLog("LOAD CALLBACK: requesting SAVE.DAT");
+        DebugLog("LOAD CALLBACK: requesting SAVE.DAT\n");
 
         out->fileOperation = SYS_SAVE_FILE_OPERATION_READ;
         out->fileType = SYS_SAVE_FILETYPE_STANDARD_FILE;
@@ -238,7 +238,7 @@ void load_file_cb(sysSaveCallbackResult *result, sysSaveFileIn *in, sysSaveFileO
         char debug[256];
 
         sprintf(debug,
-            "LOAD CALLBACK: read=%d expected=%d",
+            "LOAD CALLBACK: read=%d expected=%d\n",
             (int)in->previousOperationResultSize,
             (int)load_file_size);
 
@@ -246,12 +246,12 @@ void load_file_cb(sysSaveCallbackResult *result, sysSaveFileIn *in, sysSaveFileO
 
         if(in->previousOperationResultSize == load_file_size)
         {
-            DebugLog("LOAD CALLBACK: SAVE.DAT read successfully");
+            DebugLog("LOAD CALLBACK: SAVE.DAT read successfully\n");
             result->result = SYS_SAVE_CALLBACK_RESULT_DONE;
         }
         else
         {
-            DebugLog("LOAD CALLBACK: SAVE.DAT read failed");
+            DebugLog("LOAD CALLBACK: SAVE.DAT read failed\n");
             result->result = SYS_SAVE_CALLBACK_RESULT_CORRUPTED;
         }
     }
@@ -269,11 +269,11 @@ static void SaveThread(void *arg)
     save_thread = 0;
 	
 	char debug[256];
-	sprintf(debug, "SAVE: level=%d current=%d global=%d route=%d episode=%d", gSave.save_level,
+	sprintf(debug, "SAVE: level=%d current=%d global=%d route=%d episode=%d\n", gSave.save_level,
 		gSave.save_current_minecoins, gSave.save_global_minecoins, gSave.save_global_route, gSave.save_episode);
 	DebugLog(debug);
 
-	sprintf(debug,"Save finished: %d",ret);
+	sprintf(debug,"Save finished: %d\n",ret);
     DebugLog(debug);
 	xmb.opened = 0;
 	xmb.closed = 1;
@@ -352,7 +352,7 @@ int StartSave(void)
 
 	char debug[256];
 
-	sprintf(debug,"SAVING VALUES: level=%d current=%d global=%d route=%d", gSave.save_level,
+	sprintf(debug,"SAVING VALUES: level=%d current=%d global=%d route=%d\n", gSave.save_level,
 		gSave.save_current_minecoins, gSave.save_global_minecoins, gSave.save_global_route);
 	DebugLog(debug);
 	
@@ -368,7 +368,7 @@ int StartSave(void)
 
     if(ret != 0)
     {
-		sprintf(debug, "SAVE: thread creation failed (%08X)" ,ret);
+		sprintf(debug, "SAVE: thread creation failed (%08X)\n" ,ret);
 		DebugLog(debug);
         save_running = 0;
         save_thread = 0;
@@ -383,7 +383,7 @@ static void LoadThread(void *arg)
 	SetSaveDefaults();
 	
     s32 ret;
-    DebugLog("LOAD: starting...");
+    DebugLog("LOAD: starting...\n");
 
     ret = sysSaveAutoLoad2(SYS_SAVE_CURRENT_VERSION, SAVE_DIR, SYS_SAVE_ERROR_DIALOG_SHOW,
 		&buffer, status_cb, load_file_cb, 0, NULL);
@@ -393,7 +393,7 @@ static void LoadThread(void *arg)
     load_thread = 0;
 	
 	char debug1[256];
-	sprintf(debug1,"LOAD: finished (%08X)",ret);
+	sprintf(debug1,"LOAD: finished (%08X)\n",ret);
     DebugLog(debug1);
 	
 	LEVEL = gSave.save_level;
@@ -463,7 +463,7 @@ static void LoadThread(void *arg)
 	master_mode = gSave.smaster_mode;
 	
 	char debug[256];
-	sprintf(debug, "LOAD VALUES: level=%d current=%d global=%d route=%d episode=%d", gSave.save_level,
+	sprintf(debug, "LOAD VALUES: level=%d current=%d global=%d route=%d episode=%d\n", gSave.save_level,
 		gSave.save_current_minecoins, gSave.save_global_minecoins, gSave.save_global_route, gSave.save_episode);
 	DebugLog(debug);
 	
@@ -496,7 +496,7 @@ int StartLoad(void)
     if(ret != 0)
     {
 		char debug1[256];
-		sprintf(debug1,"LOAD: thread creation failed (%08X)",ret);
+		sprintf(debug1,"LOAD: thread creation failed (%08X)\n",ret);
 		DebugLog(debug1);
 
         load_running = 0;

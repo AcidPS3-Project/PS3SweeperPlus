@@ -195,6 +195,7 @@ void GenerateBoard()
         for (yy = 0; yy < GRID_H; yy++)
         {
             board[xx][yy].active = 1;
+            board[xx][yy].corrupted = false;
         }
     }
 	
@@ -407,8 +408,7 @@ int calculate_score()
 	if(boss12_count > 0) score += 12;
 	if(bossnan_count > 0) score += 15;
 	score += MINES;
-	//score *= 1.5; // cuz we are practically ALWAYS in master LMAO
-	//if(Main.db["master"]) score \*= 1.5
+	if(master_mode) score *= 1.5;
 	score *= double_multiplier;
 	score *= half_multiplier;
 	score *= anti_multiplier;

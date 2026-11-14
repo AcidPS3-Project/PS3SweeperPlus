@@ -23,7 +23,7 @@ AchievementsDB AchDb[MAX_ACHIEVE] =
 	{"Super Minesweeper", "Complete Third Episode of GameBoy route", &AchNDb.GEp3Complete, BRONZE},
 	{"Starting from 12:00 AM", "Complete Fourth Episode of GameBoy route", &AchNDb.GEp4Complete, BRONZE},
 	{"Reminds me of Level 256", "Complete Fifth Episode of GameBoy route", &AchNDb.GEp5Complete, BRONZE},
-	{"Silver Surfer Sucks.", "Complete Sixth Episode of GameBoy route", &AchNDb.GEp6Complete, BRONZE},
+	{"Silver Surfer Game Sucks.", "Complete Sixth Episode of GameBoy route", &AchNDb.GEp6Complete, BRONZE},
 	{"The Final Retro", "Complete the GameBoy route", &AchNDb.GGameComplete, BRONZE},
 	{"This isn't funny bro.", "Unlock the Weird route.", &AchNDb.UnlockWeird, BRONZE},
 	{"What the FUCK was that?", "Complete First Episode of Weird route", &AchNDb.WEp1Complete, BRONZE},

@@ -26,6 +26,7 @@ int route_selector = 0;
 
 bool show_shit = false;
 int global_route = 0;
+int global_route_tex = 1;
 
 int ranks_ep_1[8];
 int ranks_ep_2[8];
@@ -49,6 +50,7 @@ int level_minecoins = 0;
 float RENDER_SIZE;
 
 float time_total = 0.0f;
+float corruption = 0.0f;
 
 float boss_render_x = 0.0f;
 
@@ -106,12 +108,23 @@ bool seen_ktwelve = false;
 bool seen_nan = false;
 
 bool show_warning = false;
+bool show_logo = false;
 
 void SetupTimeSettings()
 {
 	for(int _t = 0; _t < MAXLVLTEST; _t++)
 	{
 		level_time[_t] = 99999.9f;
+	}
+}
+
+logoFlag logoFlags[500];
+void SetupLogoFlags()
+{
+	for(int f = 0; f < 500; f++)
+	{
+		logoFlags[f].x = 0;
+		logoFlags[f].y = 0;
 	}
 }
 
@@ -178,6 +191,11 @@ void CollectAchievement(int ach)
 }
 
 float lerp(int x, int y, float amount)
+{
+	return x + amount * (y - x);
+}
+
+float flerp(float x, float y, float amount)
 {
 	return x + amount * (y - x);
 }
@@ -263,19 +281,19 @@ void SplashesInit()
 	splashes_random[splash_count++] = "Better, than Minesweeper Plus: PS3 Edition";
 	splashes_random[splash_count++] = "AI-Assisted code, because I suck at C.";
 	splashes_random[splash_count++] = "Optimizing is at it's peakest.";
-	splashes_random[splash_count++] = "uh guys i dont kinda wanna to continue baldi rewrite thingy";
+	splashes_random[splash_count++] = "idk about you but idk how to do baldi properly";
 	splashes_random[splash_count++] = "CELL Programming";
 	splashes_random[splash_count++] = "Yellow light of Death";
-	splashes_random[splash_count++] = "Reality Synthesizer can fail?";
+	splashes_random[splash_count++] = "REALITY SYNTHESIZER";
 	//splashes_random[splash_count++] = "NEC-Tokens included!";
 	splashes_random[splash_count++] = "I really suck at PS3 games coding.";
-	splashes_random[splash_count++] = "Definitely does NOT work with aPS3e!";
-	splashes_random[splash_count++] = "May work with RPCS3, but freezes rarely happen. Be careful!";
+	splashes_random[splash_count++] = "aPS3e's alpha channel broken";
+	splashes_random[splash_count++] = "Finally no freezes in emulators!";
 	splashes_random[splash_count++] = "The definition of Insanity.";
 	splashes_random[splash_count++] = "up up down down left right left right circle cross start.\n     oh wait, it doesnt work";
 	splashes_random[splash_count++] = "why do i stay all night for this";
 	splashes_random[splash_count++] = "I tried making MS+ for PS1 one time. It is pretty ok..";
-	splashes_random[splash_count++] = "What R2 do? BEEP BEEP BEEP";
+	//splashes_random[splash_count++] = "What R2 do? BEEP BEEP BEEP";
 	splashes_random[splash_count++] = "48x36 boards DO NOT GIVE YOU FRAMEDROPS!!!!!!!";
 	splashes_random[splash_count++] = "Now with Full Episode 2!";
 	splashes_random[splash_count++] = "Now with Full Episode 3..?";
@@ -312,7 +330,7 @@ void SplashesInit()
 	splashes_random[splash_count++] = "Frozen Nine is related to Touhou Project instead.";
 	splashes_random[splash_count++] = "He's gonna take you back to the past.";
 	splashes_random[splash_count++] = "Does not contain too much if else stuff!";
-	splashes_random[splash_count++] = "He he, GTA VI coming soon";
+	splashes_random[splash_count++] = "He he, GTA VI in a week";
 	splashes_random[splash_count++] = "One of the First PS3 games that support Kazakh Language!";
 	splashes_random[splash_count++] = "NaN is coming...";
 	splashes_random[splash_count++] = "TRUST THE PROCESS!";
@@ -321,7 +339,7 @@ void SplashesInit()
 	splashes_random[splash_count++] = "We're no strangers to love...";
 	splashes_random[splash_count++] = "You know the rules and so do I.";
 	splashes_random[splash_count++] = "Я держу тебя за руку и все расплывается";
-	splashes_random[splash_count++] = "Shoutout to my best friends Kirill9ka and tiptopik!";
+	splashes_random[splash_count++] = "Shoutout to my best friends Kirill9ka, tiptopik & StrF1re!";
 	splashes_random[splash_count++] = "КОЙШАМОБИЛЬ";
 	splashes_random[splash_count++] = "You clearly don't own a Koishi Fumo.";
 	splashes_random[splash_count++] = "OOOOEEEEOOOO I LOOK JUST LIKE BUDDY HOLLY";
@@ -347,6 +365,12 @@ void SplashesInit()
 	splashes_random[splash_count++] = "GENERAL SWEEPY BEATED THE OG 3 EPISODES WITH EVERY M RANK\n      ON MOBILE!!";
 	splashes_random[splash_count++] = "im having an emotional breakdown again";
 	splashes_random[splash_count++] = "Achievements? When trophies support? :T";
+	splashes_random[splash_count++] = "No tiny3d now. It's now better :)";
+	splashes_random[splash_count++] = "eh, 10 is easy. i shall do something about it.";
+	splashes_random[splash_count++] = "?";
+	splashes_random[splash_count++] = "yo i like that new logo animation";
+	// splashes_random[splash_count++] = "";
+	// splashes_random[splash_count++] = "";
 	
 	FILE *za = fopen("/dev_hdd0/game/ACIDSTORE/USRDIR/EBOOT.BIN", "rb");
 	if(za!=NULL)
@@ -379,13 +403,13 @@ void SplashesInit()
 		splashes_random[splash_count++] = "I am a Bad Apple!! addict.";
 		splashes_random[splash_count++] = "BAD APPLE!! SLOP";
 		splashes_random[splash_count++] = "THE. BAD. APPLE. !!.";
-		DebugLog("Bad Apple!! DLC Init!");
+		DebugLog("Bad Apple!! DLC Init!\n");
 	}
 	else if(bad_apple_dlc_installed==1)
 	{
 		splashes_random[splash_count++] = "Bad Apple!! DLC not installed correctly.";
 		splashes_random[splash_count++] = "Please re-install Bad Apple!! DLC";
-		DebugLog("Bad Apple!! DLC Init fail.");
+		DebugLog("Bad Apple!! DLC Init fail.\n");
 	}
 	
 	splashes_random[splash_count] = "Somebody once told me the world is gonna roll me.";
@@ -559,7 +583,7 @@ void init_bgm()
 	bgm[196] = MUS_DIR "fourofakind_win.ogg";
 	
 	bgm[197] = MUS_DIR "shop.ogg";
-	bgm[198] = MUS_DIR "logo.mp3";
+	bgm[198] = MUS_DIR "logo.ogg";
 	// 199 - custom win music
 	
 	// Touhou route shit
@@ -750,7 +774,7 @@ void PlayBGM(int id, int inf)
     current_bgm = temp+id;
 	
 	DebugLog("FILE: %s\n", bgm[temp+id]);
-	DebugLog("START: %d\n", bgm_start[temp+id]);
+	DebugLog("START: %d  ---  ", bgm_start[temp+id]);
 	DebugLog("END: %d\n", bgm_end[temp+id]);
 }
 
@@ -846,7 +870,7 @@ void EmptyDialogCallback(msgButton button, void *usrData)
 
 void Initialize()
 {
-	DebugLog("Game initialization...");
+	DebugLog("Game initialization...\n");
 	u32 spu;
 	sysSpuImage spu_image;
 	sysSpuInitialize(1, 5);
@@ -855,6 +879,7 @@ void Initialize()
 	sysSpuRawImageLoad(spu, &spu_image);
 	SND_Init(spu);
 	
+	SetupLogoFlags();
 	for(int i = 0; i < 8; i++)
 	{
 		ranks_ep_1[i] = -1;
@@ -866,7 +891,7 @@ void Initialize()
 
 void HolyShit()
 {
-	DebugLog("PS3 Buzzer should be triggered. If not, well, idrk then");
+	DebugLog("PS3 Buzzer should be triggered. If not, well, idrk then\n");
 	lv2syscall3(392, 0x1004, 0xA, 0x1B6);
 }
 
@@ -891,19 +916,19 @@ void HolyShit2(int type)
 {
 	if(type == 0)
 	{
-		DebugLog("PS3 LED should be GREEN.");
+		DebugLog("PS3 LED should be GREEN.\n");
 		syscall2_0();
 		syscall2_3();
 	}
 	else if(type == 1)
 	{
-		DebugLog("PS3 LED should be RED.");
+		DebugLog("PS3 LED should be RED.\n");
 		syscall2_1();
 		syscall2_2();
 	}
 	else
 	{
-		DebugLog("PS3 LED should be YELLOW.");
+		DebugLog("PS3 LED should be YELLOW.\n");
 		syscall2_0();
 		syscall2_2();
 	}
@@ -941,7 +966,7 @@ int LoadImageA(const char *path, pngData *texture)
     fp = fopen(path, "rb");
     if(!fp)
     {
-        DebugLog("LoadImageA: fopen failed");
+        DebugLog("LoadImageA: fopen failed\n");
         return 0;
     }
 
@@ -952,7 +977,7 @@ int LoadImageA(const char *path, pngData *texture)
     buffer = malloc(size);
     if(!buffer)
     {
-        DebugLog("LoadImageA: malloc failed");
+        DebugLog("LoadImageA: malloc failed\n");
         fclose(fp);
         return 0;
     }

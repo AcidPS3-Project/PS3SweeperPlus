@@ -9,10 +9,19 @@ extern char global_version[];
 
 const char *credits[256];
 
+typedef struct
+{
+    int x;
+    int y;
+} logoFlag;
+extern logoFlag logoFlags[500];
+
 extern int current_bgm;
 extern int desired_bgm;
 
 extern int smiley_face;
+
+extern bool show_logo;
 
 extern bool ultrakill_dlc;
 
@@ -24,9 +33,11 @@ extern int ship_r;
 extern bool ship_a;
 
 extern float time_total;
+extern float corruption;
 extern int ten_arena;
 
 extern int global_route;
+extern int global_route_tex;
 extern bool show_shit;
 extern int rank_result;
 
@@ -230,6 +241,7 @@ extern int menu_pos;
 extern int setting_guarantee;
 
 float lerp(int x, int y, float amount);
+float flerp(float x, float y, float amount);
 
 void DebugLog(const char *format, ...);
 
