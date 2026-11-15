@@ -36,6 +36,9 @@ extern float time_total;
 extern float corruption;
 extern int ten_arena;
 
+extern int cursor_x;
+extern int cursor_y;
+
 extern int global_route;
 extern int global_route_tex;
 extern bool show_shit;
@@ -51,6 +54,8 @@ extern float RENDER_SIZE;
 extern int RENDERING_PIXELS;
 extern float RENDERING_SIZE;
 extern int FIRST_CLICK;
+
+extern int R_SENSITIVITY;
 
 extern int i_10;
 
@@ -192,7 +197,7 @@ SoundEffect sfx_f9ice;
 SoundEffect sfx_siren;
 SoundEffect sfx_trophy;
 
-#define BGM_LIST 400
+#define BGM_LIST 2000
 #define MUS_DIR "/dev_hdd0/game/MINESWEEP/USRDIR/music/"
 
 #define TOTAL_SHEETS 30

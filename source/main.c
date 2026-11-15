@@ -341,12 +341,6 @@ void GoBackToTitle()
 	show_warning = false;
 	current_minecoins = 0;
 	
-	enable_9 = false;
-	enable_10 = false;
-	enable_11 = false;
-	enable_12 = false;
-	enable_nan = false;
-	
 	HELL = false;
 	
 	if(free_play) LEVEL=LEVEL_BKP;
@@ -397,6 +391,10 @@ bool old_control_left = false;
 bool old_control_right = false;
 bool old_control_up = false;
 bool old_control_down = false;
+bool old_control_leftR = false;
+bool old_control_rightR = false;
+bool old_control_upR = false;
+bool old_control_downR = false;
 bool old_control_any = false;
 
 int main(int argc, const char* argv[])
@@ -514,6 +512,11 @@ int main(int argc, const char* argv[])
 
 					bool control_up = paddata.BTN_UP || paddata.ANA_L_V < 80;
 					bool control_down = paddata.BTN_DOWN || paddata.ANA_L_V > 176;
+					
+					bool control_leftR = paddata.ANA_R_H < 80;
+					bool control_rightR = paddata.ANA_R_H > 176;
+					bool control_upR = paddata.ANA_R_V < 80;
+					bool control_downR = paddata.ANA_R_V > 176;
 					
 					bool control_any = paddata.BTN_CROSS || paddata.BTN_CIRCLE || paddata.BTN_TRIANGLE || paddata.BTN_SQUARE || paddata.BTN_START || paddata.BTN_SELECT || paddata.BTN_L1 || paddata.BTN_L2 || paddata.BTN_R1 || paddata.BTN_R2 || paddata.BTN_L3 || paddata.BTN_R3;
 					
@@ -652,6 +655,10 @@ int main(int argc, const char* argv[])
 								{
 									splash = splashes_random[rand() % SplashesCount()];
 									settings_select = 0;
+								}
+								if(paddata.BTN_R3 && !oldpad.BTN_R3)
+								{
+									if(R_SENSITIVITY>=8) R_SENSITIVITY=1; else R_SENSITIVITY++;
 								}
 							}
 							else if(ready_to_click)
@@ -1469,6 +1476,8 @@ int main(int argc, const char* argv[])
 										case 8: smiley_face = 4; break;
 										case 9: smiley_face = 5; break;
 										case 10: smiley_face = 6; break;
+										case 11: smiley_face = 7; break;
+										case 12: smiley_face = 8; break;
 										default: smiley_face = 0; break;
 									}
 									
@@ -1505,6 +1514,9 @@ int main(int argc, const char* argv[])
 								ready_to_click = 1;
 								test_zero = true;
 								fp_lifes = 3;
+								
+								cursor_x = (876-40)/2;
+								cursor_y = (560-22)/2;
 							}
 							
 							if(ready_to_click)
@@ -1946,27 +1958,44 @@ int main(int argc, const char* argv[])
 												}
 											}
 										}
-										if(paddata.BTN_SQUARE && !oldpad.BTN_SQUARE)
+										
+										cursor_x += (control_rightR-control_leftR)*2*R_SENSITIVITY;
+										cursor_y += (control_downR-control_upR)*2*R_SENSITIVITY;
+										
+										if(paddata.BTN_R3 && !oldpad.BTN_R3 && boss10_started)
 										{
-											if(boss10_started)
+											i_10 = -1;
+											
+											for(int zi = 0; zi < boss10_count; zi++)
 											{
-												boss10_list[i_10].time=10;
-												boss10_list[i_10].tspeed+=(0.0155f*(1+DIFFICULTY));
-												tnt_alpha += 5.1f;
-												float min_speed = boss10_list[i_10].tspeed;
-												
-												boss10_list[i_10].hsp = min_speed + (((float)rand() / (float)RAND_MAX) * boss10_list[i_10].tspeed);
-												boss10_list[i_10].vsp = min_speed + (((float)rand() / (float)RAND_MAX) * boss10_list[i_10].tspeed);
-												
-												PlaySFX(&sfx_10reset);
-												
-												if (rand() % 2) boss10_list[i_10].hsp = -boss10_list[i_10].hsp;
-												if (rand() % 2) boss10_list[i_10].vsp = -boss10_list[i_10].vsp;
-												
-												i_10++;
-												if(i_10>boss10_count-1) i_10=0;
+												float temp_x = boss10_list[zi].x;
+												float temp_y = boss10_list[zi].y;
+												if(cursor_x > temp_x-48 && cursor_x < temp_x+48)
+												{
+													if(cursor_y > temp_y-48 && cursor_y < temp_y+48)
+													{
+														i_10 = zi;
+														continue;
+													}
+												}
 											}
+											
+											if(i_10==-1) continue;
+											
+											boss10_list[i_10].time=10;
+											boss10_list[i_10].tspeed+=(0.0155f*(1+DIFFICULTY));
+											tnt_alpha += 5.1f;
+											float min_speed = boss10_list[i_10].tspeed;
+											
+											boss10_list[i_10].hsp = min_speed + (((float)rand() / (float)RAND_MAX) * boss10_list[i_10].tspeed);
+											boss10_list[i_10].vsp = min_speed + (((float)rand() / (float)RAND_MAX) * boss10_list[i_10].tspeed);
+											
+											PlaySFX(&sfx_10reset);
+											
+											if(rand() % 2) boss10_list[i_10].hsp = -boss10_list[i_10].hsp;
+											if(rand() % 2) boss10_list[i_10].vsp = -boss10_list[i_10].vsp;
 										}
+										
 										if(paddata.BTN_TRIANGLE && !oldpad.BTN_TRIANGLE && boss9_started) WinCheck();
 										
 										// movement
@@ -2212,8 +2241,8 @@ int main(int argc, const char* argv[])
 									}
 									case 2:
 									{
-										msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
-											"GameBoy Route is in development. Please wait...", EmptyDialogCallback, NULL, NULL);
+										global_route = 2;
+										global_route_tex = 1;
 										break;
 									}
 									case 3:
@@ -2231,7 +2260,7 @@ int main(int argc, const char* argv[])
 									case 5:
 									{
 										msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
-											"UNKNOWN Route is in development. Please wait...", EmptyDialogCallback, NULL, NULL);
+											"Ultrakill Route is in development. Please wait...", EmptyDialogCallback, NULL, NULL);
 										break;
 									}
 									default:
@@ -2266,6 +2295,10 @@ int main(int argc, const char* argv[])
 					old_control_right = control_right;
 					old_control_up = control_up;
 					old_control_down = control_down;
+					old_control_leftR = control_leftR;
+					old_control_rightR = control_rightR;
+					old_control_upR = control_upR;
+					old_control_downR = control_downR;
 					old_control_any = control_any;
 					oldpad = paddata;
 				}
@@ -2480,7 +2513,7 @@ int main(int argc, const char* argv[])
 		RSX_SetRenderTarget(&buffers[currentBuffer]);
 		RSX_SetupViewport();
 		RSX_ClearScreen();
-		
+
 		drawScene();
 		RSX_FlushDraws();
 		RSX_EndFrameMark();

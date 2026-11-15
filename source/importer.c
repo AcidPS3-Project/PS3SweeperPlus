@@ -52,11 +52,16 @@ float RENDER_SIZE;
 float time_total = 0.0f;
 float corruption = 0.0f;
 
+int cursor_x = (876-40)/2;
+int cursor_y = (560-22)/2;
+
 float boss_render_x = 0.0f;
 
 int RENDERING_PIXELS = 16;
 float RENDERING_SIZE = 2.0f;
 int FIRST_CLICK = 1;
+
+int R_SENSITIVITY = 4;
 
 int i_10 = 0;
 int language = 0;
@@ -610,7 +615,7 @@ void init_bgm()
 	
 	// bgm[206] = MUS_DIR "touhou/bgm6.ogg";
 	// bgm[207] = MUS_DIR "touhou/bgm7.ogg";
-	// bgm[208] = MUS_DIR "touhou/bgm8.ogg";
+	bgm[208] = MUS_DIR "touhou/bgm8.ogg";
 	
 	// what the fuck
 	// bgm[209] = MUS_DIR "touhou/boss9_2.ogg";
@@ -664,7 +669,7 @@ void init_bgm()
 	bgm[255] = MUS_DIR "touhou/Ags5.ogg";
 	// bgm[256] = MUS_DIR "touhou/Ags6.ogg";
 	// bgm[257] = MUS_DIR "touhou/Ags7.ogg";
-	// bgm[258] = MUS_DIR "touhou/Ags8.ogg";
+	bgm[258] = MUS_DIR "touhou/Ags8.ogg";
 	bgm[259] = MUS_DIR "touhou/Ags9.ogg";
 	bgm[260] = MUS_DIR "touhou/Ags10.ogg";
 	bgm[261] = MUS_DIR "touhou/Ags11.ogg";
@@ -687,7 +692,7 @@ void init_bgm()
 	bgm[355] = MUS_DIR "touhou/ls5.ogg";
 	// bgm[356] = MUS_DIR "touhou/ls6.ogg";
 	// bgm[357] = MUS_DIR "touhou/ls7.ogg";
-	// bgm[358] = MUS_DIR "touhou/ls8.ogg";
+	bgm[358] = MUS_DIR "touhou/ls8.ogg";
 	bgm[359] = MUS_DIR "touhou/ls9.ogg";
 	bgm[360] = MUS_DIR "touhou/ls10.ogg";
 	bgm[361] = MUS_DIR "touhou/ls11.ogg";
@@ -697,6 +702,41 @@ void init_bgm()
 	bgm[368] = MUS_DIR "touhou/lsQ.ogg";
 	
 	// coming soon 0_0
+	bgm[401] = MUS_DIR "gb/bgm1.mp3";
+	bgm_start[1] = 499;
+	bgm_end[1] = 45281;
+	
+	bgm[402] = MUS_DIR "gb/bgm2.ogg";
+	bgm_start[2] = 7801;
+	bgm_end[2] = 54617;
+	
+	bgm[403] = MUS_DIR "gb/bgm3.mp3";
+	// bgm[404] = MUS_DIR "gb/bgm4.ogg";
+	// bgm_start[4] = 1782;
+	// bgm_end[4] = 137481;
+	
+	bgm[405] = MUS_DIR "gb/bgm5.ogg";
+	
+	bgm[451] = MUS_DIR "gb/Ags1.mp3";
+	bgm[452] = MUS_DIR "gb/Ags2.ogg";
+	bgm[453] = MUS_DIR "gb/Ags3.mp3";
+	//bgm[454] = MUS_DIR "gb/Ags4.ogg";
+	
+	bgm[455] = MUS_DIR "gb/Ags5.ogg";
+	
+	bgm[501] = MUS_DIR "gb/win1.mp3";
+	bgm[502] = MUS_DIR "gb/win2.ogg";
+	bgm[503] = MUS_DIR "gb/win3.mp3";
+	//bgm[504] = MUS_DIR "gb/win4.ogg";
+	
+	bgm[505] = MUS_DIR "gb/win5.ogg";
+	
+	bgm[551] = MUS_DIR "gb/ls1.mp3";
+	bgm[552] = MUS_DIR "gb/ls2.ogg";
+	bgm[553] = MUS_DIR "gb/ls3.mp3";
+	//bgm[554] = MUS_DIR "gb/ls4.ogg";
+	
+	bgm[555] = MUS_DIR "gb/ls5.ogg";
 }
 
 int LoadSFX(SoundEffect *sfx, const void *data, int size)
@@ -760,6 +800,7 @@ void PlayBGM(int id, int inf)
 	int temp = 0;
 	
 	if(global_route == 1) temp = 200;
+	if(global_route == 2) temp = 400;
 	if(id>=176 || id==99 || id==100 || id==9 || id==0) temp = 0;
 	
 	FILE *fp = fopen(bgm[temp+id], "rb");

@@ -68,6 +68,7 @@ typedef struct
 
 	bool save_seen_ktwelve;
 	bool smaster_mode;
+	int SENSITIVITY;
 } SaveData;
 
 extern SaveData gSave;

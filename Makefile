@@ -15,7 +15,7 @@ include $(PSL1GHT)/ppu_rules
 
 SCETOOL_FLAGS	+=	
 
-TARGET		:=	$(notdir $(CURDIR))
+TARGET		:=	PS3Sweeper+
 BUILD		:=	build
 SOURCES		:=	source
 DATA		:=	data

@@ -65,6 +65,9 @@ extern const unsigned char basic_vp_vpo_size[];
 extern const unsigned char basic_fp_fpo[];
 extern const unsigned char basic_fp_fpo_size[];
 
+extern u8 glitch_fp_fpo[];
+extern u32 glitch_fp_fpo_size;
+
 static rsxVertexProgram *vertex_program = NULL;
 static rsxFragmentProgram *fragment_program = NULL;
 
@@ -306,7 +309,7 @@ void RSX_ClearScreen(void)
 {
     gcmContextData *context = RSX_GetContext();
 
-    rsxSetClearColor(context, 0xFF101010);
+    rsxSetClearColor(context, 0xFF000000);
     rsxClearSurface(context, GCM_CLEAR_R | GCM_CLEAR_G | GCM_CLEAR_B | GCM_CLEAR_A);
 }
 
@@ -317,7 +320,7 @@ void RSX_TestClear(rsxBuffer *buffer)
     RSX_SetRenderTarget(buffer);
     RSX_SetupViewport();
 
-    rsxSetClearColor(context, 0xFF2020FF);
+    rsxSetClearColor(context, 0xFF000000);
     rsxClearSurface(context, GCM_CLEAR_R | GCM_CLEAR_G | GCM_CLEAR_B | GCM_CLEAR_A);
 
     rsxFlushBuffer(context);

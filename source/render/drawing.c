@@ -132,7 +132,7 @@ void DrawFade(void)
     u32 color = alpha;
     color = 0x00000000 | alpha;
 	
-	DrawBackground2D(color, -9);
+	DrawBackground2D(color, -32);
 }
 
 u32 color_from_value(int value)
@@ -873,6 +873,8 @@ void drawScene()
 							DrawFString(0, ui_x+36, 96, 0xffffffff, 0, 32, "%s: %s", langStr[2], langStr[46]);
 							break;
 					}
+					DrawButton(ui_x, 128, PAD_R3, 0);
+					DrawFString(0, ui_x+36, 128, 0xffffffff, 0, 32, "%s: %d", langStr[154],  R_SENSITIVITY);
 					DrawButton(ui_x, 484, PAD_CIRCLE, 0);
 					DrawFString(0, ui_x+36, 484, 0xffffffff, 0, 32, langStr[32]);
 				}
@@ -1346,12 +1348,14 @@ void drawScene()
 						DrawSprite(tex_boss, 5, boss10_list[i].x - TMP_SIZ, boss10_list[i].y - TMP_SIZ, TMP_SIZ*3, TMP_SIZ*3, 384, 384, -2, color_from_value(boss10_list[i].time));
 						DrawSprite(global_route_tex, num, boss10_list[i].x, boss10_list[i].y, TMP_SIZ, TMP_SIZ, 16, 16, -3, color);
 					}
+					
+					DrawSprite(global_route_tex, 223, cursor_x, cursor_y, 32, 32, 16, 16, -7, color);
 				}
 				
 				if(boss11_count>0 && boss11_cutscene && enable_11)
 				{
 					int i;
-					float smooth = sinf(count_frames/100)*2.9f;
+					float smooth = sinf(count_frames/100.0f)*2.9f;
 
 					for (i = 0; i < boss11_count; i++)
 					{
@@ -1380,7 +1384,7 @@ void drawScene()
 				if(bossnan_count>0 && bossnan_cutscene && enable_nan)
 				{
 					int i;
-					float smooth = sinf(count_frames/100)*2.9f;
+					float smooth = sinf(count_frames/100.0f)*2.9f;
 
 					for (i = 0; i < bossnan_count; i++)
 					{
@@ -1751,7 +1755,7 @@ void drawScene()
 	if(currentScreen == GAME)
 	{
 		if(enable_10 && global_route==1) DrawBackground2D(0x00ff0000 | (int)(tnt_alpha), -8);
-		if(enable_9 && global_route==1) DrawBackground2D(0x00ffff55, -8);
+		if(enable_9 && global_route==1) DrawBackground2D(0x00ffff55, -9);
 		
 		if(enable_12 && !can_move_xd)
 		{

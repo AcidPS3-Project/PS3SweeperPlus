@@ -185,6 +185,7 @@ void LangInit()
 			langStr[151] = "There is again, and yet, another boss.\nIt slowly corrupts the game board. The CORRUPTION percentage shows, how much the board is corrupted. If the value is above 50%, it's game over. To win, reveal all un-corrupted tiles before the CORRUPTION is above 50%.";
 			langStr[152] = "This is the Question Mark, a.k.a. Enigmatic Little Devil.\nAs for now, it's just a re-skin. More mechanics might come in later.";
 			langStr[153] = "CORRUPTION";
+			langStr[154] = "R-Stick sensitivity";
 			
 			break;
 		}
