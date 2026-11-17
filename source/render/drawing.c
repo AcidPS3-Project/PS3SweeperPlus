@@ -451,7 +451,7 @@ int getCaptainState(int anim_z, int anim1_z, int anim2_z)
 					if(!can_move_xd)
 					{
 						if(anim2_z<2) the_state = 178+anim2_z;
-						else the_state = 178+24+anim2_z;
+						else the_state = 178+24+(anim2_z-2);
 					}
 					else if(disable_control)
 					{
@@ -969,7 +969,7 @@ void drawScene()
 				
 				if(fp_menu==6)
 				{
-					DrawButton(ze_x+ui_x-zfp_x+320, ze_y+256, PAD_SQUARE, 0);
+					DrawButton(ze_x+ui_x-zfp_x+320, ze_y+256, PAD_CROSS, 0);
 					if(fp_music==99) DrawFString(0, ze_x+ui_x-zfp_x+320+36, ze_y+256, 0xffffffff, 0, 32, langStr[28]);
 					else DrawFString(0, ze_x+ui_x-zfp_x+320+36, ze_y+256, 0xffffffff, 0, 32, langStr[29]);
 				}

@@ -25,6 +25,8 @@ bool ship_a = false;
 int route_selector = 0;
 
 bool show_shit = false;
+bool bad_apple_plays = false;
+int saved_route = 0;
 int global_route = 0;
 int global_route_tex = 1;
 
@@ -437,6 +439,9 @@ void init_bgm()
 	}
 	
 	bgm[0] = MUS_DIR "title.mp3";
+	bgm_start[0] = 18400;
+	bgm_end[0] = 132794;
+	
 	bgm[1] = MUS_DIR "bgm1.mp3";
 	bgm_start[1] = 499;
 	bgm_end[1] = 45281;
@@ -592,6 +597,9 @@ void init_bgm()
 	// 199 - custom win music
 	
 	// Touhou route shit
+	bgm[200] = MUS_DIR "title.mp3";
+	bgm_start[200] = 18400;
+	bgm_end[200] = 132794;
 	
 	bgm[201] = MUS_DIR "touhou/bgm1.ogg";
 	bgm_start[201] = 18849;
@@ -702,18 +710,22 @@ void init_bgm()
 	bgm[368] = MUS_DIR "touhou/lsQ.ogg";
 	
 	// coming soon 0_0
+	bgm[400] = MUS_DIR "gb/title.ogg";
+	bgm_start[400] = 18400;
+	bgm_end[400] = 132794;
+	
 	bgm[401] = MUS_DIR "gb/bgm1.mp3";
-	bgm_start[1] = 499;
+	bgm_start[401] = 499;
 	bgm_end[1] = 45281;
 	
 	bgm[402] = MUS_DIR "gb/bgm2.ogg";
-	bgm_start[2] = 7801;
-	bgm_end[2] = 54617;
+	bgm_start[402] = 7801;
+	bgm_end[402] = 54617;
 	
 	bgm[403] = MUS_DIR "gb/bgm3.mp3";
 	// bgm[404] = MUS_DIR "gb/bgm4.ogg";
-	// bgm_start[4] = 1782;
-	// bgm_end[4] = 137481;
+	// bgm_start[404] = 1782;
+	// bgm_end[404] = 137481;
 	
 	bgm[405] = MUS_DIR "gb/bgm5.ogg";
 	
@@ -737,6 +749,7 @@ void init_bgm()
 	//bgm[554] = MUS_DIR "gb/ls4.ogg";
 	
 	bgm[555] = MUS_DIR "gb/ls5.ogg";
+	bgm[593] = MUS_DIR "gb/ending.ogg";
 }
 
 int LoadSFX(SoundEffect *sfx, const void *data, int size)
@@ -801,7 +814,7 @@ void PlayBGM(int id, int inf)
 	
 	if(global_route == 1) temp = 200;
 	if(global_route == 2) temp = 400;
-	if(id>=176 || id==99 || id==100 || id==9 || id==0) temp = 0;
+	if((id>=176 && id!=193) || id==99 || id==100 || id==9) temp = 0;
 	
 	FILE *fp = fopen(bgm[temp+id], "rb");
 	

@@ -104,6 +104,7 @@ void SetSaveDefaults()
 	gSave.save_seen_ktwelve = false;
 	gSave.smaster_mode = false;
 	gSave.SENSITIVITY = 4;
+	gSave.saved_route = 0;
 }
 
 void savestate_init()
@@ -351,6 +352,7 @@ int StartSave(void)
 	gSave.save_seen_ktwelve = seen_ktwelve;
 	gSave.smaster_mode = master_mode;
 	gSave.SENSITIVITY = R_SENSITIVITY;
+	gSave.saved_route = saved_route;
 
 	char debug[256];
 
@@ -464,6 +466,7 @@ static void LoadThread(void *arg)
 	seen_ktwelve = gSave.save_seen_ktwelve;
 	master_mode = gSave.smaster_mode;
 	R_SENSITIVITY = gSave.SENSITIVITY;
+	saved_route = gSave.saved_route;
 	
 	char debug[256];
 	sprintf(debug, "LOAD VALUES: level=%d current=%d global=%d route=%d episode=%d\n", gSave.save_level,

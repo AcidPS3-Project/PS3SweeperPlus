@@ -435,6 +435,12 @@ int main(int argc, const char* argv[])
 		return -1;
 	}
 	
+	if (RSX_InitCRT() != 1)
+	{
+		DebugLog("RSX: CRT effect failed!");
+		return -1;
+	}
+	
 	if (!RSX_CreateSpriteBuffers())
 	{
 		DebugLog("RSX: sprite buffer creation failed!");
@@ -614,6 +620,17 @@ int main(int argc, const char* argv[])
 									logoFlags[fz].x = 0;
 									logoFlags[fz].y = 0;
 								}
+								
+								route_selector = global_route;
+								
+								if(!route_touhou_unlocked && global_route==1) global_route=0;
+								
+								if(global_route==2) RSX_SetGameBoyEnabled(1);
+								else RSX_SetGameBoyEnabled(0);
+								
+								if(global_route==1) global_route_tex = 21;
+								else global_route_tex = 1;
+								
 								currentScreen = TITLE;
 								start_music = 1;
 								video_frame = 0;
@@ -631,13 +648,6 @@ int main(int argc, const char* argv[])
 								PlayBGM(0, 1);
 								ready_to_click = 1;
 								easter_egg = false;
-								
-								route_selector = global_route;
-								
-								if(!route_touhou_unlocked && global_route==1) global_route=0;
-								
-								if(global_route==1) global_route_tex = 21;
-								else global_route_tex = 1;
 							}
 							
 							if(settings_select)
@@ -690,6 +700,7 @@ int main(int argc, const char* argv[])
 						{
 							if(start_menu)
 							{
+								bad_apple_plays = false;
 								boss_render_x = 0.0f;
 								menu_x = 0.0f;
 								ze_x = 0.0f;
@@ -712,6 +723,8 @@ int main(int argc, const char* argv[])
 								PlayBGM(50+fp_music, 1);
 								paused = false;
 								ready_to_click = 1;
+								
+								RSX_SetCRTEnabled(0);
 							}
 							
 							menu_x = lerp(menu_x, -262 * menu_pos, 0.1f);
@@ -918,6 +931,15 @@ int main(int argc, const char* argv[])
 											free_play = 0;
 											ship_x = 120.0f+(64*LEVEL);
 											StopAudio();
+											
+											global_route=saved_route;
+											
+											if(global_route==2) RSX_SetGameBoyEnabled(1);
+											else RSX_SetGameBoyEnabled(0);
+											
+											if(global_route==1) global_route_tex = 21;
+											else global_route_tex = 1;
+											
 											FadeInOut(&currentScreen, MAP);
 											PlaySFX(&sfx_gamestart);
 											ship_a = true;
@@ -1061,13 +1083,14 @@ int main(int argc, const char* argv[])
 												enable_nan = false;
 												ready_to_click = 0;
 												LEVEL_BKP = LEVEL;
+												bad_apple_plays = true;
 												DebugLog("Loaded Bad Apple!!\n");
 												PlaySFX(&sfx_gamestart);
 												LoadFPLevel();
 											}
 										}
 										
-										if(fp_menu==6 && paddata.BTN_SQUARE && !oldpad.BTN_SQUARE)
+										if(fp_menu==6 && paddata.BTN_CROSS && !oldpad.BTN_CROSS)
 										{
 											if(!custom_music)
 											{
@@ -1508,6 +1531,7 @@ int main(int argc, const char* argv[])
 							if(start_game_mus)
 							{
 								play_map_bgm = false;
+								playing_bgm = true;
 								start_game_mus = 0;
 								if(HELL) desired_bgm = 194;
 								PlayBGM(desired_bgm, 1);
@@ -1517,6 +1541,8 @@ int main(int argc, const char* argv[])
 								
 								cursor_x = (876-40)/2;
 								cursor_y = (560-22)/2;
+								
+								if(enable_nan) RSX_SetCRTEnabled(1);
 							}
 							
 							if(ready_to_click)
@@ -1525,6 +1551,7 @@ int main(int argc, const char* argv[])
 								{
 									ready_to_click = 0;
 									LEVEL=0;
+									saved_route = global_route;
 									GoBackToTitle();
 								}
 								else if(paused)
@@ -1532,6 +1559,7 @@ int main(int argc, const char* argv[])
 									if(paddata.BTN_SELECT && !oldpad.BTN_SELECT)
 									{
 										ready_to_click = 0;
+										saved_route = global_route;
 										GoBackToTitle();
 									}
 									if(!paddata.BTN_START && oldpad.BTN_START)
@@ -1545,6 +1573,7 @@ int main(int argc, const char* argv[])
 									if(paddata.BTN_SELECT && !oldpad.BTN_SELECT)
 									{
 										ready_to_click = 0;
+										saved_route = global_route;
 										if(free_play) LoadFPLevel();
 										else
 										{
@@ -1556,6 +1585,7 @@ int main(int argc, const char* argv[])
 									if(paddata.BTN_START && !oldpad.BTN_START)
 									{
 										ready_to_click = 0;
+										saved_route = global_route;
 										if(!free_play)
 										{
 											int max_lvl = episodes[EPISODE-1].level_count;
@@ -2227,6 +2257,7 @@ int main(int argc, const char* argv[])
 								{
 									case 1:
 									{
+										RSX_SetGameBoyEnabled(0);
 										if(route_touhou_unlocked)
 										{
 											global_route = 1;
@@ -2243,6 +2274,7 @@ int main(int argc, const char* argv[])
 									{
 										global_route = 2;
 										global_route_tex = 1;
+										RSX_SetGameBoyEnabled(1);
 										break;
 									}
 									case 3:
@@ -2265,6 +2297,7 @@ int main(int argc, const char* argv[])
 									}
 									default:
 									{
+										RSX_SetGameBoyEnabled(0);
 										global_route = route_selector;
 										global_route_tex = 1;
 										break;
@@ -2339,6 +2372,7 @@ int main(int argc, const char* argv[])
 			if(time_decrease && !gamelose)
 			{
 				time_left -= 0.018f;
+				if(enable_9) time_left -= (mistakes * 0.018f);
 				if(time_left <= 0.9f)
 				{
 					timer_running = 0;
@@ -2515,6 +2549,7 @@ int main(int argc, const char* argv[])
 		RSX_ClearScreen();
 
 		drawScene();
+		RSX_DrawCRT();
 		RSX_FlushDraws();
 		RSX_EndFrameMark();
 		

@@ -65,9 +65,6 @@ extern const unsigned char basic_vp_vpo_size[];
 extern const unsigned char basic_fp_fpo[];
 extern const unsigned char basic_fp_fpo_size[];
 
-extern u8 glitch_fp_fpo[];
-extern u32 glitch_fp_fpo_size;
-
 static rsxVertexProgram *vertex_program = NULL;
 static rsxFragmentProgram *fragment_program = NULL;
 
@@ -94,6 +91,31 @@ static float cur_layer = 0.0f;
 
 static int cur_blend = 0; /* 0 = normal, 1 = invert */
 void RSX_SetBlendMode(int mode) { cur_blend = mode; }
+
+static int   crt_enabled         = 0;
+static int   crt_ready           = 0;
+static float crt_scanline_alpha  = 0.35f;
+static float crt_vignette_alpha  = 0.55f;
+
+void RSX_SetCRTEnabled(int on)    { crt_enabled = on; }
+void RSX_SetScanlineAlpha(float a){ crt_scanline_alpha = a < 0 ? 0 : a > 1 ? 1 : a; }
+void RSX_SetVignetteAlpha(float a){ crt_vignette_alpha = a < 0 ? 0 : a > 1 ? 1 : a; }
+
+#define RSX_SCANLINE_TEX  RSX_MAX_TEXTURES - 3
+#define RSX_VIGNETTE_TEX  RSX_MAX_TEXTURES - 4
+
+/* --- Game Boy --- */
+static int gb_enabled = 0;
+
+static const u32 GB_PALETTE[4] =
+{
+    0x0f380fff,   /* darkest  – near black  */
+    0x306230ff,   /* dark     – dark green  */
+    0x8bac0fff,   /* light    – light green */
+    0x9bbc0fff,   /* lightest – near white  */
+};
+
+void RSX_SetGameBoyEnabled(int on) { gb_enabled = on; }
 
 void RSX_SetLayer(float l) { cur_layer = -l; }
 
@@ -123,29 +145,29 @@ static float RSX_ScreenToNDC_Y(float y)
 
 int RSX_Init(void)
 {
-    printf("RSX: allocating shared IO memory...\n");
+    DebugLog("RSX: allocating shared IO memory...\n");
 
     host_addr = memalign(1024 * 1024, HOST_SIZE);
 
     if (!host_addr)
     {
-        printf("RSX: IO allocation failed!\n");
+        DebugLog("RSX: IO allocation failed!\n");
         return -1;
     }
 
-    printf("RSX: IO buffer = %p\n", host_addr);
-    printf("RSX: alignment = 0x%X\n", (unsigned int)((uintptr_t)host_addr & 0xFFFFF));
+    DebugLog("RSX: IO buffer = %p\n", host_addr);
+    DebugLog("RSX: alignment = 0x%X\n", (unsigned int)((uintptr_t)host_addr & 0xFFFFF));
 
-    printf("RSX: initializing...\n");
+    DebugLog("RSX: initializing...\n");
 
     s32 result = rsxInit(&rsx_context, CB_SIZE, HOST_SIZE, host_addr);
 
-    printf("RSX: rsxInit status = 0x%08X\n", (unsigned int)result);
-    printf("RSX: context = %p\n", rsx_context);
+    DebugLog("RSX: rsxInit status = 0x%08X\n", (unsigned int)result);
+    DebugLog("RSX: context = %p\n", rsx_context);
 
     if (result != 0 || rsx_context == NULL)
     {
-        printf("RSX: initialization failed!\n");
+        DebugLog("RSX: initialization failed!\n");
 
         if (rsx_context)
         {
@@ -166,32 +188,32 @@ int RSX_Init(void)
 	rsxSetColorMask(rsx_context, GCM_COLOR_MASK_R|GCM_COLOR_MASK_G|GCM_COLOR_MASK_B|GCM_COLOR_MASK_A);
 	rsxSetColorMaskMrt(rsx_context, 0);
 	
-    printf("RSX: initialized successfully!\n");
+    DebugLog("RSX: initialized successfully!\n");
 
     // Get display state
     if (videoGetState(0, 0, &display_state) != 0)
     {
-        printf("RSX: videoGetState failed!\n");
+        DebugLog("RSX: videoGetState failed!\n");
         return -1;
     }
 
     if (display_state.state != 0)
     {
-        printf("RSX: display is disabled!\n");
+        DebugLog("RSX: display is disabled!\n");
         return -1;
     }
 
     // Get resolution
     if (videoGetResolution(display_state.displayMode.resolution, &display_resolution) != 0)
     {
-        printf("RSX: videoGetResolution failed!\n");
+        DebugLog("RSX: videoGetResolution failed!\n");
         return -1;
     }
 
     screen_width = display_resolution.width;
     screen_height = display_resolution.height;
 
-    printf("RSX: display resolution: %dx%d\n", screen_width, screen_height);
+    DebugLog("RSX: display resolution: %dx%d\n", screen_width, screen_height);
 
     memset(&display_config, 0, sizeof(display_config));
 
@@ -202,14 +224,14 @@ int RSX_Init(void)
 
     if (videoConfigure(0, &display_config, NULL, 0) != 0)
     {
-        printf("RSX: videoConfigure failed!\n");
+        DebugLog("RSX: videoConfigure failed!\n");
         return -1;
     }
 
     gcmSetFlipMode(GCM_FLIP_VSYNC);
     gcmResetFlipStatus();
 	
-    printf("RSX: video configured!\n");
+    DebugLog("RSX: video configured!\n");
 
     return 0;
 }
@@ -330,7 +352,7 @@ int RSX_LoadShaders(void)
 {
     gcmContextData *context = RSX_GetContext();
 
-    printf("RSX: loading shaders...\n");
+    DebugLog("RSX: loading shaders...\n");
 
     // Embedded shader metadata
     vertex_program = (rsxVertexProgram*)basic_vp_vpo;
@@ -340,26 +362,26 @@ int RSX_LoadShaders(void)
     u32 vertex_ucode_size = 0;
     rsxVertexProgramGetUCode(vertex_program, &vertex_ucode, &vertex_ucode_size);
 
-    printf("RSX: vertex shader size: %u\n", vertex_ucode_size);
+    DebugLog("RSX: vertex shader size: %u\n", vertex_ucode_size);
 
     // Get fragment microcode
     void *embedded_fragment_ucode = NULL;
     rsxFragmentProgramGetUCode(fragment_program, &embedded_fragment_ucode, &fragment_ucode_size);
-    printf("RSX: fragment shader size: %u\n", fragment_ucode_size);
+    DebugLog("RSX: fragment shader size: %u\n", fragment_ucode_size);
 
     // Allocate RSX memory for fragment microcode
     fragment_ucode = rsxMemalign(64, fragment_ucode_size);
 
     if (!fragment_ucode)
     {
-        printf("RSX: fragment shader allocation failed!\n");
+        DebugLog("RSX: fragment shader allocation failed!\n");
         return -1;
     }
 
     memcpy(fragment_ucode, embedded_fragment_ucode, fragment_ucode_size);
     if (rsxAddressToOffset(fragment_ucode, &fragment_ucode_offset) != 0)
     {
-        printf("RSX: fragment shader offset failed!\n");
+        DebugLog("RSX: fragment shader offset failed!\n");
         return -1;
     }
 
@@ -368,23 +390,23 @@ int RSX_LoadShaders(void)
 	
 	rsxProgramAttrib *attribs = rsxVertexProgramGetAttribs(vertex_program);
 	u16 count = rsxVertexProgramGetNumAttrib(vertex_program);
-	printf("RSX: vertex attributes: %u\n", count);
+	DebugLog("RSX: vertex attributes: %u\n", count);
 
 	for (u16 i = 0; i < count; i++)
 	{
-		printf("  Attribute %u: index=%u name=%s\n", i, attribs[i].index, (char*)vertex_program + attribs[i].name_off);
+		DebugLog("  Attribute %u: index=%u name=%s\n", i, attribs[i].index, (char*)vertex_program + attribs[i].name_off);
 	}
 	
 	rsxProgramConst *consts = rsxFragmentProgramGetConsts(fragment_program);
 	u16 const_count = rsxFragmentProgramGetNumConst(fragment_program);
-	printf("RSX: fragment constants: %u\n", const_count);
+	DebugLog("RSX: fragment constants: %u\n", const_count);
 
 	for (u16 i = 0; i < const_count; i++)
 	{
-		printf("  Constant %u: index=%u name=%s type=%u\n", i, consts[i].index, (char*)fragment_program + consts[i].name_off, consts[i].type);
+		DebugLog("  Constant %u: index=%u name=%s type=%u\n", i, consts[i].index, (char*)fragment_program + consts[i].name_off, consts[i].type);
 	}
 	
-    printf("RSX: shaders loaded!\n");
+    DebugLog("RSX: shaders loaded!\n");
 
     return 0;
 }
@@ -408,7 +430,7 @@ int RSX_UploadSpritesheets(void)
         pixels = malloc(row_size * sheet->height);
         if (!pixels)
         {
-            printf("RSX: failed to allocate sheet %d\n", i);
+            DebugLog("RSX: failed to allocate sheet %d\n", i);
             continue;
         }
 
@@ -421,14 +443,14 @@ int RSX_UploadSpritesheets(void)
         if (RSX_LoadTexture(i, pixels, (u16)sheet->width, (u16)sheet->height))
         {
             loaded++;
-            printf("RSX: loaded spritesheet %d (%lux%lu)\n", i, (unsigned long)sheet->width, (unsigned long)sheet->height);
+            DebugLog("RSX: loaded spritesheet %d (%lux%lu)\n", i, (unsigned long)sheet->width, (unsigned long)sheet->height);
         }
-        else printf("RSX: failed to upload spritesheet %d\n", i);
+        else DebugLog("RSX: failed to upload spritesheet %d\n", i);
 
         free(pixels);
     }
 
-    printf("RSX: uploaded %d spritesheets\n", loaded);
+    DebugLog("RSX: uploaded %d spritesheets\n", loaded);
     return loaded;
 }
 
@@ -563,6 +585,20 @@ static RSX_Vertex RSX_MakeVertex(float x, float y, u32 c, float u, float v)
     return o;
 }
 
+static u32 RSX_MapToGameBoy(u32 rgba)
+{
+    float r = ((rgba >> 24) & 0xFF) / 255.0f;
+    float g = ((rgba >> 16) & 0xFF) / 255.0f;
+    float b = ((rgba >>  8) & 0xFF) / 255.0f;
+    float lum = 0.299f * r + 0.587f * g + 0.114f * b;
+    u32 col;
+    if (lum < 0.26f) col = GB_PALETTE[0];
+    else if (lum < 0.49f) col = GB_PALETTE[1];
+    else if (lum < 0.67f) col = GB_PALETTE[2];
+    else col = GB_PALETTE[3];
+    return (col & 0xFFFFFF00) | (rgba & 0xFF);
+}
+
 static void RSX_EmitVerts(int texture_id, const RSX_Vertex *verts, int count)
 {
     if (count <= 0 || count > 6 || draw_n >= MAX_SPRITES_PER_FRAME) return;
@@ -581,7 +617,23 @@ static void RSX_EmitVerts(int texture_id, const RSX_Vertex *verts, int count)
     QueuedDraw *d = &draw_q[draw_n];
     d->layer = cur_layer; d->seq = draw_n; d->tex = texture_id; d->count = count;
 	d->blend = cur_blend;
-    memcpy(d->v, verts, sizeof(RSX_Vertex) * count);
+	
+    if (gb_enabled)
+    {
+        int _gbi;
+        for (_gbi = 0; _gbi < count; _gbi++)
+        {
+            d->v[_gbi] = verts[_gbi];
+            u32 orig = ((u32)(verts[_gbi].r * 255) << 24) | ((u32)(verts[_gbi].g * 255) << 16)
+                     | ((u32)(verts[_gbi].b * 255) <<  8) | ((u32)(verts[_gbi].a * 255));
+            u32 mapped = RSX_MapToGameBoy(orig);
+            d->v[_gbi].r = ((mapped >> 24) & 0xFF) / 255.0f;
+            d->v[_gbi].g = ((mapped >> 16) & 0xFF) / 255.0f;
+            d->v[_gbi].b = ((mapped >>  8) & 0xFF) / 255.0f;
+            d->v[_gbi].a = ( mapped & 0xFF) / 255.0f;
+        }
+    }
+    else memcpy(d->v, verts, sizeof(RSX_Vertex) * count);
 	
 	if (draw_n > 0 && d->layer < draw_q[draw_n - 1].layer) sorted_ok = 0;
     draw_n++;
@@ -603,8 +655,12 @@ static int RSX_ResolveTex(int t)
 static void RSX_ApplyBlend(gcmContextData *c, int mode)
 {
     rsxSetBlendEnable(c, GCM_TRUE);
-    if (mode == 1) rsxSetBlendFunc(c, GCM_ONE_MINUS_DST_COLOR, GCM_ZERO, GCM_ONE, GCM_ZERO);
-    else rsxSetBlendFunc(c, GCM_SRC_ALPHA, GCM_ONE_MINUS_SRC_ALPHA, GCM_SRC_ALPHA, GCM_ONE_MINUS_SRC_ALPHA);
+    switch (mode)
+    {
+        case 1: rsxSetBlendFunc(c, GCM_ONE_MINUS_DST_COLOR, GCM_ZERO, GCM_ONE, GCM_ZERO); break;
+        case 2: rsxSetBlendFunc(c, GCM_DST_COLOR, GCM_ZERO, GCM_ONE, GCM_ZERO); break;
+        default: rsxSetBlendFunc(c, GCM_SRC_ALPHA, GCM_ONE_MINUS_SRC_ALPHA, GCM_SRC_ALPHA, GCM_ONE_MINUS_SRC_ALPHA); break;
+    }
     rsxSetBlendEquation(c, GCM_FUNC_ADD, GCM_FUNC_ADD);
 }
 
@@ -664,6 +720,105 @@ static void RSX_EmitQuad(int tex, RSX_Vertex a, RSX_Vertex b, RSX_Vertex c, RSX_
 {
     RSX_Vertex v[6] = { a, b, c, a, c, d };
     RSX_EmitVerts(tex, v, 6);
+}
+
+static void RSX_BuildVignette(u32 *out, int w, int h)
+{
+    int x, y;
+    float cx = w * 0.5f, cy = h * 0.5f;
+    float maxd = cx * cx + cy * cy;
+    for (y = 0; y < h; y++)
+    {
+        for (x = 0; x < w; x++)
+        {
+            float dx = x - cx, dy = y - cy;
+            float d  = (dx*dx + dy*dy) / maxd;
+            float v  = d * d * d;
+            if (v > 1.0f) v = 1.0f;
+            u8 a = (u8)(v * 255.0f);
+            out[y * w + x] = ((u32)a << 24) | 0x000000;
+        }
+    }
+}
+
+static void RSX_BuildScanline(u32 *out)
+{
+    out[0] = 0x00000000;   /* transparent – bright row */
+    out[1] = 0xFF000000;   /* opaque black – dark row  */
+}
+
+int RSX_InitCRT(void)
+{
+    static u32 vignette[128 * 128];
+    u32 scanline[2];
+
+    RSX_BuildVignette(vignette, 128, 128);
+    if (!RSX_LoadTexture(RSX_VIGNETTE_TEX, vignette, 128, 128))
+	{
+		DebugLog("RSX: LoadTextureVignette failed\n");
+		return 0;
+	}
+    RSX_SetTextureFilter(RSX_VIGNETTE_TEX, 1);
+
+    RSX_BuildScanline(scanline);
+    if (!RSX_LoadTexture(RSX_SCANLINE_TEX, scanline, 1, 2))
+	{
+		DebugLog("RSX: LoadTextureScanline failed\n");
+		return 0;
+	}
+    RSX_SetTextureFilter(RSX_SCANLINE_TEX, 0);
+
+    crt_ready = 1;
+    DebugLog("RSX: CRT effects ready\n");
+    return 1;
+}
+
+void RSX_DrawCRT(void)
+{
+    float prev_layer;
+
+    if (!crt_enabled || !crt_ready) return;
+
+    prev_layer = cur_layer;
+    cur_layer  = 20.0f;
+
+    if (crt_scanline_alpha > 0.0f)
+    {
+        RSX_Vertex a, b, c, d;
+        float x0 = RSX_ScreenToNDC_X(-40),   y0 = RSX_ScreenToNDC_Y(-22);
+        float x1 = RSX_ScreenToNDC_X(1040),  y1 = RSX_ScreenToNDC_Y(1022);
+        float vtiles = logical_height / 2.0f;
+        float sa = crt_scanline_alpha;
+
+        RSX_SetBlendMode(0);
+
+        a.x=x0; a.y=y0; a.z=0; a.w=1; a.r=0; a.g=0; a.b=0; a.a=sa; a.u=0;      a.v=0;
+        b.x=x1; b.y=y0; b.z=0; b.w=1; b.r=0; b.g=0; b.b=0; b.a=sa; b.u=1;      b.v=0;
+        c.x=x1; c.y=y1; c.z=0; c.w=1; c.r=0; c.g=0; c.b=0; c.a=sa; c.u=1;      c.v=vtiles;
+        d.x=x0; d.y=y1; d.z=0; d.w=1; d.r=0; d.g=0; d.b=0; d.a=sa; d.u=0;      d.v=vtiles;
+
+        RSX_EmitQuad(RSX_SCANLINE_TEX, a, b, c, d);
+    }
+
+    if (crt_vignette_alpha > 0.0f)
+    {
+        RSX_Vertex a, b, c, d;
+        float x0 = RSX_ScreenToNDC_X(-40),   y0 = RSX_ScreenToNDC_Y(-22);
+        float x1 = RSX_ScreenToNDC_X(1040),  y1 = RSX_ScreenToNDC_Y(1022);
+        float va = crt_vignette_alpha;
+
+        RSX_SetBlendMode(0);
+
+        a.x=x0; a.y=y0; a.z=0; a.w=1; a.r=0; a.g=0; a.b=0; a.a=va; a.u=0; a.v=0;
+        b.x=x1; b.y=y0; b.z=0; b.w=1; b.r=0; b.g=0; b.b=0; b.a=va; b.u=1; b.v=0;
+        c.x=x1; c.y=y1; c.z=0; c.w=1; c.r=0; c.g=0; c.b=0; c.a=va; c.u=1; c.v=1;
+        d.x=x0; d.y=y1; d.z=0; d.w=1; d.r=0; d.g=0; d.b=0; d.a=va; d.u=0; d.v=1;
+
+        RSX_EmitQuad(RSX_VIGNETTE_TEX, a, b, c, d);
+    }
+
+    RSX_SetBlendMode(0);
+    cur_layer = prev_layer;
 }
 
 static void RSX_EmitRotatedQuad(int tex, float cx, float cy, float hw, float hh, float angle, float u0, float v0, float u1, float v1, u32 color)
@@ -829,7 +984,7 @@ static void RSX_WaitIdle(void)
 
 int RSX_UploadSheet(int i)
 {
-	printf("RSX_UploadSheet\n");
+	DebugLog("RSX_UploadSheet\n");
     pngData *sheet = &spritesheet[i];
     u32 y, row_size;
     int ok;
@@ -850,7 +1005,7 @@ int RSX_UploadSheet(int i)
 		pixels = malloc(row_size * sheet->height);
 		if (!pixels)
 		{
-			printf("SHEET %d: malloc failed (%ux%u pitch=%u)\n", i, (unsigned)sheet->width, (unsigned)sheet->height, (unsigned)sheet->pitch);
+			DebugLog("SHEET %d: malloc failed (%ux%u pitch=%u)\n", i, (unsigned)sheet->width, (unsigned)sheet->height, (unsigned)sheet->pitch);
 			return 0;
 		}
 		for (y = 0; y < sheet->height; y++) memcpy((u8*)pixels + y * row_size, (u8*)sheet->bmp_out + y * sheet->pitch, row_size);
@@ -862,7 +1017,7 @@ int RSX_UploadSheet(int i)
 
     free(sheet->bmp_out);
     sheet->bmp_out = NULL;
-	printf("%d\n", ok);
+	DebugLog("%d\n", ok);
     return ok;
 }
 

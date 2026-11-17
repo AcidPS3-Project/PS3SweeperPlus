@@ -39,12 +39,14 @@ extern int ten_arena;
 extern int cursor_x;
 extern int cursor_y;
 
+extern int saved_route;
 extern int global_route;
 extern int global_route_tex;
 extern bool show_shit;
 extern int rank_result;
 
 extern bool easter_egg;
+extern bool bad_apple_plays;
 
 extern int global_minecoins;
 extern int current_minecoins;

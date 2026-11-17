@@ -75,4 +75,12 @@ void RSX_FlushDraws(void);
 int RSX_UploadSheet(int i);
 void RSX_UnloadSheet(int i);
 
+int RSX_InitCRT(void);
+void RSX_DrawCRT(void);
+void RSX_SetCRTEnabled(int on);
+void RSX_SetScanlineAlpha(float a);
+void RSX_SetVignetteAlpha(float a);
+
+void RSX_SetGameBoyEnabled(int on);
+
 #endif

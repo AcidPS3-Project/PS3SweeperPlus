@@ -736,7 +736,7 @@ void LoadLevel(int levelz)
 void LoadFPLevel()
 {
 	fp_lifes = 3;
-	StartSave();
+	if(bad_apple_plays) StartSave();
 	
     GRID_W = fp_width;
     GRID_H = fp_height;
