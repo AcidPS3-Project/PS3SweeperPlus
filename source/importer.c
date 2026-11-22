@@ -228,29 +228,29 @@ void creditsInit()
 {
 	credits[0] = "Jorel Simpson";
 	credits[1] = "Axelbastian";
-	credits[2] = "bucanero";
-	credits[3] = "Pren3k";
-	credits[4] = "LokiThePlug";
-	credits[5] = "EnergyPumpkin";
-	credits[6] = "Team Shanghai Alice";
-	credits[7] = "Alien Captain's Creator";
-	credits[8] = "Cynthia";
-	credits[9] = "PSL1GHT";
-	credits[10] = "TOCHARA";
-	credits[11] = "tiptopik";
-	credits[12] = "Kirill9ka";
-	credits[13] = "MirrorGuy";
-	credits[14] = "artmet17";
-	credits[15] = "Giga-T";
-	credits[16] = "GemThe14";
-	credits[17] = "Twelv";
-	credits[18] = "Affocoder";
-	credits[19] = "Jack Heredia";
-	credits[20] = "S1lverC1ock2763";
-	credits[21] = "1tsLek";
-	credits[22] = "Creeper7925";
-	credits[23] = "D_Fund3781";
-	credits[24] = "StrF1re";
+	credits[2] = "StrF1re";
+	credits[3] = "bucanero";
+	credits[4] = "Pren3k";
+	credits[5] = "LokiThePlug";
+	credits[6] = "EnergyPumpkin";
+	credits[7] = "Team Shanghai Alice";
+	credits[8] = "Alien Captain's Creator";
+	credits[9] = "Cynthia";
+	credits[10] = "PSL1GHT";
+	credits[11] = "TOCHARA";
+	credits[12] = "tiptopik";
+	credits[13] = "Kirill9ka";
+	credits[14] = "MirrorGuy";
+	credits[15] = "artmet17";
+	credits[16] = "Giga-T";
+	credits[17] = "GemThe14";
+	credits[18] = "Twelv";
+	credits[19] = "Affocoder";
+	credits[20] = "Jack Heredia";
+	credits[21] = "S1lverC1ock2763";
+	credits[22] = "1tsLek";
+	credits[23] = "Creeper7925";
+	credits[24] = "D_Fund3781";
 }
 
 void SplashesInit()
