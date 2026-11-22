@@ -1,6 +1,6 @@
 # Welcome to the PS3Sweeper+!
 *This game is based of the [Minesweeper Plus](https://jorel-simpson.itch.io/minesweeper-plus) game made by Jorel Simpson. Please, play the original game to support the original author of the Minesweeper Plus.*\
-Isn't it the most awesome minesweeper game to play on YOUR PS3? Well, I hope so! With multiple chapters, multiple routes, and much more upon awaits you in this simple homebrew, made by one person! Currently, this version only contains three chapters (fourth in works) and 2 routes among many, but it's at least better, than nothing, right?
+Isn't it the most awesome minesweeper game to play on YOUR PS3? Well, I hope so! With multiple chapters, multiple routes, and much more upon awaits you in this simple homebrew, made by one person! Currently, this version only contains three chapters (fourth in works) and 3 routes among many, but it's at least better, than nothing, right?
 
 Don't like the adventure? You can always count on free play! Customize your most finest game of minesweeper. It may be relaxing, it may be HARDCORE. Free choice, Free play!
 
@@ -24,7 +24,3 @@ You need a machine running Linux. WSL is supported.
 1. Board Converter!
 	- This python script converts your `board.png` into `board.txt`, so you can import it in the game!
 2. More tools soon!
-
-<a href="https://github.com/AcidPS3-Project">
-	<img src="https://img.shields.io/badge/Powered%20By-AcidPS3%20Project-blue?logo=playstation3" />
-</a>

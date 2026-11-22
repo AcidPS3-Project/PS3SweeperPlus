@@ -94,8 +94,9 @@ void bossnan_update()
 		
 		if(distance_x>0.1f || distance_y>0.1f)
 		{
-			fx = flerp(fx, zx, 0.035f);
-			fy = flerp(fy, zy, 0.035f);
+			int mp = local_mistakes+1;
+			fx = flerp(fx, zx, 0.035f * mp);
+			fy = flerp(fy, zy, 0.035f * mp);
 			bossnan_list[i].pos_x = (float)fx;
 			bossnan_list[i].pos_y = (float)fy;
 		}

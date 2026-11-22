@@ -14,6 +14,8 @@ Here is something you should know:
 
 */
 
+#include <malloc.h>
+
 #include "rsx_renderer.h"
 #include "rsxutil.h"
 #define MAX_BUFFERS 2
@@ -30,12 +32,19 @@ Here is something you should know:
 #include "lang.h"
 #include "text.h"
 
+#include "mp4player.h"
+#define VIDEO_TEX (RSX_MAX_TEXTURES - 5)
+MP4Player vid;
+
 bool play_map_bgm = false;
 bool play_10_bgm = false;
 bool play_10_sfx = false;
 
 bool temp_t2 = false;
 bool test_zero = false;
+
+bool video_finished = false;
+bool start_video = false;
 
 int temp_tz = 0;
 int temp_t = 0;
@@ -345,13 +354,17 @@ void GoBackToTitle()
 	
 	if(free_play) LEVEL=LEVEL_BKP;
 	
-	bad_apple = 0;
-	
 	enable_half = 0;
 	enable_double = 0;
 	enable_anti = 0;
 	
-	if(fp_music==100) fp_music = temp_fp_music;
+	if(fp_music==100)
+	{
+		fp_music = temp_fp_music;
+		fp_width = temp_fp_w;
+		fp_height = temp_fp_h;
+		fp_mines = temp_fp_m;
+	}
 	
 	i_10 = 0;
 	
@@ -362,7 +375,9 @@ void GoBackToTitle()
 	ze_y = 0.0f;
 	adventure_select = 0;
 	
-	StartSave();
+	if(!bad_apple) StartSave();
+	
+	bad_apple = 0;
 	
 	start_menu = 1;
 	FadeInOut(&currentScreen, MENU);
@@ -397,8 +412,16 @@ bool old_control_upR = false;
 bool old_control_downR = false;
 bool old_control_any = false;
 
+static void LogMem(const char *tag)
+{
+    struct mallinfo m = mallinfo();
+    DebugLog("MEM[%s]: arena=%u used=%u free=%u\n", tag, (unsigned)m.arena, (unsigned)m.uordblks, (unsigned)m.fordblks);
+}
+
 int main(int argc, const char* argv[])
 {
+	LogMem("start");
+	
 	padInfo padinfo;
 	int ip;
 	static padData oldpad;
@@ -446,6 +469,7 @@ int main(int argc, const char* argv[])
 		DebugLog("RSX: sprite buffer creation failed!");
 		return -1;
 	}
+	LogMem("after rsx");
 	
 	sysModuleLoad(SYSMODULE_PNGDEC);
 	
@@ -463,11 +487,13 @@ int main(int argc, const char* argv[])
 	
 	init_bgm();
 	init_sfx();
+	LogMem("after sfx");
 	
 	ioPadInit(7);
 	Load_PNG();
     RSX_UploadSpritesheets();
 	Text_Init();
+	LogMem("after assets");
 	
 	LangInit();
 	creditsInit();
@@ -624,11 +650,13 @@ int main(int argc, const char* argv[])
 								route_selector = global_route;
 								
 								if(!route_touhou_unlocked && global_route==1) global_route=0;
+								if(!route_weird_unlocked && global_route==3) global_route=0;
 								
 								if(global_route==2) RSX_SetGameBoyEnabled(1);
 								else RSX_SetGameBoyEnabled(0);
 								
 								if(global_route==1) global_route_tex = 21;
+								else if(global_route==3) global_route_tex = 23;
 								else global_route_tex = 1;
 								
 								currentScreen = TITLE;
@@ -654,12 +682,15 @@ int main(int argc, const char* argv[])
 							{
 								if(paddata.BTN_L2 && !oldpad.BTN_L2)
 								{
-									if(language>=2) language=0; else language++;
+									if(language>=2) language=0;
+									else language++;
+									
 									LangInit();
 								}
 								if(paddata.BTN_R2 && !oldpad.BTN_R2)
 								{
-									if(setting_guarantee>=2) setting_guarantee=0; else setting_guarantee++;
+									if(setting_guarantee>=2) setting_guarantee=0;
+									else setting_guarantee++;
 								}
 								if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE)
 								{
@@ -668,7 +699,13 @@ int main(int argc, const char* argv[])
 								}
 								if(paddata.BTN_R3 && !oldpad.BTN_R3)
 								{
-									if(R_SENSITIVITY>=8) R_SENSITIVITY=1; else R_SENSITIVITY++;
+									if(R_SENSITIVITY>=8) R_SENSITIVITY=1;
+									else R_SENSITIVITY++;
+								}
+								if(paddata.BTN_L3 && !oldpad.BTN_L3)
+								{
+									if(draw_grid_outlines==0) draw_grid_outlines=1;
+									else draw_grid_outlines=0;
 								}
 							}
 							else if(ready_to_click)
@@ -883,7 +920,11 @@ int main(int argc, const char* argv[])
 											SetupTimeSettings();
 											StopAudio();
 											PlaySFX(&sfx_gamestart);
-											FadeInOut(&currentScreen, MAP);
+											
+											start_video = true;
+											if(global_route!=3) FadeInOut(&currentScreen, MAP);
+											else FadeInOut(&currentScreen, VIDEOTEST);
+											
 											ship_a = true;
 										}
 										if(control_up && !old_control_up)
@@ -938,9 +979,13 @@ int main(int argc, const char* argv[])
 											else RSX_SetGameBoyEnabled(0);
 											
 											if(global_route==1) global_route_tex = 21;
+											else if(global_route==3) global_route_tex = 23;
 											else global_route_tex = 1;
 											
-											FadeInOut(&currentScreen, MAP);
+											start_video = true;
+											if(global_route!=3) FadeInOut(&currentScreen, MAP);
+											else FadeInOut(&currentScreen, VIDEOTEST);
+											
 											PlaySFX(&sfx_gamestart);
 											ship_a = true;
 										}
@@ -1136,6 +1181,8 @@ int main(int argc, const char* argv[])
 								enable_11 = false;
 								enable_12 = false;
 								enable_nan = false;
+								if(video_finished) MP4Player_Close(&vid);
+								video_finished = false;
 								
 								int lvl_slct_bgm = 0;
 								switch(EPISODE)
@@ -1537,6 +1584,7 @@ int main(int argc, const char* argv[])
 								PlayBGM(desired_bgm, 1);
 								ready_to_click = 1;
 								test_zero = true;
+								local_mistakes = 0;
 								fp_lifes = 3;
 								
 								cursor_x = (876-40)/2;
@@ -2130,6 +2178,16 @@ int main(int argc, const char* argv[])
 										//msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
 										//	langStr[102], EmptyDialogCallback, NULL, NULL);
 									}
+									
+									if(EPISODE == 1 && rank_result==0 && !route_weird_unlocked)
+									{
+										route_weird_unlocked = true;
+										DebugLog("Weird Route Unlocked!");
+										CollectAchievement(22);
+										StartSave();
+										//msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
+										//	langStr[102], EmptyDialogCallback, NULL, NULL);
+									}
 
 									ready_to_click = 0;
 									splash = splashes_random[rand() % SplashesCount()];
@@ -2257,9 +2315,9 @@ int main(int argc, const char* argv[])
 								{
 									case 1:
 									{
-										RSX_SetGameBoyEnabled(0);
 										if(route_touhou_unlocked)
 										{
+											RSX_SetGameBoyEnabled(0);
 											global_route = 1;
 											global_route_tex = 21;
 										}
@@ -2279,14 +2337,25 @@ int main(int argc, const char* argv[])
 									}
 									case 3:
 									{
-										msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
-											"Weird Route is in development. Please wait...", EmptyDialogCallback, NULL, NULL);
+										if(route_weird_unlocked)
+										{
+											RSX_SetGameBoyEnabled(0);
+											msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
+												"Warning.\nThis route contains so many sensitive jokes, bad language, weird images and some more.\nAlso it's WIP.\nProceed with caution.", EmptyDialogCallback, NULL, NULL);
+											global_route = 3;
+											global_route_tex = 23;
+										}
+										else
+										{
+											msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
+												"To unlock the Weird route, You must complete the Episode 1 with the lowest rank on any difficulty.", EmptyDialogCallback, NULL, NULL);
+										}
 										break;
 									}
 									case 4:
 									{
 										msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
-											"UNKNOWN Route is in development. Please wait...", EmptyDialogCallback, NULL, NULL);
+											"PlayStation Route is in development. Please wait...", EmptyDialogCallback, NULL, NULL);
 										break;
 									}
 									case 5:
@@ -2319,6 +2388,41 @@ int main(int argc, const char* argv[])
 							
 							if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE) currentScreen = MENU;
 							
+							break;
+						}
+						case VIDEOTEST:
+						{
+							if(start_video)
+							{
+								start_video = false;
+								video_finished = false;
+								if(MP4Player_Init(&vid, "/dev_hdd0/game/MINESWEEP/USRDIR/data/weirdroute.mp4", VIDEO_TEX)) PlayBGM(188, 0);
+								else
+								{
+									DebugLog("Video load failed\n");
+									video_finished = true;
+									FadeInOut(&currentScreen, MAP);
+								}
+							}
+							
+							if(!video_finished)
+							{
+								int r = MP4Player_Tick(&vid);
+								if(r == -1)
+								{
+									DebugLog("Video finished\n");
+									video_finished = true;
+									MP4Player_Close(&vid);
+									FadeInOut(&currentScreen, MAP);
+								}
+								
+								if(control_any && !old_control_any)
+								{
+									DebugLog("FORCED Video finish\n");
+									video_finished = true;
+									FadeInOut(&currentScreen, MAP);
+								}
+							}
 							break;
 						}
 						default: break;
@@ -2372,7 +2476,7 @@ int main(int argc, const char* argv[])
 			if(time_decrease && !gamelose)
 			{
 				time_left -= 0.018f;
-				if(enable_9) time_left -= (mistakes * 0.018f);
+				if(enable_9) time_left -= (local_mistakes * 0.018f);
 				if(time_left <= 0.9f)
 				{
 					timer_running = 0;
@@ -2478,6 +2582,7 @@ int main(int argc, const char* argv[])
 				else
 				{
 					mistakes++;
+					local_mistakes++;
 					if(!enable_bosses) LIFES--;
 				}
 				
@@ -2556,7 +2661,8 @@ int main(int argc, const char* argv[])
 		if (!flip(RSX_GetContext(), buffers[currentBuffer].id)) DebugLog("RSX: test flip failed!\n");
 		currentBuffer = (currentBuffer + 1) % MAX_BUFFERS;
     }
-
+	
+	MP4Player_Close(&vid);
 	rsxFinish(RSX_GetContext(), 1);
 	StopAudio();
 	ioPadEnd();

@@ -61,7 +61,8 @@ typedef enum GameScreen
 	CREDITS,
 	ERROR_SCREEN,
 	ENDING2,
-	ROUTE_SELECT
+	ROUTE_SELECT,
+	VIDEOTEST
 }
 GameScreen;
 

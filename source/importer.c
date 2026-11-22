@@ -14,7 +14,7 @@ int desired_bgm = 1;
 
 int smiley_face = 0;
 
-bool doLogs = false;
+bool doLogs = true;
 bool ultrakill_dlc = false;
 
 float ship_x = -40.0f;
@@ -69,6 +69,7 @@ int i_10 = 0;
 int language = 0;
 
 int mistakes = 0;
+int local_mistakes = 0;
 
 bool ep2_unlock = false;
 bool ep3_unlock = false;
@@ -94,6 +95,9 @@ int ui_offset_y = 66;
 
 int bad_apple = 0;
 int temp_fp_music = 0;
+int temp_fp_w = 0;
+int temp_fp_h = 0;
+int temp_fp_m = 0;
 
 int setting_guarantee = 0;
 bool shop_unlocked = 0;
@@ -579,6 +583,7 @@ void init_bgm()
 	
 	bgm[168] = MUS_DIR "lsNaN.ogg";
 	
+	bgm[188] = MUS_DIR "weird/weirdroute.mp3";
 	bgm[189] = MUS_DIR "bugged_ending.ogg";
 	bgm[190] = MUS_DIR "wind.ogg";
 	bgm[191] = MUS_DIR "untitled.ogg";
@@ -729,12 +734,22 @@ void init_bgm()
 	
 	bgm[405] = MUS_DIR "gb/bgm5.ogg";
 	
+	bgm[422] = MUS_DIR "gb/bossnan_intro.ogg";
+	bgm_start[422] = 36566;
+	bgm_end[422] = 54835;
+	
+	bgm[423] = MUS_DIR "gb/bossnan.ogg";
+	bgm_start[423] = 16805;
+	bgm_end[423] = 202583;
+	
 	bgm[451] = MUS_DIR "gb/Ags1.mp3";
 	bgm[452] = MUS_DIR "gb/Ags2.ogg";
 	bgm[453] = MUS_DIR "gb/Ags3.mp3";
 	//bgm[454] = MUS_DIR "gb/Ags4.ogg";
 	
 	bgm[455] = MUS_DIR "gb/Ags5.ogg";
+	
+	bgm[468] = MUS_DIR "gb/AgsNaN.ogg";
 	
 	bgm[501] = MUS_DIR "gb/win1.mp3";
 	bgm[502] = MUS_DIR "gb/win2.ogg";
@@ -743,6 +758,8 @@ void init_bgm()
 	
 	bgm[505] = MUS_DIR "gb/win5.ogg";
 	
+	bgm[519] = MUS_DIR "gb/bossnan_win.ogg";
+	
 	bgm[551] = MUS_DIR "gb/ls1.mp3";
 	bgm[552] = MUS_DIR "gb/ls2.ogg";
 	bgm[553] = MUS_DIR "gb/ls3.mp3";
@@ -750,6 +767,142 @@ void init_bgm()
 	
 	bgm[555] = MUS_DIR "gb/ls5.ogg";
 	bgm[593] = MUS_DIR "gb/ending.ogg";
+	
+	// weird route lmao
+	// bgm[600] = MUS_DIR "weird/title.mp3";
+	// bgm_start[600] = 18400;
+	// bgm_end[600] = 132794;
+	
+	bgm[601] = MUS_DIR "weird/bgm_1.mp3";
+	bgm[602] = MUS_DIR "weird/bgm_2.mp3";
+	
+	bgm[603] = MUS_DIR "weird/bgm_3.mp3";
+	bgm_start[603] = 20570;
+	bgm_end[603] = 185115;
+	
+	bgm[604] = MUS_DIR "weird/bgm_4.mp3";
+	bgm[605] = MUS_DIR "weird/bgm_5.mp3";
+	
+	bgm[606] = MUS_DIR "weird/bgm_6.mp3"; // same structure ig
+	bgm_start[606] = 13439;
+	bgm_end[606] = 69080;
+	
+	bgm[607] = MUS_DIR "weird/bgm_7.mp3";
+	bgm_start[607] = 750;
+	bgm_end[607] = 115461;
+	
+	bgm[608] = MUS_DIR "weird/bgm_8.mp3";
+	
+	bgm[609] = MUS_DIR "weird/ocean.mp3";
+	bgm[610] = MUS_DIR "weird/9_intro.mp3";
+	bgm_start[610] = 24019;
+	bgm_end[610] = 31943;
+	
+	bgm[611] = MUS_DIR "weird/9_boss.mp3";
+	
+	bgm[612] = MUS_DIR "weird/10_intro.mp3";
+	bgm_start[612] = 25284;
+	bgm_end[612] = 27798;
+	
+	bgm[613] = MUS_DIR "weird/10_boss.mp3";
+	bgm_start[613] = 8999;
+	bgm_end[613] = 76963;
+	
+	// same structure i guess?
+	bgm[614] = MUS_DIR "weird/11_boss_2.mp3";
+	bgm[615] = MUS_DIR "weird/11_intro.mp3";
+	bgm_start[615] = 42881;
+	bgm_end[615] = 70250-10;
+	
+	bgm[616] = MUS_DIR "weird/11_boss.mp3";
+	bgm_start[616] = 3438;
+	bgm_end[616] = 140522;
+	
+	bgm[617] = MUS_DIR "weird/bgmrs.ogg";
+	bgm_start[617] = 44300;
+	bgm_end[617] = 103380;
+	
+	bgm[618] = MUS_DIR "weird/bgms3m.ogg";
+	bgm_start[618] = 44300;
+	bgm_end[618] = 103380;
+	
+	bgm[619] = MUS_DIR "weird/boss12_intro.ogg";
+	bgm_start[619] = 23283;
+	bgm_end[619] = 35027-10;
+	
+	bgm[620] = MUS_DIR "weird/boss12.ogg";
+	bgm[621] = MUS_DIR "weird/boss12_2.ogg";
+	
+	bgm[622] = MUS_DIR "weird/bossnan_intro.ogg";
+	bgm_start[22] = 36566;
+	bgm_end[22] = 54835;
+	
+	bgm[623] = MUS_DIR "weird/bossnan.ogg";
+	bgm_start[623] = 16805;
+	bgm_end[623] = 202583;
+	
+	bgm[624] = MUS_DIR "weird/dualshock_intro.ogg";
+	bgm_start[624] = 36570;
+	bgm_end[624] = 54830;
+	
+	bgm[625] = MUS_DIR "weird/dualshock.ogg";
+	
+	bgm[651] = MUS_DIR "weird/game_select_1.mp3";
+	bgm[652] = MUS_DIR "weird/game_select_2.mp3";
+	bgm[653] = MUS_DIR "weird/game_select_3.mp3";
+	bgm[654] = MUS_DIR "weird/game_select_4.mp3";
+	
+	bgm[655] = MUS_DIR "weird/game_select_5.ogg";
+	bgm[656] = MUS_DIR "weird/game_select_6.mp3";
+	bgm[657] = MUS_DIR "weird/game_select_7.mp3";
+	bgm[658] = MUS_DIR "weird/game_select_8.mp3";
+	
+	bgm[659] = MUS_DIR "weird/game_select_9.mp3";
+	bgm[660] = MUS_DIR "weird/game_select_10.mp3";
+	bgm[661] = MUS_DIR "weird/game_select_11.mp3";
+	
+	bgm[662] = MUS_DIR "weird/game_select_rs.ogg";
+	bgm[663] = MUS_DIR "weird/game_select_s3m.ogg";
+	bgm[664] = MUS_DIR "weird/game_select_12.ogg";
+	
+	bgm[668] = MUS_DIR "weird/AgsNaN.ogg";
+	
+	bgm[701] = MUS_DIR "weird/win_1.mp3";
+	bgm[702] = MUS_DIR "weird/win_2.mp3";
+	bgm[703] = MUS_DIR "weird/win_3.mp3";
+	bgm[704] = MUS_DIR "weird/win_4.mp3";
+	
+	bgm[705] = MUS_DIR "weird/win_5.ogg";
+	bgm[706] = MUS_DIR "weird/win_6.ogg";
+	bgm[707] = MUS_DIR "weird/win_7.ogg";
+	bgm[708] = MUS_DIR "weird/win_8.ogg";
+	
+	bgm[709] = MUS_DIR "weird/9_fanfare.ogg";
+	bgm[710] = MUS_DIR "weird/10_fanfare.ogg";
+	bgm[711] = MUS_DIR "weird/11_fanfare.ogg";
+	bgm[712] = MUS_DIR "weird/12_fanfare.ogg";
+	
+	bgm[717] = MUS_DIR "weird/winrs.ogg";
+	bgm[718] = MUS_DIR "weird/wins3m.ogg";
+	bgm[719] = MUS_DIR "weird/bossnan_win.ogg";
+	
+	bgm[751] = MUS_DIR "weird/level_select_1.mp3";
+	bgm[752] = MUS_DIR "weird/level_select_2.mp3";
+	bgm[753] = MUS_DIR "weird/level_select_3.mp3";
+	bgm[754] = MUS_DIR "weird/level_select_4.mp3";
+	
+	bgm[755] = MUS_DIR "weird/level_select_5.mp3";
+	bgm[756] = MUS_DIR "weird/level_select_6.mp3";
+	bgm[757] = MUS_DIR "weird/level_select_7.mp3";
+	bgm[758] = MUS_DIR "weird/level_select_8.mp3";
+	
+	bgm[759] = MUS_DIR "weird/level_select_9.mp3";
+	bgm[760] = MUS_DIR "weird/level_select_10.mp3";
+	bgm[761] = MUS_DIR "weird/level_select_11.mp3";
+	
+	bgm[762] = MUS_DIR "weird/level_select_rs.ogg";
+	bgm[763] = MUS_DIR "weird/level_select_s3m.ogg";
+	bgm[764] = MUS_DIR "weird/level_select_12.ogg";
 }
 
 int LoadSFX(SoundEffect *sfx, const void *data, int size)
@@ -764,7 +917,15 @@ int LoadSFX(SoundEffect *sfx, const void *data, int size)
         sfx->pcm = NULL;
         return 0;
     }
-
+	
+	void *small = memalign(32, sfx->pcm_size);
+	if (small)
+	{
+		memcpy(small, sfx->pcm, sfx->pcm_size);
+		free(sfx->pcm);
+		sfx->pcm = small;
+	}
+	
     return 1;
 }
 
@@ -813,7 +974,9 @@ void PlayBGM(int id, int inf)
 	int temp = 0;
 	
 	if(global_route == 1) temp = 200;
-	if(global_route == 2) temp = 400;
+	else if(global_route == 2) temp = 400;
+	else if(global_route == 3) temp = 600;
+	
 	if((id>=176 && id!=193) || id==99 || id==100 || id==9) temp = 0;
 	
 	FILE *fp = fopen(bgm[temp+id], "rb");
@@ -867,7 +1030,7 @@ void Load_PNG()
 	pngLoadFromBuffer(boss_sheet_bin, boss_sheet_bin_size, &spritesheet[3]);
 	pngLoadFromBuffer(boss1_sheet_bin, boss1_sheet_bin_size, &spritesheet[4]);
 	pngLoadFromBuffer(dualboss_sheet_bin, dualboss_sheet_bin_size, &spritesheet[5]);
-	//pngLoadFromBuffer(cursed_sheet_bin, cursed_sheet_bin_size, &spritesheet[6]); unused
+	pngLoadFromBuffer(cursed_sheet_bin, cursed_sheet_bin_size, &spritesheet[6]);
 	pngLoadFromBuffer(background_sheet_bin, background_sheet_bin_size, &spritesheet[7]);
 	pngLoadFromBuffer(explosion_bin, explosion_bin_size, &spritesheet[8]);
 	pngLoadFromBuffer(menu_sheet_bin, menu_sheet_bin_size, &spritesheet[9]);
@@ -884,6 +1047,7 @@ void Load_PNG()
 	pngLoadFromBuffer(boss_render_bin, boss_render_bin_size, &spritesheet[20]);
 	pngLoadFromBuffer(tiles_sheet2_bin, tiles_sheet2_bin_size, &spritesheet[21]);
 	pngLoadFromBuffer(logo_bin, logo_bin_size, &spritesheet[22]);
+	pngLoadFromBuffer(tiles_shit_bin, tiles_shit_bin_size, &spritesheet[23]);
 }
 
 void ReplaceBGM(int music)

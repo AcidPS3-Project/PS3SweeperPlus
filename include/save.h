@@ -70,6 +70,7 @@ typedef struct
 	bool smaster_mode;
 	int SENSITIVITY;
 	int saved_route;
+	int save_draw_grid_outlines;
 } SaveData;
 
 extern SaveData gSave;

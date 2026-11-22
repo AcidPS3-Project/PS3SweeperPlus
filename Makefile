@@ -9,7 +9,7 @@ CONTENTID	:=	HP0031-$(APPID)_00-0000000000000000
 
 SFOXML		:=	param/sfo.xml
 ICON0       :=  param/ICON0.PNG
-PKGFILES	:=	files
+#PKGFILES	:=	files
 
 include $(PSL1GHT)/ppu_rules
 
@@ -22,7 +22,7 @@ DATA		:=	data
 SHADERS		:=	shaders
 INCLUDES	:=	include
 
-LIBS		:=	-lfreetype -lrsx -lgcm_sys -lsimdmath -lio -lsysutil -lrt -llv2 -lsysmodule \
+LIBS		:=	-lfreetype -lrsx -lgcm_sys -lsimdmath -lio -lsysutil -lrt -llv2 -lvdec -lsysmodule \
 				-laudioplayer -lmpg123 -logg -lspu_sound -laudio -lpngdec -lz -lm -llv2dbg
 
 CFLAGS		=	-O2 -Wall -mcpu=cell $(MACHDEP) $(INCLUDE)

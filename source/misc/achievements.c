@@ -33,6 +33,14 @@ AchievementsDB AchDb[MAX_ACHIEVE] =
 	{"nah", "Complete Fifth Episode of Weird route", &AchNDb.WEp5Complete, BRONZE},
 	{"*disconnected*", "Complete Sixth Episode of Weird route", &AchNDb.WEp6Complete, BRONZE},
 	{"finally this shit is over.", "Complete the Weird route", &AchNDb.WGameComplete, BRONZE},
+	{"It only does everything.", "Unlock the PlayStation route.", &AchNDb.UnlockPS3, SILVER},
+	{"Placeholder", "Complete First Episode of PlayStation route", &AchNDb.PEp1Complete, SILVER},
+	{"Placeholder", "Complete Second Episode of PlayStation route", &AchNDb.PEp2Complete, SILVER},
+	{"Placeholder", "Complete Third Episode of PlayStation route", &AchNDb.PEp3Complete, SILVER},
+	{"Placeholder", "Complete Fourth Episode of PlayStation route", &AchNDb.PEp4Complete, SILVER},
+	{"Placeholder", "Complete Fifth Episode of PlayStation route", &AchNDb.PEp5Complete, SILVER},
+	{"Placeholder", "Complete Sixth Episode of PlayStation route", &AchNDb.PEp6Complete, SILVER},
+	{"Placeholder", "Complete the PlayStation route", &AchNDb.PGameComplete, SILVER},
 	{"Five Hundred Mines.", "Explode/Implode 500 mines in total", &AchNDb.Mines500, SILVER}, // requested by 1tslek
 	{"BRO ARE YOU KIDDING?? HAHAHAHA", "Fail the first stage of Episode 1 Beginner with Master Mode enabled", &AchNDb.BROWHATLOL, SILVER}, // requested by d_fund3781
 	{"The Warrior of the Mines", "Play with all bosses on Master Mode", &AchNDb.Warrior, SILVER}, // requested by alien captain creator

@@ -88,6 +88,7 @@ extern bool specialthanks;
 
 extern bool paused;
 extern int mistakes;
+extern int local_mistakes;
 
 extern float timer_seconds;
 extern int timer_running;
@@ -109,6 +110,9 @@ extern int ui_offset_y;
 
 extern int bad_apple;
 extern int temp_fp_music;
+extern int temp_fp_w;
+extern int temp_fp_h;
+extern int temp_fp_m;
 
 extern bool playing_bgm;
 extern bool custom_music;

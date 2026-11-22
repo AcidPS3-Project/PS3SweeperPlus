@@ -685,10 +685,13 @@ bool bad_apple_init()
 {
 	if(Video_Open("/dev_hdd0/game/MINESWEEP/USRDIR/dlc00/data.dat") && FindMusic("/dev_hdd0/game/MINESWEEP/USRDIR/dlc00/mus", bad_apple_path))
 	{
+		temp_fp_music = fp_music;
+		temp_fp_w = fp_width;
+		temp_fp_h = fp_height;
+		temp_fp_m = fp_mines;
 		fp_width = 64;
 		fp_height = 48;
 		fp_mines = 1;
-		temp_fp_music = fp_music;
 		fp_music = 100;
 		bgm[100] = bad_apple_path;
 		LEVEL = 0;

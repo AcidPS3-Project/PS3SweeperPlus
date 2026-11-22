@@ -116,10 +116,11 @@ void Boss9PlaceTiles(int i)
 }
 void Boss9Stop(int i)
 {
+	float mp = 1.0f+(local_mistakes*0.5f);
     boss9_list[i].beforeToMove = 0;
     boss9_list[i].toMove = 0;
     boss9_list[i].isMoving = false;
-    boss9_list[i].angle = -boss9_list[i].angle;
+    boss9_list[i].angle = -boss9_list[i].angle*mp;
 
     if(global_route==1) boss9_list[i].timer = RandRange(14/(1+DIFFICULTY),100/(1+DIFFICULTY));
     else boss9_list[i].timer = RandRange(40/(1+DIFFICULTY),120/(1+DIFFICULTY));

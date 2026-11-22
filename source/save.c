@@ -105,6 +105,7 @@ void SetSaveDefaults()
 	gSave.smaster_mode = false;
 	gSave.SENSITIVITY = 4;
 	gSave.saved_route = 0;
+	gSave.save_draw_grid_outlines = 0;
 }
 
 void savestate_init()
@@ -353,6 +354,7 @@ int StartSave(void)
 	gSave.smaster_mode = master_mode;
 	gSave.SENSITIVITY = R_SENSITIVITY;
 	gSave.saved_route = saved_route;
+	gSave.save_draw_grid_outlines = draw_grid_outlines;
 
 	char debug[256];
 
@@ -467,6 +469,7 @@ static void LoadThread(void *arg)
 	master_mode = gSave.smaster_mode;
 	R_SENSITIVITY = gSave.SENSITIVITY;
 	saved_route = gSave.saved_route;
+	draw_grid_outlines = gSave.save_draw_grid_outlines;
 	
 	char debug[256];
 	sprintf(debug, "LOAD VALUES: level=%d current=%d global=%d route=%d episode=%d\n", gSave.save_level,

@@ -62,6 +62,13 @@ typedef struct
 	bool WEp6Complete;
 	bool WGameComplete;
 	bool Mines500;
+	bool PEp1Complete;
+	bool PEp2Complete;
+	bool PEp3Complete;
+	bool PEp4Complete;
+	bool PEp5Complete;
+	bool PEp6Complete;
+	bool PGameComplete;
 } AchievementsNameDB;
 
 extern AchievementsNameDB AchNDb;

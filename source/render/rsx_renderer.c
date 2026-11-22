@@ -439,7 +439,24 @@ int RSX_UploadSpritesheets(void)
         {
             memcpy((u8 *)pixels + y * row_size, (u8 *)sheet->bmp_out + y * sheet->pitch, row_size);
         }
+		
+		int up_ok = RSX_LoadTexture(i, pixels, (u16)sheet->width, (u16)sheet->height);
+		if (up_ok)
+		{
+			loaded++;
+			DebugLog("RSX: loaded spritesheet %d (%lux%lu)\n", i,
+					 (unsigned long)sheet->width, (unsigned long)sheet->height);
+		}
+		else DebugLog("RSX: failed to upload spritesheet %d\n", i);
 
+		free(pixels);
+
+		if (up_ok)
+		{
+			free(sheet->bmp_out);
+			sheet->bmp_out = NULL;
+		}
+		/*
         if (RSX_LoadTexture(i, pixels, (u16)sheet->width, (u16)sheet->height))
         {
             loaded++;
@@ -448,6 +465,7 @@ int RSX_UploadSpritesheets(void)
         else DebugLog("RSX: failed to upload spritesheet %d\n", i);
 
         free(pixels);
+		*/
     }
 
     DebugLog("RSX: uploaded %d spritesheets\n", loaded);
@@ -704,6 +722,8 @@ void RSX_FlushDraws(void)
             rsxInvalidateTextureCache(context, GCM_INVALIDATE_TEXTURE);
 			RSX_ApplyBlend(context, blend);
             RSX_BindTexture(tex);
+			if (tex == RSX_SCANLINE_TEX) rsxTextureWrapMode(context, 0, GCM_TEXTURE_CLAMP_TO_EDGE, GCM_TEXTURE_REPEAT,
+				GCM_TEXTURE_CLAMP_TO_EDGE, GCM_TEXTURE_UNSIGNED_REMAP_NORMAL, GCM_TEXTURE_ZFUNC_ALWAYS, GCM_FALSE);
             while (n)
             {
                 u32 c = (n > 252) ? 252 : n;
@@ -980,6 +1000,24 @@ static void RSX_WaitIdle(void)
     rsxSetWriteBackendLabel(c, RSX_FENCE_LABEL, fence_value);
     rsxFlushBuffer(c);
     while (*label != fence_value && ++tries < 20000) usleep(50);
+}
+
+int RSX_UpdateTexture(int id, const u32 *pixels, u16 width, u16 height)
+{
+    RSX_Texture *tex;
+    if (id < 0 || id >= RSX_MAX_TEXTURES || !pixels) return 0;
+    tex = &textures[id];
+    if (!tex->data || tex->width != width || tex->height != height)
+        return RSX_LoadTexture(id, pixels, width, height);   /* first frame */
+    RSX_WaitIdle();                                          /* GPU done with last frame */
+    memcpy(tex->data, pixels, (size_t)width * height * sizeof(u32));
+    return 1;
+}
+
+void RSX_UnloadTextureSafe(int id)
+{
+    RSX_WaitIdle();
+    RSX_UnloadTexture(id);
 }
 
 int RSX_UploadSheet(int i)

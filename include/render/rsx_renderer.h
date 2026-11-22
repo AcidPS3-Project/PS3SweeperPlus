@@ -8,7 +8,7 @@
 #include <rsx/gcm_sys.h>
 #include "rsxutil.h"
 
-#define RSX_MAX_TEXTURES 64
+#define RSX_MAX_TEXTURES 96
 
 typedef struct
 {
@@ -82,5 +82,8 @@ void RSX_SetScanlineAlpha(float a);
 void RSX_SetVignetteAlpha(float a);
 
 void RSX_SetGameBoyEnabled(int on);
+
+int  RSX_UpdateTexture(int id, const u32 *pixels, u16 width, u16 height);
+void RSX_UnloadTextureSafe(int id);
 
 #endif

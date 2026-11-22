@@ -559,7 +559,7 @@ int getHatState(int hat, int anim_z)
 		if(!can_move_xd) the_state = 5+anim_z;
 		else
 		{
-			if(smiley_face==4)
+			if(smiley_face==4 || smiley_face==8)
 			{
 				if(cursor<left) the_state = 2;
 				else if(cursor>right) the_state = 4;
@@ -797,6 +797,7 @@ int tex_boss = 0;
 void CheckBossTexture()
 {
 	if(global_route==1) tex_boss = 4;
+	else if(global_route==3) tex_boss = 6;
 	else tex_boss = 3;
 }
 
@@ -875,6 +876,8 @@ void drawScene()
 					}
 					DrawButton(ui_x, 128, PAD_R3, 0);
 					DrawFString(0, ui_x+36, 128, 0xffffffff, 0, 32, "%s: %d", langStr[154],  R_SENSITIVITY);
+					DrawButton(ui_x, 160, PAD_L3, 0);
+					DrawFString(0, ui_x+36, 160, 0xffffffff, 0, 32, "%s: %s", langStr[155],  draw_grid_outlines ? langStr[132] : langStr[133]);
 					DrawButton(ui_x, 484, PAD_CIRCLE, 0);
 					DrawFString(0, ui_x+36, 484, 0xffffffff, 0, 32, langStr[32]);
 				}
@@ -1632,7 +1635,7 @@ void drawScene()
 						credits[15], credits[16], credits[17], credits[18], credits[19], credits[20], credits[21],
 						credits[22], credits[23]
 					);
-					DrawFString(75, ui_x, 40, 0xffffffff, 24, 0, crediter);
+					DrawTextAligned(75, ui_x, ui_x+844, 40, 1, 0xff0000ff, 1, 28, 32, crediter);
 				}
 				else
 				{
@@ -1719,6 +1722,11 @@ void drawScene()
 				
 				DrawTextAligned(0, -40, 876, 12, 1, 0xff0000ff, 1, 28, 32, txt);
 				
+				break;
+			}
+			case VIDEOTEST:
+			{
+				DrawSprite(RSX_MAX_TEXTURES - 5, 0, -40, -22, 916, 582, 1280, 720, 10, 0xFFFFFFFF);
 				break;
 			}
 			default: break;
