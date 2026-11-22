@@ -4,7 +4,7 @@ Isn't it the most awesome minesweeper game to play on YOUR PS3? Well, I hope so!
 
 Don't like the adventure? You can always count on free play! Customize your most finest game of minesweeper. It may be relaxing, it may be HARDCORE. Free choice, Free play!
 
-NOTE: The Source code should be available RIGHT AFTER 1 month after the INITIAL release has been made. Thanks for understanding.
+[PLEASE VISIT WIKI](https://github.com/AcidPS3-Project/PS3SweeperPlus/wiki)
 
 # How to compile?
 
