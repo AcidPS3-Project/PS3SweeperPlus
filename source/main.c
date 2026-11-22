@@ -1,7 +1,6 @@
 /*
 
 Welcome to PS3Sweeper+ Source code!
-If you are reading this, then congrats! The 1 month after v1.0 release has passsed!
 
 Thanks for visiting this amazing project of mine.
 Here is something you should know:

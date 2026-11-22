@@ -874,7 +874,7 @@ void drawScene()
 							DrawFString(0, ui_x+36, 96, 0xffffffff, 0, 32, "%s: %s", langStr[2], langStr[46]);
 							break;
 					}
-					DrawButton(ui_x, 128, PAD_R3, 0);
+					DrawButton(ui_x, 128, PAD_R3, 0);`
 					DrawFString(0, ui_x+36, 128, 0xffffffff, 0, 32, "%s: %d", langStr[154],  R_SENSITIVITY);
 					DrawButton(ui_x, 160, PAD_L3, 0);
 					DrawFString(0, ui_x+36, 160, 0xffffffff, 0, 32, "%s: %s", langStr[155],  draw_grid_outlines ? langStr[132] : langStr[133]);
@@ -1635,7 +1635,7 @@ void drawScene()
 						credits[15], credits[16], credits[17], credits[18], credits[19], credits[20], credits[21],
 						credits[22], credits[23]
 					);
-					DrawTextAligned(75, ui_x, ui_x+844, 40, 1, 0xff0000ff, 1, 28, 32, crediter);
+					DrawFString(75, ui_x, 40, 0xffffffff, 0, 32, crediter);
 				}
 				else
 				{
