@@ -188,6 +188,33 @@ void LangInit()
 			langStr[154] = "R-Stick sensitivity";
 			langStr[155] = "Classic Grid";
 			
+			langStr[156] = "Undetermined Hollow";
+			langStr[157] = "Severe Consequences";
+			langStr[158] = "Unacquired Density";
+			langStr[159] = "THE LUNA CLOCK";
+			
+			langStr[160] = "Bubbly Tub";
+			langStr[161] = "Steamy Jacuzzi";
+			langStr[162] = "Danger Creek";
+			langStr[163] = "Hazard Canal";
+			langStr[164] = "Flooded Fjord";
+			langStr[165] = "Wacky Whirlpool";
+			langStr[166] = "Bomb Bay";
+			langStr[167] = "Ship's Graveyard";
+			langStr[168] = "Delta P";
+			langStr[169] = "Hydraulic Shock";
+			langStr[170] = "THE GENOCIDE GARDEN";
+			
+			langStr[171] = "Frame 243";
+			langStr[172] = "Expired Milk";
+			langStr[173] = "Lost Chungus";
+			langStr[174] = "Goon or Die";
+			langStr[175] = "Lovely Ass";
+			langStr[176] = "Diarrhea Dump in my ear";
+			langStr[177] = "Go back.";
+			langStr[178] = "I'm warning you.";
+			langStr[179] = "THE DEVIL'S CREATION";
+			
 			break;
 		}
 		case 1: // Русский Язык

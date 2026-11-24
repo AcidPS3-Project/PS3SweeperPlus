@@ -72,6 +72,7 @@ extern bool seen_meleven;
 extern bool seen_twelve;
 extern bool seen_ktwelve;
 extern bool seen_nan;
+extern bool seen_q;
 
 extern bool show_warning;
 
@@ -164,8 +165,13 @@ extern int ranks_ep_1[8];
 extern int ranks_ep_2[8];
 extern int ranks_ep_3[8];
 extern int ranks_ep_4[8];
+extern int ranks_ep_5[8];
+extern int ranks_ep_6[8];
+extern int ranks_ep_7[8];
 
 extern bool route_touhou_unlocked;
+extern bool route_weird_unlocked;
+extern bool route_playstation_unlocked;
 extern bool boss_options;
 
 extern bool show_ach;

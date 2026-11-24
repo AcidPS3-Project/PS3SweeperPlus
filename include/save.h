@@ -7,6 +7,7 @@
 #define MAXLVLTEST 20
 float level_time[MAXLVLTEST];
 
+// do NOT change orders of this structure.
 typedef struct
 {
 	int save_level;
@@ -71,6 +72,9 @@ typedef struct
 	int SENSITIVITY;
 	int saved_route;
 	int save_draw_grid_outlines;
+	bool route_weird_unlocked;
+	bool route_playstation_unlocked;
+	bool save_seen_q;
 } SaveData;
 
 extern SaveData gSave;

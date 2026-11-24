@@ -34,6 +34,9 @@ int ranks_ep_1[8];
 int ranks_ep_2[8];
 int ranks_ep_3[8];
 int ranks_ep_4[8];
+int ranks_ep_5[8];
+int ranks_ep_6[8];
+int ranks_ep_7[8];
 
 int rank_result = 0;
 int ten_arena = 0;
@@ -117,6 +120,7 @@ bool seen_meleven = false;
 bool seen_twelve = false;
 bool seen_ktwelve = false;
 bool seen_nan = false;
+bool seen_q = false;
 
 bool show_warning = false;
 bool show_logo = false;
@@ -188,6 +192,8 @@ bool specialthanks = false;
 bool boss_options = false;
 
 bool route_touhou_unlocked = false;
+bool route_weird_unlocked = false;
+bool route_playstation_unlocked = false;
 
 void CollectAchievement(int ach)
 {
@@ -826,12 +832,12 @@ void init_bgm()
 	bgm_start[618] = 44300;
 	bgm_end[618] = 103380;
 	
-	bgm[619] = MUS_DIR "weird/boss12_intro.ogg";
+	bgm[619] = MUS_DIR "weird/12_nitro.ogg";
 	bgm_start[619] = 23283;
 	bgm_end[619] = 35027-10;
 	
-	bgm[620] = MUS_DIR "weird/boss12.ogg";
-	bgm[621] = MUS_DIR "weird/boss12_2.ogg";
+	bgm[620] = MUS_DIR "weird/12_boss.ogg";
+	bgm[621] = MUS_DIR "weird/12_boss_2.ogg";
 	
 	bgm[622] = MUS_DIR "weird/bossnan_intro.ogg";
 	bgm_start[22] = 36566;
@@ -1104,6 +1110,9 @@ void Initialize()
 		ranks_ep_2[i] = -1;
 		ranks_ep_3[i] = -1;
 		ranks_ep_4[i] = -1;
+		ranks_ep_5[i] = -1;
+		ranks_ep_6[i] = -1;
+		ranks_ep_7[i] = -1;
 	}
 }
 

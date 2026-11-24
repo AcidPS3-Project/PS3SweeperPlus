@@ -33,7 +33,7 @@ AchievementsDB AchDb[MAX_ACHIEVE] =
 	{"nah", "Complete Fifth Episode of Weird route", &AchNDb.WEp5Complete, BRONZE},
 	{"*disconnected*", "Complete Sixth Episode of Weird route", &AchNDb.WEp6Complete, BRONZE},
 	{"finally this shit is over.", "Complete the Weird route", &AchNDb.WGameComplete, BRONZE},
-	{"It only does everything.", "Unlock the PlayStation route.", &AchNDb.UnlockPS3, SILVER},
+	{"It only does everything.", "Unlock the PlayStation route.", &AchNDb.UnlockPlayStation, SILVER},
 	{"Placeholder", "Complete First Episode of PlayStation route", &AchNDb.PEp1Complete, SILVER},
 	{"Placeholder", "Complete Second Episode of PlayStation route", &AchNDb.PEp2Complete, SILVER},
 	{"Placeholder", "Complete Third Episode of PlayStation route", &AchNDb.PEp3Complete, SILVER},

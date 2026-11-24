@@ -102,41 +102,12 @@ bool CanChordBetween(int x, int y, int nx, int ny)
     return true;
 }
 
-void LoadBoardWalls(int grd_id)
-{
-    int x, y;
-	const ShapeDef2 *map = &episode3_shapes[grd_id];
-
-	for(y = 0; y < GRID_H; y++)
-    {
-		for(x = 0; x < GRID_W; x++)
-        {
-			u8 w = map->data[y * map->width + x];
-
-            board[x][y].wall_up    = (w & 0x01) != 0;
-            board[x][y].wall_right = (w & 0x02) != 0;
-            board[x][y].wall_down  = (w & 0x04) != 0;
-            board[x][y].wall_left  = (w & 0x08) != 0;
-        }
-    }
-}
-
 int FindEpisode2ShapeIndex(int the_id)
 {
     int i;
     for (i = 0; i < sizeof(episode2_shapes) / sizeof(episode2_shapes[0]); i++)
     {
         if(episode2_shapes[i].the_id == the_id) return i;
-    }
-    return -1;
-}
-
-int FindEpisode3ShapeIndex(int the_id)
-{
-    int i;
-    for (i = 0; i < sizeof(episode3_shapes) / sizeof(episode3_shapes[0]); i++)
-    {
-        if(episode3_shapes[i].the_id == the_id) return i;
     }
     return -1;
 }
@@ -199,7 +170,7 @@ void GenerateBoard()
         }
     }
 	
-	if(EPISODE>=2 || free_play)
+	if(EPISODE>=2 && !free_play && !bad_apple_plays)
 	{
 		if(GRID_ID!=999)
 		{
@@ -218,15 +189,6 @@ void GenerateBoard()
 			valid_total = active_count - MINES;
 		}
 	}
-	
-	// if(EPISODE>=3 && !free_play)
-	// {
-		// if(GRID_ID!=999)
-		// {
-			// int grd_id = FindEpisode3ShapeIndex(GRID_ID);
-			// LoadBoardWalls(grd_id);
-		// }
-	// }
 	
     int placed = 0;
     int f_half = fp_halfes;

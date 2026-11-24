@@ -62,6 +62,7 @@ typedef struct
 	bool WEp6Complete;
 	bool WGameComplete;
 	bool Mines500;
+	bool UnlockPlayStation;
 	bool PEp1Complete;
 	bool PEp2Complete;
 	bool PEp3Complete;

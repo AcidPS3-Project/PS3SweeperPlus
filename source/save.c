@@ -106,6 +106,9 @@ void SetSaveDefaults()
 	gSave.SENSITIVITY = 4;
 	gSave.saved_route = 0;
 	gSave.save_draw_grid_outlines = 0;
+	gSave.route_weird_unlocked = false;
+	gSave.route_playstation_unlocked = false;
+	gSave.save_seen_q = false;
 }
 
 void savestate_init()
@@ -355,6 +358,9 @@ int StartSave(void)
 	gSave.SENSITIVITY = R_SENSITIVITY;
 	gSave.saved_route = saved_route;
 	gSave.save_draw_grid_outlines = draw_grid_outlines;
+	gSave.route_weird_unlocked = route_weird_unlocked;
+	gSave.route_playstation_unlocked = route_playstation_unlocked;
+	gSave.save_seen_q = seen_q;
 
 	char debug[256];
 
@@ -470,6 +476,9 @@ static void LoadThread(void *arg)
 	R_SENSITIVITY = gSave.SENSITIVITY;
 	saved_route = gSave.saved_route;
 	draw_grid_outlines = gSave.save_draw_grid_outlines;
+	route_weird_unlocked = gSave.route_weird_unlocked;
+	route_playstation_unlocked = gSave.route_playstation_unlocked;
+	seen_q = gSave.save_seen_q;
 	
 	char debug[256];
 	sprintf(debug, "LOAD VALUES: level=%d current=%d global=%d route=%d episode=%d\n", gSave.save_level,

@@ -874,7 +874,7 @@ void drawScene()
 							DrawFString(0, ui_x+36, 96, 0xffffffff, 0, 32, "%s: %s", langStr[2], langStr[46]);
 							break;
 					}
-					DrawButton(ui_x, 128, PAD_R3, 0);`
+					DrawButton(ui_x, 128, PAD_R3, 0);
 					DrawFString(0, ui_x+36, 128, 0xffffffff, 0, 32, "%s: %d", langStr[154],  R_SENSITIVITY);
 					DrawButton(ui_x, 160, PAD_L3, 0);
 					DrawFString(0, ui_x+36, 160, 0xffffffff, 0, 32, "%s: %s", langStr[155],  draw_grid_outlines ? langStr[132] : langStr[133]);
@@ -1093,12 +1093,23 @@ void drawScene()
 				if(EPISODE==1)
 				{
 					if(global_route==1) name_test = 111;
+					else if(global_route==3) name_test = 171;
 					else name_test = 61;
 				}
 				else if(EPISODE==2)
 				{
 					if(global_route==1) name_test = 120;
 					else name_test = 80;
+				}
+				else if(EPISODE==3)
+				{
+					if(global_route==1) name_test = 170;
+					else name_test = 140;
+				}
+				else if(EPISODE==4)
+				{
+					if(global_route==1) name_test = 156;
+					else name_test = 136;
 				}
 				
 				if(ten_arena<=160*4)
@@ -1447,6 +1458,8 @@ void drawScene()
 					if(enable_9){temper = 74; temper2 = 103;}
 					if(enable_10){temper = 75; temper2 = 104;}
 					if(enable_11){temper = 76; temper2 = 105;}
+					if(enable_12){temper = 134; temper2 = 135;}
+					if(enable_nan){temper = 151; temper2 = 152;}
 					
 					DrawRectangle2D(-40+100, -22+100, 876-100, 560-100, 0xaaaaaaff, -5);
 					
@@ -1464,7 +1477,9 @@ void drawScene()
 					else if(enable_11 && !seen_eleven) something = true;
 					else if(enable_11 && global_route==1 && !seen_meleven) something = true;
 					else if(enable_12 && !seen_twelve) something = true;
+					else if(enable_12 && global_route==1 && !seen_ktwelve) something = true;
 					else if(enable_nan && !seen_nan) something = true;
+					else if(enable_nan && global_route==1 && !seen_q) something = true;
 					else something = false;
 					
 					if(something) DrawTextAligned(0, 0, 876, 464, 1, 0x000000ff, 1, 28, 32, langStr[108]);

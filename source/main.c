@@ -13,6 +13,8 @@ Here is something you should know:
 
 */
 
+#define SECOND (1/60.0f)
+
 #include <malloc.h>
 
 #include "rsx_renderer.h"
@@ -214,6 +216,8 @@ void ResetGrid()
 				else if(DIFFICULTY==2) time_left = 149.9f;
 				else time_left = 119.9f;
 			}
+			
+			if(global_route==3) time_left=88.9f;
 		}
 	}
 	if(enable_10)
@@ -251,7 +255,7 @@ void ResetGrid()
 	{
 		boss10_list[j].time = 10;
 		boss10_list[j].pulse = 0.0f;
-		boss10_list[j].speed = 0.018f;
+		boss10_list[j].speed = SECOND;
 		boss10_list[j].timer = 0.0f;
 		boss10_list[j].tspeed = 0.0f;
 	}
@@ -329,7 +333,7 @@ void ResetGridTest()
 	{
 		boss10_list[j].time = 10;
 		boss10_list[j].pulse = 0.0f;
-		boss10_list[j].speed = 0.018f;
+		boss10_list[j].speed = SECOND;
 		boss10_list[j].timer = 0.0f;
 		boss10_list[j].tspeed = 0.0f;
 	}
@@ -890,13 +894,13 @@ int main(int argc, const char* argv[])
 										{
 											episode_check();
 											
-											if(EPISODEs>4)
+											if(EPISODEs>5)
 											{
 												msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
 													"This episode is not started it's development, please wait! ^_^", EmptyDialogCallback, NULL, NULL);
 												continue;
 											}
-											else if(EPISODEs==4)
+											else if(EPISODEs>=4)
 											{
 												msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
 													"This episode is W.I.P., however you can still access it. Beware of the crappy stuff going on. Thanks!", EmptyDialogCallback, NULL, NULL);
@@ -1768,8 +1772,7 @@ int main(int argc, const char* argv[])
 														desired_bgm = 22;
 														PlayBGM(22, 1);
 														test_zero = false;
-														//if(!seen_nan || (global_route==1 && !seen_ktwelve)) show_warning = true;
-														if(!seen_nan) show_warning = true;
+														if(!seen_nan || (global_route==1 && !seen_q)) show_warning = true;
 													}
 												}
 												else test_zero = false;
@@ -1957,7 +1960,8 @@ int main(int argc, const char* argv[])
 												{
 													if(enable_9)
 													{
-														PlayBGM(11, 1);
+														if(global_route==3) PlayBGM(11, 0);
+														else PlayBGM(11, 1);
 														desired_bgm = 9;
 													}
 													else if(enable_10)
@@ -2060,7 +2064,7 @@ int main(int argc, const char* argv[])
 											if(i_10==-1) continue;
 											
 											boss10_list[i_10].time=10;
-											boss10_list[i_10].tspeed+=(0.0155f*(1+DIFFICULTY));
+											boss10_list[i_10].tspeed+=(SECOND*(1+DIFFICULTY));
 											tnt_alpha += 5.1f;
 											float min_speed = boss10_list[i_10].tspeed;
 											
@@ -2073,7 +2077,7 @@ int main(int argc, const char* argv[])
 											if(rand() % 2) boss10_list[i_10].vsp = -boss10_list[i_10].vsp;
 										}
 										
-										if(paddata.BTN_TRIANGLE && !oldpad.BTN_TRIANGLE && boss9_started) WinCheck();
+										if(paddata.BTN_TRIANGLE && !oldpad.BTN_TRIANGLE && boss9_started && global_route!=3) WinCheck();
 										
 										// movement
 										if(control_left && !old_control_left) MoveCursor(-1, 0);
@@ -2167,6 +2171,7 @@ int main(int argc, const char* argv[])
 								if(paddata.BTN_START && !oldpad.BTN_START)
 								{
 									StopAudio();
+									PlayBGM(198, 0); // to prevent many sfx playing idk
 									PlaySFX(&sfx_gamestart);
 									if(mistakes == 0 && EPISODE == 1 && DIFFICULTY>0 && !route_touhou_unlocked)
 									{
@@ -2174,8 +2179,6 @@ int main(int argc, const char* argv[])
 										DebugLog("Touhou Route Unlocked!");
 										CollectAchievement(7);
 										StartSave();
-										//msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
-										//	langStr[102], EmptyDialogCallback, NULL, NULL);
 									}
 									
 									if(EPISODE == 1 && rank_result==0 && !route_weird_unlocked)
@@ -2184,8 +2187,6 @@ int main(int argc, const char* argv[])
 										DebugLog("Weird Route Unlocked!");
 										CollectAchievement(22);
 										StartSave();
-										//msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
-										//	langStr[102], EmptyDialogCallback, NULL, NULL);
 									}
 
 									ready_to_click = 0;
@@ -2353,8 +2354,16 @@ int main(int argc, const char* argv[])
 									}
 									case 4:
 									{
-										msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
-											"PlayStation Route is in development. Please wait...", EmptyDialogCallback, NULL, NULL);
+										if(route_playstation_unlocked)
+										{
+											msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
+												"PlayStation Route is in development. Please wait...", EmptyDialogCallback, NULL, NULL);
+										}
+										else
+										{
+											msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
+												"To unlock the PlayStation route, You must uh... wait.", EmptyDialogCallback, NULL, NULL);
+										}
 										break;
 									}
 									case 5:
@@ -2471,17 +2480,21 @@ int main(int argc, const char* argv[])
 		
 		if(timer_running && !paused)
 		{
-			timer_seconds += 0.018f;
+			timer_seconds += SECOND;
 			if(time_decrease && !gamelose)
 			{
-				time_left -= 0.018f;
-				if(enable_9) time_left -= (local_mistakes * 0.018f);
-				if(time_left <= 0.9f)
+				time_left -= SECOND;
+				if(enable_9 && global_route!=3) time_left -= (local_mistakes * SECOND);
+				if(time_left <= 0.99f)
 				{
 					timer_running = 0;
 					DebugLog("TIME OVER\n");
-					if(free_play) fp_lifes=0; else LIFES=0;
-					game_lost();
+					if(global_route!=3)
+					{
+						if(free_play) fp_lifes=0; else LIFES=0;
+						game_lost();
+					}
+					else WinCheck();
 				}
 			}
 		}
@@ -2503,7 +2516,7 @@ int main(int argc, const char* argv[])
 						if(boss10_list[i].beep_timer <= 0.0f)
 						{
 							PlaySFX(&sfx_beep);
-							float t = 60.0f * 0.018f;
+							float t = 60.0f * SECOND;
 							switch(boss10_list[i].time)
 							{
 								case 5: boss10_list[i].beep_timer = t / 1.5f; break;
