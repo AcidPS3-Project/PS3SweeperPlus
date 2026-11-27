@@ -1,0 +1,136 @@
+/* adventure_fp.fcg
+ * Ported from adventure_map.gdshader (Godot 4.4) to RSX Cg (PSL1GHT).
+ * Values match the Godot originals exactly.
+ *
+ * Ported effects:
+ *   exposure, tint, posterize+Bayer4x4, contrast, saturation, vignette
+ * Not ported (screen-space only):
+ *   chromatic aberration, pixelate, film grain (needs TIME + SCREEN_PIXEL_SIZE)
+ */
+
+/* ---- exact values from adventure_map.gdshader ---- */
+#define EXPOSURE        1.0
+#define CONTRAST        1.25
+#define SATURATION      0.9
+#define COLOR_LEVELS    12.0
+#define DITHER_STRENGTH 0.75
+#define VIGNETTE_STR    1.0
+#define TINT_COLOR      float3(0.95, 1.03, 0.9)
+#define TINT_STRENGTH   0.15
+/* -------------------------------------------------- */
+
+struct FragIn {
+    float4 color    : COLOR0;
+    float2 texcoord : TEXCOORD0;
+};
+
+uniform sampler2D texture0;
+
+/* ---- helpers — all float, no int (RSX fp40 has broken int support) ---- */
+
+float3 to_hsv(float3 c)
+{
+    float cmax = max(c.r, max(c.g, c.b));
+    float cmin = min(c.r, min(c.g, c.b));
+    float d = cmax - cmin;
+    float h = 0.0;
+    if (d > 1e-5) {
+        if      (cmax == c.r) h = fmod((c.g - c.b) / d, 6.0);
+        else if (cmax == c.g) h = (c.b - c.r) / d + 2.0;
+        else                  h = (c.r - c.g) / d + 4.0;
+        h /= 6.0;
+        if (h < 0.0) h += 1.0;
+    }
+    float s = (cmax <= 1e-5) ? 0.0 : d / cmax;
+    return float3(h, s, cmax);
+}
+
+float3 to_rgb(float3 hsv)
+{
+    float h  = hsv.x * 6.0;
+    float s  = hsv.y;
+    float v  = hsv.z;
+    float fi = floor(h);
+    float f  = h - fi;
+    float p  = v * (1.0 - s);
+    float q  = v * (1.0 - s * f);
+    float t  = v * (1.0 - s * (1.0 - f));
+    if      (fi < 0.5) return float3(v, t, p);
+    else if (fi < 1.5) return float3(q, v, p);
+    else if (fi < 2.5) return float3(p, v, t);
+    else if (fi < 3.5) return float3(p, q, v);
+    else if (fi < 4.5) return float3(t, p, v);
+    return float3(v, p, q);
+}
+
+float3 adj_contrast_sat(float3 c, float con, float sat)
+{
+    c = (c - 0.5) * con + 0.5;
+    float3 hsv = to_hsv(c);
+    hsv.y *= sat;
+    return clamp(to_rgb(hsv), 0.0, 1.0);
+}
+
+/* 4x4 Bayer — all float, range comparisons instead of int == */
+float bayer4x4(float2 p)
+{
+    float fx  = floor(fmod(p.x, 4.0));
+    float fy  = floor(fmod(p.y, 4.0));
+    float idx = fy * 4.0 + fx;
+
+    float v = 5.0;
+    if      (idx <  0.5) v =  0.0;
+    else if (idx <  1.5) v =  8.0;
+    else if (idx <  2.5) v =  2.0;
+    else if (idx <  3.5) v = 10.0;
+    else if (idx <  4.5) v = 12.0;
+    else if (idx <  5.5) v =  4.0;
+    else if (idx <  6.5) v = 14.0;
+    else if (idx <  7.5) v =  6.0;
+    else if (idx <  8.5) v =  3.0;
+    else if (idx <  9.5) v = 11.0;
+    else if (idx < 10.5) v =  1.0;
+    else if (idx < 11.5) v =  9.0;
+    else if (idx < 12.5) v = 15.0;
+    else if (idx < 13.5) v =  7.0;
+    else if (idx < 14.5) v = 13.0;
+
+    return (v + 0.5) / 16.0;
+}
+
+/* ---- main ---- */
+
+float4 main(FragIn input) : COLOR
+{
+    float2 uv  = input.texcoord;
+    float4 tex = tex2D(texture0, uv) * input.color;
+    float3 col = tex.rgb;
+
+    /* exposure */
+    col *= EXPOSURE;
+
+    /* tint */
+    col = lerp(col, col * TINT_COLOR, TINT_STRENGTH);
+
+    /* posterize with Bayer4x4 dithering.
+     * The original locks dither coords to floor(SCREEN_UV / (SCREEN_PIXEL_SIZE * pixel_factor)).
+     * We approximate this using the sprite UV scaled by its texel count.
+     * sprite_w=381, sprite_h=443, pixel_factor=2 → effective dither grid: floor(uv * (381/2, 443/2)) */
+    float2 frag_xy = floor(uv * float2(190.5, 221.5));
+    float  b       = bayer4x4(frag_xy);
+    float3 dithered = col + (b - 0.5) * (DITHER_STRENGTH / (COLOR_LEVELS - 1.0));
+    float3 q        = floor(dithered * COLOR_LEVELS);
+    col             = q / (COLOR_LEVELS - 1.0);
+
+    /* contrast + saturation */
+    col = adj_contrast_sat(col, CONTRAST, SATURATION);
+
+    /* vignette — original uses SCREEN_UV distance from screen center (0.5, 0.5).
+     * We use sprite UV the same way since this sprite is fullscreen-sized. */
+    float2 centered = uv - 0.5;
+    float  dist     = length(centered);
+    float  vignette = smoothstep(0.5, 0.9, dist) * VIGNETTE_STR;
+    col *= clamp(1.0 - vignette, 0.0, 1.0);
+
+    return float4(clamp(col, 0.0, 1.0), tex.a);
+}

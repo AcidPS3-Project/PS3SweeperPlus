@@ -30,6 +30,7 @@
 #include "shopbg_bin.h"
 
 #include "logo_bin.h"
+#include "test_bin.h"
 
 //IMPORT SFX
 #include "flag_bin.h"

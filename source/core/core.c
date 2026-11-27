@@ -2,6 +2,7 @@
 #include "level_data.h"
 #include "episode2_shapes.h"
 #include "badapple.h"
+#include "bosses.h"
 
 RevealNode reveal_queue[MAX_W * MAX_H];
 Cell board[MAX_W][MAX_H];
@@ -41,11 +42,13 @@ int gamewin = 0;
 int gamelose = 0;
 int in_game = 0;
 
+bool xii_phase2 = false;
+
 int adventure_select = 0;
 int challenge_select = 0;
 int loadout_select = 0;
-
 int settings_select = 0;
+int level_select = 0;
 
 int revealed_total = 0;
 int valid_total = 0;
@@ -153,6 +156,111 @@ void game_lost()
 	PlaySFX(&sfx_mine);
 }
 
+int CountAdjacentMines(int x, int y)
+{
+    int xx, yy;
+    int count = 0;
+
+    for (xx = -1; xx <= 1; xx++)
+    {
+        for (yy = -1; yy <= 1; yy++)
+        {
+            if (xx == 0 && yy == 0) continue;
+
+            int nx = x + xx;
+            int ny = y + yy;
+
+            if (nx < 0 || ny < 0 || nx >= GRID_W || ny >= GRID_H) continue;
+
+            if (board[nx][ny].doublemine) count += 4;
+            else if (board[nx][ny].halfmine) count += 1;
+            else if (board[nx][ny].antimine) count -= 2;
+            else if (board[nx][ny].mine) count += 2;
+        }
+    }
+
+    return count;
+}
+
+bool BoardHasNumber(int wanted)
+{
+    int x, y;
+
+    for (x = 0; x < GRID_W; x++)
+    {
+        for (y = 0; y < GRID_H; y++)
+        {
+            if (!board[x][y].active) continue;
+            if (board[x][y].mine) continue;
+            if (CountAdjacentMines(x, y) == wanted) return true;
+        }
+    }
+
+    return false;
+}
+
+void GenerateBoardTest(int required_number)
+{
+	int attempts = 0;
+	int placed = 0;
+
+	do
+	{
+		for (int x = 0; x < GRID_W; x++)
+		{
+			for (int y = 0; y < GRID_H; y++)
+			{
+				board[x][y].mine = 0;
+				board[x][y].doublemine = 0;
+				board[x][y].halfmine = 0;
+				board[x][y].antimine = 0;
+			}
+		}
+
+		placed = 0;
+
+		int f_half = fp_halfes;
+		int f_doub = fp_doubles;
+		int f_anti = fp_antis;
+
+		while (placed < MINES)
+		{
+			int x = rand() % GRID_W;
+			int y = rand() % GRID_H;
+
+			if (!board[x][y].active) continue;
+			if (board[x][y].mine) continue;
+
+			board[x][y].mine = 1;
+
+			if (f_doub > 0)
+			{
+				board[x][y].doublemine = 1;
+				enable_double = 1;
+				f_doub--;
+			}
+			else if (f_half > 0)
+			{
+				board[x][y].halfmine = 1;
+				enable_half = 1;
+				f_half--;
+			}
+			else if (f_anti > 0)
+			{
+				board[x][y].antimine = 1;
+				enable_anti = 1;
+				f_anti--;
+			}
+
+			placed++;
+		}
+
+		attempts++;
+
+	}
+	while (required_number > 0 && !BoardHasNumber(required_number) && attempts < 1000);
+}
+
 void GenerateBoard()
 {
 	int xx, yy;
@@ -195,35 +303,43 @@ void GenerateBoard()
     int f_doub = fp_doubles;
     int f_anti = fp_antis;
 	
-    while(placed < MINES)
-    {
-        int x = rand() % GRID_W;
-        int y = rand() % GRID_H;
-		if(!board[x][y].active) continue;
-		if(board[x][y].mine) continue;
+	if(true)
+	{
+		while(placed < MINES)
+		{
+			int x = rand() % GRID_W;
+			int y = rand() % GRID_H;
+			if(!board[x][y].active) continue;
+			if(board[x][y].mine) continue;
 
-		board[x][y].mine = 1;
-		if(f_doub > 0)
-		{
-			board[x][y].doublemine = 1;
-			enable_double = 1;
-			f_doub--;
+			board[x][y].mine = 1;
+			if(f_doub > 0)
+			{
+				board[x][y].doublemine = 1;
+				enable_double = 1;
+				f_doub--;
+			}
+			else if(f_half > 0)
+			{
+				board[x][y].halfmine = 1;
+				enable_half = 1;
+				f_half--;
+			}
+			else if(f_anti > 0)
+			{
+				board[x][y].antimine = 1;
+				enable_anti = 1;
+				f_anti--;
+			}
+			
+			placed++;
 		}
-		else if(f_half > 0)
-		{
-			board[x][y].halfmine = 1;
-			enable_half = 1;
-			f_half--;
-		}
-		else if(f_anti > 0)
-		{
-			board[x][y].antimine = 1;
-			enable_anti = 1;
-			f_anti--;
-		}
-		
-		placed++;
-    }
+	}
+	else
+	{
+		// to do: fix this shit
+		if(LEVEL>2 && LEVEL<8) GenerateBoardTest(LEVEL);
+	}
 	
 	RENDER_SIZE = RENDERING_SIZE * RENDERING_PIXELS;
 	
@@ -362,7 +478,7 @@ int calculate_score()
 	if(LEVEL==8) score += 999;
 	if(LEVEL==9) score += 1000;
 	if(LEVEL==10) score += 1111;
-	if(LEVEL==11) score += 1212;
+	if(EPISODE==4 && LEVEL==3) score += 1212;
 	if(LEVEL==12) score += 1500;
 	if(boss9_count > 0) score += 9;
 	if(boss10_count > 0) score += 10;
@@ -397,48 +513,69 @@ void WinCheck()
 	
 	// if(enable_9) revealed_total+=9;
 	
+	if(konami_test) revealed_total = valid_total;
+	
 	if(revealed_total >= valid_total)
 	{
-		DebugLog("game won!");
-		gamewin = 1;
-		mines_count = 0;
-		timer_running = 0;
-		disable_control = 1;
-		playing_bgm = false;
-		StopAudio();
-		
-		DeactivateBosses();
-		if(!enable_9 && !enable_10 && !enable_11 && !enable_12 && !enable_nan) PlayBGM(100+desired_bgm, 0);
-		if(enable_9 && enable_10 && enable_11 && enable_12) PlayBGM(196, 0);
-		
-		int fx, fy;
-		
-		for (fx = 0; fx < GRID_W; fx++)
+		if((EPISODE==4 && LEVEL==3) && !xii_phase2)
 		{
-			for (fy = 0; fy < GRID_H; fy++)
+			DebugLog("XII Phase 2 Initiated\n");
+			xii_phase2 = true;
+			LoadLevel(3);
+			StopAudio();
+			
+			int i;
+			for (i = 0; i < boss9_count; i++)
 			{
-				if(board[fx][fy].mine)
+				boss9_list[i].active = true;
+			}
+			
+			PlayBGM(21, 1);
+		}
+		else
+		{
+			DebugLog("game won!\n");
+			gamewin = 1;
+			mines_count = 0;
+			timer_running = 0;
+			disable_control = 1;
+			playing_bgm = false;
+			StopAudio();
+			
+			DeactivateBosses();
+			if(!enable_9 && !enable_10 && !enable_11 && !enable_12 && !enable_nan) PlayBGM(100+desired_bgm, 0);
+			if(enable_9 && enable_10 && enable_11 && enable_12) PlayBGM(196, 0);
+			if(xii_phase2) PlayBGM(112, 0);
+			
+			int fx, fy;
+			
+			for (fx = 0; fx < GRID_W; fx++)
+			{
+				for (fy = 0; fy < GRID_H; fy++)
 				{
-					board[fx][fy].flagged = 2;
-					if(board[fx][fy].doublemine) board[fx][fy].flagged++;
-					if(board[fx][fy].halfmine) board[fx][fy].flagged--;
-					if(board[fx][fy].antimine) board[fx][fy].flagged+=2;
+					if(board[fx][fy].mine)
+					{
+						board[fx][fy].flagged = 2;
+						if(board[fx][fy].doublemine) board[fx][fy].flagged++;
+						if(board[fx][fy].halfmine) board[fx][fy].flagged--;
+						if(board[fx][fy].antimine) board[fx][fy].flagged+=2;
+					}
 				}
 			}
-		}
-		
-		level_minecoins = calculate_score();
-		current_minecoins += level_minecoins;
-		
-		if(!free_play)
-		{
-			if(LEVEL==66)
+			
+			level_minecoins = calculate_score();
+			current_minecoins += level_minecoins;
+			
+			if(!free_play)
 			{
-				level_time[9] += timer_seconds;
+				if(LEVEL==66)
+				{
+					level_time[9] += timer_seconds;
+				}
+				else level_time[LEVEL] = timer_seconds;
 			}
-			else level_time[LEVEL] = timer_seconds;
+			else global_minecoins += current_minecoins;
 		}
-		else global_minecoins += current_minecoins;
 	}
 	else if(enable_9)
 	{
@@ -695,7 +832,12 @@ void LoadLevel(int levelz)
 		fp_halfes = MINES / 3;
 	}
 	
-	ResetGrid();
+	if(xii_phase2)
+	{
+		MINES = MINES / 2;
+		ResetGridXII();
+	}
+	else ResetGrid();
 }
 
 void LoadFPLevel()

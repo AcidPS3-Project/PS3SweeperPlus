@@ -105,6 +105,10 @@ extern bool button_start_hold;
 extern int screen_w;
 extern int screen_h;
 
+extern int screen_x;
+
+extern bool konami_test;
+
 extern int offset_x;
 extern int offset_y;
 extern int ui_offset_y;
@@ -144,6 +148,7 @@ extern bool master_mode;
 extern bool master_modeS;
 
 extern bool use_custom_sweeper;
+extern bool use_camera_sweeper;
 extern bool shop_unlocked;
 extern bool shop_first;
 extern bool first_playing;

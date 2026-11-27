@@ -69,6 +69,8 @@ extern int fp_lifes;
 
 extern int boss_menu;
 
+extern bool xii_phase2;
+
 extern int cursorX;
 extern int cursorY;
 extern int gamewin;
@@ -121,6 +123,7 @@ extern int adventure_select;
 extern int challenge_select;
 extern int loadout_select;
 extern int settings_select;
+extern int level_select;
 
 void badAppleUpdate();
 bool bad_apple_init();
@@ -130,6 +133,7 @@ void LoadLevel(int levelz);
 void LoadFPLevel();
 void MoveCursor(int dx, int dy);
 void ResetGrid();
+void ResetGridXII();
 
 int StartSave();
 

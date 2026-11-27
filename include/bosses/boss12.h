@@ -23,6 +23,6 @@ void SpawnProjectile(float x, float y, float vx, float vy, int type, float lifet
 
 void SetupBoss12Position();
 void Deactivate12();
-void boss12_update(int mute);
+void boss12_update(int mute, int local_mistakes);
 
 #endif

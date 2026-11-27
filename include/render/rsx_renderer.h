@@ -37,7 +37,12 @@ int RSX_Init(void);
 void RSX_TestDraw(rsxBuffer *buffer);
 gcmContextData *RSX_GetContext(void);
 void RSX_TestClear(rsxBuffer *buffer);
+/* Shader IDs for RSX_SetShader() */
+#define RSX_SHADER_DEFAULT   0   /* basic_fp  — normal textured sprite  */
+#define RSX_SHADER_ADVENTURE 1   /* adventure_fp — map post-processing  */
+
 int RSX_LoadShaders(void);
+void RSX_SetShader(int shader_id);   /* call before DrawSprite to tag next draw */
 void RSX_SetLogicalResolution(float width, float height);
 int RSX_CreateSpriteBuffers(void);
 void RSX_SetupViewport(void);
@@ -85,5 +90,10 @@ void RSX_SetGameBoyEnabled(int on);
 
 int  RSX_UpdateTexture(int id, const u32 *pixels, u16 width, u16 height);
 void RSX_UnloadTextureSafe(int id);
+
+/* Returns the RSX-local memory offset of a loaded texture's pixel data.
+ * Used by ps_eye.c to target the GPU transfer blit directly at the slot.
+ * Returns 0 and sets *out_offset = 0 if the slot is not loaded. */
+int  RSX_GetTextureRSXOffset(int id, u32 *out_offset);
 
 #endif

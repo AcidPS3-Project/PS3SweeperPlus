@@ -215,6 +215,18 @@ void LangInit()
 			langStr[178] = "I'm warning you.";
 			langStr[179] = "THE DEVIL'S CREATION";
 			
+			langStr[180] = "Use PlayStation Eye";
+			
+			langStr[181] = "This is the Weird 9. Unlike it's original, it doesn't take any penalties. Instead, it's timer is locked to 88 seconds. After completing the board, you don't need to press TRIANGLE. Instead, by the end of timer, it detects if the board is completed, or not.";
+			langStr[182] = "This is the Weird 10. Unlike it's original, uh.. currently it's a re-skin.";
+			langStr[183] = "This is the Weird 11. Unlike it's original, uh.. currently it's a re-skin too.";
+			langStr[184] = "This is the Weird 12. Unlike it's original, it now shoots more and faster. Nothing else, cuz I forgot to enable the creativity mode in my brain.";
+			
+			langStr[185] = "Start the game";
+			langStr[186] = "Route select";
+			langStr[187] = "Level select";
+			langStr[188] = "Enter shop";
+			
 			break;
 		}
 		case 1: // Русский Язык

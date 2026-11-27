@@ -23,7 +23,7 @@ SHADERS		:=	shaders
 INCLUDES	:=	include
 
 LIBS		:=	-lfreetype -lrsx -lgcm_sys -lsimdmath -lio -lsysutil -lrt -llv2 -lvdec -lsysmodule \
-				-laudioplayer -lmpg123 -logg -lspu_sound -laudio -lpngdec -lz -lm -llv2dbg
+				-laudioplayer -lmpg123 -logg -lspu_sound -laudio -lpngdec -lz -lm -llv2dbg -lcamera
 
 CFLAGS		=	-O2 -Wall -mcpu=cell $(MACHDEP) $(INCLUDE)
 

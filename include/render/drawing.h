@@ -28,7 +28,7 @@ typedef struct
     float anim;
 } Projectile;
 
-#define MAX_PROJECTILES 64
+#define MAX_PROJECTILES 128
 
 #define PAD_TRIANGLE 0
 #define PAD_CIRCLE 1
@@ -95,7 +95,6 @@ int getCaptainState(int anim_z, int anim1_z, int anim2_z);
 int getHatState(int hat, int anim_z);
 int getShipRot(int rot);
 
-void draw_game();
 void drawScene();
 void LoadTexture();
 int RandRange();
@@ -107,6 +106,8 @@ int tile_map_num(int _t);
 
 void FadeInOut(GameScreen *variable, GameScreen value);
 void UpdateFade(float dt);
+
+void DespawnProjectiles();
 
 int can_move_xd;
 int disable_control;

@@ -19,6 +19,7 @@ Here is something you should know:
 
 #include "rsx_renderer.h"
 #include "rsxutil.h"
+#include "camera/ps_eye.h"
 #define MAX_BUFFERS 2
 
 #include <sysutil/sysutil.h>
@@ -60,7 +61,7 @@ int start_credits = 0;
 bool play_bgmz = false;
 int max_route = 4;
 
-float ship_speed = 0.75f / 2;
+float ship_speed = 0.75f;
 
 int LEVEL_BKP = 0;
 int ready_to_click = 0;
@@ -150,7 +151,7 @@ void ResetGrid()
 		{
 			switch(LEVEL)
 			{
-				case 2: enable_10 = true; break;
+				case 2: enable_9 = true; break;
 				case 3: enable_12 = true; break;
 				default: break;
 			}
@@ -159,7 +160,7 @@ void ResetGrid()
 		{
 			switch(LEVEL)
 			{
-				case 3: enable_11 = true; break;
+				case 3: enable_10 = true; break;
 				case 4: enable_nan = true; break;
 				default: break;
 			}
@@ -266,6 +267,32 @@ void ResetGrid()
 	FadeInOut(&currentScreen, GAME);
 	
 	playing_bgm = true;
+}
+
+void ResetGridXII()
+{
+	time_left = 999.0f;
+	
+    mines_count = MINES;
+	
+    cursorX = GRID_W/2;
+    cursorY = GRID_H/2;
+
+    FIRST_CLICK = 1;
+    gamewin = 0;
+    disable_control = 0;
+    gamelose = 0;
+	level_minecoins = 0;
+	
+	enable_9 = true;
+	boss9_started = 1;
+	SetupBoss9Positions(boss9_count);
+	boss9_cutscene = 2;
+	
+    GenerateBoard();
+    CalculateNumbers();
+	
+	Reveal(cursorX, cursorY);
 }
 
 void ResetGridTest()
@@ -493,6 +520,7 @@ int main(int argc, const char* argv[])
 	LogMem("after sfx");
 	
 	ioPadInit(7);
+	
 	Load_PNG();
     RSX_UploadSpritesheets();
 	Text_Init();
@@ -710,6 +738,13 @@ int main(int argc, const char* argv[])
 									if(draw_grid_outlines==0) draw_grid_outlines=1;
 									else draw_grid_outlines=0;
 								}
+								if(paddata.BTN_CROSS && !oldpad.BTN_CROSS)
+								{
+									EPISODE=4;
+									LEVEL=3;
+									LIFES=3;
+									saved_route=0;
+								}
 							}
 							else if(ready_to_click)
 							{
@@ -738,8 +773,11 @@ int main(int argc, const char* argv[])
 						}
 						case MENU:
 						{
+							if(use_camera_sweeper) PS_Eye_Update();
+							
 							if(start_menu)
 							{
+								DespawnProjectiles();
 								bad_apple_plays = false;
 								boss_render_x = 0.0f;
 								menu_x = 0.0f;
@@ -781,7 +819,6 @@ int main(int argc, const char* argv[])
 										if(paddata.BTN_L2 && !oldpad.BTN_L2)
 										{
 											master_mode = master_modeS;
-											if(master_mode) LIFES = 1;
 											ready_to_click = 0;
 											GRID_ID = 999;
 											free_play = 1;
@@ -795,7 +832,6 @@ int main(int argc, const char* argv[])
 										if(paddata.BTN_R2 && !oldpad.BTN_R2)
 										{
 											master_mode = master_modeS;
-											if(master_mode) LIFES = 1;
 											ready_to_click = 0;
 											GRID_ID = 999;
 											free_play = 1;
@@ -816,6 +852,20 @@ int main(int argc, const char* argv[])
 									else if(loadout_select)
 									{
 										if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE) loadout_select = 0;
+										
+										if(paddata.BTN_TRIANGLE && !oldpad.BTN_TRIANGLE)
+										{
+											if(!use_camera_sweeper) 
+											{
+												use_camera_sweeper=true;
+												PS_Eye_Init();
+											}
+											else
+											{
+												use_camera_sweeper=false;
+												PS_Eye_Shutdown();
+											}
+										}
 										
 										if(paddata.BTN_SQUARE && !oldpad.BTN_SQUARE)
 										{
@@ -860,33 +910,33 @@ int main(int argc, const char* argv[])
 										if(paddata.BTN_L2 && !oldpad.BTN_L2) if(the_hat>-1) the_hat--;
 										if(paddata.BTN_R2 && !oldpad.BTN_R2) if(the_hat<8) the_hat++;
 										
-										if(paddata.BTN_TRIANGLE && !oldpad.BTN_TRIANGLE)
-										{
-											startbgmgtsp = 1;
-											ship_x = -80;
-											ship_y = -22+(32*6);
-											if(!shop_unlocked)
-											{
-												if(global_minecoins > 250)
-												{
-													ready_to_click = 0;
-													shop_first = true;
-													shop_unlocked = true;
-													global_minecoins -= 250;
-													StopAudio();
-													PlaySFX(&sfx_buy);
-													StartSave();
-													FadeInOut(&currentScreen, GOTOSHOP);
-												}
-											}
-											else
-											{
-												ready_to_click = 0;
-												shop_first = false;
-												StopAudio();
-												FadeInOut(&currentScreen, GOTOSHOP);
-											}
-										}
+										// if(paddata.BTN_START && !oldpad.BTN_START)
+										// {
+											// startbgmgtsp = 1;
+											// ship_x = -80;
+											// ship_y = -22+(32*6);
+											// if(!shop_unlocked)
+											// {
+												// if(global_minecoins > 250)
+												// {
+													// ready_to_click = 0;
+													// shop_first = true;
+													// shop_unlocked = true;
+													// global_minecoins -= 250;
+													// StopAudio();
+													// PlaySFX(&sfx_buy);
+													// StartSave();
+													// FadeInOut(&currentScreen, GOTOSHOP);
+												// }
+											// }
+											// else
+											// {
+												// ready_to_click = 0;
+												// shop_first = false;
+												// StopAudio();
+												// FadeInOut(&currentScreen, GOTOSHOP);
+											// }
+										// }
 									}
 									else if(adventure_select)
 									{
@@ -900,17 +950,11 @@ int main(int argc, const char* argv[])
 													"This episode is not started it's development, please wait! ^_^", EmptyDialogCallback, NULL, NULL);
 												continue;
 											}
-											else if(EPISODEs>=4)
-											{
-												msgDialogOpen2(MSG_DIALOG_NORMAL | MSG_DIALOG_BTN_TYPE_OK | MSG_DIALOG_DISABLE_CANCEL_ON,
-													"This episode is W.I.P., however you can still access it. Beware of the crappy stuff going on. Thanks!", EmptyDialogCallback, NULL, NULL);
-											}
 											
 											GRID_ID = 999;
 											ready_to_click = 0;
 											ship_x = -80;
 											ship_y = -44;
-											if(paddata.BTN_R2) global_route = 1;
 											LEVEL = 0;
 											DIFFICULTY = DIFFICULTYs;
 											EPISODE = EPISODEs;
@@ -954,6 +998,34 @@ int main(int argc, const char* argv[])
 										}
 										if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE) adventure_select = 0;
 										if(paddata.BTN_TRIANGLE && !oldpad.BTN_TRIANGLE) currentScreen = ROUTE_SELECT;
+										
+										if(paddata.BTN_SQUARE && !oldpad.BTN_SQUARE)
+										{
+											adventure_select = 0;
+											level_select = 1;
+										}
+									}
+									else if(level_select)
+									{
+										// if(paddata.BTN_CROSS && !oldpad.BTN_CROSS)
+										// {
+											// master_mode = master_modeS;
+											// ready_to_click = 0;
+											// GRID_ID = 999;
+											// free_play = 1;
+											// fp_width = 20;
+											// fp_height = 20;
+											// fp_mines = 60;
+											// LEVEL_BKP = LEVEL;
+											// LoadFPLevel();
+											// can_move_xd = 1;
+										// }
+										
+										if(paddata.BTN_CIRCLE && !oldpad.BTN_CIRCLE)
+										{
+											adventure_select = 1;
+											level_select = 0;
+										}
 									}
 									else
 									{
@@ -1287,6 +1359,8 @@ int main(int argc, const char* argv[])
 								if(lvl_slct_bgm>0) PlayBGM(lvl_slct_bgm, 1);
 								play_map_bgm = true;
 								ready_to_click = 1;
+								
+								if(global_route==3) RSX_SetCRTEnabled(1);
 							}
 							
 							if(ship_a)
@@ -1554,8 +1628,8 @@ int main(int argc, const char* argv[])
 										default: smiley_face = 0; break;
 									}
 									
-									if(LEVEL==2 && EPISODE==4) smiley_face = 5;
-									if(LEVEL==3 && EPISODE==4) smiley_face = 4;
+									if(LEVEL==2 && EPISODE==4) smiley_face = 4;
+									if(LEVEL==3 && EPISODE==4) smiley_face = 7;
 									
 									ready_to_click = 0;
 									StopAudio();
@@ -1576,6 +1650,9 @@ int main(int argc, const char* argv[])
 						}
 						case GAME:
 						{
+							// PS Eye: read a camera frame and push it to RSX_CAMERA_TEX.
+							PS_Eye_Update();
+							
 							if(ten_arena > 0) ten_arena = 0;
 							
 							if(start_game_mus)
@@ -1590,8 +1667,14 @@ int main(int argc, const char* argv[])
 								local_mistakes = 0;
 								fp_lifes = 3;
 								
+								xii_phase2 = false;
+								
+								if(master_mode) fp_lifes=1;
+								
 								cursor_x = (876-40)/2;
 								cursor_y = (560-22)/2;
+								
+								if(global_route==3) RSX_SetCRTEnabled(0);
 								
 								if(enable_nan) RSX_SetCRTEnabled(1);
 							}
@@ -1696,6 +1779,9 @@ int main(int argc, const char* argv[])
 												SND_Pause(1);
 											}
 										}
+										
+										// testing lmao
+										//if(paddata.BTN_SELECT && paddata.BTN_R3) konami_test=true;
 										
 										// basic crap
 										if(paddata.BTN_CROSS && !oldpad.BTN_CROSS)
@@ -1867,8 +1953,10 @@ int main(int argc, const char* argv[])
 																{
 																	if(cursorX == x && cursorY == y)
 																	{
+																		timer_running = 0;
 																		nine_mines_intro = true;
 																		FIRST_CLICK = 1;
+																		continue;
 																	}
 																}
 															}
@@ -1956,7 +2044,7 @@ int main(int argc, const char* argv[])
 														desired_bgm = 19;
 													}
 												}
-												else if(!free_play && FIRST_CLICK && LEVEL != 66)
+												else if(!free_play && FIRST_CLICK && LEVEL != 66 && !xii_phase2)
 												{
 													if(enable_9)
 													{
@@ -2077,7 +2165,10 @@ int main(int argc, const char* argv[])
 											if(rand() % 2) boss10_list[i_10].vsp = -boss10_list[i_10].vsp;
 										}
 										
-										if(paddata.BTN_TRIANGLE && !oldpad.BTN_TRIANGLE && boss9_started && global_route!=3) WinCheck();
+										if(paddata.BTN_TRIANGLE && !oldpad.BTN_TRIANGLE && boss9_started)
+										{
+											if(free_play || global_route!=3) WinCheck();
+										}
 										
 										// movement
 										if(control_left && !old_control_left) MoveCursor(-1, 0);
@@ -2098,6 +2189,7 @@ int main(int argc, const char* argv[])
 							int max_lvl = episodes[EPISODE-1].level_count;
 							if(start_end)
 							{
+								DespawnProjectiles();
 								temp_tz = 0;
 								temp_t = 0;
 
@@ -2279,6 +2371,7 @@ int main(int argc, const char* argv[])
 						{
 							if(start_end)
 							{
+								DespawnProjectiles();
 								temp_tz = 0;
 								temp_t = 0;
 								
@@ -2564,7 +2657,7 @@ int main(int argc, const char* argv[])
 			}
 		}
 		
-		if(boss12_started && enable_12) boss12_update(disable_control);
+		if(boss12_started && enable_12) boss12_update(disable_control, local_mistakes);
 		
 		if(bossnan_started && !disable_control && enable_nan)
 		{
@@ -2587,6 +2680,7 @@ int main(int argc, const char* argv[])
 			{
 				can_move_xd = 0;
 				disable_control = 0;
+				screen_x = 100;
 				
 				bool enable_bosses = enable_9 || enable_10 || enable_11 || enable_12 || enable_nan;
 				
@@ -2657,6 +2751,13 @@ int main(int argc, const char* argv[])
 			}
 		}
 		
+		if(screen_x!=0)
+		{
+			screen_x = -screen_x;
+			if(screen_x>0) screen_x--;
+			else if(screen_x<0) screen_x++;
+		}
+		
 		waitFlip();
 		
 		RSX_BeginFrame();
@@ -2677,6 +2778,7 @@ int main(int argc, const char* argv[])
 	MP4Player_Close(&vid);
 	rsxFinish(RSX_GetContext(), 1);
 	StopAudio();
+	PS_Eye_Shutdown();
 	ioPadEnd();
 	sysUtilUnregisterCallback(SYSUTIL_EVENT_SLOT0);
     return 0;

@@ -7,14 +7,16 @@
 #include "spu_soundmodule.bin.h"
 
 char global_name[] = "PS3Sweeper+";
-char global_version[] = "v0.5 Dev-Build";
+char global_version[] = "v0.5";
 
 int current_bgm = 1;
 int desired_bgm = 1;
 
 int smiley_face = 0;
 
-bool doLogs = true;
+bool konami_test = false;
+
+bool doLogs = false;
 bool ultrakill_dlc = false;
 
 float ship_x = -40.0f;
@@ -82,12 +84,15 @@ bool ep6_unlock = false;
 bool ep7_unlock = false;
 
 bool use_custom_sweeper = false;
+bool use_camera_sweeper = false;
 int custom_sweeper_size = 0;
 
 float timer_seconds = 0;
 int timer_running = 0;
 float time_left = 0.0f;
 bool time_decrease = false;
+
+int screen_x = 0;
 
 int screen_w = 848 / 2;
 int screen_h = 512 / 2;
@@ -197,6 +202,8 @@ bool route_playstation_unlocked = false;
 
 void CollectAchievement(int ach)
 {
+	// currently unused cuz needs re-working
+	/*
 	bool achieve = *AchDb[ach].achievement;
 	if(!achieve)
 	{
@@ -205,6 +212,7 @@ void CollectAchievement(int ach)
 		show_ach = true;
 		PlaySFX(&sfx_trophy);
 	}
+	*/
 }
 
 float lerp(int x, int y, float amount)
@@ -257,6 +265,7 @@ void creditsInit()
 	credits[22] = "1tsLek";
 	credits[23] = "Creeper7925";
 	credits[24] = "D_Fund3781";
+	credits[25] = "UserAlex";
 }
 
 void SplashesInit()
@@ -267,7 +276,7 @@ void SplashesInit()
 	splashes_random[0] = "Unused Splash?";
 	splashes_random[splash_count++] = "Sweeping on PS3!";
 	splashes_random[splash_count++] = "This is NOT a port!";
-	splashes_random[splash_count++] = "Does not require PS Eye!";
+	splashes_random[splash_count++] = "Does not require PS Eye! It's optional!";
 	splashes_random[splash_count++] = "April fools joke was peak";
 	splashes_random[splash_count++] = "Contains touhouslop";
 	splashes_random[splash_count++] = "Why so serious?";
@@ -384,10 +393,10 @@ void SplashesInit()
 	splashes_random[splash_count++] = "Achievements? When trophies support? :T";
 	splashes_random[splash_count++] = "No tiny3d now. It's now better :)";
 	splashes_random[splash_count++] = "eh, 10 is easy. i shall do something about it.";
-	splashes_random[splash_count++] = "?";
+	splashes_random[splash_count++] = "Make Yourself as a captain with PS Eye support!";
 	splashes_random[splash_count++] = "yo i like that new logo animation";
-	// splashes_random[splash_count++] = "";
-	// splashes_random[splash_count++] = "";
+	splashes_random[splash_count++] = "Actual .mp4 (specific) video support.";
+	splashes_random[splash_count++] = "Now open-sourced!";
 	
 	FILE *za = fopen("/dev_hdd0/game/ACIDSTORE/USRDIR/EBOOT.BIN", "rb");
 	if(za!=NULL)
@@ -740,6 +749,13 @@ void init_bgm()
 	
 	bgm[405] = MUS_DIR "gb/bgm5.ogg";
 	
+	bgm[419] = MUS_DIR "gb/boss12_intro.ogg";
+	bgm_start[419] = 23283;
+	bgm_end[419] = 35027-10;
+	
+	bgm[420] = MUS_DIR "gb/boss12.ogg";
+	bgm[421] = MUS_DIR "gb/boss12_2.ogg";
+	
 	bgm[422] = MUS_DIR "gb/bossnan_intro.ogg";
 	bgm_start[422] = 36566;
 	bgm_end[422] = 54835;
@@ -754,6 +770,7 @@ void init_bgm()
 	//bgm[454] = MUS_DIR "gb/Ags4.ogg";
 	
 	bgm[455] = MUS_DIR "gb/Ags5.ogg";
+	bgm[464] = MUS_DIR "gb/Ags12.ogg";
 	
 	bgm[468] = MUS_DIR "gb/AgsNaN.ogg";
 	
@@ -763,6 +780,7 @@ void init_bgm()
 	//bgm[504] = MUS_DIR "gb/win4.ogg";
 	
 	bgm[505] = MUS_DIR "gb/win5.ogg";
+	bgm[512] = MUS_DIR "touhou/boss12_win.ogg";
 	
 	bgm[519] = MUS_DIR "gb/bossnan_win.ogg";
 	
@@ -772,6 +790,7 @@ void init_bgm()
 	//bgm[554] = MUS_DIR "gb/ls4.ogg";
 	
 	bgm[555] = MUS_DIR "gb/ls5.ogg";
+	bgm[564] = MUS_DIR "gb/ls12.ogg";
 	bgm[593] = MUS_DIR "gb/ending.ogg";
 	
 	// weird route lmao
@@ -1054,6 +1073,7 @@ void Load_PNG()
 	pngLoadFromBuffer(tiles_sheet2_bin, tiles_sheet2_bin_size, &spritesheet[21]);
 	pngLoadFromBuffer(logo_bin, logo_bin_size, &spritesheet[22]);
 	pngLoadFromBuffer(tiles_shit_bin, tiles_shit_bin_size, &spritesheet[23]);
+	pngLoadFromBuffer(test_bin, test_bin_size, &spritesheet[24]);
 }
 
 void ReplaceBGM(int music)

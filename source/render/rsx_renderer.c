@@ -65,6 +65,10 @@ extern const unsigned char basic_vp_vpo_size[];
 extern const unsigned char basic_fp_fpo[];
 extern const unsigned char basic_fp_fpo_size[];
 
+/* adventure_fp — ported from adventure_map.gdshader */
+extern const unsigned char adventure_fp_fpo[];
+extern const unsigned char adventure_fp_fpo_size[];
+
 static rsxVertexProgram *vertex_program = NULL;
 static rsxFragmentProgram *fragment_program = NULL;
 
@@ -73,6 +77,12 @@ static void *fragment_ucode = NULL;
 
 static u32 fragment_ucode_offset = 0;
 static u32 fragment_ucode_size = 0;
+
+/* adventure shader (second fragment program, same vertex program) */
+static rsxFragmentProgram *adv_fragment_program    = NULL;
+static void               *adv_fragment_ucode      = NULL;
+static u32                 adv_fragment_ucode_offset = 0;
+static u32                 adv_fragment_ucode_size   = 0;
 
 u16 screen_width;
 u16 screen_height;
@@ -83,7 +93,7 @@ static void *host_addr = NULL;
 #define RSX_WHITE_TEX   (RSX_MAX_TEXTURES - 1)   /* reserved id for untextured draws */
 #define RSX_PI          3.14159265f
 
-typedef struct { float layer; int seq; int tex; int count; RSX_Vertex v[6]; int blend; } QueuedDraw;
+typedef struct { float layer; int seq; int tex; int count; RSX_Vertex v[6]; int blend; int shader; } QueuedDraw;
 static QueuedDraw draw_q[MAX_SPRITES_PER_FRAME];
 static int   draw_order[MAX_SPRITES_PER_FRAME];
 static int   draw_n = 0;
@@ -91,6 +101,9 @@ static float cur_layer = 0.0f;
 
 static int cur_blend = 0; /* 0 = normal, 1 = invert */
 void RSX_SetBlendMode(int mode) { cur_blend = mode; }
+
+static int cur_shader = 0; /* RSX_SHADER_DEFAULT or RSX_SHADER_ADVENTURE */
+void RSX_SetShader(int shader_id) { cur_shader = shader_id; }
 
 static int   crt_enabled         = 0;
 static int   crt_ready           = 0;
@@ -387,7 +400,28 @@ int RSX_LoadShaders(void)
 
     rsxLoadVertexProgram(context, vertex_program, vertex_ucode);
     rsxLoadFragmentProgramLocation(context, fragment_program, fragment_ucode_offset, GCM_LOCATION_RSX);
-	
+
+    /* ---- adventure fragment shader ---- */
+    adv_fragment_program = (rsxFragmentProgram*)adventure_fp_fpo;
+    void *adv_embedded_ucode = NULL;
+    rsxFragmentProgramGetUCode(adv_fragment_program, &adv_embedded_ucode, &adv_fragment_ucode_size);
+    DebugLog("RSX: adventure fragment shader size: %u\n", adv_fragment_ucode_size);
+
+    adv_fragment_ucode = rsxMemalign(64, adv_fragment_ucode_size);
+    if (!adv_fragment_ucode)
+    {
+        DebugLog("RSX: adventure fragment shader allocation failed!\n");
+        return -1;
+    }
+    memcpy(adv_fragment_ucode, adv_embedded_ucode, adv_fragment_ucode_size);
+    if (rsxAddressToOffset(adv_fragment_ucode, &adv_fragment_ucode_offset) != 0)
+    {
+        DebugLog("RSX: adventure fragment shader offset failed!\n");
+        return -1;
+    }
+    DebugLog("RSX: adventure shader loaded!\n");
+    /* ----------------------------------- */
+
 	rsxProgramAttrib *attribs = rsxVertexProgramGetAttribs(vertex_program);
 	u16 count = rsxVertexProgramGetNumAttrib(vertex_program);
 	DebugLog("RSX: vertex attributes: %u\n", count);
@@ -579,6 +613,7 @@ void RSX_BeginFrame(void)
 	sorted_ok = 1;
 	draw_n = 0;
 	cur_blend = 0;
+	cur_shader = 0;
     volatile u32 *label = (volatile u32*)gcmGetLabelAddress(RSX_FENCE_LABEL);
     int tries = 0;
     while (fence_value > 1 && (s32)(*label - (fence_value - 1)) < 0 && ++tries < 10000) usleep(50);
@@ -634,7 +669,7 @@ static void RSX_EmitVerts(int texture_id, const RSX_Vertex *verts, int count)
 	
     QueuedDraw *d = &draw_q[draw_n];
     d->layer = cur_layer; d->seq = draw_n; d->tex = texture_id; d->count = count;
-	d->blend = cur_blend;
+	d->blend = cur_blend; d->shader = cur_shader;
 	
     if (gb_enabled)
     {
@@ -695,15 +730,16 @@ void RSX_FlushDraws(void)
     i = 0;
     while (i < draw_n)
     {
-        int tex = RSX_ResolveTex(draw_q[draw_order[i]].tex);
-		int blend = draw_q[draw_order[i]].blend;
+        int tex    = RSX_ResolveTex(draw_q[draw_order[i]].tex);
+		int blend  = draw_q[draw_order[i]].blend;
+		int shader = draw_q[draw_order[i]].shader;
         u32 first = vert_n;
         RSX_Vertex *run = sprite_vb + frame_idx * frame_verts + first;
 
         for (j = i; j < draw_n; j++)
         {
             QueuedDraw *d = &draw_q[draw_order[j]];
-            if (RSX_ResolveTex(d->tex) != tex || d->blend != blend) break;
+            if (RSX_ResolveTex(d->tex) != tex || d->blend != blend || d->shader != shader) break;
             if (vert_n + d->count > frame_verts) break;
             memcpy(sprite_vb + frame_idx * frame_verts + vert_n, d->v, sizeof(RSX_Vertex) * d->count);
             vert_n += d->count;
@@ -714,6 +750,23 @@ void RSX_FlushDraws(void)
         {
             u32 off = sprite_vb_offset + (u32)((u8*)run - (u8*)sprite_vb);
             u32 n = vert_n - first, start = 0;
+
+            /* Switch shader — load FP first, then VP.
+             * rsxInvalidateVertexCache flushes the program cache so RSX
+             * doesn't silently ignore a re-bind of the same VP pointer. */
+            if (shader == 1 && adv_fragment_program && adv_fragment_ucode)
+            {
+				//DebugLog("RSX: switching to adventure shader\n");
+                rsxLoadFragmentProgramLocation(context, adv_fragment_program,
+                    adv_fragment_ucode_offset, GCM_LOCATION_RSX);
+            }
+            else
+            {
+                rsxLoadFragmentProgramLocation(context, fragment_program,
+                    fragment_ucode_offset, GCM_LOCATION_RSX);
+            }
+            rsxInvalidateVertexCache(context);
+            rsxLoadVertexProgram(context, vertex_program, vertex_ucode);
 
             rsxBindVertexArrayAttrib(context, 0, 0, off + offsetof(RSX_Vertex, x), sizeof(RSX_Vertex), 4, GCM_VERTEX_DATA_TYPE_F32, GCM_LOCATION_RSX);
             rsxBindVertexArrayAttrib(context, 3, 0, off + offsetof(RSX_Vertex, r), sizeof(RSX_Vertex), 4, GCM_VERTEX_DATA_TYPE_F32, GCM_LOCATION_RSX);
@@ -1011,6 +1064,18 @@ int RSX_UpdateTexture(int id, const u32 *pixels, u16 width, u16 height)
         return RSX_LoadTexture(id, pixels, width, height);   /* first frame */
     RSX_WaitIdle();                                          /* GPU done with last frame */
     memcpy(tex->data, pixels, (size_t)width * height * sizeof(u32));
+    return 1;
+}
+
+int RSX_GetTextureRSXOffset(int id, u32 *out_offset)
+{
+    RSX_Texture *tex;
+    if (!out_offset) return 0;
+    *out_offset = 0;
+    if (id < 0 || id >= RSX_MAX_TEXTURES) return 0;
+    tex = &textures[id];
+    if (!tex->loaded || !tex->data) return 0;
+    *out_offset = tex->offset;
     return 1;
 }
 
